@@ -76,8 +76,8 @@ public class Brick {
 					LCD.drawString("move forwards", 0, 2);
 					//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 					LCD.refresh();
-					Motor.A.setPower(100);
-					Motor.B.setPower(100);
+					Motor.A.setSpeed(600);
+					Motor.B.setSpeed(600);
 					Motor.A.forward();
 					Motor.B.forward();
 					Thread.sleep (1000);
