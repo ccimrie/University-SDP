@@ -2,10 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.lejos.nxt.ldt.LEJOS_LIBRARY_CONTAINER/nxt"/>
-	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/nxt/classes.jar"/>
-	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/charting.jar"/>
-	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/jtools.jar"/>
-	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/pccomm.jar"/>
-	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/pctools.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/nxt/classes.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/charting.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/jtools.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pccomm.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pctools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
