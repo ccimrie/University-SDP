@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/nxt/classes.jar"/>
 	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/charting.jar"/>
 	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/jtools.jar"/>
 	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/pccomm.jar"/>
 	<classpathentry exported="true" kind="lib" path="/afs/inf.ed.ac.uk/user/s11/s1133718/leJOS_NXJ_0.9.1beta-3/lib/pc/pctools.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+=======
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/nxt/classes.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/charting.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/jtools.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pccomm.jar"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pctools.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+>>>>>>> a3f2605c52c0a317fb6f3579320a4abcb404a33b
 	<classpathentry kind="output" path="bin"/>
 </classpath>
