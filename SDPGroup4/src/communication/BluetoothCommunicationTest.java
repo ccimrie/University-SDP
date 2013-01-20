@@ -1,8 +1,8 @@
-package src.communication;
+package communication;
 
 import java.io.IOException;
 
-import src.communication.BluetoothCommunication;
+import communication.BluetoothCommunication;
 
 public class BluetoothCommunicationTest {
 
@@ -22,7 +22,7 @@ public class BluetoothCommunicationTest {
 	public static void main(String[] args) {
 		System.out.println("Bluetooth Working: ");// + testBTComm());
 	}
-
+//Test is broken, needs fixing!
 	public static boolean testBTComm() {
 		int correct = 0;
 		long start_time = System.currentTimeMillis();

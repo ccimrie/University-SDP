@@ -1,4 +1,4 @@
-package src.communication;
+package communication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,7 +76,16 @@ public class BluetoothCommunication {
 	 * @throws IOException
 	 *             when fail to send command to robot
 	 */
-	public void sendToRobot(byte[] command) throws IOException,
+	
+	
+	public void sendToRobot(int opcode) throws IOException {
+		byte [] command = {(byte)opcode,0,0,0};
+
+		out.write(command);
+		out.flush();
+	}	
+
+	/*public void sendToRobot(byte[] command) throws IOException,
 			IllegalArgumentException {
 		if (command.length != Constants.COMMAND_SIZE) {
 			throw new IllegalArgumentException("Command has wrong length "
@@ -85,7 +94,7 @@ public class BluetoothCommunication {
 
 		out.write(command);
 		out.flush();
-	}
+	} Commented out because I think there is a better way to do it.*/
 
 	/**
 	 * Opens a new Bluetooth connection and connects the input and output

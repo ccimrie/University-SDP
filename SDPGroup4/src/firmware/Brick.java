@@ -1,4 +1,4 @@
-package src.firmware;
+package firmware;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,9 +55,14 @@ public class Brick {
 				// get the next command from the inputstream
 				byte[] byteBuffer = new byte[4];
 				is.read(byteBuffer);
-
-				n = byteArrayToInt(byteBuffer);
-				int opcode = n; // ((n << 24) >> 24);
+				// We send 4 different numbers, use as options
+				int opcode = (int)byteBuffer[0];
+				int option1 = (int)byteBuffer[1];
+				int option2 = (int)byteBuffer[2];
+				int option3 = (int)byteBuffer[3];
+				
+				//n = byteArrayToInt(byteBuffer);
+				//int opcode = ((n << 24) >> 24);
 				//if it doesn't work try with the method byteArrayToInt
 				//that group 5 had and the hack above
 				

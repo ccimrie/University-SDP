@@ -1,4 +1,3 @@
-package src;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -17,7 +16,7 @@ import javax.swing.JPanel;
 
 import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
-import src.communication.BluetoothCommunication;
+import communication.BluetoothCommunication;
 
 public class ControlGUI extends JFrame {
 	private JFrame frame = new JFrame("Control Panel");
@@ -54,11 +53,11 @@ public class ControlGUI extends JFrame {
 
 		// Testing the communication
 		String tst = "";
-		//BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
-		//tst = inn.readLine();
-		
-		byte[] bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(tst)).array();
-		comms.sendToRobot(bytes);
+		BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
+		tst = inn.readLine();
+		int command = Integer.parseInt(tst);
+		//byte[] bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(tst)).array();
+		comms.sendToRobot(command);
 		System.out.println("tst");
 
 		// r.startCommunications();
