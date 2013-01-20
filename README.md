@@ -1,5 +1,12 @@
 Group 4 SDP
 =============
 
-Project initial readme. When some code is added we should put information how to run it,
-name of the robot, and other generic stuff.
+Team:
+Maithreyi Venkatesh
+Marija Pinkute
+Simona Petrova
+Mona Paun
+Jakov Smelkin
+Bachir Djelmami-Hani
+Alex Adams
+Nikolai Bogoychev
