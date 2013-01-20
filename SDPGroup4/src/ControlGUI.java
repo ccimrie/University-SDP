@@ -1,3 +1,5 @@
+package src;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,8 +8,7 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.io.*;
 
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 
 import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
+import src.communication.BluetoothCommunication;
 
 public class ControlGUI extends JFrame {
 	private JFrame frame = new JFrame("Control Panel");
@@ -31,27 +33,32 @@ public class ControlGUI extends JFrame {
 	// Communication variables
 	private static BluetoothCommunication comms;
 	private static lejos.pc.comm.NXTComm nxtComm;
+	
+	public static final String NXT_MAC_ADDRESS = "00:16:53:0A:07:1D";
+	public static final String NXT_NAME = "4s";
 	private static NXTInfo info = new NXTInfo(NXTCommFactory.BLUETOOTH, "NXT",
-			"00:16:53:08:DC:7F");
-
+			NXT_MAC_ADDRESS);
+	
 	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
 
 		// Sets up the gui
-		//ControlGUI gui = new ControlGUI();
-		//gui.Launch();
-		//gui.action();
+		ControlGUI gui = new ControlGUI();
+		gui.Launch();
+		gui.action();
 
 		// Setting up the communication
-		//comms = new BluetoothCommunication(nxtComm, info);
-		//comms.openConnection();
+		comms = new BluetoothCommunication(NXT_NAME, NXT_MAC_ADDRESS);
+		comms.openBluetoothConnection();
 
 		// Testing the communication
-		//String tst = "";
+		String tst = "";
 		//BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
 		//tst = inn.readLine();
-		//comms.sendToRobot(Integer.parseInt(tst));
+		
+		byte[] bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(tst)).array();
+		comms.sendToRobot(bytes);
 		System.out.println("tst");
 
 		// r.startCommunications();

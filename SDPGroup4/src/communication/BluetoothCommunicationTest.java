@@ -1,7 +1,8 @@
-package communication;
-
+package src.communication;
 
 import java.io.IOException;
+
+import src.communication.BluetoothCommunication;
 
 public class BluetoothCommunicationTest {
 
