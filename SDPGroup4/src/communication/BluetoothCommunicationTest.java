@@ -19,7 +19,7 @@ public class BluetoothCommunicationTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("Bluetooth Working: " + testBTComm());
+		System.out.println("Bluetooth Working: ");// + testBTComm());
 	}
 
 	public static boolean testBTComm() {

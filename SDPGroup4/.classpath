@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.lejos.nxt.ldt.LEJOS_LIBRARY_CONTAINER/nxt"/>
 	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/nxt/classes.jar"/>
 	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/charting.jar"/>
 	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/jtools.jar"/>
 	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pccomm.jar"/>
 	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s10/s1037059/leJOS_NXJ_0.9.1beta-3/lib/pc/pctools.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
