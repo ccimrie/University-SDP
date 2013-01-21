@@ -31,34 +31,37 @@ public class ControlGUI extends JFrame {
 
 	// Communication variables
 	private static BluetoothCommunication comms;
-	private static lejos.pc.comm.NXTComm nxtComm;
 	
 	public static final String NXT_MAC_ADDRESS = "00:16:53:0A:07:1D";
 	public static final String NXT_NAME = "4s";
-	private static NXTInfo info = new NXTInfo(NXTCommFactory.BLUETOOTH, "NXT",
-			NXT_MAC_ADDRESS);
+
 	
 	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
 
 		// Sets up the gui
-		ControlGUI gui = new ControlGUI();
-		gui.Launch();
-		gui.action();
+		//ControlGUI gui = new ControlGUI();
+		//gui.Launch();
+		//gui.action();
 
 		// Setting up the communication
 		comms = new BluetoothCommunication(NXT_NAME, NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
 		// Testing the communication
-		String tst = "";
-		BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
-		tst = inn.readLine();
-		int command = Integer.parseInt(tst);
+		//String tst = "";
+		//BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
+		//tst = inn.readLine();
+		//int command = Integer.parseInt(tst);
 		//byte[] bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(tst)).array();
+		while (!comms.isRobotReady()){};
+		System.out.println("Robot ready!");
+		int [] command = new int [] {66,0,0,66};
 		comms.sendToRobot(command);
-		System.out.println("tst");
+		int[] test = new int[4];
+		test = comms.receiveFromRobot();
+		System.out.println(test.toString());
 
 		// r.startCommunications();
 		// r.setConnected(false);
