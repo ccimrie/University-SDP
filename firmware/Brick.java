@@ -1,4 +1,3 @@
-//package firmware;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,21 +18,17 @@ public class Brick {
 
 	// Command decoding. Most are not implemented yet
 
-	private final static int DO_NOTHING = 0X00;
-	private final static int FORWARDS = 0X01;
-	private final static int BACKWARDS=0x02;
-	private final static int STOP = 0X03;
-	private final static int KICK = 0X04;
-	private final static int QUIT = 0X05;
-	private final static int FORWARDS_TRAVEL=0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
-	private final static int TRAVEL_ARC=0X08;
-	private final static int ACCELERATE=0X09;
-
-
-	private final static int ROTATE = 0X0A; 
-	private final static int EACH_WHEEL_SPEED=0X0B;
-	private final static int STEER =0X0C;
+	private final static int DO_NOTHING = 0;
+	private final static int FORWARDS = 1;
+	private final static int BACKWARDS=2;
+	private final static int STOP = 3;
+	private final static int KICK = 4;
+	private final static int QUIT = 5;
+	private final static int FORWARDS_TRAVEL = 6;
+	private final static int TRAVEL_BACKWARDS_SLIGHRLY = 7;
+	private final static int TRAVEL_ARC = 8;
+	private final static int ACCELERATE = 9;
+	private final static int TEST = 66;
 
 	public static void main(String[] args) throws Exception {
 		while (true) {
@@ -47,6 +42,9 @@ public class Brick {
 			os = connection.openOutputStream();
 			LCD.clear();
 			LCD.drawString("Connected!", 0, 2);
+			byte [] robotready = {0,0,0,0};
+			os.write(robotready);
+			os.flush();
 
 			// begin reading commands
 			int n = DO_NOTHING;
@@ -69,6 +67,15 @@ public class Brick {
 				if (opcode > 0)
 					LCD.drawString("opcode = " + opcode, 0, 2);
 				switch (opcode) {
+				
+				case TEST:
+					boolean receivetrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
+					String tmp = "TEST! " + receivetrue;
+					LCD.drawString(tmp, 0, 2);
+					byte [] testres = new byte [] {66,77,88,99};
+					os.write(testres);
+					os.flush();
+					break;
 
 				case FORWARDS:
 					int speedForward = n>>8;
@@ -80,7 +87,7 @@ public class Brick {
 					Motor.B.setSpeed(600);
 					Motor.A.forward();
 					Motor.B.forward();
-					Thread.sleep (1000);
+					Thread.sleep (2000);
 					Motor.A.stop();
 					Motor.B.stop();
 					break;
