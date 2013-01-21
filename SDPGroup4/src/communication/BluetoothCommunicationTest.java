@@ -1,7 +1,7 @@
 package communication;
 
 import java.io.IOException;
-
+import java.util.Arrays;
 import communication.BluetoothCommunication;
 
 public class BluetoothCommunicationTest {
@@ -18,12 +18,13 @@ public class BluetoothCommunicationTest {
 	 * wait for an echo
 	 * 
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
-		System.out.println("Bluetooth Working: ");// + testBTComm());
+	public static void main(String[] args) throws IOException {
+		System.out.println("Bluetooth Working: " + testBTComm());
 	}
-//Test is broken, needs fixing!
-	public static boolean testBTComm() {
+
+	public static boolean testBTComm() throws IOException {
 		int correct = 0;
 		long start_time = System.currentTimeMillis();
 		long end_time = start_time;
@@ -43,28 +44,26 @@ public class BluetoothCommunicationTest {
 
 		if (comms.isRobotReady()) {
 			start_time = System.currentTimeMillis();
-			byte b = 0x00;
+			int [] tststr = new int [] {66,0,0,66};
+			int [] ret_expect = new int [] {66,77,88,99};
 			for (int i = 0; i < test_no; i++) {
-				// comms.sendToRobot(b); // sendToRobot(byte) is deprecated
+				comms.sendToRobot(tststr);
 				System.out.println("Wait Data from Robot");
-				int receive_info = 0;
+				int [] receive_info = new int [4];
 				try {
-					receive_info = comms.receiveByteFromRobot();
+					receive_info = comms.receiveFromRobot();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				int sent_info = 0x000000FF & b;
-				if (receive_info != sent_info) {
-					System.out.println("Error at " + sent_info + ", "
-							+ receive_info);
+				if (!Arrays.equals(receive_info,ret_expect)) {
+					System.out.println("ERROR! " + receive_info[0] + " " + receive_info[1] + " " + receive_info[2] + " " + receive_info[3]);
 				} else {
 					correct++;
 				}
 
 				end_time = System.currentTimeMillis();
 				System.out.println("Time: " + (end_time - start_time) + " ms");
-				b++;
 			}
 		}
 		System.out.println("Result : " + correct + "/" + test_no);

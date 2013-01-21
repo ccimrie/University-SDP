@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 import lejos.pc.comm.NXTComm;
 import lejos.pc.comm.NXTCommException;
 import lejos.pc.comm.NXTCommFactory;
@@ -14,9 +13,11 @@ import lejos.pc.comm.NXTInfo;
  * 
  * @author Sarun Gulyanon
  * @author Richard Kenyon
+ * @author Nikolay Bogoychev
  */
 public class BluetoothCommunication {
 
+	public static final int [] ROBOT_READY = {0,0,0,0};
 	private InputStream in;
 	private OutputStream out;
 	private NXTComm nxtComm;
@@ -54,8 +55,11 @@ public class BluetoothCommunication {
 	 * @throws IOException
 	 *             when fail to receive a byte from robot
 	 */
-	public int receiveByteFromRobot() throws IOException {
-		return in.read();
+	public int[] receiveFromRobot() throws IOException {
+		byte [] res = new byte[4];
+		in.read(res);
+		int [] ret = {(int)(res[0]),(int)(res[1]),(int)(res[2]),(int)(res[3])};
+		return ret;
 	}
 
 	/**
@@ -67,34 +71,23 @@ public class BluetoothCommunication {
 	}
 
 	/**
-	 * Send fixed-sized byte command to robot. Array of bytes consist of opcode
-	 * and its parameter
+	 * Send 4 byte commands to the robot.
 	 * 
-	 * @param command
-	 *            - opcode concatenate to parameter
-	 * 
+	 * @param comm
+	 *            - int [] with 4 elements, first element is the opcode
+	 * 				the rest are options that can be passed.
 	 * @throws IOException
 	 *             when fail to send command to robot
 	 */
 	
 	
-	public void sendToRobot(int opcode) throws IOException {
-		byte [] command = {(byte)opcode,0,0,0};
+	public void sendToRobot(int [] comm) throws IOException {
+		
+		byte [] command = {(byte)comm[0],(byte)comm[1],(byte)comm[2],(byte)comm[3]};
 
 		out.write(command);
 		out.flush();
 	}	
-
-	/*public void sendToRobot(byte[] command) throws IOException,
-			IllegalArgumentException {
-		if (command.length != Constants.COMMAND_SIZE) {
-			throw new IllegalArgumentException("Command has wrong length "
-					+ "(Expected " + Constants.COMMAND_SIZE + " byte command)");
-		}
-
-		out.write(command);
-		out.flush();
-	} Commented out because I think there is a better way to do it.*/
 
 	/**
 	 * Opens a new Bluetooth connection and connects the input and output
@@ -116,15 +109,26 @@ public class BluetoothCommunication {
 			nxtComm.open(nxtInfo);
 			in = nxtComm.getInputStream();
 			out = nxtComm.getOutputStream();
-
-			while ((receiveByteFromRobot()) != Constants.ROBOT_READY) {
-				; // wait for ready signal
+			
+			while (true) {
+				int [] res = receiveFromRobot();
+				boolean equals = true;
+				for (int i= 0; i<4; i++){ // wait for ready signal
+					if (res[i] != ROBOT_READY[i]){
+						equals = false;
+						break;
+					}
+				}if (equals == true){
+					break;
+				}else{
+					Thread.sleep(10); //Prevent 100% cpuusage
+				}
 			}
 
 			isRobotReady = true;
 			System.out.println("Robot is ready!");
 			isConnected = true;
-		} catch (NXTCommException e) {
+		} catch (NXTCommException | InterruptedException e) {
 			throw new IOException("Failed to connect " + e.toString());
 		}
 	}
