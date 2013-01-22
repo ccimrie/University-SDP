@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry exported="true" kind="lib" path="libs/bcel.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/bluecove-gpl.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/bluecove.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/charting.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-cli.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jcommon.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jfreechart.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jtools.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/pccomm.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/pctools.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/v4l4j.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
