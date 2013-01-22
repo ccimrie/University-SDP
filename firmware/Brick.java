@@ -1,6 +1,9 @@
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import lejos.nxt.I2CPort;
+import lejos.nxt.I2CSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
@@ -28,9 +31,12 @@ public class Brick {
 	private final static int TRAVEL_BACKWARDS_SLIGHRLY = 7;
 	private final static int TRAVEL_ARC = 8;
 	private final static int ACCELERATE = 9;
+	private final static int SIDEWAYS=10;
 	private final static int TEST = 66;
 
 	public static void main(String[] args) throws Exception {
+		//SensorPort.S1.i2cEnable(1);
+		Mux chip = new Mux(SensorPort.S1);
 		while (true) {
 
 			// wait for a connection and open streams
@@ -91,6 +97,17 @@ public class Brick {
 					Motor.A.stop();
 					Motor.B.stop();
 					break;
+					
+				case SIDEWAYS:
+					LCD.clear();
+					LCD.drawString("Sideways", 0, 2);
+					LCD.refresh();
+					chip.sidemotor1(1,127);
+					chip.sidemotor2(1,127);
+					Thread.sleep(2000);
+					chip.sidemotor1(0,0);
+					chip.sidemotor2(0, 0);
+					break;
 
 				/*case FORWARDS_TRAVEL:
 					int speedForwards = n>>8;
@@ -137,14 +154,5 @@ public class Brick {
 			LCD.clear();
 			break;
 		}		
-	}
-	// Code for decoding the byte array, taken from stackoverflow
-	// http://stackoverflow.com/questions/5399798/byte-array-and-int-conversion-in-java
-	public static int byteArrayToInt(byte[] b) 
-	{
-	    return  (b[3] & 0xFF) |
-	            (b[2] & 0xFF) << 8 |
-	            (b[1] & 0xFF) << 16 |
-	            (b[0] & 0xFF) << 24;
 	}
 }
