@@ -121,7 +121,7 @@ public class BluetoothCommunication {
 						break;
 					}
 				}
-				if (equals == true) {
+				if (equals) {
 					break;
 				} else {
 					Thread.sleep(10); // Prevent 100% cpuusage
