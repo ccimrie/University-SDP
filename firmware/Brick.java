@@ -121,6 +121,16 @@ public class Brick {
 					chip.sm1stop();
 					chip.sm2stop();
 					break;
+				
+				case KICK:
+					 LCD.clear();
+					 LCD.drawString("Kicking", 0, 2);
+					 LCD.refresh();
+					 Motor.C.setSpeed(900);
+					 Motor.C.rotateTo(60);
+					 Motor.C.setSpeed(250);
+					 Motor.C.rotateTo(0);
+					 break;
 					
 				case QUIT: // close connection
 					// Sound.twoBeeps();
