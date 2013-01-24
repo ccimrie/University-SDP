@@ -1,6 +1,7 @@
 package computer;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -9,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.io.*;
 
 import javax.swing.JButton;
@@ -22,15 +25,30 @@ import lejos.pc.comm.NXTInfo;
 import communication.BluetoothCommunication;
 
 public class ControlGUI extends JFrame {
+	Timer timer;
+	int seconds =10;
+	
 	private JFrame frame = new JFrame("Control Panel");
 
 	private JPanel startPnl = new JPanel();
 	private JPanel kickPnl = new JPanel();
 	private JPanel stopPnl = new JPanel();
+	private JPanel moveF5sec = new JPanel();
+	private JPanel moveB5sec = new JPanel();
+	private JPanel moveL5sec = new JPanel();
+	private JPanel moveR5sec = new JPanel();
+	private JPanel quitpanel = new JPanel();
+
+	
 
 	private JButton start = new JButton("Start");
 	private JButton kick = new JButton("Kick");
 	private JButton stop = new JButton("Stop");
+	private JButton forward = new JButton("Forward");
+	private JButton backward = new JButton("Backward");
+	private JButton leftside = new JButton("Leftside");
+	private JButton rightside = new JButton("Rightside");
+	private JButton quit = new JButton("Quit");
 
 	// Communication variables
 	private static BluetoothCommunication comms;
@@ -74,10 +92,21 @@ public class ControlGUI extends JFrame {
 		startPnl.add(start);
 		kickPnl.add(kick);
 		stopPnl.add(stop);
-		frame.getContentPane().setLayout(new BorderLayout());
-		frame.getContentPane().add(startPnl, BorderLayout.WEST);
-		frame.getContentPane().add(kickPnl, BorderLayout.CENTER);
-		frame.getContentPane().add(stop, BorderLayout.EAST);
+		moveF5sec.add(forward);
+		moveB5sec.add(backward); 
+		moveL5sec.add(leftside);
+		moveR5sec.add(rightside); 
+		quitpanel.add(quit);
+		frame.getContentPane().setLayout(new FlowLayout());
+		frame.getContentPane().add(startPnl);
+		frame.getContentPane().add(kickPnl);
+		frame.getContentPane().add(stop);
+		frame.getContentPane().add(moveF5sec);
+		frame.getContentPane().add(moveB5sec);
+		frame.getContentPane().add(moveL5sec);
+		frame.getContentPane().add(moveR5sec);
+		frame.getContentPane().add(quitpanel);
+		
 		frame.addWindowListener(new ListenCloseWdw());
 
 	}
@@ -86,23 +115,20 @@ public class ControlGUI extends JFrame {
 		start.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
+				
+				int[] command = {1,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				//change timer to automatic stop when detecting the wall
+				// when vision will be ready
+				timer = new Timer();
 				System.out.println("Start...");
-				// r.moveForward(60);
-				// r.each_wheel_speed(-900, -750);
-				// r.accelerateRobot(100);
-				// try {
-				// Thread.sleep(2*1000);
-				// } catch (InterruptedException e1) {
-				// // TODO Auto-generated catch block
-				// e1.printStackTrace();
-				// }
-				// r.moveBackward(20);
-
-				// r.each_wheel_speed(50, 100);
-				// r.moveForwardByDistance(-60, 40);
-				// r.accelerateRobot(50);
-
-				// r.rotateRobot(90);
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), 10 * 1000);
 
 			}
 
@@ -110,16 +136,115 @@ public class ControlGUI extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				int[] command = {4,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
 				System.out.println("Kick...");
-				// r.kick();
 
 			}
 		});
 
+		forward.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int[] command = {1,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("starting moving forward...");
+				timer = new Timer();
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), seconds * 1000);
+				
+				
+			}
+		});
+		
+		backward.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {2,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Moving backwards...");
+				timer = new Timer();
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), seconds * 1000);
+				
+				
+			}
+		});
+		
+		leftside.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {10, 0, 0, 0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Moving leftside...");
+				
+				timer = new Timer();
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), seconds * 1000);
+			}
+		});
+		
+		rightside.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {11, 0, 0, 0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Moving rightside...");
+				
+				timer = new Timer();
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), seconds * 1000);
+			}
+		});
+		
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int[] command = {3,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
 				System.out.println("Stop...");
-				// r.stop();
+				
+			}
+		});
+		
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {5,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Quit...");
+				System.exit(0);
 			}
 		});
 
@@ -135,6 +260,25 @@ public class ControlGUI extends JFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
+	}
+	class Stopping extends TimerTask{
+		
+
+		@Override
+		public void run() {
+			int[] command = {3,0,0,0};
+			try {
+				comms.sendToRobot(command);
+			} catch (IOException e1) {
+				System.out.println("Could not send command");
+				e1.printStackTrace();
+			}
+			System.out.println("Stop...");
+			//r.stop;
+			timer.cancel();
+		}
+		
+		
 	}
 
 }
