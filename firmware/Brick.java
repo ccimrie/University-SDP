@@ -18,14 +18,18 @@ public class Brick {
 	private static OutputStream os;
 	private static volatile boolean blocking = false;
 	private static volatile boolean kicking = false;
-	private static int mainmotor1 = 0;
-	private static int mainmotor2 = 0;
+	//Variable to keep track of moving motors. 0 - not moving
+	//1 forwards, 2 backwards
+	private static int ismovingmm1 = 0;
+	private static int ismovingmm2 = 0;
 
 	// Command decoding. Most are not implemented yet
 
 	private final static int DO_NOTHING = 0;
 	private final static int FORWARDS = 1;
 	private final static int BACKWARDS=2;
+	private final static int LEFT=10;
+	private final static int RIGHT=11;
 	private final static int STOP = 3;
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
@@ -33,12 +37,10 @@ public class Brick {
 	private final static int TRAVEL_BACKWARDS_SLIGHRLY = 7;
 	private final static int TRAVEL_ARC = 8;
 	private final static int ACCELERATE = 9;
-	private final static int SIDEWAYS=10;
 	private final static int TEST = 66;
 
 	public static void main(String[] args) throws Exception {
-		//SensorPort.S1.i2cEnable(1);
-		Mux chip = new Mux(SensorPort.S1);
+		Mux chip = new Mux(SensorPort.S1); //i2c motor board
 		while (true) {
 
 			// wait for a connection and open streams
@@ -55,22 +57,18 @@ public class Brick {
 			os.flush();
 
 			// begin reading commands
-			int n = DO_NOTHING;
+			int opcode = DO_NOTHING;
+			int option1, option2, option3;
 
-			while (n != QUIT) {
+			while (opcode != QUIT) {
 				// get the next command from the inputstream
 				byte[] byteBuffer = new byte[4];
 				is.read(byteBuffer);
 				// We send 4 different numbers, use as options
-				int opcode = (int)byteBuffer[0];
-				int option1 = (int)byteBuffer[1];
-				int option2 = (int)byteBuffer[2];
-				int option3 = (int)byteBuffer[3];
-				
-				//n = byteArrayToInt(byteBuffer);
-				//int opcode = ((n << 24) >> 24);
-				//if it doesn't work try with the method byteArrayToInt
-				//that group 5 had and the hack above
+				opcode = (int)byteBuffer[0];
+				option1 = (int)byteBuffer[1];
+				option2 = (int)byteBuffer[2];
+				option3 = (int)byteBuffer[3];
 				
 				if (opcode > 0)
 					LCD.drawString("opcode = " + opcode, 0, 2);
@@ -86,59 +84,43 @@ public class Brick {
 					break;
 
 				case FORWARDS:
-					int speedForward = n>>8;
 					LCD.clear();
-					LCD.drawString("move forwards", 0, 2);
-					//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
+					LCD.drawString("Forward!", 0, 2);
 					LCD.refresh();
-					Motor.A.setSpeed(600);
-					Motor.B.setSpeed(600);
-					Motor.A.forward();
-					Motor.B.forward();
-					Thread.sleep (2000);
-					Motor.A.stop();
-					Motor.B.stop();
+					mainmotor1(FORWARDS, 600);
+					mainmotor2(FORWARDS, 600);
 					break;
 					
-				case SIDEWAYS:
+				case BACKWARDS:
 					LCD.clear();
-					LCD.drawString("Sideways", 0, 2);
+					LCD.drawString("Backward!", 0, 2);
+					LCD.refresh();
+					mainmotor1(BACKWARDS, 600);
+					mainmotor2(BACKWARDS, 600);
+					break;
+					
+				case LEFT:
+					LCD.clear();
+					LCD.drawString("Left!", 0, 2);
 					LCD.refresh();
 					chip.sidemotor1(1,127);
 					chip.sidemotor2(1,127);
-					Thread.sleep(2000);
-					chip.sidemotor1(0,0);
-					chip.sidemotor2(0, 0);
+					break;
+					
+				case RIGHT:
+					LCD.clear();
+					LCD.drawString("Right!", 0, 2);
+					LCD.refresh();
+					chip.sidemotor1(2,127);
+					chip.sidemotor2(2,127);
 					break;
 
-				/*case FORWARDS_TRAVEL:
-					int speedForwards = n>>8;
-					int travelDistance= n >>8;
-					LCD.clear();
-					LCD.drawString("move forwards whith speed", 0, 2);
-					//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
-					LCD.refresh();
-					pilot.setTravelSpeed(speedForwards);
-					pilot.travel(travelDistance);
-					break;*/
-
-				/*case TRAVEL_BACKWARDS_SLIGHRLY:	
-					LCD.clear();
-					LCD.drawString("travel back a little bit", 0, 2);
-					//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
-					LCD.refresh();
-					pilot.travel(-10);
-					break;*/
-
-				/*case BACKWARDS:
-					int speedBackward = n>>8 ;
-					LCD.clear();
-					LCD.drawString("move backwards", 0, 2);
-					//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
-					LCD.refresh();
-					pilot.backward();
-					pilot.setTravelSpeed(speedBackward);
-					break;*/
+				case STOP:
+					stopmainmotor1();
+					stopmainmotor2();
+					chip.sm1stop();
+					chip.sm2stop();
+					break;
 					
 				case QUIT: // close connection
 					// Sound.twoBeeps();
@@ -157,31 +139,44 @@ public class Brick {
 			break;
 		}		
 	}
-	
-	public void mainmotor1(int direction, int speed){
+	//Methods to activate each of the main motors individually
+	public static void mainmotor1(int direction, int speed){
 		Motor.A.setSpeed(speed);
 		switch (direction){
 		case FORWARDS:
 			Motor.A.forward();
-			mainmotor1 = 1;
+			ismovingmm1 = 1;
 			break;
 		case BACKWARDS:
 			Motor.A.backward();
-			mainmotor1 = 2;
+			ismovingmm1 = 2;
 			break;
 		}
 	}
-	public void mainmotor2(int direction, int speed){
+	public static void mainmotor2(int direction, int speed){
 		Motor.B.setSpeed(speed);
 		switch (direction){
 		case FORWARDS:
 			Motor.B.forward();
-			mainmotor2 = 1;
+			ismovingmm2 = 1;
 			break;
 		case BACKWARDS:
 			Motor.B.backward();
-			mainmotor2 = 2;
+			ismovingmm2 = 1;
 			break;
 		} 
+	}
+	//Methods for stopping each of the main motors individually
+	public static void stopmainmotor1(){
+		if (ismovingmm1 != 0) {
+			Motor.A.stop();
+			ismovingmm1 = 0;
+		}
+	}
+	public static void stopmainmotor2(){
+		if (ismovingmm2 != 0){
+			Motor.B.stop();
+			ismovingmm2 = 0;
+		}
 	}
 }
