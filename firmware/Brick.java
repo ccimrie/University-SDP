@@ -18,6 +18,8 @@ public class Brick {
 	private static OutputStream os;
 	private static volatile boolean blocking = false;
 	private static volatile boolean kicking = false;
+	private static int mainmotor1 = 0;
+	private static int mainmotor2 = 0;
 
 	// Command decoding. Most are not implemented yet
 
@@ -154,5 +156,32 @@ public class Brick {
 			LCD.clear();
 			break;
 		}		
+	}
+	
+	public void mainmotor1(int direction, int speed){
+		Motor.A.setSpeed(speed);
+		switch (direction){
+		case FORWARDS:
+			Motor.A.forward();
+			mainmotor1 = 1;
+			break;
+		case BACKWARDS:
+			Motor.A.backward();
+			mainmotor1 = 2;
+			break;
+		}
+	}
+	public void mainmotor2(int direction, int speed){
+		Motor.B.setSpeed(speed);
+		switch (direction){
+		case FORWARDS:
+			Motor.B.forward();
+			mainmotor2 = 1;
+			break;
+		case BACKWARDS:
+			Motor.B.backward();
+			mainmotor2 = 2;
+			break;
+		} 
 	}
 }

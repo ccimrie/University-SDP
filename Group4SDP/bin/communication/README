@@ -14,6 +14,9 @@ After connection is established you can send commands in the form of integer arr
 The first element of that array is going to be an opcode readed by the brick, and the rest 3 are
 reserved for options, in case we need them (For example to define speed, direction and so on...)
 
+IMPORTANT: EACH INTEGER MUST BE IN THE RANGE FROM 0 TO 127. THIS IS BECAUSE THEY ARE CONVERTED TO
+BYTES AND 1 BYTE CAN HOLD A DECIMAL VALUE UP TO 127.
+
 Sending commands: Sending commands is done through the Bluetooth communication
 class's method sendToRobot(int []) it takes an array of int, with size 4. The
 first integer in the array is the opcode (reference the Brick.java file to see what
