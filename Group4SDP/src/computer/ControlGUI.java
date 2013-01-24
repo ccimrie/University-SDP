@@ -42,7 +42,7 @@ public class ControlGUI extends JFrame {
 	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
-		   new VideoFeed();
+		  // new VideoFeed();
 		// Sets up the gui
 		ControlGUI gui = new ControlGUI();
 		gui.Launch();
