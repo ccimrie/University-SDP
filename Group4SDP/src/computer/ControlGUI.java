@@ -26,7 +26,7 @@ import communication.BluetoothCommunication;
 
 public class ControlGUI extends JFrame {
 	Timer timer;
-	int seconds =5;
+	int seconds =10;
 	
 	private JFrame frame = new JFrame("Control Panel");
 
@@ -37,6 +37,7 @@ public class ControlGUI extends JFrame {
 	private JPanel moveB5sec = new JPanel();
 	private JPanel moveL5sec = new JPanel();
 	private JPanel moveR5sec = new JPanel();
+	private JPanel quitpanel = new JPanel();
 
 	
 
@@ -47,6 +48,7 @@ public class ControlGUI extends JFrame {
 	private JButton backward = new JButton("Backward");
 	private JButton leftside = new JButton("Leftside");
 	private JButton rightside = new JButton("Rightside");
+	private JButton quit = new JButton("Quit");
 
 	// Communication variables
 	private static BluetoothCommunication comms;
@@ -58,7 +60,7 @@ public class ControlGUI extends JFrame {
 	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
-		   new VideoFeed();
+		  // new VideoFeed();
 		// Sets up the gui
 		ControlGUI gui = new ControlGUI();
 		gui.Launch();
@@ -94,6 +96,7 @@ public class ControlGUI extends JFrame {
 		moveB5sec.add(backward); 
 		moveL5sec.add(leftside);
 		moveR5sec.add(rightside); 
+		quitpanel.add(quit);
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.getContentPane().add(startPnl);
 		frame.getContentPane().add(kickPnl);
@@ -102,6 +105,7 @@ public class ControlGUI extends JFrame {
 		frame.getContentPane().add(moveB5sec);
 		frame.getContentPane().add(moveL5sec);
 		frame.getContentPane().add(moveR5sec);
+		frame.getContentPane().add(quitpanel);
 		
 		frame.addWindowListener(new ListenCloseWdw());
 
@@ -112,7 +116,7 @@ public class ControlGUI extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				
-				int[] command = {1};
+				int[] command = {1,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -133,7 +137,7 @@ public class ControlGUI extends JFrame {
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				int[] command = {4};
+				int[] command = {4,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -148,7 +152,7 @@ public class ControlGUI extends JFrame {
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				int[] command = {1};
+				int[] command = {1,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -166,7 +170,7 @@ public class ControlGUI extends JFrame {
 		
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {2};
+				int[] command = {2,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -184,7 +188,7 @@ public class ControlGUI extends JFrame {
 		
 		leftside.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {10};
+				int[] command = {10, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -201,7 +205,7 @@ public class ControlGUI extends JFrame {
 		
 		rightside.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {11};
+				int[] command = {11, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -227,6 +231,20 @@ public class ControlGUI extends JFrame {
 				}
 				System.out.println("Stop...");
 				
+			}
+		});
+		
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {5,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Quit...");
+				System.exit(0);
 			}
 		});
 
