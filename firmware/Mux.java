@@ -3,8 +3,9 @@ import lejos.nxt.I2CSensor;
 import lejos.nxt.Motor;
 
 public class Mux extends I2CSensor{
-	int ismovingsm1 = 0;
-	int ismovingsm2 = 0;
+	private int ismovingsm1 = 0;
+	private int ismovingsm2 = 0;
+	private final int stopvalue = 10; //Stop value in miliseconds
 	public Mux(I2CPort port){
 		super(port);
 		setAddress(0xB4);
@@ -16,15 +17,15 @@ public class Mux extends I2CSensor{
 	//Direction: 0 - float, 1 = Forward, 2 - Backwards 3 break
 	
 	public void sidemotor1(int direction, int speed){
-		sendData((byte)0x05,(byte)direction); 
-		sendData((byte)0x06,(byte)speed);
+		sendData((byte)0x01,(byte)direction); 
+		sendData((byte)0x02,(byte)speed);
 		ismovingsm1 = direction;
 	}
 	
 	public void sidemotor2(int direction, int speed){
-		sendData((byte)0x07,(byte)direction); 
-		sendData((byte)0x08,(byte)speed);
-		ismovingsm1 = direction;
+		sendData((byte)0x03,(byte)direction); 
+		sendData((byte)0x04,(byte)speed);
+		ismovingsm2 = direction;
 	}
 	
 	//Since breaking is not allowed, what we do instead is run the motor
@@ -38,18 +39,16 @@ public class Mux extends I2CSensor{
 			break;
 		case 1:
 			//Motor is moving forward, stop it
-			sidemotor1(0,0);
 			sidemotor1(2,127);
-			Thread.sleep(1);
+			Thread.sleep(stopvalue);
 			sidemotor1(0,0);
 			ismovingsm1 = 0;
 			break;
 		case 2:
 			//Motor is moving backwards, stop it
-			sidemotor1(0,0);
 			sidemotor1(1,127);
-			Thread.sleep(1);
-			sidemotor1(2,0);
+			Thread.sleep(stopvalue);
+			sidemotor1(0,0);
 			ismovingsm1 = 0;
 			break;
 		} 
@@ -62,18 +61,16 @@ public class Mux extends I2CSensor{
 			break;
 		case 1:
 			//Motor is moving forward, stop it
-			sidemotor2(0,0);
 			sidemotor2(2,127);
-			Thread.sleep(1);
+			Thread.sleep(stopvalue);
 			sidemotor2(0,0);
 			ismovingsm2 = 0;
 			break;
 		case 2:
 			//Motor is moving backwards, stop it
-			sidemotor2(0,0);
 			sidemotor2(1,127);
-			Thread.sleep(1);
-			sidemotor2(2,0);
+			Thread.sleep(stopvalue);
+			sidemotor2(0,0);
 			ismovingsm2 = 0;
 			break;
 		} 
