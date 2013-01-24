@@ -111,23 +111,20 @@ public class ControlGUI extends JFrame {
 		start.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
+				
+				int[] command = {1};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				//change timer to automatic stop when detecting the wall
+				// when vision will be ready
+				timer = new Timer();
 				System.out.println("Start...");
-				// r.moveForward(60);
-				// r.each_wheel_speed(-900, -750);
-				// r.accelerateRobot(100);
-				// try {
-				// Thread.sleep(2*1000);
-				// } catch (InterruptedException e1) {
-				// // TODO Auto-generated catch block
-				// e1.printStackTrace();
-				// }
-				// r.moveBackward(20);
-
-				// r.each_wheel_speed(50, 100);
-				// r.moveForwardByDistance(-60, 40);
-				// r.accelerateRobot(50);
-
-				// r.rotateRobot(90);
+				// Stop in 5 seconds
+			    timer.schedule(new Stopping(), 10 * 1000);
 
 			}
 
@@ -135,33 +132,35 @@ public class ControlGUI extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Kick...");
+				
 				int[] command = {4};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
-				// r.kick();
+				System.out.println("Kick...");
 
 			}
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("starting moving forward...");
+				
 				int[] command = {1};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
+				System.out.println("starting moving forward...");
 				timer = new Timer();
+				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
-				System.out.println("Moving forward...");
-				// r.stop();
+				
+				
 			}
 		});
 		
@@ -171,14 +170,15 @@ public class ControlGUI extends JFrame {
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
 				System.out.println("Moving backwards...");
 				timer = new Timer();
+				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 				
-				// r.stop();
+				
 			}
 		});
 		
@@ -188,39 +188,41 @@ public class ControlGUI extends JFrame {
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
 				System.out.println("Moving leftside...");
-				// r.stop();
+				
 				timer = new Timer();
+				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
 		
 		rightside.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {10};
+				int[] command = {11};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
 				System.out.println("Moving rightside...");
-				// r.stop();
+				
 				timer = new Timer();
+				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
 		
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {3};
+				int[] command = {3,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
 				System.out.println("Stop...");
@@ -246,11 +248,11 @@ public class ControlGUI extends JFrame {
 
 		@Override
 		public void run() {
-			int[] command = {3};
+			int[] command = {3,0,0,0};
 			try {
 				comms.sendToRobot(command);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
+				System.out.println("Could not send command");
 				e1.printStackTrace();
 			}
 			System.out.println("Stop...");
