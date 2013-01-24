@@ -16,14 +16,14 @@ public class Mux extends I2CSensor{
 	//Direction: 0 - float, 1 = Forward, 2 - Backwards 3 break
 	
 	public void sidemotor1(int direction, int speed){
-		sendData((byte)0x01,(byte)direction); 
-		sendData((byte)0x02,(byte)speed);
+		sendData((byte)0x05,(byte)direction); 
+		sendData((byte)0x06,(byte)speed);
 		ismovingsm1 = direction;
 	}
 	
 	public void sidemotor2(int direction, int speed){
-		sendData((byte)0x03,(byte)direction); 
-		sendData((byte)0x04,(byte)speed);
+		sendData((byte)0x07,(byte)direction); 
+		sendData((byte)0x08,(byte)speed);
 		ismovingsm1 = direction;
 	}
 	
