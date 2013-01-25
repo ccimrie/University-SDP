@@ -37,6 +37,7 @@ public class ControlGUI extends JFrame {
 	private JPanel moveB5sec = new JPanel();
 	private JPanel moveL5sec = new JPanel();
 	private JPanel moveR5sec = new JPanel();
+	private JPanel rotatepanel = new JPanel();
 	private JPanel quitpanel = new JPanel();
 
 	
@@ -48,6 +49,7 @@ public class ControlGUI extends JFrame {
 	private JButton backward = new JButton("Backward");
 	private JButton leftside = new JButton("Leftside");
 	private JButton rightside = new JButton("Rightside");
+	private JButton rotate = new JButton("Rotate");
 	private JButton quit = new JButton("Quit");
 
 	// Communication variables
@@ -97,6 +99,7 @@ public class ControlGUI extends JFrame {
 		moveL5sec.add(leftside);
 		moveR5sec.add(rightside); 
 		quitpanel.add(quit);
+		rotatepanel.add(rotate);
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.getContentPane().add(startPnl);
 		frame.getContentPane().add(kickPnl);
@@ -105,6 +108,7 @@ public class ControlGUI extends JFrame {
 		frame.getContentPane().add(moveB5sec);
 		frame.getContentPane().add(moveL5sec);
 		frame.getContentPane().add(moveR5sec);
+		frame.getContentPane().add(rotatepanel);
 		frame.getContentPane().add(quitpanel);
 		
 		frame.addWindowListener(new ListenCloseWdw());
@@ -234,6 +238,19 @@ public class ControlGUI extends JFrame {
 			}
 		});
 		
+		rotate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] command = {6,0,0,0};
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Rotate...");
+			}
+		});
+		
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int[] command = {5,0,0,0};
@@ -252,6 +269,14 @@ public class ControlGUI extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
+			int[] command = {5,0,0,0};
+			try {
+				comms.sendToRobot(command);
+			} catch (IOException e1) {
+				System.out.println("Could not send command");
+				e1.printStackTrace();
+			}
+			System.out.println("Quit...");
 			System.exit(0);
 		}
 	}
