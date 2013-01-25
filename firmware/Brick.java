@@ -34,7 +34,7 @@ public class Brick {
 	private final static int STOP = 3;
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
-	private final static int FORWARDS_TRAVEL = 6;
+	private final static int ROTATE = 6;
 	private final static int TRAVEL_BACKWARDS_SLIGHRLY = 7;
 	private final static int TRAVEL_ARC = 8;
 	private final static int ACCELERATE = 9;
@@ -120,6 +120,16 @@ public class Brick {
 				stopmainmotor1();
 				chip.sm1stop();
 				chip.sm2stop();
+				break;
+				
+			case ROTATE:
+				LCD.clear();
+				LCD.drawString("Rotate!", 0, 2);
+				LCD.refresh();
+				chip.sidemotor1(1, 230);
+				chip.sidemotor2(1, 230);
+				mainmotor1(FORWARDS,600);
+				mainmotor2(BACKWARDS,600);
 				break;
 
 			case KICK:
