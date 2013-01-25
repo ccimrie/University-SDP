@@ -25,6 +25,8 @@ public class BluetoothCommunication {
 	private NXTInfo nxtInfo;
 	private boolean isRobotReady = false;
 	private boolean isConnected = false;
+	//TODO - to be implemented
+	private boolean isRobotMoving = false;
 
 	/**
 	 * @param deviceName
@@ -153,5 +155,10 @@ public class BluetoothCommunication {
 			System.err.println("Couldn't close Bluetooth connection: "
 					+ e.toString());
 		}
+	}
+
+	public boolean isMoving() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

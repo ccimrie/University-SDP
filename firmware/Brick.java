@@ -131,6 +131,10 @@ public class Brick {
 				Motor.C.setSpeed(250);
 				Motor.C.rotateTo(0);
 				break;
+				
+			case ROTATE:
+				//TODO
+				break;
 
 			case QUIT: // close connection
 				// Sound.twoBeeps();
