@@ -60,7 +60,7 @@ public class Brick {
 		int opcode = DO_NOTHING;
 		int option1, option2, option3;
 
-		while (opcode != QUIT) {
+		while ((opcode != QUIT) && !(Button.ESCAPE.isDown())) {
 			// get the next command from the inputstream
 			byte[] byteBuffer = new byte[4];
 			is.read(byteBuffer);
@@ -103,16 +103,16 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Left!", 0, 2);
 				LCD.refresh();
-				chip.sidemotor2(1,255);
 				chip.sidemotor1(1,255);
+				chip.sidemotor2(2,255);
 				break;
 
 			case RIGHT:
 				LCD.clear();
 				LCD.drawString("Right!", 0, 2);
 				LCD.refresh();
-				chip.sidemotor2(2,255);
 				chip.sidemotor1(2,255);
+				chip.sidemotor2(1,255);
 				break;
 
 			case STOP:
