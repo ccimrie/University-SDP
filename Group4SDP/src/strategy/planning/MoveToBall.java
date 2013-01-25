@@ -1,5 +1,6 @@
 package strategy.planning;
 
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -45,11 +46,19 @@ public class MoveToBall extends Strategy implements Observer {
 			// Stop everything and turn
 			System.out.println("Stop and turn");
 			int[] stop_command = {Commands.STOP,0,0,0};
-			int[] rotate_command = {Commands.ROTATE,0,0,0};
-			connection.sendToRobot(stop_command);
 			//TODO - take the angle of rotation into account. Depends on rotate implementation
-			connection.sendToRobot(rotate_command);
-			//connection.rotate(-angle);
+			int[] rotate_command = {Commands.ROTATE,0,0,0};
+			//rc.rotate(-angle);
+			
+			// Send commands
+			try {
+				connection.sendToRobot(stop_command);
+				connection.sendToRobot(rotate_command);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Command not sent - check bluetooth connection");
+			}
+			
 			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
@@ -59,7 +68,14 @@ public class MoveToBall extends Strategy implements Observer {
 		if(distance > distanceFromBallToStop) {
 			System.out.println("Forward");
 			int[] forward_command = {Commands.FORWARDS,0,0,0};
-			connection.send
+			try {
+				connection.sendToRobot(forward_command);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("Command not sent - check bluetooth connection.");
+			}
+			//TODO - take into account distance to travel forward
 			//connection.forward(0.2);
 			return;
 			// Let's not arc for this milestone as it's too complicated
@@ -85,8 +101,18 @@ public class MoveToBall extends Strategy implements Observer {
 		if(Math.abs(angle) > 10) {
 			// Stop everything and turn
 			System.out.println("Making final correction");
-			rc.stop();
-			rc.rotate(-angle);
+			//rc.stop();
+			//rc.rotate(-angle);
+			int[] stop_command = {Commands.STOP,0,0,0};
+			// TODO - take into account rotation angle
+			int[] rotate_command = {Commands.ROTATE,0,0,0};
+			try {
+				connection.sendToRobot(stop_command);
+				connection.sendToRobot(rotate_command);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Command not sent - check bluetooth connection");
+			}
 			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
@@ -94,7 +120,7 @@ public class MoveToBall extends Strategy implements Observer {
 		}
 		
 		System.out.println("Stop");
-		rc.stop();
+		//rc.stop();
 		stop();
 	}
 	
