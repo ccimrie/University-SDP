@@ -156,7 +156,7 @@ public class ControlGUI extends JFrame {
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				int[] command = {1,0,0,0};
+				int[] command = {1,100,99,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -240,7 +240,7 @@ public class ControlGUI extends JFrame {
 		
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {6,0,0,0};
+				int[] command = {6,-120,-30,0};//Angle is the sum of option1 + option2
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
