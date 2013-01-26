@@ -1,4 +1,3 @@
-
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -13,37 +12,37 @@ import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 
 public class Brick {
-	// class variables
 
 	private static InputStream is;
 	private static OutputStream os;
 	private static volatile boolean blocking = false;
 	private static volatile boolean kicking = false;
-	//Variable to keep track of moving motors. 0 - not moving
-	//1 forwards, 2 backwards
-	private static int ismovingmm1 = 0;
-	private static int ismovingmm2 = 0;
+
+	// State(Direction): 0 - float, 1 - Forward, 2 - Backwards.
+	private static int stateMM1 = 0;
+	private static int stateMM2 = 0;
 
 	// Command decoding. Most are not implemented yet
-
 	private final static int DO_NOTHING = 0;
+
 	private final static int FORWARDS = 1;
-	private final static int BACKWARDS=2;
-	private final static int LEFT=10;
-	private final static int RIGHT=11;
+	private final static int BACKWARDS = 2;
+	private final static int LEFT = 10;
+	private final static int RIGHT = 11;
+
 	private final static int STOP = 3;
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
 	private final static int ROTATE = 6;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY = 7;
+	private final static int TRAVEL_BACKWARDS_SLIGHTLY = 7;
 	private final static int TRAVEL_ARC = 8;
 	private final static int ACCELERATE = 9;
 	private final static int TEST = 66;
 
 	public static void main(String[] args) throws Exception {
-		Mux chip = new Mux(SensorPort.S1); //i2c motor board
+		Mux chip = new Mux(SensorPort.S1); // i2c motor board
 
-		// wait for a connection and open streams
+		// Wait for a connection and open streams on success
 		LCD.clear();
 		LCD.drawString("Waiting...", 0, 2);
 		LCD.drawString("Please connect", 0, 3);
@@ -52,99 +51,99 @@ public class Brick {
 		os = connection.openOutputStream();
 		LCD.clear();
 		LCD.drawString("Connected!", 0, 2);
-		byte [] robotready = {0,0,0,0};
+		byte[] robotready = { 0, 0, 0, 0 };
 		os.write(robotready);
 		os.flush();
 
-		// begin reading commands
+		// Begin reading commands
 		int opcode = DO_NOTHING;
 		int option1, option2, option3;
 
 		while ((opcode != QUIT) && !(Button.ESCAPE.isDown())) {
-			// get the next command from the inputstream
+			// Get the next command from the inputstream
 			byte[] byteBuffer = new byte[4];
 			is.read(byteBuffer);
 			// We send 4 different numbers, use as options
-			opcode = (int)byteBuffer[0];
-			option1 = (int)byteBuffer[1];
-			option2 = (int)byteBuffer[2];
-			option3 = (int)byteBuffer[3];
+			opcode = (int) byteBuffer[0];
+			option1 = (int) byteBuffer[1];
+			option2 = (int) byteBuffer[2];
+			option3 = (int) byteBuffer[3];
 
 			if (opcode > 0)
 				LCD.drawString("opcode = " + opcode, 0, 2);
 			switch (opcode) {
 
-			case TEST:
-				boolean receivetrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
-				String tmp = "TEST! " + receivetrue;
-				LCD.drawString(tmp, 0, 2);
-				byte [] testres = new byte [] {66,77,88,99};
-				os.write(testres);
-				os.flush();
-				break;
+				case TEST:
+					boolean receiveTrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
+					String tmp = "TEST! " + receiveTrue;
+					LCD.drawString(tmp, 0, 2);
+					byte[] testres = new byte[] { 66, 77, 88, 99 };
+					os.write(testres);
+					os.flush();
+					break;
 
-			case FORWARDS:
-				LCD.clear();
-				LCD.drawString("Forward!", 0, 2);
-				LCD.refresh();
-				mainmotor1(FORWARDS, 600);
-				mainmotor2(FORWARDS, 600);
-				break;
+				case FORWARDS:
+					LCD.clear();
+					LCD.drawString("Forward!", 0, 2);
+					LCD.refresh();
+					mainMotor1(FORWARDS, 600);
+					mainMotor2(FORWARDS, 600);
+					break;
 
-			case BACKWARDS:
-				LCD.clear();
-				LCD.drawString("Backward!", 0, 2);
-				LCD.refresh();
-				mainmotor1(BACKWARDS, 600);
-				mainmotor2(BACKWARDS, 600);
-				break;
+				case BACKWARDS:
+					LCD.clear();
+					LCD.drawString("Backward!", 0, 2);
+					LCD.refresh();
+					mainMotor1(BACKWARDS, 600);
+					mainMotor2(BACKWARDS, 600);
+					break;
 
-			case LEFT:
-				LCD.clear();
-				LCD.drawString("Left!", 0, 2);
-				LCD.refresh();
-				chip.sidemotor1(1,255);
-				chip.sidemotor2(2,255);
-				break;
+				case LEFT:
+					LCD.clear();
+					LCD.drawString("Left!", 0, 2);
+					LCD.refresh();
+					chip.sideMotor1(1, 255);
+					chip.sideMotor2(2, 255);
+					break;
 
-			case RIGHT:
-				LCD.clear();
-				LCD.drawString("Right!", 0, 2);
-				LCD.refresh();
-				chip.sidemotor1(2,255);
-				chip.sidemotor2(1,255);
-				break;
+				case RIGHT:
+					LCD.clear();
+					LCD.drawString("Right!", 0, 2);
+					LCD.refresh();
+					chip.sideMotor1(2, 255);
+					chip.sideMotor2(1, 255);
+					break;
 
-			case STOP:
-				stopmainmotor2();
-				stopmainmotor1();
-				chip.sm1stop();
-				chip.sm2stop();
-				break;
-				
-			case ROTATE:
-				LCD.clear();
-				LCD.drawString("Rotate!", 0, 2);
-				LCD.refresh();
-				chip.sidemotor1(1, 230);
-				chip.sidemotor2(1, 230);
-				mainmotor1(FORWARDS,600);
-				mainmotor2(BACKWARDS,600);
-				break;
+				case STOP:
+					stopMainMotor2();
+					stopMainMotor1();
+					chip.sm1stop();
+					chip.sm2stop();
+					break;
 
-			case KICK:
-				LCD.clear();
-				LCD.drawString("Kicking", 0, 2);
-				LCD.refresh();
-				Motor.C.setSpeed(900);
-				Motor.C.rotateTo(60);
-				Motor.C.setSpeed(250);
-				Motor.C.rotateTo(0);
-				break;
+				case ROTATE:
+					LCD.clear();
+					LCD.drawString("Rotate!", 0, 2);
+					LCD.refresh();
+					chip.sideMotor1(1, 230);
+					chip.sideMotor2(1, 230);
+					mainMotor1(FORWARDS, 600);
+					mainMotor2(BACKWARDS, 600);
+					break;
 
-			case QUIT: // close connection
-				// Sound.twoBeeps();
-				break;
+				case KICK:
+					LCD.clear();
+					LCD.drawString("Kicking", 0, 2);
+					LCD.refresh();
+					Motor.C.setSpeed(900);
+					Motor.C.rotateTo(60);
+					Motor.C.setSpeed(250);
+					Motor.C.rotateTo(0);
+					break;
+
+				case QUIT: // close connection
+					// Sound.twoBeeps();
+					break;
 			}
 		}
 		// close streams and connection
@@ -157,44 +156,48 @@ public class Brick {
 		connection.close();
 		LCD.clear();
 	}
-	//Methods to activate each of the main motors individually
-	public static void mainmotor1(int direction, int speed){
+
+	// Methods to activate each of the main motors individually
+	public static void mainMotor1(int direction, int speed) {
 		Motor.A.setSpeed(speed);
-		switch (direction){
-		case FORWARDS:
-			Motor.A.forward();
-			ismovingmm1 = 1;
-			break;
-		case BACKWARDS:
-			Motor.A.backward();
-			ismovingmm1 = 2;
-			break;
+		switch (direction) {
+			case FORWARDS:
+				Motor.A.forward();
+				stateMM1 = 1;
+				break;
+			case BACKWARDS:
+				Motor.A.backward();
+				stateMM1 = 2;
+				break;
 		}
 	}
-	public static void mainmotor2(int direction, int speed){
+
+	public static void mainMotor2(int direction, int speed) {
 		Motor.B.setSpeed(speed);
-		switch (direction){
-		case FORWARDS:
-			Motor.B.forward();
-			ismovingmm2 = 1;
-			break;
-		case BACKWARDS:
-			Motor.B.backward();
-			ismovingmm2 = 1;
-			break;
-		} 
-	}
-	//Methods for stopping each of the main motors individually
-	public static void stopmainmotor1(){
-		if (ismovingmm1 != 0) {
-			Motor.A.stop(true);
-			ismovingmm1 = 0;
+		switch (direction) {
+			case FORWARDS:
+				Motor.B.forward();
+				stateMM2 = 1;
+				break;
+			case BACKWARDS:
+				Motor.B.backward();
+				stateMM2 = 1;
+				break;
 		}
 	}
-	public static void stopmainmotor2(){
-		if (ismovingmm2 != 0){
+
+	// Methods for stopping each of the main motors individually
+	public static void stopMainMotor1() {
+		if (stateMM1 != 0) {
+			Motor.A.stop(true);
+			stateMM1 = 0;
+		}
+	}
+
+	public static void stopMainMotor2() {
+		if (stateMM2 != 0) {
 			Motor.B.stop(true);
-			ismovingmm2 = 0;
+			stateMM2 = 0;
 		}
 	}
 }
