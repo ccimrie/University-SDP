@@ -7,9 +7,13 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
@@ -140,6 +144,12 @@ public class VideoFeed extends Frame implements Runnable {
         		ColorModel cm = imageFeed.getColorModel();
         		WritableRaster raster = imageFeed.copyData(null);
         		stillFrame = new BufferedImage(	cm, raster, cm.isAlphaPremultiplied(), null);
+        		File outputfile = new File("still.png");
+        		try {
+					ImageIO.write(stillFrame, "png", outputfile);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
         		
         		frameGrabber.stopCapture();
         	}
@@ -149,7 +159,6 @@ public class VideoFeed extends Frame implements Runnable {
 
     @Override
     public void update(Graphics g) {
-    //	PrintWriter out = new PrintWriter(new FileWriter("K:\\location\\outputfile.txt"))); 
         g.drawImage(stillFrame, 0, 0, this);
     }
 }
