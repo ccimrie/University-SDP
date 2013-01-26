@@ -529,10 +529,10 @@ public class Vision extends WindowAdapter {
 		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", " + worldState.getBallY() + ")", 15, 30);
 		imageGraphics.drawString("Blue: (" + worldState.getBlueX() + ", "
 											+ worldState.getBlueY() + ") Orientation: "
-											+ 180.0 * worldState.getBlueOrientation() / Math.PI, 15, 45);
+											+ ((180.0 * worldState.getBlueOrientation() / Math.PI)-90), 15, 45);
 		imageGraphics.drawString("Yellow: ("+ worldState.getYellowX() + ", "
 											+ worldState.getYellowY() + ") Orientation: "
-											+ 180.0 * worldState.getYellowOrientation() / Math.PI, 15, 60);
+											+ ((180.0 * worldState.getYellowOrientation() / Math.PI)-90), 15, 60);
 		
 		frameGraphics.drawImage(image, 0, 0, width, height, null);
 	}

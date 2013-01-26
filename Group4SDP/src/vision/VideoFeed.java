@@ -5,6 +5,10 @@ import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.List;
 
 import au.edu.jcu.v4l4j.CaptureCallback;
@@ -26,9 +30,14 @@ public class VideoFeed extends Frame implements Runnable {
 	private static final int CHROMA_GAIN = 0;
 	private static final int CHROMA_AGC = 1;
 
-    BufferedImage image = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+    BufferedImage imageFeed = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+    BufferedImage stillFrame = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+   	int captured = 0;
 	VideoDevice videoDev;
     FrameGrabber frameGrabber;
+  
+    
+   
     
     Thread animation;
     int offset = 0;
@@ -49,16 +58,16 @@ public class VideoFeed extends Frame implements Runnable {
         setTitle("Video Feed");
         setVisible(true);
         setSize(640, 480);
-
+        
         animation = new Thread(this);
         animation.start();
+        
 
         this.addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(
-                    WindowEvent windowEvent) {
-            	frameGrabber.stopCapture();
+                    WindowEvent windowEvent) {            	
                 System.exit(0);
             }
         });
@@ -105,17 +114,18 @@ public class VideoFeed extends Frame implements Runnable {
             }
 
             public void nextFrame(VideoFrame frame) {
-                image = frame.getBufferedImage();
+                imageFeed = frame.getBufferedImage();
                 
                 frame.recycle();
             }
         });
 
         frameGrabber.startCapture();
+        
     }
 
     public static void main(String[] args) {
-        new VideoFeed();
+    	new VideoFeed();
     }
 
     public void run() {
@@ -125,12 +135,21 @@ public class VideoFeed extends Frame implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+    		captured++;
+        	if (captured > 2 && captured < 4) {
+        		ColorModel cm = imageFeed.getColorModel();
+        		WritableRaster raster = imageFeed.copyData(null);
+        		stillFrame = new BufferedImage(	cm, raster, cm.isAlphaPremultiplied(), null);
+        		
+        		frameGrabber.stopCapture();
+        	}
             repaint();
         }
     }
 
     @Override
     public void update(Graphics g) {
-        g.drawImage(image, 0, 0, this);
+    //	PrintWriter out = new PrintWriter(new FileWriter("K:\\location\\outputfile.txt"))); 
+        g.drawImage(stillFrame, 0, 0, this);
     }
 }
