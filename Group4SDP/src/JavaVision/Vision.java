@@ -159,8 +159,9 @@ public class Vision extends WindowAdapter {
 				long before = System.currentTimeMillis();
 				frameImage = frame.getBufferedImage();
 				frame.recycle();
-				if (counter > 10)
+				if (counter > 10) {
 					processAndUpdateImage(frameImage, before, counter);
+				}
 				counter++;
 			}
 		});
@@ -252,9 +253,9 @@ public class Vision extends WindowAdapter {
 					- rightBuffer; column++) {
 
 //				image.getGraphics().setColor(Color.RED);
-//				//image.getGraphics().drawLine(arg0, arg1, arg2, arg3);
-//				//System.out.println(topBuffer + " " + (image.getHeight()-bottomBuffer));
-//			//	System.out.println(leftBuffer + " " + (image.getWidth()-rightBuffer ));
+//				image.getGraphics().drawLine(arg0, arg1, arg2, arg3);
+//				System.out.println(topBuffer + " " + (image.getHeight()-bottomBuffer));
+//				System.out.println(leftBuffer + " " + (image.getWidth()-rightBuffer ));
 //				//LINE TO MARK UPPER WALLS:
 //				image.getGraphics().drawLine((leftBuffer+10), topBuffer+80, (leftBuffer+10), (image.getHeight()-bottomBuffer-80));
 //				image.getGraphics().drawLine((image.getWidth()-20), topBuffer, (image.getWidth()-20), (image.getHeight()-bottomBuffer));
@@ -523,6 +524,16 @@ public class Vision extends WindowAdapter {
 		float fps = (1.0f) / ((after - before) / 1000.0f);
 		imageGraphics.setColor(Color.white);
 		imageGraphics.drawString("FPS: " + fps, 15, 15);
+
+		// Display Ball & Robot Positions
+		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", " + worldState.getBallY() + ")", 15, 30);
+		imageGraphics.drawString("Blue: (" + worldState.getBlueX() + ", "
+											+ worldState.getBlueY() + ") Orientation: "
+											+ 180.0 * worldState.getBlueOrientation() / Math.PI, 15, 45);
+		imageGraphics.drawString("Yellow: ("+ worldState.getYellowX() + ", "
+											+ worldState.getYellowY() + ") Orientation: "
+											+ 180.0 * worldState.getYellowOrientation() / Math.PI, 15, 60);
+		
 		frameGraphics.drawImage(image, 0, 0, width, height, null);
 	}
 
