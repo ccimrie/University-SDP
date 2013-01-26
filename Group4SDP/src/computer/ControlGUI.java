@@ -17,6 +17,7 @@ import java.io.*;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import vision.VideoFeed;
 
@@ -38,6 +39,7 @@ public class ControlGUI extends JFrame {
 	private JPanel moveL5sec = new JPanel();
 	private JPanel moveR5sec = new JPanel();
 	private JPanel rotatepanel = new JPanel();
+	private JPanel anglemovepanel = new JPanel();
 	private JPanel quitpanel = new JPanel();
 
 	
@@ -50,7 +52,10 @@ public class ControlGUI extends JFrame {
 	private JButton leftside = new JButton("Leftside");
 	private JButton rightside = new JButton("Rightside");
 	private JButton rotate = new JButton("Rotate");
+	private JButton anglemove = new JButton("AngleMove");
 	private JButton quit = new JButton("Quit");
+	
+	private JTextField angle= new JTextField("0", 3);
 
 	// Communication variables
 	private static BluetoothCommunication comms;
@@ -100,6 +105,9 @@ public class ControlGUI extends JFrame {
 		moveR5sec.add(rightside); 
 		quitpanel.add(quit);
 		rotatepanel.add(rotate);
+		anglemovepanel.add(anglemove);
+		anglemovepanel.add(angle);
+		
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.getContentPane().add(startPnl);
 		frame.getContentPane().add(kickPnl);
@@ -109,6 +117,7 @@ public class ControlGUI extends JFrame {
 		frame.getContentPane().add(moveL5sec);
 		frame.getContentPane().add(moveR5sec);
 		frame.getContentPane().add(rotatepanel);
+		frame.getContentPane().add(anglemovepanel);
 		frame.getContentPane().add(quitpanel);
 		
 		frame.addWindowListener(new ListenCloseWdw());
@@ -250,6 +259,22 @@ public class ControlGUI extends JFrame {
 				System.out.println("Rotate...");
 			}
 		});
+		
+		anglemove.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				byte dir = (byte) Integer.parseInt(angle.getText());				
+				
+				int[] command = {12,-1,-1,dir};//Angle is the sum of option1 + option2
+				try {
+					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				System.out.println("Moving at an angle...");
+			}
+		});
+		
 		
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

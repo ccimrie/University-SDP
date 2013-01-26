@@ -25,7 +25,8 @@ public class Brick {
 	private final static int FORWARDS = 1;
 	private final static int BACKWARDS = 2;
 	private final static int LEFT = 10;
-	private final static int RIGHT = 11;
+	private final static int RIGHT = 11;	
+	private static final int ANGLEMOVE = 12;
 
 	private final static int STOP = 3;
 	private final static int KICK = 4;
@@ -138,11 +139,22 @@ public class Brick {
 				case KICK:
 					LCD.clear();
 					LCD.drawString("Kicking", 0, 2);
-					LCD.refresh();
+					LCD.refresh();					
 					Motor.C.setSpeed(900);
 					Motor.C.rotateTo(60);
 					Motor.C.setSpeed(250);
 					Motor.C.rotateTo(0);
+					break;
+				case ANGLEMOVE:
+					LCD.clear();
+					LCD.drawString("Moving at an angle", 0, 2);
+					LCD.refresh();
+					byte dirMain= (byte)(((option3 & 2) > 0) ? FORWARDS : BACKWARDS);
+					byte dirSide= (byte)(((option3 & 1) > 0) ? FORWARDS : BACKWARDS);
+					mainMotor1(dirMain, 700 + option1); //Left motor
+					mainMotor2(dirMain, 700 + option1);
+					chip.sideMotor1(dirSide, option2);
+					chip.sideMotor2((dirSide == FORWARDS) ? BACKWARDS : FORWARDS, option2);
 					break;
 
 				case QUIT: // close connection
