@@ -2,12 +2,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import lejos.nxt.Button;
-import lejos.nxt.I2CPort;
-import lejos.nxt.I2CSensor;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
-import lejos.nxt.TouchSensor;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 
@@ -38,9 +35,9 @@ public class Brick {
 	private final static int TRAVEL_ARC = 8;
 	private final static int ACCELERATE = 9;
 	private final static int TEST = 66;
+	private static Mux chip = new Mux(SensorPort.S1); // i2c motor board
 
 	public static void main(String[] args) throws Exception {
-		Mux chip = new Mux(SensorPort.S1); // i2c motor board
 
 		// Wait for a connection and open streams on success
 		LCD.clear();
@@ -64,10 +61,10 @@ public class Brick {
 			byte[] byteBuffer = new byte[4];
 			is.read(byteBuffer);
 			// We send 4 different numbers, use as options
-			opcode = (int) byteBuffer[0];
-			option1 = (int) byteBuffer[1];
-			option2 = (int) byteBuffer[2];
-			option3 = (int) byteBuffer[3];
+			opcode = byteBuffer[0];
+			option1 = byteBuffer[1];
+			option2 = byteBuffer[2];
+			option3 = byteBuffer[3];
 
 			if (opcode > 0)
 				LCD.drawString("opcode = " + opcode, 0, 2);
@@ -86,14 +83,20 @@ public class Brick {
 					LCD.clear();
 					LCD.drawString("Forward!", 0, 2);
 					LCD.refresh();
-					mainMotor1(FORWARDS, 600);
-					mainMotor2(FORWARDS, 600);
+					//int speed1 = option1*10;
+					//int speed2 = option2*10;
+					mainMotor1(FORWARDS,5);
+					mainMotor2(FORWARDS,5);
+					Thread.sleep(10);
+					mainMotor1(FORWARDS, 700 + option1); //Left motor
+					mainMotor2(FORWARDS, 700 + option2);
 					break;
 
 				case BACKWARDS:
 					LCD.clear();
 					LCD.drawString("Backward!", 0, 2);
 					LCD.refresh();
+					//while(something)
 					mainMotor1(BACKWARDS, 600);
 					mainMotor2(BACKWARDS, 600);
 					break;
@@ -119,16 +122,17 @@ public class Brick {
 					stopMainMotor1();
 					chip.sm1stop();
 					chip.sm2stop();
+					Thread.sleep(10);
+					Motor.A.flt(); //Make the motors not waste battery
+					Motor.B.flt();//After they stop moving.
 					break;
 
 				case ROTATE:
 					LCD.clear();
 					LCD.drawString("Rotate!", 0, 2);
-					LCD.refresh();
-					chip.sideMotor1(1, 230);
-					chip.sideMotor2(1, 230);
-					mainMotor1(FORWARDS, 600);
-					mainMotor2(BACKWARDS, 600);
+					LCD.refresh(); //We get the angle by adding option1+option2 If it is greater than 0 we rotate clockwise
+					//Otherwise we rotate counterclockwise.
+					rotate(option1+option2);
 					break;
 
 				case KICK:
@@ -187,17 +191,59 @@ public class Brick {
 	}
 
 	// Methods for stopping each of the main motors individually
-	public static void stopMainMotor1() {
+	public static void stopMainMotor1() throws InterruptedException {
 		if (stateMM1 != 0) {
 			Motor.A.stop(true);
 			stateMM1 = 0;
 		}
 	}
 
-	public static void stopMainMotor2() {
+	public static void stopMainMotor2() throws InterruptedException {
 		if (stateMM2 != 0) {
 			Motor.B.stop(true);
 			stateMM2 = 0;
+		}
+	}
+	
+	public static void rotate(int angle) {
+		if (angle>0){ //Rotate clockwise
+			chip.sideMotor1(1, 255);
+			chip.sideMotor2(1, 255);
+			Motor.A.setSpeed(700);
+			Motor.B.setSpeed(700);
+			Motor.A.rotate(angle+15, true);
+			Motor.B.rotate(-angle-15);
+			chip.sideMotor1(0,0);
+			chip.sideMotor2(0,0);
+			Motor.A.flt(); //Make the motors not waste battery
+			Motor.B.flt();
+		} else { //Rotate couterclockwise
+			chip.sideMotor1(2, 255);
+			chip.sideMotor2(2, 255);
+			Motor.A.setSpeed(700);
+			Motor.B.setSpeed(700);
+			Motor.A.rotate(angle-15, true);
+			Motor.B.rotate(-angle+15);
+			chip.sideMotor1(0,0);
+			chip.sideMotor2(0,0);
+			Motor.A.flt(); //Make the motors not waste battery
+			Motor.B.flt();
+		}
+	}
+	
+	public static void maintainspeed(int option1, int option2) throws InterruptedException{
+		while (true){
+			Thread.sleep(20);
+			if (Motor.A.getTachoCount() == Motor.B.getTachoCount()){
+				mainMotor1(FORWARDS, 700 + option1); //Left motor
+				mainMotor2(FORWARDS, 700 + option2);
+			}else if(Motor.A.getTachoCount() > Motor.B.getTachoCount()){
+				mainMotor1(FORWARDS, 700 + option1); //Left motor
+				mainMotor2(FORWARDS, 700 + option2+5);
+			}else{
+				mainMotor1(FORWARDS, 700 + option1-5); //Left motor
+				mainMotor2(FORWARDS, 700 + option2);
+			}
 		}
 	}
 }

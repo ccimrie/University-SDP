@@ -1,6 +1,5 @@
 import lejos.nxt.I2CPort;
 import lejos.nxt.I2CSensor;
-import lejos.nxt.Motor;
 
 public class Mux extends I2CSensor {
 
