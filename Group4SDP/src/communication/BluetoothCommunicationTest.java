@@ -53,7 +53,6 @@ public class BluetoothCommunicationTest {
 				try {
 					receive_info = comms.receiveFromRobot();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (!Arrays.equals(receive_info,ret_expect)) {

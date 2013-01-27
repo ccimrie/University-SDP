@@ -133,10 +133,8 @@ public class BluetoothCommunication {
 			isRobotReady = true;
 			System.out.println("Robot is ready!");
 			isConnected = true;
-		} catch (NXTCommException e) { // (NXTCommException |
-										// InterruptedException e) {
+		} catch (NXTCommException e) {
 			throw new IOException("Failed to connect " + e.toString());
-
 		} catch (InterruptedException e) { 
 			throw new IOException("Failed to connect " + e.toString());
 		}

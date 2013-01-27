@@ -14,5 +14,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/pctools.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/stax-api-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/v4l4j.jar"/>
+	<classpathentry kind="lib" path="forms-1.3.0.jar" sourcepath="forms-1.3.0-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
