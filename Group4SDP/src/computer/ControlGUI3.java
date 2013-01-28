@@ -1,51 +1,28 @@
 package computer;
 
-import java.awt.EventQueue;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import communication.BluetoothCommunication;
-import javax.swing.SwingConstants;
-import javax.swing.Box;
-import java.awt.Dimension;
-import java.awt.Component;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.io.*;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import vision.VideoFeed;
-
-import lejos.pc.comm.NXTCommFactory;
-import lejos.pc.comm.NXTInfo;
-import communication.BluetoothCommunication;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
-import java.awt.Rectangle;
+
+import communication.BluetoothCommunication;
 
 
 public class ControlGUI3 extends JFrame {
@@ -616,7 +593,7 @@ public class ControlGUI3 extends JFrame {
 		panel_4.add(panel_3, "cell 1 0 2 1,grow");
 		panel_3.setLayout(new MigLayout("", "[110px][15px][25px][26px][116px][23px][215px]", "[26px][25px][25px][20px][25px][15px][25px]"));
 		
-		JButton btnQuit_1 = new JButton("Quit!");
+		btnQuit_1 = new JButton("Quit!");
 		panel_3.add(btnQuit_1, "cell 0 0 3 7,grow");
 		
 		extratextField = new JTextField();
