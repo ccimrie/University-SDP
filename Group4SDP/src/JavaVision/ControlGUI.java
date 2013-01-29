@@ -17,6 +17,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+// left whell does extra revolution once per 10 seconds at speed 600
 
 /**
  * Creates and maintains the swing-based Control GUI, which 

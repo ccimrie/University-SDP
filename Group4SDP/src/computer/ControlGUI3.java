@@ -172,6 +172,7 @@ public class ControlGUI3 extends JFrame {
 		mainMoption1.setMinimumSize(new Dimension(15, 22));
 		mainMoption1.setMaximumSize(new Dimension(15, 22));
 		mainMoption1.setPreferredSize(new Dimension(15, 22));
+		mainMoption1.setText("0");
 		horizontalBox_1.add(mainMoption1);
 		mainMoption1.setColumns(10);
 		
@@ -183,6 +184,7 @@ public class ControlGUI3 extends JFrame {
 		mainMoption2 = new JTextField();
 		mainMoption2.setMaximumSize(new Dimension(15, 22));
 		horizontalBox_1.add(mainMoption2);
+		mainMoption2.setText("0");
 		mainMoption2.setColumns(10);
 		
 		JPanel panel_1 = new JPanel();
@@ -219,6 +221,7 @@ public class ControlGUI3 extends JFrame {
 		sidemotoroption1.setPreferredSize(new Dimension(15, 22));
 		sidemotoroption1.setMinimumSize(new Dimension(15, 22));
 		sidemotoroption1.setMaximumSize(new Dimension(15, 22));
+		sidemotoroption1.setText("0");
 		horizontalBox_2.add(sidemotoroption1);
 		sidemotoroption1.setColumns(10);
 		
@@ -231,6 +234,7 @@ public class ControlGUI3 extends JFrame {
 		sidemotoroption2.setMinimumSize(new Dimension(15, 22));
 		sidemotoroption2.setMaximumSize(new Dimension(15, 22));
 		horizontalBox_2.add(sidemotoroption2);
+		sidemotoroption2.setText("0");
 		sidemotoroption2.setColumns(10);
 		
 		JPanel panel = new JPanel();
@@ -247,6 +251,7 @@ public class ControlGUI3 extends JFrame {
 		turnLangle = new JTextField();
 		turnLangle.setBounds(170, 0, 106, 25);
 		panel.add(turnLangle);
+		turnLangle.setText("0");
 		turnLangle.setColumns(10);
 		
 		btnTurnRight = new JButton("turn right");
@@ -266,11 +271,13 @@ public class ControlGUI3 extends JFrame {
 		turnRangle = new JTextField();
 		turnRangle.setBounds(170, 39, 106, 25);
 		panel.add(turnRangle);
+		turnRangle.setText("0");
 		turnRangle.setColumns(10);
 		
 		turnEangle = new JTextField();
 		turnEangle.setBounds(170, 77, 106, 25);
 		panel.add(turnEangle);
+		turnEangle.setText("0");
 		turnEangle.setColumns(10);
 		
 		btnMoveAngle1 = new JButton("move sideway1");
@@ -290,11 +297,13 @@ public class ControlGUI3 extends JFrame {
 		movesideA1 = new JTextField();
 		movesideA1.setBounds(170, 115, 106, 25);
 		panel.add(movesideA1);
+		movesideA1.setText("0");
 		movesideA1.setColumns(10);
 		
 		movesideA2 = new JTextField();
 		movesideA2.setBounds(170, 153, 106, 25);
 		panel.add(movesideA2);
+		movesideA2.setText("0");
 		movesideA2.setColumns(10);
 		
 		btnKick = new JButton("kick");
@@ -531,7 +540,7 @@ public class ControlGUI3 extends JFrame {
 		btnU.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == 87){
-					int[] command = {1,600,600,0};
+					int[] command = {1,100,100,0};
 					try {
 						comms.sendToRobot(command);
 					} catch (IOException e1) {
@@ -562,7 +571,7 @@ public class ControlGUI3 extends JFrame {
 		btnD.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == 87){
-					int[] command = {1,600,600,0};
+					int[] command = {1,100,100,0};
 					try {
 						comms.sendToRobot(command);
 					} catch (IOException e1) {
@@ -598,6 +607,7 @@ public class ControlGUI3 extends JFrame {
 		
 		extratextField = new JTextField();
 		panel_3.add(extratextField, "cell 4 0,growx,aligny center");
+		extratextField.setText("0");
 		extratextField.setColumns(10);
 		
 		btnNewButton_1extra = new JButton("New button");
@@ -605,6 +615,7 @@ public class ControlGUI3 extends JFrame {
 		
 		extratextField_1 = new JTextField();
 		panel_3.add(extratextField_1, "cell 4 2,grow");
+		extratextField_1.setText("0");
 		extratextField_1.setColumns(10);
 		
 		btnNewButton_2extra = new JButton("New button");
@@ -612,6 +623,7 @@ public class ControlGUI3 extends JFrame {
 		
 		extratextField_2 = new JTextField();
 		panel_3.add(extratextField_2, "cell 4 4,grow");
+		extratextField_2.setText("0");
 		extratextField_2.setColumns(10);
 		
 		btnNewButton_3extra = new JButton("New button");
@@ -619,6 +631,7 @@ public class ControlGUI3 extends JFrame {
 		
 		extratextField_3 = new JTextField();
 		panel_3.add(extratextField_3, "cell 4 6,grow");
+		extratextField_3.setText("0");
 		extratextField_3.setColumns(10);
 		
 		btnNewButton_4extra = new JButton("New button");
