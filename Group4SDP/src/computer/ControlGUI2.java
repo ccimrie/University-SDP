@@ -17,6 +17,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import JavaVision.WorldState;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -26,10 +28,11 @@ import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
 import communication.BluetoothCommunication;
 import strategy.planning.Commands;
+import strategy.movement.StraightLineVision;
 
 public class ControlGUI2 extends JFrame {
 	Timer timer;
-	int seconds =10;
+	int seconds = 10;
 	
 	private JFrame frame = new JFrame("Control Panel");
 
@@ -56,11 +59,11 @@ public class ControlGUI2 extends JFrame {
 	public static final String NXT_MAC_ADDRESS = "00:16:53:0A:07:1D";
 	public static final String NXT_NAME = "4s";
 
-	
+	private static StraightLineVision strat = new StraightLineVision();
 	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
-		// Make the GUI pretty - uses search because of classname differences
+		// Make the GUI pretty - uses search because of class name differences
 		// between JRE 1.6 and 1.7:
 		// 1.6: com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel
 		// 1.7: javax.swing.plaf.nimbus.NimbusLookAndFeel
@@ -79,6 +82,8 @@ public class ControlGUI2 extends JFrame {
 		ControlGUI2 gui = new ControlGUI2();
 		gui.Launch();
 		gui.action();
+		
+		strat.initialize();
 
 		// Sets up the communication
 		comms = new BluetoothCommunication(NXT_NAME, NXT_MAC_ADDRESS);
@@ -165,7 +170,7 @@ public class ControlGUI2 extends JFrame {
 	public void action() {
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {1,0,0,0};
+				/*int[] command = {1,0,0,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -177,7 +182,51 @@ public class ControlGUI2 extends JFrame {
 				// when vision will be ready
 				timer = new Timer();
 				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), 10 * 1000);
+			    timer.schedule(new Stopping(), 10 * 1000);*/
+				int[] command = {1,0,0,0};
+				try {
+					comms.sendToRobot(command);
+					Thread.sleep(40);
+				} catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				System.out.println("Attempting to move in a straight line...");
+				
+				WorldState worldState = strat.getWorldState();
+				int startX = worldState.getBlueX();
+				strat.setStart(startX, worldState.getBlueY());
+				System.out.println("StartY: " + worldState.getBlueY());
+				while (worldState.getBlueX() < (startX + 480)) {
+					int[] correction = strat.getCorrection();
+					command[1] = correction[0];
+					command[2] = correction[1];
+					
+					try {
+						comms.sendToRobot(command);
+					} catch (IOException e1) {
+						System.out.println("Could not send command");
+						e1.printStackTrace();
+					}
+					System.out.println("Applying correction: " + Arrays.toString(correction));
+					
+					// Wait for next frame
+					try {
+						Thread.sleep(150);
+					}
+					catch(InterruptedException e1) {
+						e1.printStackTrace();
+					}
+					worldState = strat.getWorldState();
+				}
+				try {
+					comms.sendToRobot(new int[]{3,0,0,0});
+				}
+				catch(IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 
@@ -196,7 +245,7 @@ public class ControlGUI2 extends JFrame {
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {1,100,99,0};
+				int[] command = {1,100,100,0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -272,6 +321,7 @@ public class ControlGUI2 extends JFrame {
 					e1.printStackTrace();
 				}
 				System.out.println("Stop...");
+				timer.cancel();
 			}
 		});
 		

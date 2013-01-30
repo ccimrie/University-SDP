@@ -62,9 +62,11 @@ public class WorldState {
 	public void setBallX(int ballX) {
 		this.ballX = ballX;
 	}
+	
 	public int getBallY() {
 		return ballY;
 	}
+	
 	public void setBallY(int ballY) {
 		this.ballY = ballY;
 	}
