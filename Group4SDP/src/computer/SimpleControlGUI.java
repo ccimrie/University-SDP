@@ -13,54 +13,56 @@ import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import JavaVision.WorldState;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
-import lejos.pc.comm.NXTCommFactory;
-import lejos.pc.comm.NXTInfo;
 import communication.BluetoothCommunication;
+import communication.DeviceInfo;
 import strategy.planning.Commands;
 import strategy.movement.StraightLineVision;
+import javax.swing.JRadioButton;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
-public class ControlGUI2 extends JFrame {
+@SuppressWarnings("serial")
+public class SimpleControlGUI extends JFrame {
 	Timer timer;
 	int seconds = 10;
 	
-	private JFrame frame = new JFrame("Control Panel");
+	private final JFrame frame = new JFrame("Control Panel");
 
-	private JPanel startStopQuitPanel = new JPanel();
-	private JPanel simpleMoveTestPanel = new JPanel();
-	private JPanel actionTestPanel = new JPanel();
+	private final JPanel startStopQuitPanel = new JPanel();
+	private final JPanel simpleMoveTestPanel = new JPanel();
+	private final JPanel actionTestPanel = new JPanel();
+	private final JPanel angleMovePanel = new JPanel();
 
-	private JButton start = new JButton("Start");
-	private JButton kick = new JButton("Kick");
-	private JButton stop = new JButton("Stop");
-	private JButton forward = new JButton("Forward");
-	private JButton backward = new JButton("Backward");
-	private JButton left = new JButton("Left");
-	private JButton right = new JButton("Right");
-	private JButton rotate = new JButton("Rotate");
-	private JButton anglemove = new JButton("AngleMove");
-	private JButton quit = new JButton("Quit");
-	
-	private JTextField angle= new JTextField("0", 3);
+	private final JButton start = new JButton("Start");
+	private final JButton kick = new JButton("Kick");
+	private final JButton stop = new JButton("Stop");
+	private final JButton forward = new JButton("Forward");
+	private final JButton backward = new JButton("Backward");
+	private final JButton left = new JButton("Left");
+	private final JButton right = new JButton("Right");
+	private final JButton rotate = new JButton("Rotate");
+	private final JButton anglemove = new JButton("AngleMove");
+	private final JButton quit = new JButton("Quit");
+	private final JRadioButton rdbtnForwards = new JRadioButton("Forwards");
+	private final JRadioButton rdbtnBackwards = new JRadioButton("Backwards");
+	private final JRadioButton rdbtnLeft = new JRadioButton("Left");
+	private final JRadioButton rdbtnRight = new JRadioButton("Right");
 
 	// Communication variables
 	private static BluetoothCommunication comms;
-	
-	public static final String NXT_MAC_ADDRESS = "00:16:53:0A:07:1D";
-	public static final String NXT_NAME = "4s";
 
+	// Strategy used for driving part of milestone 1
+	private DriveThread driveThread;
 	private static StraightLineVision strat = new StraightLineVision();
-	// static Robot r = new Robot();
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty - uses search because of class name differences
@@ -79,22 +81,16 @@ public class ControlGUI2 extends JFrame {
 			e.printStackTrace();
 		}
 		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2();
+		SimpleControlGUI gui = new SimpleControlGUI();
 		gui.Launch();
 		gui.action();
 		
 		strat.initialize();
 
 		// Sets up the communication
-		comms = new BluetoothCommunication(NXT_NAME, NXT_MAC_ADDRESS);
+		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
-		// Tests the communication
-		//String tst = "";
-		//BufferedReader inn = new BufferedReader(new InputStreamReader(System.in));
-		//tst = inn.readLine();
-		//int command = Integer.parseInt(tst);
-		//byte[] bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(tst)).array();
 		while (!comms.isRobotReady()){
 			// Reduce CPU cost
 			try {
@@ -102,26 +98,24 @@ public class ControlGUI2 extends JFrame {
 			}
 			catch(InterruptedException e) {
 				e.printStackTrace();
+				System.exit(1);
 			}
 		};
 		System.out.println("Robot ready!");
-		int [] command = new int [] {66,0,0,66};
+		int [] command = new int [] {Commands.TEST, 0, 0, Commands.TEST};
 		comms.sendToRobot(command);
 		int[] test = new int[4];
 		test = comms.receiveFromRobot();
-		System.out.println(test.toString());
-
-		// r.startCommunications();
-		// r.setConnected(false);
+		System.out.println(Arrays.toString(test));
 	}
 
-	public ControlGUI2() {		
+	public SimpleControlGUI() {		
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{301, 0};
-		gridBagLayout.rowHeights = new int[]{33, 33, 33, 0};
-		gridBagLayout.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowHeights = new int[]{33, 33, 33, 0, 0};
+		gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
 		
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
@@ -148,6 +142,7 @@ public class ControlGUI2 extends JFrame {
 		simpleMoveTestPanel.add(right);
 		
 		GridBagConstraints gbc_actionTestPanel = new GridBagConstraints();
+		gbc_actionTestPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_actionTestPanel.anchor = GridBagConstraints.NORTH;
 		gbc_actionTestPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_actionTestPanel.gridx = 0;
@@ -155,8 +150,90 @@ public class ControlGUI2 extends JFrame {
 		frame.getContentPane().add(actionTestPanel, gbc_actionTestPanel);
 		actionTestPanel.add(kick);
 		actionTestPanel.add(rotate);
-		actionTestPanel.add(anglemove);
-		actionTestPanel.add(angle);
+		
+		GridBagConstraints gbc_angleMovePanel = new GridBagConstraints();
+		gbc_angleMovePanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_angleMovePanel.anchor = GridBagConstraints.NORTH;
+		gbc_angleMovePanel.gridx = 0;
+		gbc_angleMovePanel.gridy = 3;
+		frame.getContentPane().add(angleMovePanel, gbc_angleMovePanel);
+		GridBagLayout gbl_angleMovePanel = new GridBagLayout();
+		gbl_angleMovePanel.columnWidths = new int[] {79, 88, 125};
+		gbl_angleMovePanel.rowHeights = new int[] {18, 0};
+		gbl_angleMovePanel.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_angleMovePanel.rowWeights = new double[]{0.0, 0.0};
+		angleMovePanel.setLayout(gbl_angleMovePanel);
+		
+		GridBagConstraints gbc_rdbtnForwards = new GridBagConstraints();
+		gbc_rdbtnForwards.anchor = GridBagConstraints.NORTHWEST;
+		gbc_rdbtnForwards.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnForwards.gridx = 0;
+		gbc_rdbtnForwards.gridy = 0;
+		rdbtnForwards.setSelected(true);
+		rdbtnForwards.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				if (rdbtnForwards.isSelected())
+					rdbtnBackwards.setSelected(false);
+				else
+					rdbtnBackwards.setSelected(true);
+			}
+		});
+		angleMovePanel.add(rdbtnForwards, gbc_rdbtnForwards);
+		
+		GridBagConstraints gbc_rdbtnBackwards = new GridBagConstraints();
+		gbc_rdbtnBackwards.anchor = GridBagConstraints.NORTHWEST;
+		gbc_rdbtnBackwards.insets = new Insets(0, 0, 0, 5);
+		gbc_rdbtnBackwards.gridx = 0;
+		gbc_rdbtnBackwards.gridy = 1;
+		rdbtnBackwards.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				if (rdbtnBackwards.isSelected())
+					rdbtnForwards.setSelected(false);
+				else
+					rdbtnForwards.setSelected(true);
+			}
+		});
+		angleMovePanel.add(rdbtnBackwards, gbc_rdbtnBackwards);
+		
+		GridBagConstraints gbc_rdbtnLeft = new GridBagConstraints();
+		gbc_rdbtnLeft.anchor = GridBagConstraints.NORTHWEST;
+		gbc_rdbtnLeft.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnLeft.gridx = 1;
+		gbc_rdbtnLeft.gridy = 0;
+		rdbtnLeft.setSelected(true);
+		rdbtnLeft.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				if (rdbtnLeft.isSelected())
+					rdbtnRight.setSelected(false);
+				else
+					rdbtnRight.setSelected(true);
+			}
+		});
+		angleMovePanel.add(rdbtnLeft, gbc_rdbtnLeft);
+
+		GridBagConstraints gbc_rdbtnRight = new GridBagConstraints();
+		gbc_rdbtnRight.anchor = GridBagConstraints.WEST;
+		gbc_rdbtnRight.insets = new Insets(0, 0, 0, 5);
+		gbc_rdbtnRight.gridx = 1;
+		gbc_rdbtnRight.gridy = 1;
+		rdbtnRight.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				if (rdbtnRight.isSelected())
+					rdbtnLeft.setSelected(false);
+				else
+					rdbtnLeft.setSelected(true);
+			}
+		});
+		angleMovePanel.add(rdbtnRight, gbc_rdbtnRight);
+		
+		GridBagConstraints gbc_anglemove = new GridBagConstraints();
+		gbc_anglemove.fill = GridBagConstraints.VERTICAL;
+		gbc_anglemove.gridheight = 2;
+		gbc_anglemove.gridwidth = 2;
+		gbc_anglemove.gridx = 2;
+		gbc_anglemove.gridy = 0;
+		angleMovePanel.add(anglemove, gbc_anglemove);
+		
 		
 		frame.addWindowListener(new ListenCloseWdw());
 
@@ -170,69 +247,15 @@ public class ControlGUI2 extends JFrame {
 	public void action() {
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				/*int[] command = {1,0,0,0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Start...");
-				// change timer to automatic stop when detecting the wall
-				// when vision will be ready
-				timer = new Timer();
-				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), 10 * 1000);*/
-				int[] command = {1,0,0,0};
-				try {
-					comms.sendToRobot(command);
-					Thread.sleep(40);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				System.out.println("Attempting to move in a straight line...");
-				
-				WorldState worldState = strat.getWorldState();
-				int startX = worldState.getBlueX();
-				strat.setStart(startX, worldState.getBlueY());
-				System.out.println("StartY: " + worldState.getBlueY());
-				while (worldState.getBlueX() < (startX + 480)) {
-					int[] correction = strat.getCorrection();
-					command[1] = correction[0];
-					command[2] = correction[1];
-					
-					try {
-						comms.sendToRobot(command);
-					} catch (IOException e1) {
-						System.out.println("Could not send command");
-						e1.printStackTrace();
-					}
-					System.out.println("Applying correction: " + Arrays.toString(correction));
-					
-					// Wait for next frame
-					try {
-						Thread.sleep(150);
-					}
-					catch(InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					worldState = strat.getWorldState();
-				}
-				try {
-					comms.sendToRobot(new int[]{3,0,0,0});
-				}
-				catch(IOException e1) {
-					e1.printStackTrace();
-				}
+				// Run in a new thread to free up UI while running
+				driveThread = new DriveThread();
+				driveThread.start();
 			}
 		});
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {4,0,0,0};
+				int[] command = {Commands.KICK, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -245,7 +268,7 @@ public class ControlGUI2 extends JFrame {
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {1,100,100,0};
+				int[] command = {Commands.FORWARDS, 100, 100, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -262,7 +285,7 @@ public class ControlGUI2 extends JFrame {
 		
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {2,0,0,0};
+				int[] command = {Commands.BACKWARDS, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -279,7 +302,7 @@ public class ControlGUI2 extends JFrame {
 		
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {10, 0, 0, 0};
+				int[] command = {Commands.LEFT, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -296,7 +319,7 @@ public class ControlGUI2 extends JFrame {
 		
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {11, 0, 0, 0};
+				int[] command = {Commands.RIGHT, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
@@ -313,24 +336,27 @@ public class ControlGUI2 extends JFrame {
 		
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {3,0,0,0};
+				// Stop the drive thread if it's running
+				driveThread.halt();
+				int[] command = {Commands.STOP, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
 				} catch (IOException e1) {
 					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
-				System.out.println("Stop...");
 				timer.cancel();
+				System.out.println("Stop...");
 			}
 		});
 		
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {6,-120,-30,0};//Angle is the sum of option1 + option2
+				int[] command = {Commands.ROTATE, -120, -30, 0};//Angle is the sum of option1 + option2
 				try {
 					comms.sendToRobot(command);
-				} catch (IOException e1) {
+				}
+				catch (IOException e1) {
 					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
@@ -340,12 +366,17 @@ public class ControlGUI2 extends JFrame {
 		
 		anglemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				byte direction = (byte) Integer.parseInt(angle.getText());				
+				byte direction = 0;
+				if (rdbtnForwards.isSelected())
+					direction |= 2;
+				if (rdbtnLeft.isSelected())
+					direction |= 1;
 				
-				int[] command = {12,-1,-1,direction};//Angle is the sum of option1 + option2
+				int[] command = {Commands.ANGLEMOVE, -1, -1, direction};
 				try {
 					comms.sendToRobot(command);
-				} catch (IOException e1) {
+				}
+				catch (IOException e1) {
 					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
@@ -355,10 +386,11 @@ public class ControlGUI2 extends JFrame {
 		
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {5,0,0,0};
+				int[] command = {Commands.QUIT, 0, 0, 0};
 				try {
 					comms.sendToRobot(command);
-				} catch (IOException e1) {
+				}
+				catch (IOException e1) {
 					System.out.println("Could not send command");
 					e1.printStackTrace();
 				}
@@ -376,10 +408,11 @@ public class ControlGUI2 extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
-			int[] command = {5,0,0,0};
+			int[] command = {Commands.QUIT, 0, 0, 0};
 			try {
 				comms.sendToRobot(command);
-			} catch (IOException e1) {
+			}
+			catch (IOException e1) {
 				System.out.println("Could not send command");
 				e1.printStackTrace();
 			}
@@ -388,13 +421,76 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 	
+	class DriveThread extends Thread {
+		private int STEP_DELAY = 150;
+		private boolean halted = false;
+		
+		public void halt() {
+			halted = true;
+		}
+		@Override
+		public void run() {
+			halted = false;
+			int[] command = {Commands.FORWARDS, 0, 0, 0};
+			try {
+				comms.sendToRobot(command);
+				Thread.sleep(STEP_DELAY);
+			}
+			catch (IOException e1) {
+				System.out.println("Could not send command");
+				e1.printStackTrace();
+			}
+			catch (InterruptedException e1) {
+				System.out.println("Drive thread interrupted");
+			}
+			System.out.println("Attempting to move in a straight line...");
+			
+			WorldState worldState = strat.getWorldState();
+			int startX = worldState.getBlueX();
+			strat.setStart(startX, worldState.getBlueY());
+			System.out.println("StartY: " + worldState.getBlueY());
+			while (worldState.getBlueX() < 570 && !halted) {
+				int[] correction = strat.getCorrection();
+				command[1] = correction[0];
+				command[2] = correction[1];
+				
+				try {
+					comms.sendToRobot(command);
+					System.out.println("Applying correction: " + Arrays.toString(correction));
+					
+					// Wait before updating correction
+					Thread.sleep(STEP_DELAY);
+				}
+				catch (IOException e1) {
+					System.out.println("Could not send command");
+					e1.printStackTrace();
+				}
+				catch(InterruptedException e1) {
+					System.out.println("Drive thread interrupted");
+				}
+				
+				worldState = strat.getWorldState();
+			}
+			// If the thread has been halted, the stop command was already issued.
+			if (!halted) {
+				try {
+					comms.sendToRobot(new int[]{Commands.STOP, 0, 0, 0});
+				}
+				catch(IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	class Stopping extends TimerTask{
 		@Override
 		public void run() {
-			int[] command = {3,0,0,0};
+			int[] command = {Commands.STOP, 0, 0, 0};
 			try {
 				comms.sendToRobot(command);
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				System.out.println("Could not send command");
 				e.printStackTrace();
 			}

@@ -15,12 +15,12 @@ public class Commands {
 	public final static int STOP = 3;
 	public final static int KICK = 4;
 	public final static int QUIT = 5;
-	public final static int FORWARDS_TRAVEL = 6;
+	public final static int ROTATE = 6;
 	public final static int TRAVEL_BACKWARDS_SLIGHTLY = 7;
 	public final static int TRAVEL_ARC = 8;
 	public final static int ACCELERATE = 9;
 	public final static int LEFT = 10;
-	public final static int RIGHT= 11;
-	public final static int ROTATE = 12;
+	public final static int RIGHT = 11;
+	public final static int ANGLEMOVE = 12;
 	public final static int TEST = 66;
 }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Represents the centre point of an object, for example the ball or a robot.
  * 
  * @author s0840449
- * @author Alex Adams (made some optimizatons)
+ * @author Alex Adams (made some optimizatons, tidied a few comments)
  */
 public class Position {
 	private int x;
@@ -105,9 +105,9 @@ public class Position {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
 	    		
-	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, this.getX(), this.getY())), 2);
+	    		stdev += sqrdEuclidDist(x, y, this.getX(), this.getY());
 	    	}
-	    	stdev  = (int) Math.sqrt(stdev / xs.size());
+	    	stdev  = (int) Math.sqrt((double) stdev / xs.size());
 	    	
 	    	int count = 0;
 	    	int newX = 0;
@@ -151,7 +151,7 @@ public class Position {
 	    	}
 	    	stdev = Math.sqrt((double) stdev / xs.size());
 	    	// Remove points further than standard deviation
-	    	stdev *= 1.17;	// Allow error margin?
+	    	stdev *= 1.17;	// Allow extra error margin?
 	    	for (int i = 0; i < xs.size(); i++) {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
