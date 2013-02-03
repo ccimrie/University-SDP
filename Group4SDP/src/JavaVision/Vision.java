@@ -45,7 +45,7 @@ public class Vision extends WindowAdapter {
 	private static final int BRIGHTNESS = 128;
 	private static final int CONTRAST = 64;
 	private static final int HUE = 0;
-	private static final int CHROMA_GAIN = 0;
+	private static final int CHROMA_GAIN = 113;
 	private static final int CHROMA_AGC = 1;
 	BufferedImage frameImage;
 //	private int[] xDistortion;
