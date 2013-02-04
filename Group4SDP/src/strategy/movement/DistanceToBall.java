@@ -5,7 +5,7 @@
 package strategy.movement;
 
 //calculates distance between two points
-
+//TODO - same as DistanceCalculator - need to change
 public class DistanceToBall {
 
     public static double Distance(double x1, double y1, double x2, double y2) {

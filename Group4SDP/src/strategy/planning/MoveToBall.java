@@ -17,7 +17,7 @@ public class MoveToBall extends Strategy implements Observer {
 
         @Override
         public void update(Observable obj, Object arg) {
-                // First we turn to the ball
+        // First we turn to the ball
         Robot us = world.ourRobot;
         Ball ball = world.ball;
         
@@ -27,7 +27,7 @@ public class MoveToBall extends Strategy implements Observer {
         // 2. Move forwards
         double distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
         System.out.println(String.format("Distance to ball is %f", distance));
-                double angle = TurnToBall.Turner(us, ball);
+        double angle = TurnToBall.Turner(us, ball);
         System.out.println(String.format("Angle of ball to robot is %f", angle));
         
         if(rotating && rc.isMoving()) {
