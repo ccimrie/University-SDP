@@ -273,6 +273,17 @@ public class ControlGUI implements ChangeListener {
 				if (result == JOptionPane.NO_OPTION || result == JOptionPane.CANCEL_OPTION) return;
 				
 				try {
+					
+					FileWriter writerDim = new FileWriter(new File("constants/pitch" + pitchNum + "Dimensions"));
+					/* We need to re-write the pitch dimensions. 
+					 * TODO: This currently means that cross-saving values
+					 * is basically unsupported as they will overwrite the
+					 * pitch dimensions incorrectly.*/
+					writerDim.write(String.valueOf(pitchConstants.topBuffer) + "\n");
+					writerDim.write(String.valueOf(pitchConstants.bottomBuffer) + "\n");
+					writerDim.write(String.valueOf(pitchConstants.leftBuffer) + "\n");
+					writerDim.write(String.valueOf(pitchConstants.rightBuffer) + "\n");
+					
 					FileWriter writer = new FileWriter(new File("constants/pitch" + pitchNum));
 					
 					/* Ball */
@@ -345,14 +356,7 @@ public class ControlGUI implements ChangeListener {
 					writer.write(String.valueOf(green_v.getValue()) + "\n");
 					writer.write(String.valueOf(green_v.getUpperValue()) + "\n");
 					
-					/* We need to re-write the pitch dimensions. 
-					 * TODO: This currently means that cross-saving values
-					 * is basically unsupported as they will overwrite the
-					 * pitch dimensions incorrectly.*/
-					writer.write(String.valueOf(pitchConstants.topBuffer) + "\n");
-					writer.write(String.valueOf(pitchConstants.bottomBuffer) + "\n");
-					writer.write(String.valueOf(pitchConstants.leftBuffer) + "\n");
-					writer.write(String.valueOf(pitchConstants.rightBuffer) + "\n");
+			
 					
 					writer.flush();
 					writer.close();

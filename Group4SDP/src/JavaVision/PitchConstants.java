@@ -1,17 +1,19 @@
 package JavaVision;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * A state object that holds the constants for various values about
- * the pitch, such as thresholding values and dimension variables.
+ * A state object that holds the constants for various values about the pitch,
+ * such as thresholding values and dimension variables.
  * 
  * @author s0840449
  */
 public class PitchConstants {
 	
 	// The pitch number. 0 is the main pitch, 1 is the side pitch
+
 	private int pitchNum;
 
 	// Ball
@@ -55,8 +57,8 @@ public class PitchConstants {
 	public int yellow_s_high;
 	public int yellow_v_low;
 	public int yellow_v_high;
-	
-	// Grey Circles
+
+	// Grey Circles 
 	public int grey_r_low;
 	public int grey_r_high;
 	public int grey_g_low;
@@ -71,6 +73,7 @@ public class PitchConstants {
 	public int grey_v_high;
 	
 	// Green plates
+
 	public int green_r_low;
 	public int green_r_high;
 	public int green_g_low;
@@ -88,42 +91,76 @@ public class PitchConstants {
 	// When scanning the pitch we look at pixels starting from 0 + topBuffer and 
 	// 0 + leftBuffer, and then scan to pixels at 480 - bottomBuffer and 
 	// 640 - rightBuffer.
+
 	public int topBuffer;
 	public int bottomBuffer;
 	public int leftBuffer;
 	public int rightBuffer;
-	
+
 	/**
 	 * Default constructor.
 	 * 
-	 * @param pitchNum		The pitch that we are on.
+	 * @param pitchNum
+	 *            The pitch that we are on.
 	 */
 	public PitchConstants(int pitchNum) {
 		// Just call the setPitchNum method to load in the constants
 		setPitchNum(pitchNum);
+
 	}
-	
+
 	/**
-	 * Sets a new pitch number, loading in constants from the corresponding file.
-	 * 	
-	 * @param newPitchNum		The pitch number to use.
+	 * Sets a new pitch number, loading in constants from the corresponding
+	 * file.
+	 * 
+	 * @param newPitchNum
+	 *            The pitch number to use.
 	 */
 	public void setPitchNum(int newPitchNum) {
+
+
 		assert (newPitchNum >= 0 && newPitchNum <= 1) : "Invalid pitch number";
 		this.pitchNum = newPitchNum;
 		
 		loadConstants(System.getProperty("user.dir") + "/constants/pitch" + pitchNum);
+
 	}
-	
+
 	/**
-	 * Load in the constants from a file. Note that this assumes that the constants
-	 * file is well formed.
+	 * Load in the constants from a file. Note that this assumes that the
+	 * constants file is well formed.
 	 * 
-	 * @param fileName		The file name to load constants from.
+	 * @param fileName
+	 *            The file name to load constants from.
 	 */
 	public void loadConstants(String fileName) {
-		Scanner scanner;
+
+
+		Scanner scannerDim;
+
+		try {
+			scannerDim = new Scanner(new File(fileName + "Dimensions"));
+		} catch (FileNotFoundException e) {
+			System.err.println("Cannot load constants file " + fileName
+					+ "Dimensions" + ":");
+			System.err.println(e.getMessage());
+			loadDefaultConstants();
+			return;
+		}
+
+		assert (scannerDim != null);
 		
+		/* We assume that the file is well formed. */
+
+		/* Pitch Dimensions */
+		this.topBuffer = scannerDim.nextInt();
+		this.bottomBuffer = scannerDim.nextInt();
+		this.leftBuffer = scannerDim.nextInt();
+		this.rightBuffer = scannerDim.nextInt();
+
+
+		Scanner scanner;
+
 		try {
 			scanner = new Scanner(new File(fileName));
 		} catch (FileNotFoundException e) {
@@ -138,6 +175,7 @@ public class PitchConstants {
 		// We assume that the file is well formed
 		
 		// Ball
+
 		this.ball_r_low = scanner.nextInt();
 		this.ball_r_high = scanner.nextInt();
 		this.ball_g_low = scanner.nextInt();
@@ -178,8 +216,9 @@ public class PitchConstants {
 		this.yellow_s_high = scanner.nextInt();
 		this.yellow_v_low = scanner.nextInt();
 		this.yellow_v_high = scanner.nextInt();
-		
+	
 		// Grey Circles
+
 		this.grey_r_low = scanner.nextInt();
 		this.grey_r_high = scanner.nextInt();
 		this.grey_g_low = scanner.nextInt();
@@ -194,6 +233,7 @@ public class PitchConstants {
 		this.grey_v_high = scanner.nextInt();
 		
 		// Green Plates
+
 		this.green_r_low = scanner.nextInt();
 		this.green_r_high = scanner.nextInt();
 		this.green_g_low = scanner.nextInt();
@@ -206,19 +246,14 @@ public class PitchConstants {
 		this.green_s_high = scanner.nextInt();
 		this.green_v_low = scanner.nextInt();
 		this.green_v_high = scanner.nextInt();
-		
-		// Pitch Dimensions
-		this.topBuffer = scanner.nextInt();
-		this.bottomBuffer = scanner.nextInt();
-		this.leftBuffer = scanner.nextInt();
-		this.rightBuffer = scanner.nextInt();
 	}
-	
+
 	/**
 	 * Loads default values for the constants, used when loading from a file
 	 * fails.
 	 */
 	public void loadDefaultConstants() {
+
 		// Ball
 		this.ball_r_low = 0;
 		this.ball_r_high = 255;
@@ -260,8 +295,9 @@ public class PitchConstants {
 		this.yellow_s_high = 10;
 		this.yellow_v_low = 0;
 		this.yellow_v_high = 10;
-		
+	
 		// Grey Circles
+
 		this.grey_r_low = 0;
 		this.grey_r_high = 255;
 		this.grey_g_low = 0;
@@ -274,8 +310,10 @@ public class PitchConstants {
 		this.grey_s_high = 10;
 		this.grey_v_low = 0;
 		this.grey_v_high = 10;
+
 		
 		// Green plates
+
 		this.green_r_low = 0;
 		this.green_r_high = 255;
 		this.green_g_low = 0;
@@ -294,5 +332,6 @@ public class PitchConstants {
 		this.bottomBuffer = 0;
 		this.leftBuffer = 0;
 		this.rightBuffer = 0;
+
 	}
 }
