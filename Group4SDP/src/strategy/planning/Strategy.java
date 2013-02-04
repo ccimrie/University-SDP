@@ -3,14 +3,21 @@ package strategy.planning;
 import java.util.Observable;
 import java.util.Observer;
 
+import world.state.RobotController;
+import world.state.RobotType;
 import world.state.World;
 
-import comms.control.Server;
+import communication.BluetoothCommunication;
+import communication.DeviceInfo;
 
 public abstract class Strategy implements Observer {
         
         World world = World.getInstance();
-        Server rc = Server.getInstance();
+        BluetoothCommunication comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+        RobotController rc = new RobotController(RobotType.Us);
+        
+        // Returns new Server() empty constructor - same as our BluetoothConnection.java
+        //Server rc = Server.getInstance();
         
         public void execute() {
                 // Add this instance as an observer to the world to be notified of frame updates
@@ -22,6 +29,7 @@ public abstract class Strategy implements Observer {
         
         public void stop() {
                 world.deleteObservers();
+                rc.setComms(comms);
                 rc.stop();
         }
         

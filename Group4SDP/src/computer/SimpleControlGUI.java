@@ -304,15 +304,7 @@ public class SimpleControlGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
 				//driveThread.halt();
-				int[] command = {Commands.STOP, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				timer.cancel();
-				System.out.println("Stop...");
+				robot.stop(timer);
 			}
 		});
 		
