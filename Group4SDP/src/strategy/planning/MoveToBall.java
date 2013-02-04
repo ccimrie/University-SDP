@@ -18,7 +18,7 @@ public class MoveToBall extends Strategy implements Observer {
 	
 	private static final int distanceFromBallToStop = 60;
 	private static boolean rotating = false;
-	BluetoothCommunication connection = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+	
 
 	@Override
 	public void update(Observable obj, Object arg) {
@@ -45,19 +45,8 @@ public class MoveToBall extends Strategy implements Observer {
 		if(Math.abs(angle) > 30) {
 			// Stop everything and turn
 			System.out.println("Stop and turn");
-			int[] stop_command = {Commands.STOP,0,0,0};
-			//TODO - take the angle of rotation into account. Depends on rotate implementation
-			int[] rotate_command = {Commands.ROTATE,0,0,0};
-			//rc.rotate(-angle);
-			
-			// Send commands
-			try {
-				connection.sendToRobot(stop_command);
-				connection.sendToRobot(rotate_command);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.out.println("Command not sent - check bluetooth connection");
-			}
+
+			rc.rotate(-angle);
 			
 			rotating = true;
 			// We don't want to carry on after this command!
