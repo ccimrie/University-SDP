@@ -10,18 +10,17 @@ public class WorldState {
 	private int yellowY;
 	private int ballX;
 	private int ballY;
-	private float blueOrientation;
-	private float yellowOrientation;
+	private double blueOrientation;
+	private double yellowOrientation;
 	private long counter;
 
 	public WorldState() {
-
-		/* control properties */
+		// control properties
 		this.direction = 0;
 		this.colour = 0;
 		this.pitch = 0;
 
-		/* object properties */
+		// object properties
 		this.blueX = 0;
 		this.blueY = 0;
 		this.yellowX = 0;
@@ -71,19 +70,19 @@ public class WorldState {
 		this.ballY = ballY;
 	}
 
-	public float getBlueOrientation() {
+	public double getBlueOrientation() {
 		return blueOrientation;
 	}
 
-	public void setBlueOrientation(float blueOrientation) {
+	public void setBlueOrientation(double blueOrientation) {
 		this.blueOrientation = blueOrientation;
 	}
 
-	public float getYellowOrientation() {
+	public double getYellowOrientation() {
 		return yellowOrientation;
 	}
 
-	public void setYellowOrientation(float yellowOrientation) {
+	public void setYellowOrientation(double yellowOrientation) {
 		this.yellowOrientation = yellowOrientation;
 	}
 

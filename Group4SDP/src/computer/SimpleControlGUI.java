@@ -10,14 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JButton;
+import javax.swing.UIManager;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.JButton;
+import javax.swing.JRadioButton;
 
 import JavaVision.WorldState;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
@@ -26,7 +25,6 @@ import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 import strategy.planning.Commands;
 import strategy.movement.StraightLineVision;
-import javax.swing.JRadioButton;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
@@ -65,17 +63,9 @@ public class SimpleControlGUI extends JFrame {
 	private static StraightLineVision strat = new StraightLineVision();
 
 	public static void main(String[] args) throws IOException {
-		// Make the GUI pretty - uses search because of class name differences
-		// between JRE 1.6 and 1.7:
-		// 1.6: com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel
-		// 1.7: javax.swing.plaf.nimbus.NimbusLookAndFeel
+		// Make the GUI pretty
 		try {
-			String look = "";
-			LookAndFeelInfo[] plafs = UIManager.getInstalledLookAndFeels();
-		    for (LookAndFeelInfo info : plafs)
-		        if (info.getName().contains("Nimbus"))
-		            look = info.getClassName();
-			UIManager.setLookAndFeel(look);
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -1,6 +1,5 @@
 package JavaVision;
-/* FROM: https://github.com/ernieyu/Swing-range-slider */
-
+// FROM: https://github.com/ernieyu/Swing-range-slider
 /* The MIT License
 
 Copyright (c) 2010 Ernest Yu. All rights reserved.
@@ -45,7 +44,6 @@ import javax.swing.plaf.basic.BasicSliderUI;
 * one for the lower value and one for the upper value.
 */
 class RangeSliderUI extends BasicSliderUI {
-
 	/** Color of selected range. */
 	private Color rangeColor = Color.GREEN;
 

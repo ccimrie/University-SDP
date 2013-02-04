@@ -1,4 +1,6 @@
 package JavaVision;
+
+@SuppressWarnings("serial")
 public class NoAngleException extends Exception {
 	public NoAngleException() {
 		super();

@@ -1,6 +1,5 @@
 package JavaVision;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +19,6 @@ public class Position {
 	 * @param y		The y-coordinate of the object.
 	 */
 	public Position(int x, int y) {
-		super();
 		this.x = x;
 		this.y = y;
 	}
@@ -60,7 +58,6 @@ public class Position {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
 	
 	/**
 	 * Compares the current x and y co-ordinates to another set
