@@ -90,7 +90,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     }
     
     public void connectVision() {
-        WorldState worldState = vision.getWorldState();
+    	WorldState worldState = vision.getWorldState();
         this.ourRobot.x = worldState.getBlueX();
 		this.ourRobot.y = worldState.getBlueY();
 		this.ourRobot.setPosition(new Vector(worldState.getBlueX(), worldState.getBlueY()));
