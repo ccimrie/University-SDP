@@ -42,13 +42,20 @@ public class Vision extends WindowAdapter {
 	private BufferedImage frameImage;
 	private int width, height;
 
+	boolean selectionActive = false;
+	Point anchor;
+	int a;
+	int b;
+	int c;
+	int d;
+
 	private static final int SATURATION = 64;
 	private static final int BRIGHTNESS = 128;
 	private static final int CONTRAST = 64;
 	private static final int HUE = 0;
 	private static final int CHROMA_GAIN = 0;
 	private static final int CHROMA_AGC = 1;
-	
+
 	// GUI variables
 	private JLabel label;
 	private JFrame windowFrame;
@@ -56,10 +63,10 @@ public class Vision extends WindowAdapter {
 	// Variables used in processing video
 	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
-	private static final double barrelCorrectionX = -0.016;	
+	private static final double barrelCorrectionX = -0.016;
 	private static final double barrelCorrectionY = -0.13;
 	private WorldState worldState;
-	
+
 	/**
 	 * Default constructor.
 	 * 
@@ -92,7 +99,8 @@ public class Vision extends WindowAdapter {
 		this.pitchConstants = pitchConstants;
 
 		// Initialise the GUI that displays the video feed.
-		initFrameGrabber(videoDevice, width, height, channel, videoStandard, compressionQuality);
+		initFrameGrabber(videoDevice, width, height, channel, videoStandard,
+				compressionQuality);
 		initGUI();
 	}
 
@@ -102,7 +110,7 @@ public class Vision extends WindowAdapter {
 	public WorldState getWorldState() {
 		return worldState;
 	}
-	
+
 	/**
 	 * Creates the graphical interface components and initialises them
 	 */
@@ -114,84 +122,98 @@ public class Vision extends WindowAdapter {
 		windowFrame.addWindowListener(this);
 		windowFrame.setVisible(true);
 		windowFrame.setSize(width, height);
-		
-		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
-			
 
-            Point start = new Point();
-            Rectangle selection;
-            Point anchor;
-            int a; 
-            int b; 
-            int c; 
-            int d; 
-          
-            public void mousePressed(MouseEvent e) {
-                anchor = e.getPoint();
-                System.out.println(anchor.x);
-                System.out.println(anchor.y);
-                selection = new Rectangle(anchor);
-            }
-            public void mouseDragged(MouseEvent e) {
-           
-             //System.out.println("The mouse is being dragged");
-            	selection.setBounds( (int)Math.min(anchor.x,e.getX()), (int)Math.min(anchor.y,e.getY()),
-                        (int)Math.abs(e.getX()-anchor.x), (int)Math.abs(e.getY()-anchor.y));
-            	
-            	 a =  (int)Math.min(anchor.x,e.getX());
-            	 b = (int)Math.min(anchor.y,e.getY());
-            	 c = (int)Math.abs(e.getX()-anchor.x);
-            	 d = (int)Math.abs(e.getY()-anchor.y);
-            	 
-         
-            }
-            public void mouseReleased(MouseEvent e) {
-              //  selection = null;
-            	//pitchConstants
-            	//windowFrame.setSize(selection.getSize());
-            	
-            	
-            	Object[] options = {"Main Pitch",
-                        "Side Pitch"};
-            	int pitchNum = JOptionPane.showOptionDialog(windowFrame.getComponent(0),
-            		    "The parameters are to be set for this pitch",
-            		    "A Silly Question",
-            		    JOptionPane.YES_NO_CANCEL_OPTION,
-            		    JOptionPane.QUESTION_MESSAGE,
-            		    null,
-            		    options,
-            		    options[1]);
-            	
-            	System.out.println(pitchNum);
-            	try{
-            	    
-            		
-            	FileWriter writer = new FileWriter(new File("constants/pitch" + pitchNum + "Dimensions"));
-            	
-            	          	
-				writer.write(String.valueOf(a) + "\n");
-				writer.write(String.valueOf(height - a - d) + "\n");
-				writer.write(String.valueOf(b) + "\n");
-				writer.write(String.valueOf(width - b - c) + "\n");
-				
-				writer.flush();
-				writer.close();
-				
-				System.out.println("Wrote pitch const");
-            	} catch (IOException writerException) {
-            		System.out.println("Exception thrown when writing pitch dimensions" + writerException);
-            	};
-            	
-            
-            	System.out.println("A: " + a + " B: " + b + " C: " + c + " D:" + d); 
-                windowFrame.repaint();
-            }
-		
+		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
+
+			Point start = new Point();
+			Rectangle selection;
+
+			public void mousePressed(MouseEvent e) {
+				anchor = e.getPoint();
+				System.out.println(anchor.x);
+				System.out.println(anchor.y);
+				selection = new Rectangle(anchor);
+				selectionActive = true;
+			}
+
+			public void mouseMoved(MouseEvent e) {
+				System.out.println(e.getPoint());
+			}
+
+			// TODO: blah
+			public void mouseDragged(MouseEvent e) {
+
+				// System.out.println("The mouse is being dragged");
+				selection.setBounds((int) Math.min(anchor.x, e.getX()),
+						(int) Math.min(anchor.y, e.getY()),
+						(int) Math.abs(e.getX() - anchor.x),
+						(int) Math.abs(e.getY() - anchor.y));
+
+				a = (int) Math.min(anchor.x, e.getX());
+				b = (int) Math.min(anchor.y, e.getY());
+				c = (int) Math.abs(e.getX() - anchor.x);
+				d = (int) Math.abs(e.getY() - anchor.y);
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				// selection = null;
+				// pitchConstants
+				// windowFrame.setSize(selection.getSize());
+
+				selectionActive = false;
+				Object[] options = { "Main Pitch", "Side Pitch" };
+				int pitchNum = JOptionPane
+						.showOptionDialog(windowFrame.getComponent(0),
+								"The parameters are to be set for this pitch",
+								"A Silly Question",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[1]);
+
+				System.out.println(pitchNum);
+				try {
+
+					int top = b;
+					int bottom = height - d - b;
+					int left = a;
+					int right = width - c - a;
+					if (top > 0 && bottom > 0 && left > 0 && right > 0) {
+						FileWriter writer = new FileWriter(new File(
+								"constants/pitch" + pitchNum + "Dimensions"));
+
+						writer.write("" + top + "\n");
+						writer.write("" + bottom + "\n");
+						writer.write("" + left + "\n");
+						writer.write("" + right + "\n");
+
+						writer.flush();
+						writer.close();
+						System.out.println("Wrote pitch const");
+						System.out.println("Top: " + top + " Bottom " + bottom
+								+ " Right " + right + " Left" + left);
+					} else {
+						System.out.println("Pitch selection NOT succesful");
+						System.out.println("Top: " + top + " Bottom " + bottom
+								+ " Right " + right + "Left" + left);
+
+					}
+				} catch (IOException writerException) {
+					System.out
+							.println("Exception thrown when writing pitch dimensions"
+									+ writerException);
+				}
+				;
+
+				System.out.println("A: " + a + " B: " + b + " C: " + c + " D:"
+						+ d);
+				windowFrame.repaint();
+			}
+
 		};
-		
-		windowFrame.addMouseListener(mouseSelector);
-		windowFrame.addMouseMotionListener(mouseSelector);
-	
+
+		label.addMouseListener(mouseSelector);
+		label.addMouseMotionListener(mouseSelector);
+
 	}
 
 	/**
@@ -255,20 +277,22 @@ public class Vision extends WindowAdapter {
 				System.err.println("Unable to capture frame:");
 				e.printStackTrace();
 			}
+
 			int frameCounter = 0;
 
 			public void nextFrame(VideoFrame frame) {
 				// Used to calculate frame rate
 				long before = System.currentTimeMillis();
-				
+
 				frameImage = frame.getBufferedImage();
 				frame.recycle();
-				
-				// Wait a few frames before starting processing due to visual artifacting
+
+				// Wait a few frames before starting processing due to visual
+				// artifacting
 				// during initialization process
 				if (frameCounter > 5)
 					processAndUpdateImage(frameImage, before, frameCounter);
-				
+
 				frameCounter++;
 			}
 		});
@@ -295,7 +319,7 @@ public class Vision extends WindowAdapter {
 
 		System.exit(0);
 	}
-	
+
 	/**
 	 * Determines if a pixel is part of the blue T, based on input RGB colours
 	 * and hsv values.
@@ -322,7 +346,7 @@ public class Vision extends WindowAdapter {
 				&& color.getBlue() <= thresholdsState.getBlue_b_high()
 				&& color.getBlue() >= thresholdsState.getBlue_b_low();
 	}
-	
+
 	/**
 	 * Determines if a pixel is part of the yellow T, based on input RGB colours
 	 * and hsv values.
@@ -436,9 +460,8 @@ public class Vision extends WindowAdapter {
 	 * by the camera lens
 	 * 
 	 * @param original
-	 * 			The point before correction
-	 * @return
-	 * 			The point after correction
+	 *            The point before correction
+	 * @return The point after correction
 	 */
 	public Point convertToBarrelCorrected(Point original) {
 		// first normalise pixel
@@ -455,10 +478,10 @@ public class Vision extends WindowAdapter {
 		// then convert back
 		int pixi = (int) (((px1 + 1) * width) / 2);
 		int pixj = (int) (((py1 + 1) * height) / 2);
-		
+
 		return new Point(pixi, pixj);
 	}
-	
+
 	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
@@ -469,7 +492,8 @@ public class Vision extends WindowAdapter {
 	 * @param counter
 	 */
 
-	public void processAndUpdateImage(BufferedImage image, long before, int counter) {
+	public void processAndUpdateImage(BufferedImage image, long before,
+			int counter) {
 		int ballX = 0;
 		int ballY = 0;
 		int numBallPos = 0;
@@ -490,42 +514,40 @@ public class Vision extends WindowAdapter {
 		ArrayList<Integer> yellowYPoints = new ArrayList<Integer>();
 
 		// For the black frame of the pitch
-//
-//		ArrayList<Integer> blackXupperPoints = new ArrayList<Integer>();
-//		ArrayList<Integer> blackXlowerPoints = new ArrayList<Integer>();
+		//
+		// ArrayList<Integer> blackXupperPoints = new ArrayList<Integer>();
+		// ArrayList<Integer> blackXlowerPoints = new ArrayList<Integer>();
 
 		int topBuffer = pitchConstants.topBuffer;
 		int bottomBuffer = pitchConstants.bottomBuffer;
 		int leftBuffer = pitchConstants.leftBuffer;
 		int rightBuffer = pitchConstants.rightBuffer;
 
-
 		/*
 		 * For every pixel within the pitch, test to see if it belongs to the
 		 * ball, the yellow T, the blue T, either green plate or a grey circle.
 		 */
-		
+
 		// For every pixel within the pitch, test to see if it belongs to the
 		// ball, the yellow T, the blue T, either green plate or a grey circle.
 		for (int row = topBuffer; row < image.getHeight() - bottomBuffer; row++) {
-			for (int column = leftBuffer; column < image.getWidth() - rightBuffer; column++) {				
+			for (int column = leftBuffer; column < image.getWidth()
+					- rightBuffer; column++) {
 				// The RGB colours and hsv values for the current pixel.
 				Color c = new Color(image.getRGB(column, row));
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
-				
-				 // LINE TO MARK UPPER WALLS:
-				
-//				 image.getGraphics().setColor(Color.RED); 
-//				 image.getGraphics().drawLine(114, 64, 114+498, 64);		 
-//				 image.getGraphics().drawLine(114, 64, 114, 64+84);
-				
-				
+
+				// LINE TO MARK UPPER WALLS:
+
+				// image.getGraphics().setColor(Color.RED);
+				// image.getGraphics().drawLine(114, 64, 114+498, 64);
+				// image.getGraphics().drawLine(114, 64, 114, 64+84);
+
 				/*
 				 * Debug graphics for the grey circles and green plates. TODO:
 				 * Move these into the actual detection.
 				 */
-
 
 				if (thresholdsState.isGrey_debug() && isGrey(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
@@ -533,9 +555,6 @@ public class Vision extends WindowAdapter {
 				if (thresholdsState.isGreen_debug() && isGreen(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
 				}
-
-
-
 
 				// Is this pixel part of the Blue T?
 				if (isBlue(c, hsbvals)) {
@@ -571,7 +590,6 @@ public class Vision extends WindowAdapter {
 					}
 				}
 
-
 				/* Is this pixel part of the Ball? */
 
 				if (isBall(c, hsbvals)) {
@@ -592,7 +610,8 @@ public class Vision extends WindowAdapter {
 			}
 		}
 
-		// Position objects to hold the centre point of the ball and both robots.
+		// Position objects to hold the centre point of the ball and both
+		// robots.
 		Position ball;
 		Position blue;
 		Position yellow;
@@ -602,17 +621,17 @@ public class Vision extends WindowAdapter {
 		if (numBallPos > 0) {
 			ballX /= numBallPos;
 			ballY /= numBallPos;
-			
+
 			ball = new Position(ballX, ballY);
 			ball.fixValues(worldState.getBallX(), worldState.getBallY());
 			ball.filterPoints(ballXPoints, ballYPoints);
 		} else {
 			ball = new Position(worldState.getBallX(), worldState.getBallY());
 		}
-		
+
 		Point ballP = new Point(ballX, ballY);
-		ArrayList<Point> goodPoints = Position.removeOutliers(ballXPoints, ballYPoints, ballP);
-		
+		ArrayList<Point> goodPoints = Position.removeOutliers(ballXPoints,
+				ballYPoints, ballP);
 
 		ballXPoints = new ArrayList<Integer>();
 		ballYPoints = new ArrayList<Integer>();
@@ -621,10 +640,8 @@ public class Vision extends WindowAdapter {
 			ballYPoints.add((int) goodPoints.get(k).getY());
 		}
 
-
-		
-		 //If we have only found a few 'Blue' pixels, chances are that the ball
-		 //has not actually been detected.
+		// If we have only found a few 'Blue' pixels, chances are that the ball
+		// has not actually been detected.
 
 		if (numBluePos > 0) {
 			blueX /= numBluePos;
@@ -637,7 +654,6 @@ public class Vision extends WindowAdapter {
 			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
 		}
 
-
 		// If we have only found a few 'Yellow' pixels, chances are that the
 		// yellow T has not actually been detected.
 
@@ -649,13 +665,14 @@ public class Vision extends WindowAdapter {
 			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
 			yellow.filterPoints(yellowXPoints, yellowYPoints);
 		} else {
-			yellow = new Position(worldState.getYellowX(), worldState.getYellowY());
+			yellow = new Position(worldState.getYellowX(),
+					worldState.getYellowY());
 		}
 
 		Point yellowP = new Point(yellowX, yellowY);
 
-		goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints, yellowP);
-		
+		goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints,
+				yellowP);
 
 		yellowXPoints = new ArrayList<Integer>();
 		yellowYPoints = new ArrayList<Integer>();
@@ -664,45 +681,50 @@ public class Vision extends WindowAdapter {
 			yellowYPoints.add((int) goodPoints.get(k).getY());
 		}
 
-
-
 		// Attempt to find the blue robot's orientation.
 		try {
-			double blueOrientation = findOrient(image, blue, blueXPoints, blueYPoints, 120, 500);
-			
+			double blueOrientation = findOrient(image, blue, blueXPoints,
+					blueYPoints, 120, 500);
+
 			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(blueOrientation - worldState.getBlueOrientation());
+			double diff = Math.abs(blueOrientation
+					- worldState.getBlueOrientation());
 			if (blueOrientation != 0 && diff > 0.05) {
 				// Clamp angle to 5 degree increments
-				blueOrientation = Math.round(Math.toDegrees(blueOrientation) / 5) * 5;
+				blueOrientation = Math
+						.round(Math.toDegrees(blueOrientation) / 5) * 5;
 				worldState.setBlueOrientation(Math.toRadians(blueOrientation));
 
 			}
 		} catch (NoAngleException e) {
-			System.out.println(e.getMessage());
+			// System.out.println(e.getMessage());
 		}
 
 		// Attempt to find the yellow robot's orientation.
 		try {
 
-			double yellowOrientation = findOrient(image, yellow, yellowXPoints, yellowYPoints, 120, 500);
+			double yellowOrientation = findOrient(image, yellow, yellowXPoints,
+					yellowYPoints, 120, 500);
 
 			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(yellowOrientation - worldState.getYellowOrientation());
+			double diff = Math.abs(yellowOrientation
+					- worldState.getYellowOrientation());
 			if (yellowOrientation != 0 && diff > 0.05) {
 				// Clamp angle to 5 degree increments
-				yellowOrientation = Math.round(Math.toDegrees(yellowOrientation) / 5) * 5;
-				worldState.setYellowOrientation(Math.toRadians(yellowOrientation));
+				yellowOrientation = Math.round(Math
+						.toDegrees(yellowOrientation) / 5) * 5;
+				worldState.setYellowOrientation(Math
+						.toRadians(yellowOrientation));
 			}
 		} catch (NoAngleException e) {
-			System.out.println(e.getMessage());
+			// System.out.println(e.getMessage());
 		}
-		
+
 		// Apply Barrel correction (fixes fish-eye effect)
-//		ball = convertToBarrelCorrected(ball);
-//		blue = convertToBarrelCorrected(blue);
-//		yellow = convertToBarrelCorrected(yellow);
-		
+		// ball = convertToBarrelCorrected(ball);
+		// blue = convertToBarrelCorrected(blue);
+		// yellow = convertToBarrelCorrected(yellow);
+
 		worldState.setBallX(ball.getX());
 		worldState.setBallY(ball.getY());
 
@@ -719,14 +741,16 @@ public class Vision extends WindowAdapter {
 		// Only display these markers in non-debug mode.
 		if (!(thresholdsState.isBall_debug() || thresholdsState.isBlue_debug()
 				|| thresholdsState.isYellow_debug()
-				|| thresholdsState.isGreen_debug() || thresholdsState.isGrey_debug())) {
+				|| thresholdsState.isGreen_debug() || thresholdsState
+				.isGrey_debug())) {
 			imageGraphics.setColor(Color.red);
 			imageGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 			imageGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
 			imageGraphics.setColor(Color.blue);
 			imageGraphics.drawOval(blue.getX() - 15, blue.getY() - 15, 30, 30);
 			imageGraphics.setColor(Color.yellow);
-			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30, 30);
+			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30,
+					30);
 			imageGraphics.setColor(Color.white);
 		}
 
@@ -737,16 +761,30 @@ public class Vision extends WindowAdapter {
 		double fps = 1000.0 / (double) (after - before);
 		imageGraphics.setColor(Color.white);
 		imageGraphics.drawString("FPS: " + fps, 15, 15);
-	
+
 		// Display Ball & Robot Positions
-		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", " + worldState.getBallY() + ")", 15, 30);
+		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", "
+				+ worldState.getBallY() + ")", 15, 30);
 		imageGraphics.drawString("Blue: (" + worldState.getBlueX() + ", "
-											+ worldState.getBlueY() + ") Orientation: "
-											+ (180.0 * worldState.getBlueOrientation() / Math.PI), 15, 45);
-		imageGraphics.drawString("Yellow: ("+ worldState.getYellowX() + ", "
-											+ worldState.getYellowY() + ") Orientation: "
-											+ (180.0 * worldState.getYellowOrientation() / Math.PI), 15, 60);
-		
+				+ worldState.getBlueY() + ") Orientation: "
+				+ (180.0 * worldState.getBlueOrientation() / Math.PI), 15, 45);
+		imageGraphics
+				.drawString(
+						"Yellow: ("
+								+ worldState.getYellowX()
+								+ ", "
+								+ worldState.getYellowY()
+								+ ") Orientation: "
+								+ (180.0 * worldState.getYellowOrientation() / Math.PI),
+						15, 60);
+
+		// TODO: blah
+
+		// Draw the line around the pitch dimensions
+		if (selectionActive) {
+			imageGraphics.setColor(Color.YELLOW);
+			imageGraphics.drawRect(a, b, c, d);
+		}
 		frameGraphics.drawImage(image, 0, 0, width, height, null);
 
 	}
@@ -768,7 +806,8 @@ public class Vision extends WindowAdapter {
 		int index = 0;
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double currentDist = Position.sqrdEuclidDist(centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double currentDist = Position.sqrdEuclidDist(centroid.getX(),
+					centroid.getY(), xpoints.get(i), ypoints.get(i));
 
 			if (currentDist > dist && currentDist < distM) {
 				dist = currentDist;
@@ -782,8 +821,10 @@ public class Vision extends WindowAdapter {
 		dist = 0;
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double dc = Position.sqrdEuclidDist(centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
-			double currentDist = Position.sqrdEuclidDist(points[0].getX(), points[0].getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(centroid.getX(),
+					centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double currentDist = Position.sqrdEuclidDist(points[0].getX(),
+					points[0].getY(), xpoints.get(i), ypoints.get(i));
 			if (currentDist > dist && dc < distM) {
 				dist = currentDist;
 				index = i;
@@ -798,13 +839,16 @@ public class Vision extends WindowAdapter {
 		if (points[0].getX() == points[1].getX()) {
 			throw new NoAngleException("");
 		}
-		double m1 = (points[0].getY() - points[1].getY()) / ((points[0].getX() - points[1].getX()) * 1.0);
+		double m1 = (points[0].getY() - points[1].getY())
+				/ ((points[0].getX() - points[1].getX()) * 1.0);
 		double b1 = points[0].getY() - m1 * points[0].getX();
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double d = Math.abs(m1 * xpoints.get(i) - ypoints.get(i) + b1) / (Math.sqrt(m1 * m1 + 1));
+			double d = Math.abs(m1 * xpoints.get(i) - ypoints.get(i) + b1)
+					/ (Math.sqrt(m1 * m1 + 1));
 
-			double dc = Position.sqrdEuclidDist(centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(centroid.getX(),
+					centroid.getY(), xpoints.get(i), ypoints.get(i));
 			if (d > dist && dc < distM) {
 				dist = d;
 				index = i;
@@ -817,8 +861,10 @@ public class Vision extends WindowAdapter {
 		index = 0;
 		dist = 0;
 		for (int i = 0; i < xpoints.size(); i++) {
-			double dc = Position.sqrdEuclidDist(centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
-			double d3 = Position.sqrdEuclidDist(points[2].getX(), points[2].getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(centroid.getX(),
+					centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double d3 = Position.sqrdEuclidDist(points[2].getX(),
+					points[2].getY(), xpoints.get(i), ypoints.get(i));
 			if (d3 > dist && dc < distM) {
 				dist = d3;
 				index = i;
@@ -827,11 +873,9 @@ public class Vision extends WindowAdapter {
 		points[3].setX(xpoints.get(index));
 		points[3].setY(ypoints.get(index));
 
-		
 		Graphics frameGraphics = frameImage.getGraphics();
-		for(int i=0; i<points.length; i++)
+		for (int i = 0; i < points.length; i++)
 			frameGraphics.drawOval(points[i].getX(), points[i].getY(), 3, 3);
-
 
 		return points;
 	}
@@ -846,7 +890,8 @@ public class Vision extends WindowAdapter {
 			throw new NoAngleException("");
 		}
 
-		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT, distM);
+		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT,
+				distM);
 
 		double[][] distanceMatrix = new double[4][4];
 		for (int i = 0; i < distanceMatrix.length; i++)
@@ -864,7 +909,8 @@ public class Vision extends WindowAdapter {
 
 		for (int i = 0; i < distanceMatrix.length; i++)
 			for (int j = 0; j < distanceMatrix[0].length; j++) {
-				if (distanceMatrix[i][j] < distance && distanceMatrix[i][j] != 0) {
+				if (distanceMatrix[i][j] < distance
+						&& distanceMatrix[i][j] != 0) {
 					distance = distanceMatrix[i][j];
 					index1 = i;
 					index2 = j;
@@ -949,7 +995,7 @@ public class Vision extends WindowAdapter {
 
 		imageGraphics.setColor(Color.RED);
 		imageGraphics.drawOval(interX, interY, 3, 3);
-		
+
 		int xvector = interX - centroid.getX();
 		int yvector = interY - centroid.getY();
 		double angle = Math.atan2(xvector, yvector);
@@ -959,11 +1005,11 @@ public class Vision extends WindowAdapter {
 		return angle;
 	}
 
-/**
+	/**
 	 * Finds the orientation of a robot, given a list of the points contained
 	 * within it's T-shape (in terms of a list of x coordinates and y
-	 * coordinates), the mean x and y coordinates, and the image from whdoubleich it
-	 * was taken.
+	 * coordinates), the mean x and y coordinates, and the image from
+	 * whdoubleich it was taken.
 	 * 
 	 * @param xpoints
 	 *            The x-coordinates of the points contained within the T-shape.
@@ -1009,14 +1055,15 @@ public class Vision extends WindowAdapter {
 			if (stdev > 15) {
 				if (Math.abs(xpoints.get(i) - meanX) < stdev
 						&& Math.abs(ypoints.get(i) - meanY) < stdev
-						&& Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i), meanX, meanY) > Math.pow(15, 2))
-				{
+						&& Position.sqrdEuclidDist(xpoints.get(i),
+								ypoints.get(i), meanX, meanY) > Math.pow(15, 2)) {
 					frontCount++;
 					frontX += xpoints.get(i);
 					frontY += ypoints.get(i);
 				}
 			} else {
-				if (Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i), meanX, meanY) > Math.pow(15, 2)) {
+				if (Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i),
+						meanX, meanY) > Math.pow(15, 2)) {
 					frontCount++;
 					frontX += xpoints.get(i);
 					frontY += ypoints.get(i);
@@ -1037,12 +1084,14 @@ public class Vision extends WindowAdapter {
 		// and then get the angle of that vector.
 
 		// Calculate the angle from center of the T to the front of the T
-		double length = Math.sqrt(Math.pow(frontX - meanX, 2) + Math.pow(frontY - meanY, 2));
+		double length = Math.sqrt(Math.pow(frontX - meanX, 2)
+				+ Math.pow(frontY - meanY, 2));
 		double ax = (frontX - meanX) / length;
 		double ay = (frontY - meanY) / length;
 		double angle = Math.acos(ax);
 
-		// Look in a cone in the opposite direction to try to find the grey circle
+		// Look in a cone in the opposite direction to try to find the grey
+		// circle
 		ArrayList<Integer> greyXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greyYPoints = new ArrayList<Integer>();
 
@@ -1055,7 +1104,8 @@ public class Vision extends WindowAdapter {
 				try {
 					Color c = new Color(image.getRGB(greyX, greyY));
 					float hsbvals[] = new float[3];
-					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
 					if (isGrey(c, hsbvals)) {
 						greyXPoints.add(greyX);
 						greyYPoints.add(greyY);
@@ -1067,7 +1117,7 @@ public class Vision extends WindowAdapter {
 				}
 			}
 		}
-		
+
 		// No grey circle found The angle found is probably wrong, skip this
 		// value and return 0
 		if (greyXPoints.size() < 30) {
@@ -1097,7 +1147,8 @@ public class Vision extends WindowAdapter {
 				try {
 					Color c = new Color(image.getRGB(x, y));
 					float hsbvals[] = new float[3];
-					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
 					if (isGreen(c, hsbvals)) {
 						foundGreen++;
 						break;
@@ -1119,7 +1170,8 @@ public class Vision extends WindowAdapter {
 				try {
 					Color c = new Color(image.getRGB(x, y));
 					float hsbvals[] = new float[3];
-					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
 					if (isGreen(c, hsbvals)) {
 						foundGreen++;
 						break;
@@ -1141,7 +1193,8 @@ public class Vision extends WindowAdapter {
 				try {
 					Color c = new Color(image.getRGB(x, y));
 					float hsbvals[] = new float[3];
-					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
 					if (isGreen(c, hsbvals)) {
 						foundGreen++;
 						break;
@@ -1163,7 +1216,8 @@ public class Vision extends WindowAdapter {
 				try {
 					Color c = new Color(image.getRGB(x, y));
 					float hsbvals[] = new float[3];
-					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
 					if (isGreen(c, hsbvals)) {
 						foundGreen++;
 						break;
@@ -1179,7 +1233,8 @@ public class Vision extends WindowAdapter {
 		}
 
 		if (greenSides < 3) {
-			// throw new NoAngleException("Not enough green areas around the grey circle");
+			// throw new
+			// NoAngleException("Not enough green areas around the grey circle");
 			throw new NoAngleException("");
 		}
 
@@ -1189,8 +1244,10 @@ public class Vision extends WindowAdapter {
 		// circle, center of the T and front of the T line up roughly with the
 		// same angle
 
-		// Calculate new angle using just the center of the T and the grey circle
-		length = Math.sqrt(Math.pow(meanX - backX, 2) + Math.pow(meanY - backY, 2));
+		// Calculate new angle using just the center of the T and the grey
+		// circle
+		length = Math.sqrt(Math.pow(meanX - backX, 2)
+				+ Math.pow(meanY - backY, 2));
 		ax = (meanX - backX) / length;
 		ay = (meanY - backY) / length;
 		angle = Math.acos(ax);
