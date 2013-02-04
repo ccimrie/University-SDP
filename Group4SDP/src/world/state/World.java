@@ -109,12 +109,14 @@ public class World extends Observable implements Runnable, WorldInterface {
         this.ball.y = worldState.getBallY();
         this.ball.setPosition(new Vector(worldState.getBallX(), worldState.getBallY()));
 		System.out.println("Coordinates were parsed succesfully");
+<<<<<<< HEAD
 		this.hasPossession = this.pm.setPossession(this);
 	    //setChanged();
 	    //notifyObservers(this.frame);
 		
+=======
+>>>>>>> c800884a33bd94b64b9f05ac77826f5d160b59cc
 
-        
     }
     
     public void parseLine(String input) {

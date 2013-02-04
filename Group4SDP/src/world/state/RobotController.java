@@ -8,18 +8,25 @@ import strategy.planning.Commands;
 
 public class RobotController extends Robot {
 	
+	private BluetoothCommunication comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+	
 	public RobotController(RobotType type) {
 		super(type);
 	}
 
-	private BluetoothCommunication comms;
-	
 	private enum CurrentMovement {
 		
 	}
 
+	//Opens Bluetooth communication between computer and robot
 	public void setComms(BluetoothCommunication comms) {
 		this.comms = comms;
+		try {
+			comms.openBluetoothConnection();
+		} catch (IOException e) {
+			System.out.println("Could not connect");
+			e.printStackTrace();
+		}
 	}
 
 	public void quit() {
@@ -35,10 +42,18 @@ public class RobotController extends Robot {
 		System.exit(0);
 	}
 	
-	/*
-	public void stop() {
-
-	} */
+	
+	public void stop(Timer timer) {
+		int[] command = {Commands.STOP, 0, 0, 0};
+		try {
+			comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		timer.cancel();
+		System.out.println("Stop...");
+	} 
 
 	public void kick() {
 		int[] command = {Commands.KICK, 0, 0, 0};

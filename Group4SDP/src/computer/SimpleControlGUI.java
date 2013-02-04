@@ -327,6 +327,7 @@ public class SimpleControlGUI extends JFrame {
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
+<<<<<<< HEAD
 				driveThread.halt();
 				int[] command = {Commands.STOP, 0, 0, 0};
 				try {
@@ -337,6 +338,10 @@ public class SimpleControlGUI extends JFrame {
 				}
 				timer.cancel();
 				System.out.println("Stop...");
+=======
+				//driveThread.halt();
+				robot.stop(timer);
+>>>>>>> c800884a33bd94b64b9f05ac77826f5d160b59cc
 			}
 		});
 		

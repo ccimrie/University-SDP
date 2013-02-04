@@ -17,7 +17,7 @@ public class MoveToBall extends Strategy implements Observer {
 
         @Override
         public void update(Observable obj, Object arg) {
-                // First we turn to the ball
+        // First we turn to the ball
         Robot us = world.ourRobot;
         Ball ball = world.ball;
         
@@ -27,10 +27,10 @@ public class MoveToBall extends Strategy implements Observer {
         // 2. Move forwards
         double distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
         System.out.println(String.format("Distance to ball is %f", distance));
-                double angle = TurnToBall.Turner(us, ball);
+        double angle = TurnToBall.Turner(us, ball);
         System.out.println(String.format("Angle of ball to robot is %f", angle));
         
-        if(rotating && rc.isMoving()) {
+        if(rotating && robot.isMoving()) {
                 // This is to simulate turning "blocking"
                 System.out.println("Still turning");
                 return;
@@ -40,8 +40,8 @@ public class MoveToBall extends Strategy implements Observer {
                 if(Math.abs(angle) > 30) {
                         // Stop everything and turn
                         System.out.println("Stop and turn");
-                        rc.stop();
-                        rc.rotate(-angle);
+                        robot.stop();
+                        robot.rotate(-angle);
                         rotating = true;
                         // We don't want to carry on after this command!
                         // This also removes the need for that else block
@@ -50,7 +50,7 @@ public class MoveToBall extends Strategy implements Observer {
                 
                 if(distance > distanceFromBallToStop) {
                         System.out.println("Forward");
-                        rc.forward(0.2);
+                        robot.forward(0.2);
                         return;
                         // Let's not arc for this milestone as it's too complicated
                         /*if(Math.abs(angle) > 10) {
