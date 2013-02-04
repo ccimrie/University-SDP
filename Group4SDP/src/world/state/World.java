@@ -1,6 +1,8 @@
 package world.state;
 
 import geometry.Vector;
+import JavaVision.Vision;
+import JavaVision.WorldState;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -20,7 +22,7 @@ public class World extends Observable implements Runnable, WorldInterface {
 	 * This is probably abusing design patterns.
 	 */
     private static final World instance = new World();
-	
+	private Vision vision;
 	private static boolean isConnected = false;
 	private static Socket visionSocket;
 	private static PrintWriter out;
@@ -88,49 +90,27 @@ public class World extends Observable implements Runnable, WorldInterface {
     }
     
     public void connectVision() {
-        // Allows manual testing of server connection
-        // Singleton Constructor - Connect to server!
-        System.out.println("Connecting to server...");
+        WorldState worldState = vision.getWorldState();
+        this.ourRobot.x = worldState.getBlueX();
+		this.ourRobot.y = worldState.getBlueY();
+		this.ourRobot.setPosition(new Vector(worldState.getBlueX(), worldState.getBlueY()));
+		this.ourRobot.bearing = worldState.getBlueOrientation();    
+        this.theirRobot.x = worldState.getYellowX();
+        this.theirRobot.y = worldState.getYellowY();
+		this.theirRobot.setPosition(new Vector(worldState.getYellowX(), worldState.getYellowY()));
+		this.theirRobot.bearing = worldState.getYellowOrientation();
+		
+		this.prevBall.x = this.ball.x;
+    	this.prevBall.y = this.ball.y;
+    	this.prevBall.setPosition(this.ball.getPosition());
+    	// Ball
+        this.ball.x = worldState.getBallX();
+        this.ball.y = worldState.getBallY();
+        this.ball.setPosition(new Vector(worldState.getBallX(), worldState.getBallY()));
+		System.out.println("Coordinates were parsed succesfully");
+		
 
-        try {
-        	visionSocket = new Socket("localhost", 8474);
-        	out = new PrintWriter(visionSocket.getOutputStream(), true);
-        	in = new BufferedReader(new InputStreamReader(visionSocket.getInputStream()));
-            System.out.println("Connected!");
-            isConnected = true;
-        } catch (UnknownHostException e) {
-            System.err.println("Need to add an entry for localhost in the hosts file");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Turn on the vision server you numpty!");
-            System.exit(1);
-        }
-
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String fromServer;
-
-        try {
-			while ((fromServer = in.readLine()) != null) {
-			    parseLine(fromServer);
-			    
-			    //TODO: log if we want to (sessionID, date)
-			    if (fromServer.equals("Bye."))
-			        break;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        try {
-            out.close();
-            in.close();
-    	    stdIn.close();
-			visionSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        
     }
     
     public void parseLine(String input) {

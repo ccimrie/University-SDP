@@ -670,9 +670,9 @@ public class ControlGUI3 extends JFrame {
 				}
 				System.out.println("Moving forward...");
 
-				timer = new Timer();
+				//timer = new Timer();
 				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), seconds * 1000);
+			    //timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
 
