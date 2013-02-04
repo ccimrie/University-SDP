@@ -1,6 +1,6 @@
 package JavaVision;
-/* FROM: https://github.com/ernieyu/Swing-range-slider */
 
+// FROM: https://github.com/ernieyu/Swing-range-slider
 /* The MIT License
 
 Copyright (c) 2010 Ernest Yu. All rights reserved.

@@ -432,6 +432,7 @@ public class ControlGUI implements ChangeListener {
 		JPanel ball_h_panel = new JPanel();
         JLabel ball_h_label = new JLabel("Hue:");
         ball_h = setUpSlider(0, 255, pitchConstants.ball_h_low, pitchConstants.ball_h_high, 10,50);
+        ball_h_panel.add(ball_h_label);
 		ball_h_panel.add(ball_h);
 		ballPanel.add(ball_h_panel);
         

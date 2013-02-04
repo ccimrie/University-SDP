@@ -1,15 +1,14 @@
 package JavaVision;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
  * Represents the centre point of an object, for example the ball or a robot.
  * 
  * @author s0840449
+ * @author Alex Adams (made some optimizatons, tidied a few comments)
  */
 public class Position {
-	
 	private int x;
 	private int y;
 	
@@ -20,7 +19,6 @@ public class Position {
 	 * @param y		The y-coordinate of the object.
 	 */
 	public Position(int x, int y) {
-		super();
 		this.x = x;
 		this.y = y;
 	}
@@ -61,7 +59,6 @@ public class Position {
 		this.y = y;
 	}
 	
-	
 	/**
 	 * Compares the current x and y co-ordinates to another set
 	 * of co-ordinates (usually the previous co-ordinates for the
@@ -72,22 +69,19 @@ public class Position {
 	 * @param oldY		The old y-coordinate.
 	 */
 	public void fixValues(int oldX, int oldY) {
-		
-    	/* Use old values if nothing found */
+    	// Use old values if nothing found
 		if (this.getX() == 0) {
 			this.setX(oldX);
 		}
 		if (this.getY() == 0) {
 			this.setY(oldY);
 		}
-    
 		
-    	/* Use old values if not changed much */
+    	// Use old values if not changed much
     	if (sqrdEuclidDist(this.getX(), this.getY(), oldX, oldY) < 9) {
     		this.setX(oldX);
     		this.setY(oldY);
     	}
-    	
 	}
 	
 	/**
@@ -100,25 +94,23 @@ public class Position {
 	 * @param ys		The new set of y points.
 	 */
     public void filterPoints(ArrayList<Integer> xs, ArrayList<Integer> ys) {
-    	
     	if (xs.size() > 0) {
-    		
 	    	int stdev = 0;
 	    	
-	    	/* Standard deviation */
+	    	// Standard deviation 
 	    	for (int i = 0; i < xs.size(); i++) {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
 	    		
-	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, this.getX(), this.getY())), 2);
+	    		stdev += sqrdEuclidDist(x, y, this.getX(), this.getY());
 	    	}
-	    	stdev  = (int) Math.sqrt(stdev / xs.size());
+	    	stdev  = (int) Math.sqrt((double) stdev / xs.size());
 	    	
 	    	int count = 0;
 	    	int newX = 0;
 	    	int newY = 0;
 	    	
-	    	/* Remove points further than standard deviation */
+	    	// Remove points further than standard deviation
 	    	for (int i = 0; i < xs.size(); i++) {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
@@ -144,33 +136,30 @@ public class Position {
     
     public static ArrayList<Point> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Point centroid){
     	ArrayList<Point> goodPoints = new ArrayList<Point>();
-	if (xs.size() > 0) {
-    		
-	    	int stdev = 0;
+    	if (xs.size() > 0) {
+	    	double stdev = 0.0;
 	    	
-	    	/* Standard deviation */
+	    	// Standard deviation
 	    	for (int i = 0; i < xs.size(); i++) {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
 	    		
-	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
+	    		stdev += sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY());
 	    	}
-	    	stdev  = (int) Math.sqrt(stdev / xs.size());
-	    		    	
-	    	/* Remove points further than standard deviation */
+	    	stdev = Math.sqrt((double) stdev / xs.size());
+	    	// Remove points further than standard deviation
+	    	stdev *= 1.17;	// Allow extra error margin?
 	    	for (int i = 0; i < xs.size(); i++) {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
-	    		if (Math.abs(x - centroid.getX()) < stdev*1.17 && Math.abs(y - centroid.getY()) < stdev*1.17) {
+	    		if (Math.abs(x - centroid.getX()) < stdev && Math.abs(y - centroid.getY()) < stdev) {
 	    			Point p = new Point(x, y);
 	    			goodPoints.add(p);
 	    		}
 	    	}
-	    	
     	}
     	
 		return goodPoints;
-    	
     }
     
     /**
@@ -183,8 +172,8 @@ public class Position {
      * 
      * @return			The squared euclidean distance between the two points.
      */
-	public static float sqrdEuclidDist(int x1, int y1, int x2, int y2) {
-		return (float) (Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+	public static int sqrdEuclidDist(int x1, int y1, int x2, int y2) {
+		int xdiff = x1 - x2, ydiff = y1 - y2;
+		return xdiff * xdiff + ydiff * ydiff;
 	}
-	
 }

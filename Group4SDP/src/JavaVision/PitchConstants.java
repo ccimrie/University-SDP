@@ -11,11 +11,12 @@ import java.util.Scanner;
  * @author s0840449
  */
 public class PitchConstants {
+	
+	// The pitch number. 0 is the main pitch, 1 is the side pitch
 
-	/* The pitch number. 0 is the main pitch, 1 is the side pitch. */
 	private int pitchNum;
 
-	/* Ball */
+	// Ball
 	public int ball_r_low;
 	public int ball_r_high;
 	public int ball_g_low;
@@ -29,7 +30,7 @@ public class PitchConstants {
 	public int ball_v_low;
 	public int ball_v_high;
 
-	/* Blue Robot */
+	// Blue Robot
 	public int blue_r_low;
 	public int blue_r_high;
 	public int blue_g_low;
@@ -43,7 +44,7 @@ public class PitchConstants {
 	public int blue_v_low;
 	public int blue_v_high;
 
-	/* Yellow Robot */
+	// Yellow Robot
 	public int yellow_r_low;
 	public int yellow_r_high;
 	public int yellow_g_low;
@@ -57,7 +58,7 @@ public class PitchConstants {
 	public int yellow_v_low;
 	public int yellow_v_high;
 
-	/* Grey Circles */
+	// Grey Circles 
 	public int grey_r_low;
 	public int grey_r_high;
 	public int grey_g_low;
@@ -70,8 +71,9 @@ public class PitchConstants {
 	public int grey_s_high;
 	public int grey_v_low;
 	public int grey_v_high;
+	
+	// Green plates
 
-	/* Green plates */
 	public int green_r_low;
 	public int green_r_high;
 	public int green_g_low;
@@ -84,12 +86,12 @@ public class PitchConstants {
 	public int green_s_high;
 	public int green_v_low;
 	public int green_v_high;
+	
+	// Pitch dimensions:
+	// When scanning the pitch we look at pixels starting from 0 + topBuffer and 
+	// 0 + leftBuffer, and then scan to pixels at 480 - bottomBuffer and 
+	// 640 - rightBuffer.
 
-	/*
-	 * Pitch dimensions: When scanning the pitch we look at pixels starting from
-	 * 0 + topBuffer and 0 + leftBuffer, and then scan to pixels at 480 -
-	 * bottomBuffer and 640 - rightBuffer.
-	 */
 	public int topBuffer;
 	public int bottomBuffer;
 	public int leftBuffer;
@@ -102,8 +104,7 @@ public class PitchConstants {
 	 *            The pitch that we are on.
 	 */
 	public PitchConstants(int pitchNum) {
-
-		/* Just call the setPitchNum method to load in the constants. */
+		// Just call the setPitchNum method to load in the constants
 		setPitchNum(pitchNum);
 
 	}
@@ -117,14 +118,12 @@ public class PitchConstants {
 	 */
 	public void setPitchNum(int newPitchNum) {
 
-		assert (newPitchNum >= 0 && newPitchNum <= 1);
 
+		assert (newPitchNum >= 0 && newPitchNum <= 1) : "Invalid pitch number";
 		this.pitchNum = newPitchNum;
+		
+		loadConstants(System.getProperty("user.dir") + "/constants/pitch" + pitchNum);
 
-		loadConstants(System.getProperty("user.dir") + "/constants/pitch"
-				+ pitchNum);
-		// System.out.println("Working Directory = " +
-		// System.getProperty("user.dir"));
 	}
 
 	/**
@@ -135,6 +134,7 @@ public class PitchConstants {
 	 *            The file name to load constants from.
 	 */
 	public void loadConstants(String fileName) {
+
 
 		Scanner scannerDim;
 
@@ -158,6 +158,7 @@ public class PitchConstants {
 		this.leftBuffer = scannerDim.nextInt();
 		this.rightBuffer = scannerDim.nextInt();
 
+
 		Scanner scanner;
 
 		try {
@@ -168,11 +169,13 @@ public class PitchConstants {
 			loadDefaultConstants();
 			return;
 		}
+		
+		assert(scanner != null);
+		
+		// We assume that the file is well formed
+		
+		// Ball
 
-		assert (scanner != null);
-
-
-		/* Ball */
 		this.ball_r_low = scanner.nextInt();
 		this.ball_r_high = scanner.nextInt();
 		this.ball_g_low = scanner.nextInt();
@@ -186,7 +189,7 @@ public class PitchConstants {
 		this.ball_v_low = scanner.nextInt();
 		this.ball_v_high = scanner.nextInt();
 
-		/* Blue Robot */
+		// Blue Robot
 		this.blue_r_low = scanner.nextInt();
 		this.blue_r_high = scanner.nextInt();
 		this.blue_g_low = scanner.nextInt();
@@ -200,7 +203,7 @@ public class PitchConstants {
 		this.blue_v_low = scanner.nextInt();
 		this.blue_v_high = scanner.nextInt();
 
-		/* Yellow Robot */
+		// Yellow Robot
 		this.yellow_r_low = scanner.nextInt();
 		this.yellow_r_high = scanner.nextInt();
 		this.yellow_g_low = scanner.nextInt();
@@ -213,8 +216,9 @@ public class PitchConstants {
 		this.yellow_s_high = scanner.nextInt();
 		this.yellow_v_low = scanner.nextInt();
 		this.yellow_v_high = scanner.nextInt();
+	
+		// Grey Circles
 
-		/* Grey Circles */
 		this.grey_r_low = scanner.nextInt();
 		this.grey_r_high = scanner.nextInt();
 		this.grey_g_low = scanner.nextInt();
@@ -227,8 +231,9 @@ public class PitchConstants {
 		this.grey_s_high = scanner.nextInt();
 		this.grey_v_low = scanner.nextInt();
 		this.grey_v_high = scanner.nextInt();
+		
+		// Green Plates
 
-		/* Green Plates */
 		this.green_r_low = scanner.nextInt();
 		this.green_r_high = scanner.nextInt();
 		this.green_g_low = scanner.nextInt();
@@ -241,7 +246,6 @@ public class PitchConstants {
 		this.green_s_high = scanner.nextInt();
 		this.green_v_low = scanner.nextInt();
 		this.green_v_high = scanner.nextInt();
-
 	}
 
 	/**
@@ -250,7 +254,7 @@ public class PitchConstants {
 	 */
 	public void loadDefaultConstants() {
 
-		/* Ball */
+		// Ball
 		this.ball_r_low = 0;
 		this.ball_r_high = 255;
 		this.ball_g_low = 0;
@@ -264,7 +268,7 @@ public class PitchConstants {
 		this.ball_v_low = 0;
 		this.ball_v_high = 10;
 
-		/* Blue Robot */
+		// Blue Robot
 		this.blue_r_low = 0;
 		this.blue_r_high = 255;
 		this.blue_g_low = 0;
@@ -278,7 +282,7 @@ public class PitchConstants {
 		this.blue_v_low = 0;
 		this.blue_v_high = 10;
 
-		/* Yellow Robot */
+		// Yellow Robot
 		this.yellow_r_low = 0;
 		this.yellow_r_high = 255;
 		this.yellow_g_low = 0;
@@ -291,8 +295,9 @@ public class PitchConstants {
 		this.yellow_s_high = 10;
 		this.yellow_v_low = 0;
 		this.yellow_v_high = 10;
+	
+		// Grey Circles
 
-		/* Grey Circles */
 		this.grey_r_low = 0;
 		this.grey_r_high = 255;
 		this.grey_g_low = 0;
@@ -306,7 +311,9 @@ public class PitchConstants {
 		this.grey_v_low = 0;
 		this.grey_v_high = 10;
 
-		/* Green plates */
+		
+		// Green plates
+
 		this.green_r_low = 0;
 		this.green_r_high = 255;
 		this.green_g_low = 0;
@@ -320,12 +327,11 @@ public class PitchConstants {
 		this.green_v_low = 0;
 		this.green_v_high = 10;
 
-		/* Pitch Dimensions */
+		// Pitch Dimensions
 		this.topBuffer = 0;
 		this.bottomBuffer = 0;
 		this.leftBuffer = 0;
 		this.rightBuffer = 0;
 
 	}
-
 }

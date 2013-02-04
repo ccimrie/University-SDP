@@ -25,6 +25,8 @@ public class BluetoothCommunication {
 	private NXTInfo nxtInfo;
 	private boolean isRobotReady = false;
 	private boolean isConnected = false;
+	//TODO - to be implemented
+	private boolean isRobotMoving = false;
 
 	/**
 	 * @param deviceName
@@ -131,10 +133,8 @@ public class BluetoothCommunication {
 			isRobotReady = true;
 			System.out.println("Robot is ready!");
 			isConnected = true;
-		} catch (NXTCommException e) { // (NXTCommException |
-										// InterruptedException e) {
+		} catch (NXTCommException e) {
 			throw new IOException("Failed to connect " + e.toString());
-
 		} catch (InterruptedException e) { 
 			throw new IOException("Failed to connect " + e.toString());
 		}
@@ -153,5 +153,10 @@ public class BluetoothCommunication {
 			System.err.println("Couldn't close Bluetooth connection: "
 					+ e.toString());
 		}
+	}
+
+	public boolean isMoving() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
