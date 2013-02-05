@@ -1,6 +1,5 @@
 package strategy.movement;
 
-import JavaVision.ControlGUI;
 import JavaVision.PitchConstants;
 import JavaVision.ThresholdsState;
 import JavaVision.Vision;
@@ -12,7 +11,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * @author Alex Adams
  */
 public class StraightLineVision {
-    private JavaVision.ControlGUI thresholdsGUI;
+    private JavaVision.VisionGUI thresholdsGUI;
     private Vision vision;
     private int startY;
     private int prevX, prevY;
@@ -41,7 +40,7 @@ public class StraightLineVision {
 	                compressionQuality, worldState, thresholdsState, pitchConstants);
 	        
 	        // Create the Control GUI for threshold setting/etc.
-	        thresholdsGUI = new JavaVision.ControlGUI(thresholdsState, worldState, pitchConstants);
+	        thresholdsGUI = new JavaVision.VisionGUI(thresholdsState, worldState, pitchConstants);
 	        thresholdsGUI.initGUI();
 	        
 	    } catch (V4L4JException e) {

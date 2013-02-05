@@ -26,28 +26,26 @@ import javax.swing.event.ChangeListener;
  * 
  * @author s0840449
  */
-public class ControlGUI implements ChangeListener {
+public class VisionGUI implements ChangeListener {
 	
-	/* A PitchConstants class used to load/save constants
-	 * for the pitch. */
+	// A PitchConstants class used to load/save constants for the pitch.
 	private PitchConstants pitchConstants;
 	
-	/* The thresholds state class stores the current state 
- 	 * of the thresholds. */
+	// The thresholds state class stores the current state of the thresholds.
 	private ThresholdsState thresholdsState;
 	
-	/* Stores information about the current world state, such as 
-	 * shooting direction, ball location, etc. */
+	// Stores information about the current world state, such as shooting
+	// direction, ball location, etc.
 	private WorldState worldState;
 	
-	/* The main frame holding the Control GUI. */
+	// The main frame holding the Control GUI.
 	private JFrame frame;
 	
-	/* Load/Save buttons. */
+	// Load/Save buttons.
 	private JButton saveButton;
 	private JButton loadButton;
 	
-	/* Tabs. */
+	// Tabs.
 	private JTabbedPane tabPane;
 	private JPanel defaultPanel;
 	private JPanel ballPanel;
@@ -56,7 +54,7 @@ public class ControlGUI implements ChangeListener {
 	private JPanel greyPanel;
 	private JPanel greenPanel;
 	
-	/* Radio buttons */
+	// Radio buttons
 	JRadioButton pitch_0;
 	JRadioButton pitch_1;
 	JRadioButton colour_yellow;
@@ -64,7 +62,7 @@ public class ControlGUI implements ChangeListener {
 	JRadioButton direction_right;
 	JRadioButton direction_left;
 	
-	/* Ball sliders. */
+	// Ball sliders.
 	private RangeSlider ball_r;
 	private RangeSlider ball_g;
 	private RangeSlider ball_b;
@@ -72,7 +70,7 @@ public class ControlGUI implements ChangeListener {
 	private RangeSlider ball_s;
 	private RangeSlider ball_v;
 	
-	/* Blue robot sliders. */
+	// Blue robot sliders.
 	private RangeSlider blue_r;
 	private RangeSlider blue_g;
 	private RangeSlider blue_b;
@@ -80,7 +78,7 @@ public class ControlGUI implements ChangeListener {
 	private RangeSlider blue_s;
 	private RangeSlider blue_v;
 	
-	/* Yellow robot sliders. */
+	// Yellow robot sliders.
 	private RangeSlider yellow_r;
 	private RangeSlider yellow_g;
 	private RangeSlider yellow_b;
@@ -88,7 +86,7 @@ public class ControlGUI implements ChangeListener {
 	private RangeSlider yellow_s;
 	private RangeSlider yellow_v;
 	
-	/* Grey circle sliders. */
+	// Grey circle sliders.
 	private RangeSlider grey_r;
 	private RangeSlider grey_g;
 	private RangeSlider grey_b;
@@ -96,7 +94,7 @@ public class ControlGUI implements ChangeListener {
 	private RangeSlider grey_s;
 	private RangeSlider grey_v;
 	
-	/* Green circle sliders. */
+	// Green circle sliders.
 	private RangeSlider green_r;
 	private RangeSlider green_g;
 	private RangeSlider green_b;
@@ -113,7 +111,7 @@ public class ControlGUI implements ChangeListener {
 	 * 							direction, etc.
 	 * @param pitchConstants	A PitchConstants object to allow saving/loading of data.
 	 */
-	public ControlGUI(ThresholdsState thresholdsState, WorldState worldState, PitchConstants pitchConstants) {
+	public VisionGUI(ThresholdsState thresholdsState, WorldState worldState, PitchConstants pitchConstants) {
 		
 		/* All three state objects must not be null. */
 		assert (thresholdsState != null);

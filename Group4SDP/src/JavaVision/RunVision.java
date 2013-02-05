@@ -9,7 +9,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * @author s0840449
  */
 public class RunVision {
-    private static ControlGUI thresholdsGUI;
+    private static VisionGUI thresholdsGUI;
     
     /**
      * The main method for the class. Creates the control
@@ -38,7 +38,7 @@ public class RunVision {
                     compressionQuality, worldState, thresholdsState, pitchConstants);
             
             // Create the Control GUI for threshold setting/etc
-            thresholdsGUI = new ControlGUI(thresholdsState, worldState, pitchConstants);
+            thresholdsGUI = new VisionGUI(thresholdsState, worldState, pitchConstants);
             thresholdsGUI.initGUI();
             
             
