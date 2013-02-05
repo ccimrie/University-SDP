@@ -12,22 +12,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.event.MouseInputAdapter;
-
-import au.edu.jcu.v4l4j.CaptureCallback;
-import au.edu.jcu.v4l4j.Control;
-import au.edu.jcu.v4l4j.DeviceInfo;
-import au.edu.jcu.v4l4j.FrameGrabber;
-import au.edu.jcu.v4l4j.ImageFormat;
-import au.edu.jcu.v4l4j.VideoDevice;
-import au.edu.jcu.v4l4j.VideoFrame;
-import au.edu.jcu.v4l4j.exceptions.ImageFormatException;
-import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**
  * The main class for showing the video feed and processing the video data.
@@ -35,7 +24,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * 
  * @author s0840449
  */
-// TODO: separate the GUI - can combine with VisionGUI.java
+// TODO: finish separating the video stream and separate the GUI - can combine it with VisionGUI.java
 public class Vision extends WindowAdapter implements VideoReceiver {
 	// Video variables & constants
 	private VideoStream vStream;
@@ -90,8 +79,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 */
 	public Vision(String videoDevice, int width, int height, int channel,
 			int videoStandard, int compressionQuality, WorldState worldState,
-			ThresholdsState thresholdsState, PitchConstants pitchConstants)
-			throws V4L4JException {
+			ThresholdsState thresholdsState, PitchConstants pitchConstants) {
 		// Set the state fields.
 		this.worldState = worldState;
 		this.thresholdsState = thresholdsState;
@@ -185,7 +173,14 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 						int bottom = height - d - b;
 						int left = a;
 						int right = width - c - a;
+						
 						if (top > 0 && bottom > 0 && left > 0 && right > 0) {
+							// Update pitch constants
+							pitchConstants.topBuffer = top;
+							pitchConstants.bottomBuffer = bottom;
+							pitchConstants.leftBuffer = left;
+							pitchConstants.rightBuffer = right;
+							// TODO: this isn't necessary anymore; save button will take care of this
 							FileWriter writer = new FileWriter(new File(
 									"constants/pitch" + pitchNum + "Dimensions"));
 	

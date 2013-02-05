@@ -15,6 +15,12 @@ import au.edu.jcu.v4l4j.VideoFrame;
 import au.edu.jcu.v4l4j.exceptions.ImageFormatException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
+/**
+ * Reads frames from a video device, giving options for camera
+ * controls
+ * 
+ * @author Alex Adams
+ */
 public class VideoStream {
 	private String videoDevName;
 	private int width;
@@ -45,18 +51,21 @@ public class VideoStream {
 		}
 
 		public void nextFrame(VideoFrame frame) {
-			long timeBefore = System.currentTimeMillis();
-			BufferedImage frameBuffer = frame.getBufferedImage();
-			frame.recycle();
+			// Calculate frame rate based on time between calls
+			long thisFrame = System.currentTimeMillis();
+			int frameRate = (int) (1000 / (thisFrame - lastFrame));
+			lastFrame = thisFrame;
 			
-			++frameCounter;
+			// Wait for video device to initialise properly before reading frames
 			if (ready) {
-				int frameRate = (int) (1000 / (timeBefore - lastFrame));
+				BufferedImage frameBuffer = frame.getBufferedImage();
+				
 				for (VideoReceiver receiver : videoReceivers)
 					receiver.sendNextFrame(frameBuffer, frameRate, frameCounter);
 			}
 			else if (frameCounter > 3) ready = true;
-			lastFrame = timeBefore;
+			++frameCounter;
+			frame.recycle();
 		}
 	};
 	
@@ -101,14 +110,22 @@ public class VideoStream {
 			height = frameGrabber.getHeight();
 		}
 		catch (V4L4JException e) {
-			System.out.println("Couldn't initialize video stream: " + e.getMessage());
+			System.out.println("Couldn't initialise video stream: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
+	private void reinitialiseFrameGrabber() throws V4L4JException {
+		frameGrabber.stopCapture();
+		frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
+				videoStandard, compressionQuality, imageFormat);
+		frameGrabber.setCaptureCallback(frameGrabberCallback);
+		frameGrabber.startCapture();
+	}
+	
 	/**
-	 * @return The name of the video device the stream was initialized with
+	 * @return The name of the video device the stream was initialised with
 	 */
 	public String getVideoDeviceName() {
 		return this.videoDevName;
@@ -142,18 +159,14 @@ public class VideoStream {
 	 */
 	public void setVideoStandard(int videoStandard) {
 		try {
-			// Adjust the frame grabber to the new setting
-			frameGrabber.stopCapture();
-			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
-					videoStandard, compressionQuality, imageFormat);
-			frameGrabber.setCaptureCallback(frameGrabberCallback);
-			frameGrabber.startCapture();
-			// Update the variable after incase it fails
 			this.videoStandard = videoStandard;
+			// Adjust the frame grabber to the new setting
+			reinitialiseFrameGrabber();
 		}
 		catch (V4L4JException e) {
 			System.out.println("Couldn't change the video standard: " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
@@ -170,18 +183,14 @@ public class VideoStream {
 	 */
 	public void setCompressionQuality(int compressionQuality) {
 		try {
-			// Adjust the frame grabber to the new setting
-			frameGrabber.stopCapture();
-			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
-					videoStandard, compressionQuality, imageFormat);
-			frameGrabber.setCaptureCallback(frameGrabberCallback);
-			frameGrabber.startCapture();
-			// Update the variable after incase it fails
 			this.compressionQuality = compressionQuality;
+			// Adjust the frame grabber to the new setting
+			reinitialiseFrameGrabber();
 		}
 		catch (V4L4JException e) {
 			System.out.println("Couldn't change the compressionQuality: " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 	
@@ -296,8 +305,9 @@ public class VideoStream {
 				else if (c.getName().equals("Chroma AGC"))
 					c.setValue(chroma_agc);
 			}
-		} catch (V4L4JException e3) {
-			System.out.println("Cannot set video device settings!");
+		} catch (V4L4JException e) {
+			System.out.println("Cannot set video device settings: " + e.getMessage());
+			e.printStackTrace();
 		}
 		videoDev.releaseControlList();
 	}

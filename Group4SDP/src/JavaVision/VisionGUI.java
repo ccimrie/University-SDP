@@ -156,10 +156,10 @@ public class VisionGUI implements ChangeListener {
         greenPanel = new JPanel();
         greenPanel.setLayout(new BoxLayout(greenPanel, BoxLayout.Y_AXIS));
                 
-        /* The main (default) tab */
+        // The main (default) tab
         setUpMainPanel();
         
-        /* The five threshold tabs. */
+        // The five threshold tabs.
         setUpBallSliders();
         setUpBlueSliders();
         setUpYellowSliders();
@@ -180,10 +180,9 @@ public class VisionGUI implements ChangeListener {
         frame.pack();
         frame.setVisible(true);
         
-        /* Fires off an initial pass through the ChangeListener method,
-         * to initialise all of the default values. */
+        // Fires off an initial pass through the ChangeListener method,
+        // to initialise all of the default values.
         this.stateChanged(null);
-		
 	}
 	
 	/**
@@ -192,7 +191,7 @@ public class VisionGUI implements ChangeListener {
 	 */
 	private void setUpMainPanel() {
 		
-		/* Pitch choice */
+		// Pitch choice
 		JPanel pitch_panel = new JPanel();
 		JLabel pitch_label = new JLabel("Pitch:");
 		pitch_panel.add(pitch_label);
@@ -212,7 +211,7 @@ public class VisionGUI implements ChangeListener {
 		
 		defaultPanel.add(pitch_panel);
 		
-		/* Colour choice */
+		// Colour choice
 		JPanel colour_panel = new JPanel();
 		JLabel colour_label = new JLabel("Our colour:");
 		colour_panel.add(colour_label);
@@ -232,7 +231,7 @@ public class VisionGUI implements ChangeListener {
 		
 		defaultPanel.add(colour_panel);
 		
-		/* Direction choice */
+		// Direction choice
 		JPanel direction_panel = new JPanel();
 		JLabel direction_label = new JLabel("Our shooting direction:");
 		direction_panel.add(direction_label);
@@ -252,14 +251,14 @@ public class VisionGUI implements ChangeListener {
 		
 		defaultPanel.add(direction_panel);
 		
-		/* Save/load buttons */
+		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
 		
 		saveButton = new JButton("Save Thresholds");
 		saveButton.addActionListener(new ActionListener() {
 			
-			/* Attempt to write all of the current thresholds to a file with a name 
-			 * based on the currently selected pitch. */
+			// Attempt to write all of the current thresholds to a file with a name 
+			// based on the currently selected pitch.
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
@@ -273,18 +272,19 @@ public class VisionGUI implements ChangeListener {
 				try {
 					
 					FileWriter writerDim = new FileWriter(new File("constants/pitch" + pitchNum + "Dimensions"));
-					/* We need to re-write the pitch dimensions. 
-					 * TODO: This currently means that cross-saving values
-					 * is basically unsupported as they will overwrite the
-					 * pitch dimensions incorrectly.*/
+					// We need to re-write the pitch dimensions. 
+					// TODO: This currently means that cross-saving values
+					// is basically unsupported as they will overwrite the
+					// pitch dimensions incorrectly.
 					writerDim.write(String.valueOf(pitchConstants.topBuffer) + "\n");
 					writerDim.write(String.valueOf(pitchConstants.bottomBuffer) + "\n");
 					writerDim.write(String.valueOf(pitchConstants.leftBuffer) + "\n");
 					writerDim.write(String.valueOf(pitchConstants.rightBuffer) + "\n");
+					writerDim.close();
 					
 					FileWriter writer = new FileWriter(new File("constants/pitch" + pitchNum));
 					
-					/* Ball */
+					// Ball
 					writer.write(String.valueOf(ball_r.getValue()) + "\n");
 					writer.write(String.valueOf(ball_r.getUpperValue()) + "\n");
 					writer.write(String.valueOf(ball_g.getValue()) + "\n");
@@ -298,7 +298,7 @@ public class VisionGUI implements ChangeListener {
 					writer.write(String.valueOf(ball_v.getValue()) + "\n");
 					writer.write(String.valueOf(ball_v.getUpperValue()) + "\n");
 					
-					/* Blue */
+					// Blue
 					writer.write(String.valueOf(blue_r.getValue()) + "\n");
 					writer.write(String.valueOf(blue_r.getUpperValue()) + "\n");
 					writer.write(String.valueOf(blue_g.getValue()) + "\n");
@@ -312,7 +312,7 @@ public class VisionGUI implements ChangeListener {
 					writer.write(String.valueOf(blue_v.getValue()) + "\n");
 					writer.write(String.valueOf(blue_v.getUpperValue()) + "\n");
 					
-					/* Yellow */
+					// Yellow
 					writer.write(String.valueOf(yellow_r.getValue()) + "\n");
 					writer.write(String.valueOf(yellow_r.getUpperValue()) + "\n");
 					writer.write(String.valueOf(yellow_g.getValue()) + "\n");
@@ -326,7 +326,7 @@ public class VisionGUI implements ChangeListener {
 					writer.write(String.valueOf(yellow_v.getValue()) + "\n");
 					writer.write(String.valueOf(yellow_v.getUpperValue()) + "\n");
 					
-					/* Grey */
+					// Grey
 					writer.write(String.valueOf(grey_r.getValue()) + "\n");
 					writer.write(String.valueOf(grey_r.getUpperValue()) + "\n");
 					writer.write(String.valueOf(grey_g.getValue()) + "\n");
@@ -340,7 +340,7 @@ public class VisionGUI implements ChangeListener {
 					writer.write(String.valueOf(grey_v.getValue()) + "\n");
 					writer.write(String.valueOf(grey_v.getUpperValue()) + "\n");
 					
-					/* Green */
+					// Green
 					writer.write(String.valueOf(green_r.getValue()) + "\n");
 					writer.write(String.valueOf(green_r.getUpperValue()) + "\n");
 					writer.write(String.valueOf(green_g.getValue()) + "\n");
@@ -373,8 +373,8 @@ public class VisionGUI implements ChangeListener {
 		loadButton = new JButton("Load Thresholds");
 		loadButton.addActionListener(new ActionListener() {
 			
-			/* Override the current threshold settings from those set in
-			 * the correct constants file for the current pitch. */
+			// Override the current threshold settings from those set in
+			// the correct constants file for the current pitch.
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
@@ -401,8 +401,7 @@ public class VisionGUI implements ChangeListener {
 	 * Sets up the sliders for the thresholding of the ball.
 	 */
 	private void setUpBallSliders() {
-				
-		 /* Red. */
+		// Red
 		JPanel ball_r_panel = new JPanel();
         JLabel ball_r_label = new JLabel("Red:");
 		ball_r = setUpSlider(0, 255, pitchConstants.ball_r_low, pitchConstants.ball_r_high, 10, 50);
@@ -410,7 +409,7 @@ public class VisionGUI implements ChangeListener {
 		ball_r_panel.add(ball_r);
 		ballPanel.add(ball_r_panel);
         
-        /* Green. */
+        // Green
 		JPanel ball_g_panel = new JPanel();
         JLabel ball_g_label = new JLabel("Green:");
         ball_g = setUpSlider( 0, 255, pitchConstants.ball_g_low, pitchConstants.ball_g_high, 10, 50);
@@ -418,7 +417,7 @@ public class VisionGUI implements ChangeListener {
 		ball_g_panel.add(ball_g);
 		ballPanel.add(ball_g_panel);
         
-        /* Blue. */
+        // Blue
 		JPanel ball_b_panel = new JPanel();
         JLabel ball_b_label = new JLabel("Blue:");
         ball_b = setUpSlider( 0, 255, pitchConstants.ball_b_low, pitchConstants.ball_b_high, 10, 50);
@@ -426,7 +425,7 @@ public class VisionGUI implements ChangeListener {
 		ball_b_panel.add(ball_b);
 		ballPanel.add(ball_b_panel);
         
-        /* Hue. */
+        // Hue
 		JPanel ball_h_panel = new JPanel();
         JLabel ball_h_label = new JLabel("Hue:");
         ball_h = setUpSlider(0, 255, pitchConstants.ball_h_low, pitchConstants.ball_h_high, 10,50);
@@ -434,7 +433,7 @@ public class VisionGUI implements ChangeListener {
 		ball_h_panel.add(ball_h);
 		ballPanel.add(ball_h_panel);
         
-        /* Sat. */
+        // Sat
 		JPanel ball_s_panel = new JPanel();
         JLabel ball_s_label = new JLabel("Sat:");
         ball_s = setUpSlider(0, 255, pitchConstants.ball_s_low, pitchConstants.ball_s_high, 10,50);
@@ -442,7 +441,7 @@ public class VisionGUI implements ChangeListener {
 		ball_s_panel.add(ball_s);
 		ballPanel.add(ball_s_panel);
         
-        /* Value. */
+        // Value
 		JPanel ball_v_panel = new JPanel();
         JLabel ball_v_label = new JLabel("Value:");
         ball_v = setUpSlider(0, 255, pitchConstants.ball_v_low, pitchConstants.ball_v_high, 10,50);
@@ -456,15 +455,13 @@ public class VisionGUI implements ChangeListener {
         ball_h.addChangeListener(this);
         ball_s.addChangeListener(this);
         ball_v.addChangeListener(this);
-		
 	}
 	
 	/**
 	 * Sets up the sliders for the thresholding of the blue robot.
 	 */
 	private void setUpBlueSliders() {
-
-		/* Red. */
+		// Red
 		JPanel blue_r_panel = new JPanel();
 		JLabel blue_r_label = new JLabel("Red:");
 		blue_r = setUpSlider(0, 255, pitchConstants.blue_r_low, pitchConstants.blue_r_high, 10, 50);
@@ -472,7 +469,7 @@ public class VisionGUI implements ChangeListener {
 		blue_r_panel.add(blue_r);
 		bluePanel.add(blue_r_panel);
 
-		/* Green. */
+		// Green
 		JPanel blue_g_panel = new JPanel();
 		JLabel blue_g_label = new JLabel("Green:");
 		blue_g = setUpSlider( 0, 255, pitchConstants.blue_g_low, pitchConstants.blue_g_high, 10, 50);
@@ -480,7 +477,7 @@ public class VisionGUI implements ChangeListener {
 		blue_g_panel.add(blue_g);
 		bluePanel.add(blue_g_panel);
 
-		/* Blue. */
+		// Blue
 		JPanel blue_b_panel = new JPanel();
 		JLabel blue_b_label = new JLabel("Blue:");
 		blue_b = setUpSlider( 0, 255, pitchConstants.blue_b_low, pitchConstants.blue_b_high, 10, 50);
@@ -488,7 +485,7 @@ public class VisionGUI implements ChangeListener {
 		blue_b_panel.add(blue_b);
 		bluePanel.add(blue_b_panel);
 
-		/* Hue. */
+		// Hue
 		JPanel blue_h_panel = new JPanel();
 		JLabel blue_h_label = new JLabel("Hue:");
 		blue_h = setUpSlider(0, 255, pitchConstants.blue_h_low, pitchConstants.blue_h_high, 10,50);
@@ -496,7 +493,7 @@ public class VisionGUI implements ChangeListener {
 		blue_h_panel.add(blue_h);
 		bluePanel.add(blue_h_panel);
 
-		/* Sat. */
+		// Sat
 		JPanel blue_s_panel = new JPanel();
 		JLabel blue_s_label = new JLabel("Sat:");
 		blue_s = setUpSlider(0, 255, pitchConstants.blue_s_low, pitchConstants.blue_s_high, 10,50);
@@ -505,7 +502,7 @@ public class VisionGUI implements ChangeListener {
 		bluePanel.add(blue_s_panel);
 
 
-		/* Value. */
+		// Value
 		JPanel blue_v_panel = new JPanel();
 		JLabel blue_v_label = new JLabel("Value:");
 		blue_v = setUpSlider(0, 255, pitchConstants.blue_v_low, pitchConstants.blue_v_high, 10,50);
@@ -519,15 +516,13 @@ public class VisionGUI implements ChangeListener {
 		blue_h.addChangeListener(this);
 		blue_s.addChangeListener(this);
 		blue_v.addChangeListener(this);
-
 	}
 	
 	/**
 	 * Sets up the sliders for the thresholding of the yellow robot.
 	 */
 	private void setUpYellowSliders() {
-		
-		/* Red. */
+		// Red
 		JPanel yellow_r_panel = new JPanel();
 		JLabel yellow_r_label = new JLabel("Red:");
 		yellow_r = setUpSlider(0, 255, pitchConstants.yellow_r_low, pitchConstants.yellow_r_high, 10, 50);
@@ -535,7 +530,7 @@ public class VisionGUI implements ChangeListener {
 		yellow_r_panel.add(yellow_r);
 		yellowPanel.add(yellow_r_panel);
 
-		/* Green. */
+		// Green
 		JPanel yellow_g_panel = new JPanel();
 		JLabel yellow_g_label = new JLabel("Green:");
 		yellow_g = setUpSlider( 0, 255, pitchConstants.yellow_g_low, pitchConstants.yellow_g_high, 10, 50);
@@ -543,7 +538,7 @@ public class VisionGUI implements ChangeListener {
 		yellow_g_panel.add(yellow_g);
 		yellowPanel.add(yellow_g_panel);
 
-		/* Blue. */
+		// Blue
 		JPanel yellow_b_panel = new JPanel();
 		JLabel yellow_b_label = new JLabel("Blue:");
 		yellow_b = setUpSlider( 0, 255, pitchConstants.yellow_b_low, pitchConstants.yellow_b_high, 10, 50);
@@ -551,7 +546,7 @@ public class VisionGUI implements ChangeListener {
 		yellow_b_panel.add(yellow_b);
 		yellowPanel.add(yellow_b_panel);
 
-		/* Hue. */
+		// Hue
 		JPanel yellow_h_panel = new JPanel();
 		JLabel yellow_h_label = new JLabel("Hue:");
 		yellow_h = setUpSlider(0, 255, pitchConstants.yellow_h_low, pitchConstants.yellow_h_high, 10,50);
@@ -559,7 +554,7 @@ public class VisionGUI implements ChangeListener {
 		yellow_h_panel.add(yellow_h);
 		yellowPanel.add(yellow_h_panel);
 
-		/* Sat. */
+		// Sat
 		JPanel yellow_s_panel = new JPanel();
 		JLabel yellow_s_label = new JLabel("Sat:");
 		yellow_s = setUpSlider(0, 255, pitchConstants.yellow_s_low, pitchConstants.yellow_s_high, 10,50);
@@ -568,7 +563,7 @@ public class VisionGUI implements ChangeListener {
 		yellowPanel.add(yellow_s_panel);
 
 
-		/* Value. */
+		// Value
 		JPanel yellow_v_panel = new JPanel();
 		JLabel yellow_v_label = new JLabel("Value:");
 		yellow_v = setUpSlider(0, 255, pitchConstants.yellow_v_low, pitchConstants.yellow_v_high, 10,50);
@@ -582,15 +577,13 @@ public class VisionGUI implements ChangeListener {
 		yellow_h.addChangeListener(this);
 		yellow_s.addChangeListener(this);
 		yellow_v.addChangeListener(this);
-
 	}
 	
 	/**
 	 * Sets up the sliders for the thresholding of the grey robot.
 	 */
 	private void setUpGreySliders() {
-		
-		/* Red. */
+		// Red
 		JPanel grey_r_panel = new JPanel();
 		JLabel grey_r_label = new JLabel("Red:");
 		grey_r = setUpSlider(0, 255, pitchConstants.grey_r_low, pitchConstants.grey_r_high, 10, 50);
@@ -598,7 +591,7 @@ public class VisionGUI implements ChangeListener {
 		grey_r_panel.add(grey_r);
 		greyPanel.add(grey_r_panel);
 
-		/* Green. */
+		// Green
 		JPanel grey_g_panel = new JPanel();
 		JLabel grey_g_label = new JLabel("Green:");
 		grey_g = setUpSlider( 0, 255, pitchConstants.grey_g_low, pitchConstants.grey_g_high, 10, 50);
@@ -606,7 +599,7 @@ public class VisionGUI implements ChangeListener {
 		grey_g_panel.add(grey_g);
 		greyPanel.add(grey_g_panel);
 
-		/* Blue. */
+		// Blue
 		JPanel grey_b_panel = new JPanel();
 		JLabel grey_b_label = new JLabel("Blue:");
 		grey_b = setUpSlider( 0, 255, pitchConstants.grey_b_low, pitchConstants.grey_b_high, 10, 50);
@@ -614,7 +607,7 @@ public class VisionGUI implements ChangeListener {
 		grey_b_panel.add(grey_b);
 		greyPanel.add(grey_b_panel);
 
-		/* Hue. */
+		// Hue
 		JPanel grey_h_panel = new JPanel();
 		JLabel grey_h_label = new JLabel("Hue:");
 		grey_h = setUpSlider(0, 255, pitchConstants.grey_h_low, pitchConstants.grey_h_high, 10,50);
@@ -622,7 +615,7 @@ public class VisionGUI implements ChangeListener {
 		grey_h_panel.add(grey_h);
 		greyPanel.add(grey_h_panel);
 
-		/* Sat. */
+		// Sat
 		JPanel grey_s_panel = new JPanel();
 		JLabel grey_s_label = new JLabel("Sat:");
 		grey_s = setUpSlider(0, 255, pitchConstants.grey_s_low, pitchConstants.grey_s_high, 10,50);
@@ -631,7 +624,7 @@ public class VisionGUI implements ChangeListener {
 		greyPanel.add(grey_s_panel);
 
 
-		/* Value. */
+		// Value
 		JPanel grey_v_panel = new JPanel();
 		JLabel grey_v_label = new JLabel("Value:");
 		grey_v = setUpSlider(0, 255, pitchConstants.grey_v_low, pitchConstants.grey_v_high, 10,50);
@@ -645,15 +638,13 @@ public class VisionGUI implements ChangeListener {
 		grey_h.addChangeListener(this);
 		grey_s.addChangeListener(this);
 		grey_v.addChangeListener(this);
-
 	}
 	
 	/**
 	 * Sets up the sliders for the thresholding of the green robot.
 	 */
 	private void setUpGreenSliders() {
-		
-		/* Red. */
+		// Red
 		JPanel green_r_panel = new JPanel();
 		JLabel green_r_label = new JLabel("Red:");
 		green_r = setUpSlider(0, 255, pitchConstants.green_r_low, pitchConstants.green_r_high, 10, 50);
@@ -661,7 +652,7 @@ public class VisionGUI implements ChangeListener {
 		green_r_panel.add(green_r);
 		greenPanel.add(green_r_panel);
 
-		/* Green. */
+		// Green
 		JPanel green_g_panel = new JPanel();
 		JLabel green_g_label = new JLabel("Green:");
 		green_g = setUpSlider( 0, 255, pitchConstants.green_g_low, pitchConstants.green_g_high, 10, 50);
@@ -669,7 +660,7 @@ public class VisionGUI implements ChangeListener {
 		green_g_panel.add(green_g);
 		greenPanel.add(green_g_panel);
 
-		/* Blue. */
+		// Blue
 		JPanel green_b_panel = new JPanel();
 		JLabel green_b_label = new JLabel("Blue:");
 		green_b = setUpSlider( 0, 255, pitchConstants.green_b_low, pitchConstants.green_b_high, 10, 50);
@@ -677,7 +668,7 @@ public class VisionGUI implements ChangeListener {
 		green_b_panel.add(green_b);
 		greenPanel.add(green_b_panel);
 
-		/* Hue. */
+		// Hue
 		JPanel green_h_panel = new JPanel();
 		JLabel green_h_label = new JLabel("Hue:");
 		green_h = setUpSlider(0, 255, pitchConstants.green_h_low, pitchConstants.green_h_high, 10,50);
@@ -685,7 +676,7 @@ public class VisionGUI implements ChangeListener {
 		green_h_panel.add(green_h);
 		greenPanel.add(green_h_panel);
 
-		/* Sat. */
+		// Sat
 		JPanel green_s_panel = new JPanel();
 		JLabel green_s_label = new JLabel("Sat:");
 		green_s = setUpSlider(0, 255, pitchConstants.green_s_low, pitchConstants.green_s_high, 10,50);
@@ -693,8 +684,7 @@ public class VisionGUI implements ChangeListener {
 		green_s_panel.add(green_s);
 		greenPanel.add(green_s_panel);
 
-
-		/* Value. */
+		// Value
 		JPanel green_v_panel = new JPanel();
 		JLabel green_v_label = new JLabel("Value:");
 		green_v = setUpSlider(0, 255, pitchConstants.green_v_low, pitchConstants.green_v_high, 10,50);
@@ -708,7 +698,6 @@ public class VisionGUI implements ChangeListener {
 		green_h.addChangeListener(this);
 		green_s.addChangeListener(this);
 		green_v.addChangeListener(this);
-
 	}
 
 	/**
@@ -725,7 +714,6 @@ public class VisionGUI implements ChangeListener {
 	 */
 	private RangeSlider setUpSlider(int minVal, int maxVal, int lowerVal, int upperVal,
 			int minorTick, int majorTick) {
-		
         RangeSlider slider = new RangeSlider(minVal, maxVal);
         
         setSliderVals(slider, lowerVal, upperVal);
@@ -737,7 +725,6 @@ public class VisionGUI implements ChangeListener {
         slider.setPaintLabels(true);
         
         return slider;
-		
 	}
 
 	/**
@@ -748,8 +735,7 @@ public class VisionGUI implements ChangeListener {
 	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		
-		/* Update the world state. */
+		// Update the world state
 		if (pitch_0.isSelected()) {
 			worldState.setPitch(0);
 		} else {
@@ -766,8 +752,7 @@ public class VisionGUI implements ChangeListener {
 			worldState.setDirection(1);
 		}
 		
-		/* Update the ThresholdsState object. */
-		
+		// Update the ThresholdsState object
 		int index = tabPane.getSelectedIndex();
 		
 		switch(index) {
@@ -822,7 +807,7 @@ public class VisionGUI implements ChangeListener {
 			break;
 		}
 		
-		/* Ball. */
+		// Ball
 		thresholdsState.setBall_r_low(ball_r.getValue());
 		thresholdsState.setBall_r_high(ball_r.getUpperValue());
 
@@ -841,7 +826,7 @@ public class VisionGUI implements ChangeListener {
 		thresholdsState.setBall_v_low(ball_v.getValue() / 255.0);
 		thresholdsState.setBall_v_high(ball_v.getUpperValue() / 255.0);
 		
-		/* Blue Robot. */
+		// Blue Robot
 		thresholdsState.setBlue_r_low(blue_r.getValue());
 		thresholdsState.setBlue_r_high(blue_r.getUpperValue());
 
@@ -860,7 +845,7 @@ public class VisionGUI implements ChangeListener {
 		thresholdsState.setBlue_v_low(blue_v.getValue() / 255.0);
 		thresholdsState.setBlue_v_high(blue_v.getUpperValue() / 255.0);
 		
-		/* Yellow Robot. */
+		// Yellow Robot
 		thresholdsState.setYellow_r_low(yellow_r.getValue());
 		thresholdsState.setYellow_r_high(yellow_r.getUpperValue());
 
@@ -879,7 +864,7 @@ public class VisionGUI implements ChangeListener {
 		thresholdsState.setYellow_v_low(yellow_v.getValue() / 255.0);
 		thresholdsState.setYellow_v_high(yellow_v.getUpperValue() / 255.0);
 		
-		/* Grey Circles. */
+		// Grey Circles
 		thresholdsState.setGrey_r_low(grey_r.getValue());
 		thresholdsState.setGrey_r_high(grey_r.getUpperValue());
 
@@ -898,8 +883,7 @@ public class VisionGUI implements ChangeListener {
 		thresholdsState.setGrey_v_low(grey_v.getValue() / 255.0);
 		thresholdsState.setGrey_v_high(grey_v.getUpperValue() / 255.0);
 		
-		
-		/* Green Circles. */
+		// Green Circles
 		thresholdsState.setGreen_r_low(green_r.getValue());
 		thresholdsState.setGreen_r_high(green_r.getUpperValue());
 
@@ -917,7 +901,6 @@ public class VisionGUI implements ChangeListener {
 		
 		thresholdsState.setGreen_v_low(green_v.getValue() / 255.0);
 		thresholdsState.setGreen_v_high(green_v.getUpperValue() / 255.0);
-				
 	}
 	
 	/**
@@ -925,7 +908,7 @@ public class VisionGUI implements ChangeListener {
 	 */
 	public void reloadSliderDefaults() {
 		
-		/* Ball slider */
+		// Ball slider
 		setSliderVals(ball_r, pitchConstants.ball_r_low, pitchConstants.ball_r_high);
 		setSliderVals(ball_g, pitchConstants.ball_g_low, pitchConstants.ball_g_high);
 		setSliderVals(ball_b, pitchConstants.ball_b_low, pitchConstants.ball_b_high);
@@ -933,7 +916,7 @@ public class VisionGUI implements ChangeListener {
 		setSliderVals(ball_s, pitchConstants.ball_s_low, pitchConstants.ball_s_high);
 		setSliderVals(ball_v, pitchConstants.ball_v_low, pitchConstants.ball_v_high);
 		
-		/* Blue slider */
+		// Blue slider
 		setSliderVals(blue_r, pitchConstants.blue_r_low, pitchConstants.blue_r_high);
 		setSliderVals(blue_g, pitchConstants.blue_g_low, pitchConstants.blue_g_high);
 		setSliderVals(blue_b, pitchConstants.blue_b_low, pitchConstants.blue_b_high);
@@ -941,7 +924,7 @@ public class VisionGUI implements ChangeListener {
 		setSliderVals(blue_s, pitchConstants.blue_s_low, pitchConstants.blue_s_high);
 		setSliderVals(blue_v, pitchConstants.blue_v_low, pitchConstants.blue_v_high);
 		
-		/* Yellow slider */
+		// Yellow slider
 		setSliderVals(yellow_r, pitchConstants.yellow_r_low, pitchConstants.yellow_r_high);
 		setSliderVals(yellow_g, pitchConstants.yellow_g_low, pitchConstants.yellow_g_high);
 		setSliderVals(yellow_b, pitchConstants.yellow_b_low, pitchConstants.yellow_b_high);
@@ -949,7 +932,7 @@ public class VisionGUI implements ChangeListener {
 		setSliderVals(yellow_s, pitchConstants.yellow_s_low, pitchConstants.yellow_s_high);
 		setSliderVals(yellow_v, pitchConstants.yellow_v_low, pitchConstants.yellow_v_high);
 		
-		/* Grey slider */
+		// Grey slider
 		setSliderVals(grey_r, pitchConstants.grey_r_low, pitchConstants.grey_r_high);
 		setSliderVals(grey_g, pitchConstants.grey_g_low, pitchConstants.grey_g_high);
 		setSliderVals(grey_b, pitchConstants.grey_b_low, pitchConstants.grey_b_high);
@@ -964,7 +947,6 @@ public class VisionGUI implements ChangeListener {
 		setSliderVals(green_h, pitchConstants.green_h_low, pitchConstants.green_h_high);
 		setSliderVals(green_s, pitchConstants.green_s_low, pitchConstants.green_s_high);
 		setSliderVals(green_v, pitchConstants.green_v_low, pitchConstants.green_v_high);
-		
 	}
 
 	/**
@@ -975,11 +957,7 @@ public class VisionGUI implements ChangeListener {
 	 * @param high				The higher end of the range.
 	 */
 	private void setSliderVals(RangeSlider rangeSlider, int low, int high) {
-		/* If try to set lower val > current higher val nothing will happen (and vice-versa),
-         * so we set the lower val twice in case of this situation. */
-		rangeSlider.setValue(low);
 		rangeSlider.setUpperValue(high);
 		rangeSlider.setValue(low);
 	}
-
 }

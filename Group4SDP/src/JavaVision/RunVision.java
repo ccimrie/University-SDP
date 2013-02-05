@@ -1,6 +1,5 @@
 package JavaVision;
 import au.edu.jcu.v4l4j.V4L4JConstants;
-import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /** 
  * The main class used to run the vision system. Creates the control
@@ -40,16 +39,8 @@ public class RunVision {
             // Create the Control GUI for threshold setting/etc
             thresholdsGUI = new VisionGUI(thresholdsState, worldState, pitchConstants);
             thresholdsGUI.initGUI();
-            
-            
-            
-            
-            
-            
-            
-        } catch (V4L4JException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

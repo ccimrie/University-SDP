@@ -5,7 +5,6 @@ import JavaVision.ThresholdsState;
 import JavaVision.Vision;
 import JavaVision.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
-import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**
  * @author Alex Adams
@@ -43,8 +42,6 @@ public class StraightLineVision {
 	        thresholdsGUI = new JavaVision.VisionGUI(thresholdsState, worldState, pitchConstants);
 	        thresholdsGUI.initGUI();
 	        
-	    } catch (V4L4JException e) {
-	        e.printStackTrace();
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
