@@ -75,7 +75,7 @@ public class SimpleControlGUI extends JFrame {
 		gui.Launch();
 		gui.action();
 		
-		strat.initialize();
+		//strat.initialize();
 
 		// Sets up the communication
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
