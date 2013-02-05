@@ -1,4 +1,4 @@
-package JavaVision;
+package vision;
 import java.awt.Point;
 import java.util.ArrayList;
 

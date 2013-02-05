@@ -1,4 +1,4 @@
-package JavaVision;
+package vision;
 // FROM: https://github.com/ernieyu/Swing-range-slider
 /* The MIT License
 

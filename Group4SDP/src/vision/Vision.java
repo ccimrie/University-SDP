@@ -1,4 +1,4 @@
-package JavaVision;
+package vision;
 	
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -53,7 +53,6 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	private JFrame windowFrame;
 
 	// Variables used in processing video
-	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
 	private static final double barrelCorrectionX = -0.016;
 	private static final double barrelCorrectionY = -0.13;
@@ -75,7 +74,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 * @param compressionQuality
 	 *            The JPEG compression quality.
 	 * @param worldState
-	 * @param thresholdsState
+	 * @param pitchConstants
 	 * @param pitchConstants
 	 * 
 	 * @throws V4L4JException
@@ -83,10 +82,9 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 */
 	public Vision(String videoDevice, int width, int height, int channel,
 			int videoStandard, int compressionQuality, WorldState worldState,
-			ThresholdsState thresholdsState, PitchConstants pitchConstants) {
+			PitchConstants pitchConstants) {
 		// Set the state fields.
 		this.worldState = worldState;
-		this.thresholdsState = thresholdsState;
 		this.pitchConstants = pitchConstants;
 
         // Set pitch constraints
@@ -248,18 +246,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of the blue T), false otherwise.
 	 */
 	private boolean isBlue(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.BLUE)
-				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.BLUE)
-				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.BLUE)
-				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.BLUE)
-				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.BLUE)
-				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.BLUE)
-				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.BLUE)
-				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.BLUE)
-				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.BLUE)
-				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.BLUE)
-				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.BLUE)
-				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.BLUE);
+		return hsbvals[0] <= pitchConstants.getHueMax(PitchConstants.BLUE)
+				&& hsbvals[0] >= pitchConstants.getHueMin(PitchConstants.BLUE)
+				&& hsbvals[1] <= pitchConstants.getSaturationMax(PitchConstants.BLUE)
+				&& hsbvals[1] >= pitchConstants.getSaturationMin(PitchConstants.BLUE)
+				&& hsbvals[2] <= pitchConstants.getValueMax(PitchConstants.BLUE)
+				&& hsbvals[2] >= pitchConstants.getValueMin(PitchConstants.BLUE)
+				&& colour.getRed() <= pitchConstants.getRedMax(PitchConstants.BLUE)
+				&& colour.getRed() >= pitchConstants.getRedMin(PitchConstants.BLUE)
+				&& colour.getGreen() <= pitchConstants.getGreenMax(PitchConstants.BLUE)
+				&& colour.getGreen() >= pitchConstants.getGreenMin(PitchConstants.BLUE)
+				&& colour.getBlue() <= pitchConstants.getBlueMax(PitchConstants.BLUE)
+				&& colour.getBlue() >= pitchConstants.getBlueMin(PitchConstants.BLUE);
 	}
 
 	/**
@@ -275,18 +273,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of the yellow T), false otherwise.
 	 */
 	private boolean isYellow(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.YELLOW)
-				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.YELLOW)
-				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.YELLOW)
-				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.YELLOW)
-				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.YELLOW)
-				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.YELLOW)
-				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.YELLOW)
-				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.YELLOW)
-				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.YELLOW)
-				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.YELLOW)
-				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.YELLOW)
-				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.YELLOW);
+		return hsbvals[0] <= pitchConstants.getHueMax(PitchConstants.YELLOW)
+				&& hsbvals[0] >= pitchConstants.getHueMin(PitchConstants.YELLOW)
+				&& hsbvals[1] <= pitchConstants.getSaturationMax(PitchConstants.YELLOW)
+				&& hsbvals[1] >= pitchConstants.getSaturationMin(PitchConstants.YELLOW)
+				&& hsbvals[2] <= pitchConstants.getValueMax(PitchConstants.YELLOW)
+				&& hsbvals[2] >= pitchConstants.getValueMin(PitchConstants.YELLOW)
+				&& colour.getRed() <= pitchConstants.getRedMax(PitchConstants.YELLOW)
+				&& colour.getRed() >= pitchConstants.getRedMin(PitchConstants.YELLOW)
+				&& colour.getGreen() <= pitchConstants.getGreenMax(PitchConstants.YELLOW)
+				&& colour.getGreen() >= pitchConstants.getGreenMin(PitchConstants.YELLOW)
+				&& colour.getBlue() <= pitchConstants.getBlueMax(PitchConstants.YELLOW)
+				&& colour.getBlue() >= pitchConstants.getBlueMin(PitchConstants.YELLOW);
 	}
 
 	/**
@@ -302,18 +300,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of the ball), false otherwise.
 	 */
 	private boolean isBall(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.BALL)
-				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.BALL)
-				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.BALL)
-				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.BALL)
-				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.BALL)
-				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.BALL)
-				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.BALL)
-				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.BALL)
-				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.BALL)
-				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.BALL)
-				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.BALL)
-				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.BALL);
+		return hsbvals[0] <= pitchConstants.getHueMax(PitchConstants.BALL)
+				&& hsbvals[0] >= pitchConstants.getHueMin(PitchConstants.BALL)
+				&& hsbvals[1] <= pitchConstants.getSaturationMax(PitchConstants.BALL)
+				&& hsbvals[1] >= pitchConstants.getSaturationMin(PitchConstants.BALL)
+				&& hsbvals[2] <= pitchConstants.getValueMax(PitchConstants.BALL)
+				&& hsbvals[2] >= pitchConstants.getValueMin(PitchConstants.BALL)
+				&& colour.getRed() <= pitchConstants.getRedMax(PitchConstants.BALL)
+				&& colour.getRed() >= pitchConstants.getRedMin(PitchConstants.BALL)
+				&& colour.getGreen() <= pitchConstants.getGreenMax(PitchConstants.BALL)
+				&& colour.getGreen() >= pitchConstants.getGreenMin(PitchConstants.BALL)
+				&& colour.getBlue() <= pitchConstants.getBlueMax(PitchConstants.BALL)
+				&& colour.getBlue() >= pitchConstants.getBlueMin(PitchConstants.BALL);
 	}
 
 	/**
@@ -329,18 +327,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of a grey circle), false otherwise.
 	 */
 	private boolean isGrey(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.GREY)
-				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.GREY)
-				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.GREY)
-				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.GREY)
-				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.GREY)
-				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.GREY)
-				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.GREY)
-				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.GREY)
-				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.GREY)
-				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.GREY)
-				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.GREY)
-				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.GREY);
+		return hsbvals[0] <= pitchConstants.getHueMax(PitchConstants.GREY)
+				&& hsbvals[0] >= pitchConstants.getHueMin(PitchConstants.GREY)
+				&& hsbvals[1] <= pitchConstants.getSaturationMax(PitchConstants.GREY)
+				&& hsbvals[1] >= pitchConstants.getSaturationMin(PitchConstants.GREY)
+				&& hsbvals[2] <= pitchConstants.getValueMax(PitchConstants.GREY)
+				&& hsbvals[2] >= pitchConstants.getValueMin(PitchConstants.GREY)
+				&& colour.getRed() <= pitchConstants.getRedMax(PitchConstants.GREY)
+				&& colour.getRed() >= pitchConstants.getRedMin(PitchConstants.GREY)
+				&& colour.getGreen() <= pitchConstants.getGreenMax(PitchConstants.GREY)
+				&& colour.getGreen() >= pitchConstants.getGreenMin(PitchConstants.GREY)
+				&& colour.getBlue() <= pitchConstants.getBlueMax(PitchConstants.GREY)
+				&& colour.getBlue() >= pitchConstants.getBlueMin(PitchConstants.GREY);
 	}
 
 	/**
@@ -356,18 +354,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of a green plate), false otherwise.
 	 */
 	private boolean isGreen(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.GREEN)
-				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.GREEN)
-				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.GREEN)
-				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.GREEN)
-				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.GREEN)
-				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.GREEN)
-				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.GREEN)
-				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.GREEN)
-				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.GREEN)
-				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.GREEN)
-				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.GREEN)
-				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.GREEN);
+		return hsbvals[0] <= pitchConstants.getHueMax(PitchConstants.GREEN)
+				&& hsbvals[0] >= pitchConstants.getHueMin(PitchConstants.GREEN)
+				&& hsbvals[1] <= pitchConstants.getSaturationMax(PitchConstants.GREEN)
+				&& hsbvals[1] >= pitchConstants.getSaturationMin(PitchConstants.GREEN)
+				&& hsbvals[2] <= pitchConstants.getValueMax(PitchConstants.GREEN)
+				&& hsbvals[2] >= pitchConstants.getValueMin(PitchConstants.GREEN)
+				&& colour.getRed() <= pitchConstants.getRedMax(PitchConstants.GREEN)
+				&& colour.getRed() >= pitchConstants.getRedMin(PitchConstants.GREEN)
+				&& colour.getGreen() <= pitchConstants.getGreenMax(PitchConstants.GREEN)
+				&& colour.getGreen() >= pitchConstants.getGreenMin(PitchConstants.GREEN)
+				&& colour.getBlue() <= pitchConstants.getBlueMax(PitchConstants.GREEN)
+				&& colour.getBlue() >= pitchConstants.getBlueMin(PitchConstants.GREEN);
 	}
 
 	/**
@@ -446,10 +444,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
 
-				if (thresholdsState.debugMode(ThresholdsState.GREY) && isGrey(c, hsbvals)) {
+				if (pitchConstants.debugMode(PitchConstants.GREY) && isGrey(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
 				}
-				if (thresholdsState.debugMode(ThresholdsState.GREEN) && isGreen(c, hsbvals)) {
+				if (pitchConstants.debugMode(PitchConstants.GREEN) && isGreen(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
 				}
 
@@ -465,7 +463,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Blue" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.debugMode(ThresholdsState.BLUE)) {
+					if (pitchConstants.debugMode(PitchConstants.BLUE)) {
 						image.setRGB(column, row, 0xFFFF0099);
 					}
 				}
@@ -482,7 +480,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Yellow" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.debugMode(ThresholdsState.YELLOW)) {
+					if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
 						image.setRGB(column, row, 0xFFFF0099);
 					}
 				}
@@ -499,7 +497,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Ball" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.debugMode(ThresholdsState.BALL)) {
+					if (pitchConstants.debugMode(PitchConstants.BALL)) {
 						image.setRGB(column, row, 0xFF000000);
 					}
 				}
@@ -629,7 +627,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		// Only display these markers in non-debug mode.
 		boolean anyDebug = false;
 		for (int i = 0; i < 5; ++i) {
-			if (thresholdsState.debugMode(i)) {
+			if (pitchConstants.debugMode(i)) {
 				anyDebug = true;
 				break;
 			}

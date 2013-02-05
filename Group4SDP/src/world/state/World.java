@@ -1,8 +1,6 @@
 package world.state;
 
 import geometry.Vector;
-import JavaVision.Vision;
-import JavaVision.WorldState;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -13,6 +11,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Observable;
 import strategy.calculations.DistanceCalculator;
+import vision.Vision;
+import vision.WorldState;
 import world.state.PitchInfo;
 
 public class World extends Observable implements Runnable, WorldInterface {
@@ -63,7 +63,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     	this.connectVision();
     }
 
-    /*public static World getInstance() {
+    public static World getInstance() {
     	int connectionAttempts = 5;
     	int delay = 500;
     	for (int i = 0; i < connectionAttempts; i++) {
@@ -83,7 +83,7 @@ public class World extends Observable implements Runnable, WorldInterface {
         System.err.println("Is the vision server on?");
         System.exit(1);
 		return null;
-    }*/
+    }
 
     public static void main(String[] args) {
     	// This starts an infinite loop for the server

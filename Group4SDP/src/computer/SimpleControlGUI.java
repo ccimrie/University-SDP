@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
 
-import JavaVision.WorldState;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
@@ -25,6 +24,8 @@ import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 import strategy.planning.Commands;
 import strategy.movement.StraightLineVision;
+import vision.WorldState;
+
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
@@ -75,7 +76,7 @@ public class SimpleControlGUI extends JFrame {
 		gui.Launch();
 		gui.action();
 		
-		strat.initialize();
+		//strat.initialize();
 
 		// Sets up the communication
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
