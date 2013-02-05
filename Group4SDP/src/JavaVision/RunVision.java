@@ -38,7 +38,6 @@ public class RunVision {
             
             // Create the Control GUI for threshold setting/etc
             thresholdsGUI = new VisionGUI(thresholdsState, worldState, pitchConstants);
-            thresholdsGUI.initGUI();
         }
         catch (Exception e) {
             e.printStackTrace();

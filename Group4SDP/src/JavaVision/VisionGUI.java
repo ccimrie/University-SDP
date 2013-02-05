@@ -26,7 +26,8 @@ import javax.swing.event.ChangeListener;
  * 
  * @author s0840449
  */
-public class VisionGUI implements ChangeListener {
+@SuppressWarnings("serial")
+public class VisionGUI extends JFrame implements ChangeListener {
 	
 	// A PitchConstants class used to load/save constants for the pitch.
 	private PitchConstants pitchConstants;
@@ -39,7 +40,7 @@ public class VisionGUI implements ChangeListener {
 	private WorldState worldState;
 	
 	// The main frame holding the Control GUI.
-	private JFrame frame;
+	//private JFrame frame;
 	
 	// Load/Save buttons.
 	private JButton saveButton;
@@ -112,30 +113,16 @@ public class VisionGUI implements ChangeListener {
 	 * @param pitchConstants	A PitchConstants object to allow saving/loading of data.
 	 */
 	public VisionGUI(ThresholdsState thresholdsState, WorldState worldState, PitchConstants pitchConstants) {
+		super("Vision Control");
+		// All three state objects must not be null.
+		assert (thresholdsState != null) : "thresholdsState is null";
+		assert (worldState != null) : "worldState is null";
+		assert (pitchConstants != null) : "pitchConstants is null";
 		
-		/* All three state objects must not be null. */
-		assert (thresholdsState != null);
-		assert (worldState != null);
-		assert (pitchConstants != null);
-		
-		this.thresholdsState = thresholdsState;
-		this.worldState = worldState;
-		this.pitchConstants = pitchConstants;
-		
-	}
-	
-	/**
-	 * Initialise the GUI, setting up all of the components and adding the required
-	 * listeners.
-	 */
-	public void initGUI() {
-		
-		frame = new JFrame("Control GUI");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
         
-        frame.setLayout(new FlowLayout());
-        
-        /* Create panels for each of the tabs */
+        // Create panels for each of the tabs
         tabPane = new JTabbedPane();
         
         defaultPanel = new JPanel();
@@ -173,16 +160,19 @@ public class VisionGUI implements ChangeListener {
         tabPane.addTab("Grey Circles", greyPanel);
         tabPane.addTab("Green Plates", greenPanel);
         
-        tabPane.addChangeListener(this);
+        //tabPane.addChangeListener(this);
         
-        frame.add(tabPane);
-       
-        frame.pack();
-        frame.setVisible(true);
-        
+        this.add(tabPane);
+        this.pack();
+        this.setVisible(true);
+		
+		this.thresholdsState = thresholdsState;
+		this.worldState = worldState;
+		this.pitchConstants = pitchConstants;
+
         // Fires off an initial pass through the ChangeListener method,
         // to initialise all of the default values.
-        this.stateChanged(null);
+		this.stateChanged(null);
 	}
 	
 	/**
@@ -206,8 +196,8 @@ public class VisionGUI implements ChangeListener {
 		
 		pitch_0.setSelected(true);
 		
-		pitch_0.addChangeListener(this);
-		pitch_1.addChangeListener(this);
+		//pitch_0.addChangeListener(this);
+		//pitch_1.addChangeListener(this);
 		
 		defaultPanel.add(pitch_panel);
 		
@@ -226,8 +216,8 @@ public class VisionGUI implements ChangeListener {
 		
 		colour_yellow.setSelected(true);
 		
-		colour_yellow.addChangeListener(this);
-		colour_blue.addChangeListener(this);
+		//colour_yellow.addChangeListener(this);
+		//colour_blue.addChangeListener(this);
 		
 		defaultPanel.add(colour_panel);
 		
@@ -246,8 +236,8 @@ public class VisionGUI implements ChangeListener {
 		
 		direction_right.setSelected(true);
 		
-		direction_right.addChangeListener(this);
-		direction_left.addChangeListener(this);
+		//direction_right.addChangeListener(this);
+		//direction_left.addChangeListener(this);
 		
 		defaultPanel.add(direction_panel);
 		
@@ -264,8 +254,8 @@ public class VisionGUI implements ChangeListener {
 				
 				int pitchNum = (pitch_0.isSelected()) ? 0 : 1;
 				
-				int result = JOptionPane.showConfirmDialog(frame, "Are you sure you want to save current" +
-						"constants for pitch " + pitchNum + "?");
+				int result = JOptionPane.showConfirmDialog(saveButton,
+						"Are you sure you want to save current constants for pitch " + pitchNum + "?");
 				
 				if (result == JOptionPane.NO_OPTION || result == JOptionPane.CANCEL_OPTION) return;
 				
@@ -354,8 +344,6 @@ public class VisionGUI implements ChangeListener {
 					writer.write(String.valueOf(green_v.getValue()) + "\n");
 					writer.write(String.valueOf(green_v.getUpperValue()) + "\n");
 					
-			
-					
 					writer.flush();
 					writer.close();
 					
@@ -380,13 +368,13 @@ public class VisionGUI implements ChangeListener {
 				
 				int pitchNum = (pitch_0.isSelected()) ? 0 : 1;
 				
-				int result = JOptionPane.showConfirmDialog(frame, "Are you sure you want to load " +
+				int result = JOptionPane.showConfirmDialog(loadButton, "Are you sure you want to load " +
 						"pre-saved constants for pitch " + pitchNum + "?");
 				
 				if (result == JOptionPane.NO_OPTION || result == JOptionPane.CANCEL_OPTION) return;
 				
 				pitchConstants.setPitchNum(pitchNum);
-				reloadSliderDefaults();
+//				reloadSliderDefaults();
 				
 			}
 		});
@@ -394,7 +382,6 @@ public class VisionGUI implements ChangeListener {
 		saveLoadPanel.add(loadButton);
 		
 		defaultPanel.add(saveLoadPanel);
-		
 	}
 	
 	/**
@@ -757,77 +744,77 @@ public class VisionGUI implements ChangeListener {
 		
 		switch(index) {
 		case(0):
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		case(1):
-			thresholdsState.setBall_debug(true);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, true);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		case(2):
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(true);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, true);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		case(3):
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(true);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, true);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		case(4):
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(true);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, true);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		case(5):
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(true);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, true);
 			break;
 		default:
-			thresholdsState.setBall_debug(false);
-			thresholdsState.setBlue_debug(false);
-			thresholdsState.setYellow_debug(false);
-			thresholdsState.setGrey_debug(false);
-			thresholdsState.setGreen_debug(false);
+			thresholdsState.setDebugMode(ThresholdsState.BALL, false);
+			thresholdsState.setDebugMode(ThresholdsState.BLUE, false);
+			thresholdsState.setDebugMode(ThresholdsState.YELLOW, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREY, false);
+			thresholdsState.setDebugMode(ThresholdsState.GREEN, false);
 			break;
 		}
 		
 		// Ball
-		thresholdsState.setBall_r_low(ball_r.getValue());
-		thresholdsState.setBall_r_high(ball_r.getUpperValue());
+		thresholdsState.setRedMin(ThresholdsState.BALL, ball_r.getValue());
+		thresholdsState.setRedMax(ThresholdsState.BALL, ball_r.getUpperValue());
 
-		thresholdsState.setBall_g_low(ball_g.getValue());
-		thresholdsState.setBall_g_high(ball_g.getUpperValue());
+		thresholdsState.setGreenMin(ThresholdsState.BALL, ball_g.getValue());
+		thresholdsState.setGreenMax(ThresholdsState.BALL, ball_g.getUpperValue());
 		
-		thresholdsState.setBall_b_low(ball_b.getValue());
-		thresholdsState.setBall_b_high(ball_b.getUpperValue());
+		thresholdsState.setBlueMin(ThresholdsState.BALL, ball_b.getValue());
+		thresholdsState.setBlueMax(ThresholdsState.BALL, ball_b.getUpperValue());
 		
-		thresholdsState.setBall_h_low(ball_h.getValue() / 255.0);
-		thresholdsState.setBall_h_high(ball_h.getUpperValue() / 255.0);
+		thresholdsState.setHueMin(ThresholdsState.BALL, ball_h.getValue() / 255.0);
+		thresholdsState.setHueMax(ThresholdsState.BALL, ball_h.getUpperValue() / 255.0);
 
-		thresholdsState.setBall_s_low(ball_s.getValue() / 255.0);
-		thresholdsState.setBall_s_high(ball_s.getUpperValue() / 255.0);
+		thresholdsState.setSaturationMin(ThresholdsState.BALL, ball_s.getValue() / 255.0);
+		thresholdsState.setSaturationMax(ThresholdsState.BALL, ball_s.getUpperValue() / 255.0);
 		
-		thresholdsState.setBall_v_low(ball_v.getValue() / 255.0);
-		thresholdsState.setBall_v_high(ball_v.getUpperValue() / 255.0);
+		thresholdsState.setValueMin(ThresholdsState.BALL, ball_v.getValue() / 255.0);
+		thresholdsState.setValueMax(ThresholdsState.BALL, ball_v.getUpperValue() / 255.0);
 		
 		// Blue Robot
-		thresholdsState.setBlue_r_low(blue_r.getValue());
+		/*thresholdsState.setBlue_r_low(blue_r.getValue());
 		thresholdsState.setBlue_r_high(blue_r.getUpperValue());
 
 		thresholdsState.setBlue_g_low(blue_g.getValue());
@@ -900,14 +887,13 @@ public class VisionGUI implements ChangeListener {
 		thresholdsState.setGreen_s_high(green_s.getUpperValue() / 255.0);
 		
 		thresholdsState.setGreen_v_low(green_v.getValue() / 255.0);
-		thresholdsState.setGreen_v_high(green_v.getUpperValue() / 255.0);
+		thresholdsState.setGreen_v_high(green_v.getUpperValue() / 255.0);*/
 	}
 	
 	/**
 	 * Reloads the default values for the sliders from the PitchConstants file.
 	 */
 	public void reloadSliderDefaults() {
-		
 		// Ball slider
 		setSliderVals(ball_r, pitchConstants.ball_r_low, pitchConstants.ball_r_high);
 		setSliderVals(ball_g, pitchConstants.ball_g_low, pitchConstants.ball_g_high);
@@ -940,7 +926,7 @@ public class VisionGUI implements ChangeListener {
 		setSliderVals(grey_s, pitchConstants.grey_s_low, pitchConstants.grey_s_high);
 		setSliderVals(grey_v, pitchConstants.grey_v_low, pitchConstants.grey_v_high);
 		
-		/* Green slider */
+		// Green slider
 		setSliderVals(green_r, pitchConstants.green_r_low, pitchConstants.green_r_high);
 		setSliderVals(green_g, pitchConstants.green_g_low, pitchConstants.green_g_high);
 		setSliderVals(green_b, pitchConstants.green_b_low, pitchConstants.green_b_high);

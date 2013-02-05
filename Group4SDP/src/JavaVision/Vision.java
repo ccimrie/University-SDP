@@ -1,9 +1,8 @@
 package JavaVision;
-
+	
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -22,16 +21,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.event.MouseInputAdapter;
 
-import au.edu.jcu.v4l4j.exceptions.V4L4JException;
-
 /**
  * The main class for showing the video feed and processing the video data.
  * Identifies ball and robot locations, and robot orientations.
  * 
  * @author s0840449
  */
-// TODO: finish separating the video stream and separate the GUI - can combine
-// it with VisionGUI.java
+// TODO: finish separating the video stream and separate the GUI - can combine it with VisionGUI.java
 public class Vision extends WindowAdapter implements VideoReceiver {
 	// Video variables & constants
 	private VideoStream vStream;
@@ -44,6 +40,14 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	private static final int CHROMA_GAIN = 0;
 	private static final int CHROMA_AGC = 1;
 
+    // Pitch dimension selector variables
+ 	boolean selectionActive = false;
+    Point anchor;
+    int a;
+ 	int b;
+    int c;
+ 	int d;
+
 	// GUI variables
 	private JLabel label;
 	private JFrame windowFrame;
@@ -54,14 +58,6 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	private static final double barrelCorrectionX = -0.016;
 	private static final double barrelCorrectionY = -0.13;
 	private WorldState worldState;
-
-	// Pitch dimension selector variables
-	boolean selectionActive = false;
-	Point anchor;
-	int a;
-	int b;
-	int c;
-	int d;
 
 	/**
 	 * Default constructor.
@@ -93,16 +89,15 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		this.thresholdsState = thresholdsState;
 		this.pitchConstants = pitchConstants;
 
-		// Set pitch constraints
-		this.a = pitchConstants.leftBuffer;
-		this.b = pitchConstants.topBuffer;
-		this.c = width - pitchConstants.rightBuffer - a;
-		this.d = height - pitchConstants.bottomBuffer - b;
+        // Set pitch constraints
+        this.a = pitchConstants.leftBuffer;
+        this.b = pitchConstants.topBuffer;
+        this.c = width - pitchConstants.rightBuffer - a;
+        this.d = height - pitchConstants.bottomBuffer - b;
 
 		// Initialise the video stream
-		vStream = new VideoStream(videoDevice, width, height, channel,
-				videoStandard, compressionQuality);
-
+		vStream = new VideoStream(videoDevice, width, height, channel, videoStandard, compressionQuality);
+		
 		vStream.setSaturation(SATURATION);
 		vStream.setBrightness(BRIGHTNESS);
 		vStream.setContrast(CONTRAST);
@@ -110,15 +105,16 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		vStream.setChromaGain(CHROMA_GAIN);
 		vStream.setChromaAGC(CHROMA_AGC);
 		vStream.updateVideoDeviceSettings();
-
+		
 		vStream.registerReceiver(this);
-
+		
 		this.width = width;
 		this.height = height;
 
 		// Initialise the GUI that displays the video feed.
 		initGUI();
 	}
+	
 
 	/**
 	 * @return The current world state
@@ -130,8 +126,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	/**
 	 * Sends the vision system the next frame to process
 	 */
-	public void sendNextFrame(BufferedImage frame, int frameRate,
-			int frameCounter) {
+	public void sendNextFrame(BufferedImage frame, int frameRate, int frameCounter) {
 		processAndUpdateImage(frame, frameRate, frameCounter);
 	}
 
@@ -173,8 +168,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 			public void mouseReleased(MouseEvent e) {
 				selectionActive = false;
 				Object[] options = { "Main Pitch", "Side Pitch", "Cancel" };
-				int pitchNum = JOptionPane
-						.showOptionDialog(windowFrame.getComponent(0),
+				int pitchNum = JOptionPane.showOptionDialog(windowFrame.getComponent(0),
 								"The parameters are to be set for this pitch",
 								"A Silly Question",
 								JOptionPane.YES_NO_CANCEL_OPTION,
@@ -189,23 +183,23 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 						int bottom = height - d - b;
 						int left = a;
 						int right = width - c - a;
-
+						
 						if (top > 0 && bottom > 0 && left > 0 && right > 0) {
-							// Update pitch constants real time
+							// Update pitch constants
 							pitchConstants.topBuffer = top;
 							pitchConstants.bottomBuffer = bottom;
 							pitchConstants.leftBuffer = left;
 							pitchConstants.rightBuffer = right;
 							
-							//Writing to file the new dimensions to file
-							FileWriter writer = new FileWriter(
-									new File("constants/pitch" + pitchNum
-											+ "Dimensions"));
-
+							// Writing the new dimensions to file
+							FileWriter writer = new FileWriter(new File(
+									"constants/pitch" + pitchNum + "Dimensions"));
+	
 							writer.write("" + top + "\n");
 							writer.write("" + bottom + "\n");
 							writer.write("" + left + "\n");
 							writer.write("" + right + "\n");
+
 							writer.close();
 							System.out.println("Wrote pitch const");
 						} else {
@@ -217,8 +211,8 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 						System.out.println("Error writing pitch dimensions to file");
 						e1.printStackTrace();
 					}
-					System.out.println("A: " + a + " B: " + b + " C: " + c
-							+ " D:" + d);
+	
+					System.out.println("A: " + a + " B: " + b + " C: " + c + " D:" + d);
 				}
 				windowFrame.repaint();
 			}
@@ -253,19 +247,19 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 * @return True if the RGB and HSV values are within the defined thresholds
 	 *         (and thus the pixel is part of the blue T), false otherwise.
 	 */
-	private boolean isBlue(Color color, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getBlue_h_high()
-				&& hsbvals[0] >= thresholdsState.getBlue_h_low()
-				&& hsbvals[1] <= thresholdsState.getBlue_s_high()
-				&& hsbvals[1] >= thresholdsState.getBlue_s_low()
-				&& hsbvals[2] <= thresholdsState.getBlue_v_high()
-				&& hsbvals[2] >= thresholdsState.getBlue_v_low()
-				&& color.getRed() <= thresholdsState.getBlue_r_high()
-				&& color.getRed() >= thresholdsState.getBlue_r_low()
-				&& color.getGreen() <= thresholdsState.getBlue_g_high()
-				&& color.getGreen() >= thresholdsState.getBlue_g_low()
-				&& color.getBlue() <= thresholdsState.getBlue_b_high()
-				&& color.getBlue() >= thresholdsState.getBlue_b_low();
+	private boolean isBlue(Color colour, float[] hsbvals) {
+		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.BLUE)
+				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.BLUE)
+				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.BLUE)
+				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.BLUE)
+				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.BLUE)
+				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.BLUE)
+				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.BLUE)
+				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.BLUE)
+				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.BLUE)
+				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.BLUE)
+				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.BLUE)
+				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.BLUE);
 	}
 
 	/**
@@ -281,18 +275,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of the yellow T), false otherwise.
 	 */
 	private boolean isYellow(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getYellow_h_high()
-				&& hsbvals[0] >= thresholdsState.getYellow_h_low()
-				&& hsbvals[1] <= thresholdsState.getYellow_s_high()
-				&& hsbvals[1] >= thresholdsState.getYellow_s_low()
-				&& hsbvals[2] <= thresholdsState.getYellow_v_high()
-				&& hsbvals[2] >= thresholdsState.getYellow_v_low()
-				&& colour.getRed() <= thresholdsState.getYellow_r_high()
-				&& colour.getRed() >= thresholdsState.getYellow_r_low()
-				&& colour.getGreen() <= thresholdsState.getYellow_g_high()
-				&& colour.getGreen() >= thresholdsState.getYellow_g_low()
-				&& colour.getBlue() <= thresholdsState.getYellow_b_high()
-				&& colour.getBlue() >= thresholdsState.getYellow_b_low();
+		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.YELLOW)
+				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.YELLOW)
+				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.YELLOW)
+				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.YELLOW)
+				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.YELLOW)
+				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.YELLOW)
+				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.YELLOW)
+				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.YELLOW)
+				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.YELLOW)
+				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.YELLOW)
+				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.YELLOW)
+				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.YELLOW);
 	}
 
 	/**
@@ -308,18 +302,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of the ball), false otherwise.
 	 */
 	private boolean isBall(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getBall_h_high()
-				&& hsbvals[0] >= thresholdsState.getBall_h_low()
-				&& hsbvals[1] <= thresholdsState.getBall_s_high()
-				&& hsbvals[1] >= thresholdsState.getBall_s_low()
-				&& hsbvals[2] <= thresholdsState.getBall_v_high()
-				&& hsbvals[2] >= thresholdsState.getBall_v_low()
-				&& colour.getRed() <= thresholdsState.getBall_r_high()
-				&& colour.getRed() >= thresholdsState.getBall_r_low()
-				&& colour.getGreen() <= thresholdsState.getBall_g_high()
-				&& colour.getGreen() >= thresholdsState.getBall_g_low()
-				&& colour.getBlue() <= thresholdsState.getBall_b_high()
-				&& colour.getBlue() >= thresholdsState.getBall_b_low();
+		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.BALL)
+				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.BALL)
+				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.BALL)
+				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.BALL)
+				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.BALL)
+				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.BALL)
+				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.BALL)
+				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.BALL)
+				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.BALL)
+				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.BALL)
+				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.BALL)
+				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.BALL);
 	}
 
 	/**
@@ -335,18 +329,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of a grey circle), false otherwise.
 	 */
 	private boolean isGrey(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getGrey_h_high()
-				&& hsbvals[0] >= thresholdsState.getGrey_h_low()
-				&& hsbvals[1] <= thresholdsState.getGrey_s_high()
-				&& hsbvals[1] >= thresholdsState.getGrey_s_low()
-				&& hsbvals[2] <= thresholdsState.getGrey_v_high()
-				&& hsbvals[2] >= thresholdsState.getGrey_v_low()
-				&& colour.getRed() <= thresholdsState.getGrey_r_high()
-				&& colour.getRed() >= thresholdsState.getGrey_r_low()
-				&& colour.getGreen() <= thresholdsState.getGrey_g_high()
-				&& colour.getGreen() >= thresholdsState.getGrey_g_low()
-				&& colour.getBlue() <= thresholdsState.getGrey_b_high()
-				&& colour.getBlue() >= thresholdsState.getGrey_b_low();
+		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.GREY)
+				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.GREY)
+				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.GREY)
+				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.GREY)
+				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.GREY)
+				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.GREY)
+				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.GREY)
+				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.GREY)
+				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.GREY)
+				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.GREY)
+				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.GREY)
+				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.GREY);
 	}
 
 	/**
@@ -362,18 +356,18 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *         (and thus the pixel is part of a green plate), false otherwise.
 	 */
 	private boolean isGreen(Color colour, float[] hsbvals) {
-		return hsbvals[0] <= thresholdsState.getGreen_h_high()
-				&& hsbvals[0] >= thresholdsState.getGreen_h_low()
-				&& hsbvals[1] <= thresholdsState.getGreen_s_high()
-				&& hsbvals[1] >= thresholdsState.getGreen_s_low()
-				&& hsbvals[2] <= thresholdsState.getGreen_v_high()
-				&& hsbvals[2] >= thresholdsState.getGreen_v_low()
-				&& colour.getRed() <= thresholdsState.getGreen_r_high()
-				&& colour.getRed() >= thresholdsState.getGreen_r_low()
-				&& colour.getGreen() <= thresholdsState.getGreen_g_high()
-				&& colour.getGreen() >= thresholdsState.getGreen_g_low()
-				&& colour.getBlue() <= thresholdsState.getGreen_b_high()
-				&& colour.getBlue() >= thresholdsState.getGreen_b_low();
+		return hsbvals[0] <= thresholdsState.getHueMax(ThresholdsState.GREEN)
+				&& hsbvals[0] >= thresholdsState.getHueMin(ThresholdsState.GREEN)
+				&& hsbvals[1] <= thresholdsState.getSaturationMax(ThresholdsState.GREEN)
+				&& hsbvals[1] >= thresholdsState.getSaturationMin(ThresholdsState.GREEN)
+				&& hsbvals[2] <= thresholdsState.getValueMax(ThresholdsState.GREEN)
+				&& hsbvals[2] >= thresholdsState.getValueMin(ThresholdsState.GREEN)
+				&& colour.getRed() <= thresholdsState.getRedMax(ThresholdsState.GREEN)
+				&& colour.getRed() >= thresholdsState.getRedMin(ThresholdsState.GREEN)
+				&& colour.getGreen() <= thresholdsState.getGreenMax(ThresholdsState.GREEN)
+				&& colour.getGreen() >= thresholdsState.getGreenMin(ThresholdsState.GREEN)
+				&& colour.getBlue() <= thresholdsState.getBlueMax(ThresholdsState.GREEN)
+				&& colour.getBlue() >= thresholdsState.getBlueMin(ThresholdsState.GREEN);
 	}
 
 	/**
@@ -412,8 +406,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 *            The image to process and then show.
 	 * @param counter
 	 */
-	public void processAndUpdateImage(BufferedImage image, int frameRate,
-			int counter) {
+	public void processAndUpdateImage(BufferedImage image, int frameRate, int counter) {
 		int ballX = 0;
 		int ballY = 0;
 		int numBallPos = 0;
@@ -453,10 +446,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
 
-				if (thresholdsState.isGrey_debug() && isGrey(c, hsbvals)) {
+				if (thresholdsState.debugMode(ThresholdsState.GREY) && isGrey(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
 				}
-				if (thresholdsState.isGreen_debug() && isGreen(c, hsbvals)) {
+				if (thresholdsState.debugMode(ThresholdsState.GREEN) && isGreen(c, hsbvals)) {
 					image.setRGB(column, row, 0xFFFF0099);
 				}
 
@@ -472,7 +465,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Blue" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.isBlue_debug()) {
+					if (thresholdsState.debugMode(ThresholdsState.BLUE)) {
 						image.setRGB(column, row, 0xFFFF0099);
 					}
 				}
@@ -489,7 +482,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Yellow" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.isYellow_debug()) {
+					if (thresholdsState.debugMode(ThresholdsState.YELLOW)) {
 						image.setRGB(column, row, 0xFFFF0099);
 					}
 				}
@@ -506,7 +499,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					// If we're in the "Ball" tab, we show what pixels we're
 					// looking at, for debugging and to help with threshold
 					// setting.
-					if (thresholdsState.isBall_debug()) {
+					if (thresholdsState.debugMode(ThresholdsState.BALL)) {
 						image.setRGB(column, row, 0xFF000000);
 					}
 				}
@@ -566,14 +559,12 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
 			yellow.filterPoints(yellowXPoints, yellowYPoints);
 		} else {
-			yellow = new Position(worldState.getYellowX(),
-					worldState.getYellowY());
+			yellow = new Position(worldState.getYellowX(), worldState.getYellowY());
 		}
 
 		Point yellowP = new Point(yellowX, yellowY);
 
-		goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints,
-				yellowP);
+		goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints, yellowP);
 
 		yellowXPoints = new ArrayList<Integer>();
 		yellowYPoints = new ArrayList<Integer>();
@@ -588,39 +579,33 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					blueYPoints, 120, 500);
 
 			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(blueOrientation
-					- worldState.getBlueOrientation());
+			double diff = Math.abs(blueOrientation - worldState.getBlueOrientation());
 			if (blueOrientation != 0 && diff > 0.05) {
 				// Clamp angle to 5 degree increments
-				blueOrientation = Math
-						.round(Math.toDegrees(blueOrientation) / 5) * 5;
+				blueOrientation = Math.round(Math.toDegrees(blueOrientation) / 5) * 5;
 				worldState.setBlueOrientation(Math.toRadians(blueOrientation));
 			}
 		} catch (NoAngleException e) {
 			// TODO: fix the problem properly
-			// System.out.println(e.getMessage());
-			// e.printStackTrace();
+//			System.out.println(e.getMessage());
+//			e.printStackTrace();
 		}
 
 		// Attempt to find the yellow robot's orientation.
 		try {
-			double yellowOrientation = findOrient(image, yellow, yellowXPoints,
-					yellowYPoints, 120, 500);
+			double yellowOrientation = findOrient(image, yellow, yellowXPoints,yellowYPoints, 120, 500);
 
 			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(yellowOrientation
-					- worldState.getYellowOrientation());
+			double diff = Math.abs(yellowOrientation - worldState.getYellowOrientation());
 			if (yellowOrientation != 0 && diff > 0.05) {
 				// Clamp angle to 5 degree increments
-				yellowOrientation = Math.round(Math
-						.toDegrees(yellowOrientation) / 5) * 5;
-				worldState.setYellowOrientation(Math
-						.toRadians(yellowOrientation));
+				yellowOrientation = Math.round(Math.toDegrees(yellowOrientation) / 5) * 5;
+				worldState.setYellowOrientation(Math.toRadians(yellowOrientation));
 			}
 		} catch (NoAngleException e) {
 			// TODO: fix the problem properly
-			// System.out.println(e.getMessage());
-			// e.printStackTrace();
+//			System.out.println(e.getMessage());
+//			e.printStackTrace();
 		}
 
 		// Apply Barrel correction (fixes fish-eye effect)
@@ -642,41 +627,44 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		Graphics imageGraphics = image.getGraphics();
 
 		// Only display these markers in non-debug mode.
-		if (!(thresholdsState.isBall_debug() || thresholdsState.isBlue_debug()
-				|| thresholdsState.isYellow_debug()
-				|| thresholdsState.isGreen_debug() || thresholdsState
-				.isGrey_debug())) {
+		boolean anyDebug = false;
+		for (int i = 0; i < 5; ++i) {
+			if (thresholdsState.debugMode(i)) {
+				anyDebug = true;
+				break;
+			}
+		}
+			
+		if (!anyDebug) {
 			imageGraphics.setColor(Color.red);
 			imageGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 			imageGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
 			imageGraphics.setColor(Color.blue);
 			imageGraphics.drawOval(blue.getX() - 15, blue.getY() - 15, 30, 30);
 			imageGraphics.setColor(Color.yellow);
-			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30,
-					30);
+			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30, 30);
 			imageGraphics.setColor(Color.white);
 		}
-		// Draw the line around the pitch dimensions
-		if (selectionActive) {
-			imageGraphics.setColor(Color.YELLOW);
-			imageGraphics.drawRect(a, b, c, d);
-		}
 		
-		Graphics2D g2d = (Graphics2D)imageGraphics;	
-		// Eliminating area around the pitch dimensions
-		if (!selectionActive) {
-			
-			//Making the pitch surroundings transparent
-			Composite originalComposite = g2d.getComposite();
-			int type = AlphaComposite.SRC_OVER;
-			AlphaComposite alphaComp = (AlphaComposite.getInstance(type, 0.6f));
-			g2d.setComposite(alphaComp); 		
-			imageGraphics.setColor(Color.BLACK);
-			
-			// Rectangle covering the BOTTOM
-			imageGraphics.fillRect(0, 0, width, b);
-			// Rectangle covering the LEFT
-			imageGraphics.fillRect(0, b, a, height);
+		// Draw the line around the pitch dimensions
+	 	if (selectionActive) {
+	 		imageGraphics.setColor(Color.YELLOW);
+	 		imageGraphics.drawRect(a, b, c, d);
+	 	}
+	 	
+	 	Graphics2D g2d = (Graphics2D)imageGraphics;
+	 	// Eliminating area around the pitch dimensions
+	 	if (!selectionActive) {
+	 		//Making the pitch surroundings transparent
+	 		Composite originalComposite = g2d.getComposite();
+	 		int type = AlphaComposite.SRC_OVER;
+	 		AlphaComposite alphaComp = (AlphaComposite.getInstance(type, 0.6f));
+	 		g2d.setComposite(alphaComp);
+	 		imageGraphics.setColor(Color.BLACK);
+	 		// Rectangle covering the BOTTOM
+	 		imageGraphics.fillRect(0, 0, width, b);
+	 		// Rectangle covering the LEFT	
+	 		imageGraphics.fillRect(0, b, a, height);
 			// Rectangle covering the BOTTOM
 			imageGraphics.fillRect(a + c, b, width - a, height - b);
 			// Rectangle covering the RIGHT
@@ -685,36 +673,35 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 			// Setting back normal settings
 			g2d.setComposite(originalComposite);
 		}
-		
+
 		// Display the FPS that the vision system is running at
 		imageGraphics.setColor(Color.white);
 		imageGraphics.drawString("FPS: " + frameRate, 15, 15);
 
 		// Display Ball & Robot Positions
-		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", "
-				+ worldState.getBallY() + ")", 15, 30);
-		imageGraphics.drawString(
-				"Blue: (" + worldState.getBlueX() + ", "
-						+ worldState.getBlueY() + ") Orientation: "
-						+ Math.toDegrees(worldState.getBlueOrientation()), 15,
-				45);
-		imageGraphics.drawString(
-				"Yellow: (" + worldState.getYellowX() + ", "
-						+ worldState.getYellowY() + ") Orientation: "
-						+ Math.toDegrees(worldState.getYellowOrientation()),
-				15, 60);
+		imageGraphics.drawString("Ball: (" + worldState.getBallX() +
+								 ", " + worldState.getBallY() + ")", 15, 30);
+		imageGraphics.drawString("Blue: (" + worldState.getBlueX() +
+								 ", " + worldState.getBlueY() + ") Orientation: " +
+								 Math.toDegrees(worldState.getBlueOrientation()), 15, 45);
+		imageGraphics.drawString("Yellow: (" + worldState.getYellowX() +
+								 ", " + worldState.getYellowY() + ") Orientation: " +
+								 Math.toDegrees(worldState.getYellowOrientation()), 15, 60);
 
-
+		// Draw the line around the pitch dimensions
+		if (selectionActive) {
+			imageGraphics.setColor(Color.YELLOW);
+			imageGraphics.drawRect(a, b, c, d);
+		}
 		frameGraphics.drawImage(image, 0, 0, width, height, null);
 	}
-	
+
 	// TODO: find out what this is for and how it works
 	public Position[] findFurthest(Position centroid,
 			ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int distT,
 			int distM) throws NoAngleException {
 		if (xpoints.size() < 5) {
-			throw new NoAngleException(
-					"List of points is too small to calculate angle");
+			throw new NoAngleException("List of points is too small to calculate angle");
 		}
 
 		Position[] points = new Position[4];
@@ -727,8 +714,8 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		int index = 0;
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double currentDist = Position.sqrdEuclidDist(centroid.getX(),
-					centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double currentDist = Position.sqrdEuclidDist(
+					centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
 
 			if (currentDist > dist && currentDist < distM) {
 				dist = currentDist;
@@ -742,10 +729,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		dist = 0;
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double dc = Position.sqrdEuclidDist(centroid.getX(),
-					centroid.getY(), xpoints.get(i), ypoints.get(i));
-			double currentDist = Position.sqrdEuclidDist(points[0].getX(),
-					points[0].getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(
+					centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double currentDist = Position.sqrdEuclidDist(
+					points[0].getX(), points[0].getY(), xpoints.get(i), ypoints.get(i));
 			if (currentDist > dist && dc < distM) {
 				dist = currentDist;
 				index = i;
@@ -760,16 +747,14 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		if (points[0].getX() == points[1].getX()) {
 			throw new NoAngleException("Points have same X-coordinate");
 		}
-		double m1 = (points[0].getY() - points[1].getY())
-				/ (points[0].getX() - points[1].getX());
+		double m1 = (points[0].getY() - points[1].getY()) / (points[0].getX() - points[1].getX());
 		double b1 = points[0].getY() - m1 * points[0].getX();
 
 		for (int i = 0; i < xpoints.size(); i++) {
-			double d = Math.abs(m1 * xpoints.get(i) - ypoints.get(i) + b1)
-					/ (Math.sqrt(m1 * m1 + 1));
+			double d = Math.abs(m1 * xpoints.get(i) - ypoints.get(i) + b1) / (Math.sqrt(m1 * m1 + 1));
 
-			double dc = Position.sqrdEuclidDist(centroid.getX(),
-					centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(
+					centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
 			if (d > dist && dc < distM) {
 				dist = d;
 				index = i;
@@ -782,10 +767,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		index = 0;
 		dist = 0;
 		for (int i = 0; i < xpoints.size(); i++) {
-			double dc = Position.sqrdEuclidDist(centroid.getX(),
-					centroid.getY(), xpoints.get(i), ypoints.get(i));
-			double d3 = Position.sqrdEuclidDist(points[2].getX(),
-					points[2].getY(), xpoints.get(i), ypoints.get(i));
+			double dc = Position.sqrdEuclidDist(
+					centroid.getX(), centroid.getY(), xpoints.get(i), ypoints.get(i));
+			double d3 = Position.sqrdEuclidDist(
+					points[2].getX(), points[2].getY(), xpoints.get(i), ypoints.get(i));
 			if (d3 > dist && dc < distM) {
 				dist = d3;
 				index = i;
@@ -809,11 +794,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 
 		Position finalPoint = new Position(0, 0);
 		if (xPoints.size() != yPoints.size()) {
-			throw new NoAngleException("");
+			throw new NoAngleException("");	
 		}
 
-		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT,
-				distM);
+		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT, distM);
 
 		int[][] distanceMatrix = new int[4][4];
 		for (int i = 0; i < distanceMatrix.length; i++)
@@ -831,8 +815,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 
 		for (int i = 0; i < distanceMatrix.length; i++)
 			for (int j = 0; j < distanceMatrix[0].length; j++) {
-				if (distanceMatrix[i][j] < distance
-						&& distanceMatrix[i][j] != 0) {
+				if (distanceMatrix[i][j] < distance && distanceMatrix[i][j] != 0) {
 					distance = distanceMatrix[i][j];
 					index1 = i;
 					index2 = j;
@@ -968,9 +951,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 			stdev += Position.sqrdEuclidDist(x, y, meanX, meanY);
 		}
 		stdev = (int) Math.sqrt(stdev / xpoints.size());
-		// ball = convertToBarrelCorrected(ball);
-		// blue = convertToBarrelCorrected(blue);
-		// yellow = convertToBarrelCorrected(yellow);
+
 		// Find the position of the front of the T.
 		int frontX = 0;
 		int frontY = 0;
@@ -978,16 +959,15 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		for (int i = 0; i < xpoints.size(); i++) {
 			if (stdev > 15) {
 				if (Math.abs(xpoints.get(i) - meanX) < stdev
-						&& Math.abs(ypoints.get(i) - meanY) < stdev
-						&& Position.sqrdEuclidDist(xpoints.get(i),
-								ypoints.get(i), meanX, meanY) > 225) {
+					&& Math.abs(ypoints.get(i) - meanY) < stdev
+					&& Position.sqrdEuclidDist(
+							xpoints.get(i), ypoints.get(i), meanX, meanY) > 225) {
 					frontCount++;
 					frontX += xpoints.get(i);
 					frontY += ypoints.get(i);
 				}
 			} else {
-				if (Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i),
-						meanX, meanY) > 225) {
+				if (Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i), meanX, meanY) > 225) {
 					frontCount++;
 					frontX += xpoints.get(i);
 					frontY += ypoints.get(i);
@@ -1157,8 +1137,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		}
 
 		if (greenSides < 3) {
-			throw new NoAngleException(
-					"Not enough green areas around the grey circle");
+			throw new NoAngleException("Not enough green areas around the grey circle");
 		}
 
 		// At this point, the following is true: Center of the T has been found
@@ -1169,8 +1148,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 
 		// Calculate new angle using just the center of the T and the grey
 		// circle
-		length = Math.sqrt(Math.pow(meanX - backX, 2)
-				+ Math.pow(meanY - backY, 2));
+		length = Math.sqrt(Math.pow(meanX - backX, 2) + Math.pow(meanY - backY, 2));
 		ax = (meanX - backX) / length;
 		ay = (meanY - backY) / length;
 		angle = Math.atan2(ay, ax);
