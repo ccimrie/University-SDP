@@ -1,6 +1,5 @@
-package JavaVision;
+package vision;
 import au.edu.jcu.v4l4j.V4L4JConstants;
-import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /** 
  * The main class used to run the vision system. Creates the control
@@ -9,7 +8,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * @author s0840449
  */
 public class RunVision {
-    private static ControlGUI thresholdsGUI;
+    private static VisionGUI thresholdsGUI;
     
     /**
      * The main method for the class. Creates the control
@@ -19,7 +18,6 @@ public class RunVision {
      */
     public static void main(String[] args) {
         WorldState worldState = new WorldState();
-        ThresholdsState thresholdsState = new ThresholdsState();
 
         // Default to main pitch
         PitchConstants pitchConstants = new PitchConstants(0);
@@ -35,21 +33,12 @@ public class RunVision {
         try {
             // Create a new Vision object to serve the main vision window
             new Vision(videoDevice, width, height, channel, videoStandard,
-                    compressionQuality, worldState, thresholdsState, pitchConstants);
+                    compressionQuality, worldState, pitchConstants);
             
             // Create the Control GUI for threshold setting/etc
-            thresholdsGUI = new ControlGUI(thresholdsState, worldState, pitchConstants);
-            thresholdsGUI.initGUI();
-            
-            
-            
-            
-            
-            
-            
-        } catch (V4L4JException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+            thresholdsGUI = new VisionGUI(worldState, pitchConstants);
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -1,8 +1,6 @@
 package world.state;
 
 import geometry.Vector;
-import JavaVision.Vision;
-import JavaVision.WorldState;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -13,6 +11,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Observable;
 import strategy.calculations.DistanceCalculator;
+import vision.Vision;
+import vision.WorldState;
 import world.state.PitchInfo;
 
 public class World extends Observable implements Runnable, WorldInterface {
@@ -90,7 +90,8 @@ public class World extends Observable implements Runnable, WorldInterface {
     }
     
     public void connectVision() {
-        WorldState worldState = vision.getWorldState();
+    	//this.frame = Integer.parseInt(splitArray[0]);
+    	WorldState worldState = vision.getWorldState();
         this.ourRobot.x = worldState.getBlueX();
 		this.ourRobot.y = worldState.getBlueY();
 		this.ourRobot.setPosition(new Vector(worldState.getBlueX(), worldState.getBlueY()));
@@ -108,6 +109,13 @@ public class World extends Observable implements Runnable, WorldInterface {
         this.ball.y = worldState.getBallY();
         this.ball.setPosition(new Vector(worldState.getBallX(), worldState.getBallY()));
 		System.out.println("Coordinates were parsed succesfully");
+/*<<<<<<< HEAD
+		this.hasPossession = this.pm.setPossession(this);
+	    //setChanged();
+	    //notifyObservers(this.frame);
+		
+=======
+>>>>>>> c800884a33bd94b64b9f05ac77826f5d160b59cc*/
 
     }
     
