@@ -121,7 +121,7 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Rotate!", 0, 2);
 				LCD.refresh();
-				rotate(option1);
+				rotate(option1, 90);
 				break;
 
 			case KICK:
@@ -168,24 +168,27 @@ public class Brick {
 	 * @param: dir 1 counterclockwise (left), 2 clockwise (right)
 	 * 
 	 */
-	public static void rotate(int dir) throws InterruptedException {
-		leftMotor.setSpeed(700);
-		rightMotor.setSpeed(700);
+	public static void rotate(int dir, int angle) throws InterruptedException {
+		leftMotor.setAcceleration(2000);
+		rightMotor.setAcceleration(2000);
+		leftMotor.setSpeed(400);
+		rightMotor.setSpeed(400);
+		angle= (int) (angle * 2);
+		chip.move(1, DO_NOTHING, 0);
+		chip.move(2, DO_NOTHING, 0);
+		
 		switch (dir) {
 		case 1:
-			chip.move(FRONTMOTOR, 1, 255);
-			chip.move(BACKMOTOR, 1, 255);
-			leftMotor.backward();
-			rightMotor.forward();
-			
+			leftMotor.rotate(-angle, true);
+			rightMotor.rotate(angle);
+						
 			break;
 		case 2:
-			chip.move(FRONTMOTOR, 2, 255);
-			chip.move(BACKMOTOR, 2, 255);
-			leftMotor.forward();
-			rightMotor.backward();
+			leftMotor.rotate(angle, true);
+			rightMotor.rotate(-angle);			
 			break;	
 		}
+		stop();
 	}
 
 	/**
@@ -236,7 +239,7 @@ public class Brick {
 	private static void stop() throws InterruptedException {
 		leftMotor.stop(true);
 		rightMotor.stop(true);
-		chip.stop();
+		chip.stop();		
 		Thread.sleep(10);
 		leftMotor.flt(true);
 		rightMotor.flt(true);
