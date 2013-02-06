@@ -27,7 +27,7 @@ public class World extends Observable implements Runnable, WorldInterface {
 	private static Socket visionSocket;
 	private static PrintWriter out;
 	private static BufferedReader in;
-	
+	WorldState worldState;
     private Double[] ourBearings = new Double[3]; // To filter out invalid bearings 
     private Double[] theirBearings = new Double[3]; // To filter out invalid bearings 
 
@@ -63,7 +63,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     	this.connectVision();
     }
 
-    public static World getInstance() {
+    /*public static World getInstance() {
     	int connectionAttempts = 5;
     	int delay = 500;
     	for (int i = 0; i < connectionAttempts; i++) {
@@ -83,7 +83,7 @@ public class World extends Observable implements Runnable, WorldInterface {
         System.err.println("Is the vision server on?");
         System.exit(1);
 		return null;
-    }
+    }*/
 
     public static void main(String[] args) {
     	// This starts an infinite loop for the server
@@ -91,7 +91,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     
     public void connectVision() {
     	//this.frame = Integer.parseInt(splitArray[0]);
-    	WorldState worldState = vision.getWorldState();
+    	worldState = getWorldState();
         this.ourRobot.x = worldState.getBlueX();
 		this.ourRobot.y = worldState.getBlueY();
 		this.ourRobot.setPosition(new Vector(worldState.getBlueX(), worldState.getBlueY()));
@@ -109,67 +109,15 @@ public class World extends Observable implements Runnable, WorldInterface {
         this.ball.y = worldState.getBallY();
         this.ball.setPosition(new Vector(worldState.getBallX(), worldState.getBallY()));
 		System.out.println("Coordinates were parsed succesfully");
-/*<<<<<<< HEAD
+
 		this.hasPossession = this.pm.setPossession(this);
 	    //setChanged();
 	    //notifyObservers(this.frame);
 		
-=======
->>>>>>> c800884a33bd94b64b9f05ac77826f5d160b59cc*/
 
     }
     
-    public void parseLine(String input) {
-
-    	String delimiter = ";";
-        String[] splitArray;
-        splitArray = input.split(delimiter);
-
-        this.frame = Integer.parseInt(splitArray[0]);
-
-        String delimiter2 = ",";
-        Double x, y;
-        for (int i = 1; i < splitArray.length; i++) {
-        	// Format is yellow, blue, ball
-            String[] temp = splitArray[i].split(delimiter2);
-            if ((i == 1 && !weAreBlue) || (i == 2 && weAreBlue)) {
-            	x = Double.parseDouble(temp[0]);
-            	y = Double.parseDouble(temp[1]);
-        		this.ourRobot.x = x;
-        		this.ourRobot.y = y;
-        		this.ourRobot.setPosition(new Vector(x, y));
-        		this.ourRobot.bearing = Double.parseDouble(temp[2]);
-            } else if ((i == 2 && !weAreBlue) || (i == 1 && weAreBlue)) {
-            	x = Double.parseDouble(temp[0]);
-            	y = Double.parseDouble(temp[1]);
-                this.theirRobot.x = x;
-                this.theirRobot.y = y;
-        		this.theirRobot.setPosition(new Vector(x, y));
-        		this.theirRobot.bearing = Double.parseDouble(temp[2]);
-            } else {
-            	x = Double.parseDouble(temp[0]);
-            	y = Double.parseDouble(temp[1]);
-            	//previous position
-            	this.prevBall.x = this.ball.x;
-            	this.prevBall.y = this.ball.y;
-            	this.prevBall.setPosition(this.ball.getPosition());
-            	// Ball
-                this.ball.x = x;
-                this.ball.y = y;
-                this.ball.setPosition(new Vector(x, y));
-            }
-        }
-        /* Some kind of logging going on here
-        System.out.printf("%f\t%f\t%f\t\t%f\t%f\n",
-        ourBearings[0],ourBearings[1],ourBearings[2],tmp,this.ourRobot.bearing);
-        */
-
-        // Tell our observers that we've updated
-        // Update who has possession
-        this.hasPossession = this.pm.setPossession(this);
-	    setChanged();
-	    notifyObservers(this.frame);
-    }
+    
     
     public Robot getOurRobot()
     {
@@ -287,6 +235,9 @@ public class World extends Observable implements Runnable, WorldInterface {
 	    	}
     	}
     	return false;
+	}
+	public WorldState getWorldState(){
+		return this.vision.getWorldState();
 	}
 
 }
