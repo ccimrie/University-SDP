@@ -9,6 +9,8 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -58,6 +60,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	boolean letterAdjustment = false;
 	int mouseX;
 	int mouseY;
+	String adjust = "";
 
 	// GUI variables
 	private JLabel label;
@@ -151,6 +154,21 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		windowFrame.addWindowListener(this);
 		windowFrame.setVisible(true);
 		windowFrame.setSize(width, height);
+
+		windowFrame.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent ke) {
+
+			}
+
+			public void keyReleased(KeyEvent ke) {
+
+				adjust = ke.getKeyText(ke.getKeyCode());
+			}
+
+			public void keyTyped(KeyEvent e) {
+				// System.out.println("keyPressed "+e.getKeyChar());
+			}
+		});
 
 		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
 			Rectangle selection;
@@ -278,7 +296,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 					letterAdjustment = true;
 					break;
 				}
-				
+
 				mouse_event = 0;
 			}
 		};
@@ -784,11 +802,27 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		Image letterT = toolkit.getImage("icons/T.gif");
 		Graphics2D g2d = (Graphics2D) imageGraphics;
 
-		// TODO: T color selector
+		// TODO: Show T colour selector
 		if (selectionActive && mouse_event == 2 || letterAdjustment) {
-			System.out.println("T icon visible");
-			boolean rez = g2d.drawImage(letterT, mouseX, mouseY, windowFrame);
-			System.out.println(rez);
+			g2d.drawImage(letterT, mouseX, mouseY, windowFrame);
+		}
+
+		if (letterAdjustment) {
+
+			if (adjust.equals("Up")) {
+				mouseY--;
+
+			} else if (adjust.equals("Down")) {
+				mouseY++;
+			} else if (adjust.equals("Left")) {
+				mouseX--;
+
+			} else if (adjust.equals("Right")) {
+				mouseX++;
+			} else if (adjust.equals("Enter")) {
+				letterAdjustment = false;
+			}
+			adjust = "";
 		}
 
 		// Eliminating area around the pitch dimensions
