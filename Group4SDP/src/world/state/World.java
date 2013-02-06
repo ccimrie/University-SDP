@@ -63,7 +63,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     	this.connectVision();
     }
 
-    public static World getInstance() {
+    /*public static World getInstance() {
     	int connectionAttempts = 5;
     	int delay = 500;
     	for (int i = 0; i < connectionAttempts; i++) {
@@ -83,7 +83,7 @@ public class World extends Observable implements Runnable, WorldInterface {
         System.err.println("Is the vision server on?");
         System.exit(1);
 		return null;
-    }
+    }*/
 
     public static void main(String[] args) {
     	// This starts an infinite loop for the server
@@ -109,13 +109,11 @@ public class World extends Observable implements Runnable, WorldInterface {
         this.ball.y = worldState.getBallY();
         this.ball.setPosition(new Vector(worldState.getBallX(), worldState.getBallY()));
 		System.out.println("Coordinates were parsed succesfully");
-/*<<<<<<< HEAD
+
 		this.hasPossession = this.pm.setPossession(this);
 	    //setChanged();
 	    //notifyObservers(this.frame);
 		
-=======
->>>>>>> c800884a33bd94b64b9f05ac77826f5d160b59cc*/
 
     }
     
