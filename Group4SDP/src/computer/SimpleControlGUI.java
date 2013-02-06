@@ -16,6 +16,12 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
 
+import au.edu.jcu.v4l4j.V4L4JConstants;
+
+import vision.PitchConstants;
+import vision.Vision;
+import vision.VisionGUI;
+import vision.WorldState;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
@@ -23,8 +29,11 @@ import java.util.TimerTask;
 import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 import strategy.planning.Commands;
+import strategy.planning.Strategy;
 import strategy.movement.StraightLineVision;
-import vision.WorldState;
+import world.state.RobotController;
+import world.state.RobotType;
+import world.state.World;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -51,6 +60,7 @@ public class SimpleControlGUI extends JFrame {
 	private final JButton rotate = new JButton("Rotate");
 	private final JButton anglemove = new JButton("AngleMove");
 	private final JButton quit = new JButton("Quit");
+	private final JButton moveToBall = new JButton("MoveToBall");
 	private final JRadioButton rdbtnForwards = new JRadioButton("Forwards");
 	private final JRadioButton rdbtnBackwards = new JRadioButton("Backwards");
 	private final JRadioButton rdbtnLeft = new JRadioButton("Left");
@@ -58,6 +68,7 @@ public class SimpleControlGUI extends JFrame {
 
 	// Communication variables
 	private static BluetoothCommunication comms;
+	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 1
 	private DriveThread driveThread;
@@ -75,12 +86,40 @@ public class SimpleControlGUI extends JFrame {
 		SimpleControlGUI gui = new SimpleControlGUI();
 		gui.Launch();
 		gui.action();
+		
+		// Set up vision
+		WorldState worldState = new WorldState();
 
-		//strat.initialize();
+        // Default to main pitch
+        PitchConstants pitchConstants = new PitchConstants(0);
+        
+        // Default values for the main vision window
+        String videoDevice = "/dev/video0";
+        int width = 640;
+        int height = 480;
+        int channel = 0;
+        int videoStandard = V4L4JConstants.STANDARD_PAL;
+        int compressionQuality = 80;
+
+        try {
+            // Create a new Vision object to serve the main vision window
+           Vision vision = new Vision(videoDevice, width, height, channel, videoStandard,
+                    compressionQuality, worldState, pitchConstants);
+            
+            // Create the Control GUI for threshold setting/etc
+            VisionGUI thresholdsGUI = new VisionGUI(worldState, pitchConstants);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
 		// Sets up the communication
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
+
+		//Sets up robot
+		robot = new RobotController(RobotType.Us);
+		robot.setComms(comms);
 
 		while (!comms.isRobotReady()){
 			// Reduce CPU cost
@@ -92,13 +131,14 @@ public class SimpleControlGUI extends JFrame {
 				System.exit(1);
 			}
 		};
+
 		System.out.println("Robot ready!");
 		int [] command = new int [] {Commands.TEST, 0, 0, Commands.TEST};
 		comms.sendToRobot(command);
 		int[] test = new int[4];
 		test = comms.receiveFromRobot();
 		System.out.println(Arrays.toString(test));
-	}
+	} 
 
 	public SimpleControlGUI() {		
 		// Auto-generated GUI code (made more readable)
@@ -131,6 +171,7 @@ public class SimpleControlGUI extends JFrame {
 		simpleMoveTestPanel.add(backward);
 		simpleMoveTestPanel.add(left);
 		simpleMoveTestPanel.add(right);
+		simpleMoveTestPanel.add(moveToBall);
 
 		GridBagConstraints gbc_actionTestPanel = new GridBagConstraints();
 		gbc_actionTestPanel.insets = new Insets(0, 0, 5, 0);
@@ -246,44 +287,25 @@ public class SimpleControlGUI extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.KICK, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Kick...");
-			}
+				robot.kick(); 
+			} 
+
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.FORWARDS, 100, 100, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving forward...");
-
+				robot.forward();
+				//TODO Timer?
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
-		});
+		}); 
+
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.BACKWARDS, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving backwards...");
+				robot.backward();
 
 				timer = new Timer();
 				// Stop in 5 seconds
@@ -293,14 +315,7 @@ public class SimpleControlGUI extends JFrame {
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.LEFT, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving leftside...");
+				robot.left();
 
 				timer = new Timer();
 				// Stop in 5 seconds
@@ -310,18 +325,33 @@ public class SimpleControlGUI extends JFrame {
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.RIGHT, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving rightside...");
+				robot.right();
 
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
+			}
+		});
+		
+		//TODO - Attach with MoveToBall
+		moveToBall.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+	    		try {
+					Class mtb = Class.forName("strategy.planning." + "MoveToBall");
+					Strategy s = (Strategy)mtb.newInstance();
+				    s.stop();
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+					System.err.println("Class not found.");
+				} catch (InstantiationException e2) {
+					e2.printStackTrace();
+					System.err.println("Class could not be instantiated.");
+				} catch (IllegalAccessException e3) {
+					e3.printStackTrace();
+				} catch (ClassCastException e4) {
+					System.err.println("Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
+				}
+				
 			}
 		});
 
@@ -329,29 +359,14 @@ public class SimpleControlGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
 				driveThread.halt();
-				int[] command = {Commands.STOP, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				timer.cancel();
-				System.out.println("Stop...");
+				robot.stop(timer);
 			}
 		});
 
+		//TODO - Should we have timer here as well?
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.ROTATE, -120, -30, 0};//Angle is the sum of option1 + option2
-				try {
-					comms.sendToRobot(command);
-				}
-				catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Rotate...");
+				robot.rotate();
 			}
 		});
 
@@ -388,7 +403,7 @@ public class SimpleControlGUI extends JFrame {
 				System.out.println("Quit...");
 				System.exit(0);
 			}
-		});
+		}); 
 	}
 
 	public void Launch() {

@@ -70,7 +70,7 @@ public class Mux extends I2CSensor {
 			speed = spd;
 			state = dir;
 		}
-
+		
 		// Stops the motor if not stopped already
 		public void stop() throws InterruptedException {
 			switch (state) {
