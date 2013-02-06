@@ -25,6 +25,8 @@ import communication.DeviceInfo;
 import strategy.planning.Commands;
 import strategy.movement.StraightLineVision;
 import vision.WorldState;
+import world.state.RobotController;
+import world.state.RobotType;
 
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -58,6 +60,7 @@ public class SimpleControlGUI extends JFrame {
 
 	// Communication variables
 	private static BluetoothCommunication comms;
+	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 1
 	private DriveThread driveThread;
@@ -81,6 +84,10 @@ public class SimpleControlGUI extends JFrame {
 		// Sets up the communication
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
+		
+		//Sets up robot
+		robot = new RobotController(RobotType.Us);
+		robot.setComms(comms);
 
 		while (!comms.isRobotReady()){
 			// Reduce CPU cost
@@ -246,115 +253,67 @@ public class SimpleControlGUI extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.KICK, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Kick...");
-			}
+				robot.kick(); 
+			} 
+
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.FORWARDS, 100, 100, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving forward...");
-				
+				robot.forward();
+				//TODO Timer?
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
-		});
-		
+		}); 
+
+
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.BACKWARDS, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving backwards...");
-				
+				robot.backward();
+
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
-		
+
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.LEFT, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving leftside...");
-				
+				robot.left();
+
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
-		
+
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.RIGHT, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Moving rightside...");
-				
+				robot.right();
+
 				timer = new Timer();
 				// Stop in 5 seconds
 			    timer.schedule(new Stopping(), seconds * 1000);
 			}
 		});
-		
+
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
-				driveThread.halt();
-				int[] command = {Commands.STOP, 0, 0, 0};
-				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				timer.cancel();
-				System.out.println("Stop...");
+				//driveThread.halt();
+				robot.stop(timer);
 			}
 		});
-		
+
+		//TODO - Should we have timer here as well?
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.ROTATE, -120, -30, 0};//Angle is the sum of option1 + option2
-				try {
-					comms.sendToRobot(command);
-				}
-				catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Rotate...");
+				robot.rotate();
 			}
 		});
-		
+
 		anglemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				byte direction = 0;
@@ -362,7 +321,7 @@ public class SimpleControlGUI extends JFrame {
 					direction |= 2;
 				if (rdbtnLeft.isSelected())
 					direction |= 1;
-				
+
 				int[] command = {Commands.ANGLEMOVE, -1, -1, direction};
 				try {
 					comms.sendToRobot(command);
@@ -374,7 +333,7 @@ public class SimpleControlGUI extends JFrame {
 				System.out.println("Moving at an angle...");
 			}
 		});
-		
+
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int[] command = {Commands.QUIT, 0, 0, 0};
@@ -388,7 +347,7 @@ public class SimpleControlGUI extends JFrame {
 				System.out.println("Quit...");
 				System.exit(0);
 			}
-		});
+		}); 
 	}
 
 	public void Launch() {
