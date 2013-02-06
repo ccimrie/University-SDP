@@ -27,7 +27,7 @@ public class World extends Observable implements Runnable, WorldInterface {
 	private static Socket visionSocket;
 	private static PrintWriter out;
 	private static BufferedReader in;
-	
+	WorldState worldState;
     private Double[] ourBearings = new Double[3]; // To filter out invalid bearings 
     private Double[] theirBearings = new Double[3]; // To filter out invalid bearings 
 
@@ -91,7 +91,7 @@ public class World extends Observable implements Runnable, WorldInterface {
     
     public void connectVision() {
     	//this.frame = Integer.parseInt(splitArray[0]);
-    	WorldState worldState = vision.getWorldState();
+    	worldState = getWorldState();
         this.ourRobot.x = worldState.getBlueX();
 		this.ourRobot.y = worldState.getBlueY();
 		this.ourRobot.setPosition(new Vector(worldState.getBlueX(), worldState.getBlueY()));
@@ -285,6 +285,9 @@ public class World extends Observable implements Runnable, WorldInterface {
 	    	}
     	}
     	return false;
+	}
+	public WorldState getWorldState(){
+		return this.vision.getWorldState();
 	}
 
 }
