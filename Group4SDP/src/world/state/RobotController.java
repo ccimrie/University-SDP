@@ -88,8 +88,10 @@ public class RobotController extends Robot {
 		}
 		System.out.println("Rotate...");
 	}
-	public void rotate(byte op1, byte op2 ) {
-		int[] command = {Commands.ROTATE, op1, op2, 0};//Angle is the sum of option1 + option2
+	public void rotate(int dir, int input ) {
+		int op1 =  input%10;
+		int op2 = (int) Math.floor(input/10);
+		int[] command = {Commands.ROTATE, dir, op2, op1};//Angle is the sum of option1 + option2
 		try {
 			comms.sendToRobot(command);
 		}
@@ -143,6 +145,7 @@ public class RobotController extends Robot {
 		}
 		System.out.println("Moving rightside...");
 	}
+	
 	//TODO Add anglemove method
 	
 	/*
