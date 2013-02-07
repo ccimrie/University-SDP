@@ -88,9 +88,15 @@ public class RobotController extends Robot {
 		}
 		System.out.println("Rotate...");
 	}
-	public void rotate(int dir, int input ) {
-		int op1 =  input%10;
-		int op2 = (int) Math.floor(input/10);
+	public void rotate(int input ) {
+		int dir =0;
+		if (input <0 && input > -180) {
+			input = -input;
+			dir = 1;
+		}
+		
+		int op1 = input%10;
+		int op2 = input/10;
 		int[] command = {Commands.ROTATE, dir, op2, op1};//Angle is the sum of option1 + option2
 		try {
 			comms.sendToRobot(command);
