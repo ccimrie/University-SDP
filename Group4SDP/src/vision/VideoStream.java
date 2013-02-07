@@ -316,7 +316,7 @@ public class VideoStream {
 	 * Registers an object to receive frames from the video stream
 	 * @param receiver
 	 */
-	public void registerReceiver(VideoReceiver receiver) {
+	public void addReceiver(VideoReceiver receiver) {
 		this.videoReceivers.add(receiver);
 	}
 }

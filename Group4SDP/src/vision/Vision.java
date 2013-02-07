@@ -1,30 +1,10 @@
 package vision;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.event.MouseInputAdapter;
 
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
@@ -34,44 +14,18 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * 
  * @author s0840449
  */
-// TODO: finish separating the video stream and separate the GUI - can combine
-// it with VisionGUI.java
-public class Vision extends WindowAdapter implements VideoReceiver {
-	// Video variables & constants
-	private VideoStream vStream;
-	private int width, height;
-
-	private static final int SATURATION = 64;
-	private static final int BRIGHTNESS = 128;
-	private static final int CONTRAST = 64;
-	private static final int HUE = 0;
-	private static final int CHROMA_GAIN = 0;
-	private static final int CHROMA_AGC = 1;
-
-	// Pitch dimension selector variables
-	boolean selectionActive = false;
-	Point anchor;
-	int a;
-	int b;
-	int c;
-	int d;
-
-	// Mouse listener variable
-	int mouse_event = 0;
-	boolean letterAdjustment = false;
-	int mouseX;
-	int mouseY;
-	String adjust = "";
-
-	// GUI variables
-	private JLabel label;
-	private JFrame windowFrame;
-
+// TODO: separate the GUI - can combine it with VisionGUI.java
+public class Vision implements VideoReceiver {
+	private final int width = 640;
+	private final int height = 480;
+	
 	// Variables used in processing video
 	private PitchConstants pitchConstants;
 	private static final double barrelCorrectionX = -0.016;
 	private static final double barrelCorrectionY = -0.13;
 	private WorldState worldState;
+	
+	private ArrayList<VisionInterface> visionReceivers = new ArrayList<VisionInterface>();
 
 	/**
 	 * Default constructor.
@@ -95,38 +49,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 * @throws V4L4JException
 	 *             If any parameter if invalid.
 	 */
-	public Vision(String videoDevice, int width, int height, int channel,
-			int videoStandard, int compressionQuality, WorldState worldState,
-			PitchConstants pitchConstants) {
+	public Vision(WorldState worldState, PitchConstants pitchConstants) {
 		// Set the state fields.
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
-
-		// Set pitch constraints
-		this.a = pitchConstants.getLeftBuffer();
-		this.b = pitchConstants.getTopBuffer();
-		this.c = width - pitchConstants.getRightBuffer() - a;
-		this.d = height - pitchConstants.getBottomBuffer() - b;
-
-		// Initialise the video stream
-		vStream = new VideoStream(videoDevice, width, height, channel,
-				videoStandard, compressionQuality);
-
-		vStream.setSaturation(SATURATION);
-		vStream.setBrightness(BRIGHTNESS);
-		vStream.setContrast(CONTRAST);
-		vStream.setHue(HUE);
-		vStream.setChromaGain(CHROMA_GAIN);
-		vStream.setChromaAGC(CHROMA_AGC);
-		vStream.updateVideoDeviceSettings();
-
-		vStream.registerReceiver(this);
-
-		this.width = width;
-		this.height = height;
-
-		// Initialise the GUI that displays the video feed.
-		initGUI();
 	}
 
 	/**
@@ -135,6 +61,10 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	public WorldState getWorldState() {
 		return worldState;
 	}
+	
+	public void addVisionListener(VisionInterface listener) {
+		visionReceivers.add(listener);
+	}
 
 	/**
 	 * Sends the vision system the next frame to process
@@ -142,169 +72,6 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	public void sendNextFrame(BufferedImage frame, int frameRate,
 			int frameCounter) {
 		processAndUpdateImage(frame, frameRate, frameCounter);
-	}
-
-	/**
-	 * Creates the graphical interface components and initialises them
-	 */
-	private void initGUI() {
-		windowFrame = new JFrame("Vision Window");
-		label = new JLabel();
-		windowFrame.getContentPane().add(label);
-		windowFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		windowFrame.addWindowListener(this);
-		windowFrame.setVisible(true);
-		Dimension windowSize = new Dimension(width + 8, height + 28);
-		windowFrame.setMinimumSize(windowSize);
-		windowFrame.setSize(windowSize);
-		windowFrame.repaint();
-
-		windowFrame.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent ke) { }
-
-			public void keyReleased(KeyEvent ke) {
-				adjust = KeyEvent.getKeyText(ke.getKeyCode());
-			}
-
-			// TODO: remove commented code if it's not going to be used
-			public void keyTyped(KeyEvent e) {
-				// System.out.println("keyPressed "+e.getKeyChar());
-			}
-		});
-
-		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
-			Rectangle selection;
-
-			public void mousePressed(MouseEvent e) {
-				// Mouse clicked
-				mouse_event = 2;
-				selectionActive = true;
-				switch (mouse_event) {
-				case 0:
-					break;
-				case 1:
-					// Pitch dimension selector
-					anchor = e.getPoint();
-					System.out.println(anchor.x);
-					System.out.println(anchor.y);
-					selection = new Rectangle(anchor);
-					break;
-				case 2:
-					mouseX = e.getX();
-					mouseY = e.getY();
-					break;
-				}
-			}
-
-			public void mouseEntered(MouseEvent e) {}
-
-			public void mouseDragged(MouseEvent e) {
-				switch (mouse_event) {
-				case 0:
-					break;
-				case 1:
-					selection.setBounds((int) Math.min(anchor.x, e.getX()),
-							(int) Math.min(anchor.y, e.getY()),
-							(int) Math.abs(e.getX() - anchor.x),
-							(int) Math.abs(e.getY() - anchor.y));
-					a = (int) Math.min(anchor.x, e.getX());
-					b = (int) Math.min(anchor.y, e.getY());
-					c = (int) Math.abs(e.getX() - anchor.x);
-					d = (int) Math.abs(e.getY() - anchor.y);
-					break;
-				case 2:
-					mouseX = e.getX();
-					mouseY = e.getY();
-					break;
-				}
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				selectionActive = false;
-
-				switch (mouse_event) {
-				case 0:
-					break;
-				case 1:
-					Object[] options = { "Main Pitch", "Side Pitch", "Cancel" };
-					int pitchNum = JOptionPane.showOptionDialog(
-							windowFrame.getComponent(0),
-							"The parameters are to be set for this pitch",
-							"Picking a pitch",
-							JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE, null, options,
-							options[0]);
-
-					// If option wasn't Cancel and the dialog wasn't closed
-					if (pitchNum != 2 && pitchNum != JOptionPane.CLOSED_OPTION) {
-						System.out.println(pitchNum);
-						try {
-							int top = b;
-							int bottom = height - d - b;
-							int left = a;
-							int right = width - c - a;
-
-							if (top > 0 && bottom > 0 && left > 0 && right > 0) {
-								// Update pitch constants
-								pitchConstants.setTopBuffer(top);
-								pitchConstants.setBottomBuffer(bottom);
-								pitchConstants.setLeftBuffer(left);
-								pitchConstants.setRightBuffer(right);
-
-								// Writing the new dimensions to file
-								FileWriter writer = new FileWriter(new File(
-										"constants/pitch" + pitchNum
-												+ "Dimensions"));
-
-								writer.write("" + top + "\n");
-								writer.write("" + bottom + "\n");
-								writer.write("" + left + "\n");
-								writer.write("" + right + "\n");
-
-								writer.close();
-								System.out.println("Wrote pitch const");
-							} else {
-								System.out.println("Pitch selection NOT succesful");
-							}
-							System.out.print("Top: " + top + " Bottom "
-									+ bottom);
-							System.out.println(" Right " + right + " Left "
-									+ left);
-						} catch (IOException e1) {
-							System.out
-									.println("Error writing pitch dimensions to file");
-							e1.printStackTrace();
-						}
-
-						System.out.println("A: " + a + " B: " + b + " C: " + c
-								+ " D:" + d);
-					}
-					windowFrame.repaint();
-					break;
-				case 2:
-					letterAdjustment = true;
-					break;
-				}
-
-				mouse_event = 0;
-			}
-		};
-
-		label.addMouseListener(mouseSelector);
-		label.addMouseMotionListener(mouseSelector);
-	}
-
-	/**
-	 * Catches the window closing event, so that we can free up resources before
-	 * exiting.
-	 * 
-	 * @param e
-	 *            The window closing event.
-	 */
-	public void windowClosing(WindowEvent e) {
-		windowFrame.dispose();
-
-		System.exit(0);
 	}
 
 	/**
@@ -530,7 +297,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 	 * @param counter
 	 */
 	public void processAndUpdateImage(BufferedImage image, int frameRate,
-			int counter) {
+			int counter) {		
 		int ballX = 0;
 		int ballY = 0;
 		int numBallPos = 0;
@@ -756,8 +523,6 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		worldState.setYellowY(yellow.getY());
 		worldState.updateCounter();
 
-		// Draw the image onto the vision frame.
-		Graphics frameGraphics = label.getGraphics();
 		Graphics imageGraphics = image.getGraphics();
 
 		// Only display these markers in non-debug mode.
@@ -779,88 +544,19 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30, 30);
 			imageGraphics.setColor(Color.white);
 		}
-
-		// Draw the line around the pitch dimensions
-		if (selectionActive) {
-			imageGraphics.setColor(Color.YELLOW);
-			imageGraphics.drawRect(a, b, c, d);
-		}
-
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Image letterT = toolkit.getImage("icons/T.gif");
-		Graphics2D g2d = (Graphics2D) imageGraphics;
-
-		// TODO: Show T colour selector
-		if (selectionActive && mouse_event == 2 || letterAdjustment) {
-			g2d.drawImage(letterT, mouseX, mouseY, label);
-		}
-
-		if (letterAdjustment) {
-
-			if (adjust.equals("Up")) {
-				mouseY--;
-			} else if (adjust.equals("Down")) {
-				mouseY++;
-			} else if (adjust.equals("Left")) {
-				mouseX--;
-			} else if (adjust.equals("Right")) {
-				mouseX++;
-			} else if (adjust.equals("Enter")) {
-				letterAdjustment = false;
-			}
-			adjust = "";
-		}
-
-		// Eliminating area around the pitch dimensions
-		if (!selectionActive) {
-			// Making the pitch surroundings transparent
-			Composite originalComposite = g2d.getComposite();
-			int type = AlphaComposite.SRC_OVER;
-			AlphaComposite alphaComp = (AlphaComposite.getInstance(type, 0.6f));
-			g2d.setComposite(alphaComp);
-			imageGraphics.setColor(Color.BLACK);
-			// Rectangle covering the BOTTOM
-			imageGraphics.fillRect(0, 0, width, b);
-			// Rectangle covering the LEFT
-			imageGraphics.fillRect(0, b, a, height);
-			// Rectangle covering the BOTTOM
-			imageGraphics.fillRect(a + c, b, width - a, height - b);
-			// Rectangle covering the RIGHT
-			imageGraphics.fillRect(a, b + d, c, height - d);
-			// Setting back normal settings
-			g2d.setComposite(originalComposite);
-		}
-
-		// Display the FPS that the vision system is running at
-		imageGraphics.setColor(Color.white);
-		imageGraphics.drawString("FPS: " + frameRate, 15, 15);
-
-		// Display Ball & Robot Positions
-		imageGraphics.drawString("Ball: (" + worldState.getBallX() + ", "
-				+ worldState.getBallY() + ")", 15, 30);
-		imageGraphics.drawString(
-				"Blue: (" + worldState.getBlueX() + ", "
-						+ worldState.getBlueY() + ") Orientation: "
-						+ Math.toDegrees(worldState.getBlueOrientation()), 15,
-				45);
-		imageGraphics.drawString(
-				"Yellow: (" + worldState.getYellowX() + ", "
-						+ worldState.getYellowY() + ") Orientation: "
-						+ Math.toDegrees(worldState.getYellowOrientation()),
-				15, 60);
-
-		// Draw the line around the pitch dimensions
-		if (selectionActive) {
-			imageGraphics.setColor(Color.YELLOW);
-			imageGraphics.drawRect(a, b, c, d);
-		}
-		frameGraphics.drawImage(image, 0, 0, width, height, null);
+		
+		for (VisionInterface receiver : visionReceivers)
+			receiver.sendFrame(image, frameRate, new Point(worldState.getBallX(), worldState.getBallY()),
+					new Point(worldState.getBlueX(), worldState.getBlueY()),
+					worldState.getBlueOrientation(),
+					new Point(worldState.getYellowX(), worldState.getYellowY()),
+					worldState.getYellowOrientation());
 	}
 
 	// TODO: find out what this is for and how it works
 	public Position[] findFurthest(Position centroid,
 			ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int distT,
-			int distM) throws NoAngleException {
+			int distM, BufferedImage image) throws NoAngleException {
 		if (xpoints.size() < 5) {
 			throw new NoAngleException(
 					"List of points is too small to calculate angle");
@@ -943,9 +639,9 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		points[3].setX(xpoints.get(index));
 		points[3].setY(ypoints.get(index));
 
-		Graphics frameGraphics = label.getGraphics();
+		Graphics imageGraphics = image.getGraphics();
 		for (int i = 0; i < points.length; i++)
-			frameGraphics.drawOval(points[i].getX(), points[i].getY(), 3, 3);
+			imageGraphics.drawOval(points[i].getX(), points[i].getY(), 3, 3);
 
 		return points;
 	}
@@ -962,7 +658,7 @@ public class Vision extends WindowAdapter implements VideoReceiver {
 		}
 
 		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT,
-				distM);
+				distM, image);
 
 		int[][] distanceMatrix = new int[4][4];
 		for (int i = 0; i < distanceMatrix.length; i++)

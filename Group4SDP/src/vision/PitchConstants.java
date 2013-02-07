@@ -13,7 +13,7 @@ import java.util.Scanner;
  * @author s0840449
  */
 public class PitchConstants {
-	private static final int NUM_THRESHOLDS = 5;
+	public static final int NUM_THRESHOLDS = 5;
 
 	public static final int BALL = 0;
 	public static final int BLUE = 1;
