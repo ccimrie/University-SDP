@@ -54,6 +54,17 @@ public class RobotController extends Robot {
 		timer.cancel();
 		System.out.println("Stop...");
 	} 
+	public void stop() {
+		int[] command = {Commands.STOP, 0, 0, 0};
+		try {
+			comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		
+		System.out.println("Stop...");
+	} 
 
 	public void kick() {
 		int[] command = {Commands.KICK, 0, 0, 0};
@@ -68,6 +79,17 @@ public class RobotController extends Robot {
 	
 	public void rotate() {
 		int[] command = {Commands.ROTATE, -120, -30, 0};//Angle is the sum of option1 + option2
+		try {
+			comms.sendToRobot(command);
+		}
+		catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Rotate...");
+	}
+	public void rotate(byte op1, byte op2 ) {
+		int[] command = {Commands.ROTATE, op1, op2, 0};//Angle is the sum of option1 + option2
 		try {
 			comms.sendToRobot(command);
 		}
