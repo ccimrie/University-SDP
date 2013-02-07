@@ -190,6 +190,24 @@ public class Brick {
 		}
 		stop();
 	}
+	
+	public static void siderotate(int dir, int angle) throws InterruptedException{
+		//Some code here to transform angle into time needed to rotate
+		int sleeptime = 1000;
+		
+		switch (dir) {
+		case 1:
+			chip.move(1, FORWARDS, 230);
+			chip.move(2, BACKWARDS, 230);			
+			break;
+		case 2:
+			chip.move(1, BACKWARDS, 230);
+			chip.move(2, FORWARDS, 230);			
+			break;
+		}
+		Thread.sleep(sleeptime);
+		chip.stop();
+	}
 
 	/**
 	 * Move in a direction relative to the robot
