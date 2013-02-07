@@ -89,10 +89,10 @@ public class RobotController extends Robot {
 		System.out.println("Rotate...");
 	}
 	public void rotate(int input ) {
-		int dir =0;
+		int dir =1;
 		if (input <0 && input > -180) {
 			input = -input;
-			dir = 1;
+			dir = 2;
 		}
 		
 		int op1 = input%10;
@@ -108,6 +108,17 @@ public class RobotController extends Robot {
 		System.out.println("Rotate...");
 	}
 
+	public void move(int op1, int op2) {
+		int[] command = {Commands.ANGLEMOVE, op1, op2, 0};
+		try {
+			comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Moving forward...");
+	}
+	
 	public void forward(int op1, int op2) {
 		int[] command = {Commands.FORWARDS, op1, op2, 0};
 		try {

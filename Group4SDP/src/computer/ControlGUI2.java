@@ -92,7 +92,7 @@ public class ControlGUI2 extends JFrame {
 			e.printStackTrace();
 		}
 		// Sets up the GUI
-		SimpleControlGUI gui = new SimpleControlGUI();
+		ControlGUI2 gui = new ControlGUI2();
 		gui.Launch();
 		gui.action();
 		
@@ -338,7 +338,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(mforward1.getText());
 				int op2 = Integer.parseInt(mforward2.getText());
-				robot.forward(op1,op2);
+				robot.move(op1,op2);
 				
 				//TODO Timer?
 				timer = new Timer();
@@ -411,6 +411,7 @@ public class ControlGUI2 extends JFrame {
 				// Stop the drive thread if it's running
 				driveThread.halt();
 				robot.stop(timer);
+				robot.stop();
 			}
 		});
 
