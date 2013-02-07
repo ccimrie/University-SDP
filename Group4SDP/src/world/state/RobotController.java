@@ -108,8 +108,8 @@ public class RobotController extends Robot {
 		System.out.println("Rotate...");
 	}
 
-	public void forward() {
-		int[] command = {Commands.FORWARDS, 100, 100, 0};
+	public void forward(int op1, int op2) {
+		int[] command = {Commands.FORWARDS, op1, op2, 0};
 		try {
 			comms.sendToRobot(command);
 		} catch (IOException e1) {
@@ -119,8 +119,8 @@ public class RobotController extends Robot {
 		System.out.println("Moving forward...");
 	}
 	
-	public void backward(){
-		int[] command = {Commands.BACKWARDS, 0, 0, 0};
+	public void backward(int op1, int op2){
+		int[] command = {Commands.BACKWARDS, op1, op2, 0};
 		try {
 			comms.sendToRobot(command);
 		} catch (IOException e1) {
@@ -130,8 +130,8 @@ public class RobotController extends Robot {
 		System.out.println("Moving backwards...");
 	}
 	
-	public void left(){
-		int[] command = {Commands.LEFT, 0, 0, 0};
+	public void left(int op1, int op2){
+		int[] command = {Commands.LEFT, op1, op2, 0};
 		try {
 			comms.sendToRobot(command);
 		} catch (IOException e1) {
@@ -141,8 +141,8 @@ public class RobotController extends Robot {
 		System.out.println("Moving leftside...");
 	}
 	
-	public void right(){
-		int[] command = {Commands.RIGHT, 0, 0, 0};
+	public void right(int op1, int op2){
+		int[] command = {Commands.RIGHT, op1, op2, 0};
 		try {
 			comms.sendToRobot(command);
 		} catch (IOException e1) {
