@@ -2,6 +2,8 @@ package vision;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -11,8 +13,7 @@ import java.util.Scanner;
  * @author s0840449
  */
 public class PitchConstants {
-	// The pitch number. 0 is the main pitch, 1 is the side pitch
-	private int pitchNum;
+	private static final int NUM_THRESHOLDS = 5;
 
 	public static final int BALL = 0;
 	public static final int BLUE = 1;
@@ -24,116 +25,35 @@ public class PitchConstants {
 	public static final int RGBMAX = 255;
 	public static final double HSVMIN = 0.0;
 	public static final double HSVMAX = 1.0;
+
+	// The pitch number. 0 is the main pitch, 1 is the side pitch
+	private int pitchNum;
 	
-	private int[] redMin = new int[5];
-	private int[] redMax = new int[5];
-	private int[] greenMin = new int[5];
-	private int[] greenMax = new int[5];
-	private int[] blueMin = new int[5];
-	private int[] blueMax = new int[5];
-	private double[] hueMin = new double[5];
-	private double[] hueMax = new double[5];
-	private double[] saturationMin = new double[5];
-	private double[] saturationMax = new double[5];
-	private double[] valueMin = new double[5];
-	private double[] valueMax = new double[5];
-	private boolean[] debug = new boolean[] {false, false, false, false, false};
-	
-	public int getRedMin(int i) {
-		return redMin[i];
-	}
-	public void setRedMin(int i, int redMin) {
-		this.redMin[i] = redMin;
-	}
-	public int getRedMax(int i) {
-		return redMax[i];
-	}
-	public void setRedMax(int i, int redMax) {
-		this.redMax[i] = redMax;
-	}
-	
-	public int getGreenMin(int i) {
-		return greenMin[i];
-	}
-	public void setGreenMin(int i, int greenMin) {
-		this.greenMin[i] = greenMin;
-	}
-	public int getGreenMax(int i) {
-		return greenMax[i];
-	}
-	public void setGreenMax(int i, int greenMax) {
-		this.greenMax[i] = greenMax;
-	}
-	
-	public int getBlueMin(int i) {
-		return blueMin[i];
-	}
-	public void setBlueMin(int i, int blueMin) {
-		this.blueMin[i] = blueMin;
-	}
-	public int getBlueMax(int i) {
-		return blueMax[i];
-	}
-	public void setBlueMax(int i, int blueMax) {
-		this.blueMax[i] = blueMax;
-	}
-	
-	public double getHueMin(int i) {
-		return hueMin[i];
-	}
-	public void setHueMin(int i, double hueMin) {
-		this.hueMin[i] = hueMin;
-	}
-	public double getHueMax(int i) {
-		return hueMax[i];
-	}
-	public void setHueMax(int i, double hueMax) {
-		this.hueMax[i] = hueMax;
-	}
-	
-	public double getSaturationMin(int i) {
-		return saturationMin[i];
-	}
-	public void setSaturationMin(int i, double saturationMin) {
-		this.saturationMin[i] = saturationMin;
-	}
-	public double getSaturationMax(int i) {
-		return saturationMax[i];
-	}
-	public void setSaturationMax(int i, double saturationMax) {
-		this.saturationMax[i] = saturationMax;
-	}
-	
-	public double getValueMin(int i) {
-		return valueMin[i];
-	}
-	public void setValueMin(int i, double valueMin) {
-		this.valueMin[i] = valueMin;
-	}
-	public double getValueMax(int i) {
-		return valueMax[i];
-	}
-	public void setValueMax(int i, double valueMax) {
-		this.valueMax[i] = valueMax;
-	}
-	
-	public boolean debugMode(int i) {
-		return this.debug[i];
-	}
-	public void setDebugMode(int i, boolean debug) {
-		this.debug[i] = debug;
-	}
+	// Threshold upper and lower values
+	private int[] redLower = new int[NUM_THRESHOLDS];
+	private int[] redUpper = new int[NUM_THRESHOLDS];
+	private int[] greenLower = new int[NUM_THRESHOLDS];
+	private int[] greenUpper = new int[NUM_THRESHOLDS];
+	private int[] blueLower = new int[NUM_THRESHOLDS];
+	private int[] blueUpper = new int[NUM_THRESHOLDS];
+	private double[] hueLower = new double[NUM_THRESHOLDS];
+	private double[] hueUpper = new double[NUM_THRESHOLDS];
+	private double[] saturationLower = new double[NUM_THRESHOLDS];
+	private double[] saturationUpper = new double[NUM_THRESHOLDS];
+	private double[] valueLower = new double[NUM_THRESHOLDS];
+	private double[] valueUpper = new double[NUM_THRESHOLDS];
+	// Debug 
+	private boolean[] debug = new boolean[NUM_THRESHOLDS];
 	
 	// Pitch dimensions:
 	// When scanning the pitch we look at pixels starting from 0 + topBuffer and 
 	// 0 + leftBuffer, and then scan to pixels at 480 - bottomBuffer and 
 	// 640 - rightBuffer.
-
-	public int topBuffer;
-	public int bottomBuffer;
-	public int leftBuffer;
-	public int rightBuffer;
-
+	private int topBuffer;
+	private int bottomBuffer;
+	private int leftBuffer;
+	private int rightBuffer;
+	
 	/**
 	 * Default constructor.
 	 * 
@@ -141,8 +61,161 @@ public class PitchConstants {
 	 *            The pitch that we are on.
 	 */
 	public PitchConstants(int pitchNum) {
+		for (int i = 0; i < NUM_THRESHOLDS; ++i)
+			debug[i] = false;
 		// Just call the setPitchNum method to load in the constants
 		setPitchNum(pitchNum);
+	}
+	
+	public int getRedLower(int i) {
+		return redLower[i];
+	}
+	public void setRedLower(int i, int lower) {
+		this.redLower[i] = lower;
+	}
+	public int getRedUpper(int i) {
+		return redUpper[i];
+	}
+	public void setRedUpper(int i, int upper) {
+		this.redUpper[i] = upper;
+	}
+	
+	public int getGreenLower(int i) {
+		return greenLower[i];
+	}
+	public void setGreenLower(int i, int lower) {
+		this.greenLower[i] = lower;
+	}
+	public int getGreenUpper(int i) {
+		return greenUpper[i];
+	}
+	public void setGreenUpper(int i, int upper) {
+		this.greenUpper[i] = upper;
+	}
+	
+	public int getBlueLower(int i) {
+		return blueLower[i];
+	}
+	public void setBlueLower(int i, int lower) {
+		this.blueLower[i] = lower;
+	}
+	public int getBlueUpper(int i) {
+		return blueUpper[i];
+	}
+	public void setBlueUpper(int i, int upper) {
+		this.blueUpper[i] = upper;
+	}
+	
+	public double getHueLower(int i) {
+		return hueLower[i];
+	}
+	public void setHueLower(int i, double lower) {
+		this.hueLower[i] = lower;
+	}
+	public double getHueUpper(int i) {
+		return hueUpper[i];
+	}
+	public void setHueUpper(int i, double upper) {
+		this.hueUpper[i] = upper;
+	}
+	
+	public double getSaturationLower(int i) {
+		return saturationLower[i];
+	}
+	public void setSaturationLower(int i, double lower) {
+		this.saturationLower[i] = lower;
+	}
+	public double getSaturationUpper(int i) {
+		return saturationUpper[i];
+	}
+	public void setSaturationUpper(int i, double upper) {
+		this.saturationUpper[i] = upper;
+	}
+	
+	public double getValueLower(int i) {
+		return valueLower[i];
+	}
+	public void setValueLower(int i, double lower) {
+		this.valueLower[i] = lower;
+	}
+	public double getValueUpper(int i) {
+		return valueUpper[i];
+	}
+	public void setValueUpper(int i, double upper) {
+		this.valueUpper[i] = upper;
+	}
+	
+
+	public int getTopBuffer() {
+		return topBuffer;
+	}
+	public void setTopBuffer(int topBuffer) {
+		this.topBuffer = topBuffer;
+	}
+
+	public int getBottomBuffer() {
+		return bottomBuffer;
+	}
+	public void setBottomBuffer(int bottomBuffer) {
+		this.bottomBuffer = bottomBuffer;
+	}
+
+	public int getLeftBuffer() {
+		return leftBuffer;
+	}
+	public void setLeftBuffer(int leftBuffer) {
+		this.leftBuffer = leftBuffer;
+	}
+
+	public int getRightBuffer() {
+		return rightBuffer;
+	}
+	public void setRightBuffer(int rightBuffer) {
+		this.rightBuffer = rightBuffer;
+	}
+	
+	/**
+	 * Tests whether debug mode is enabled for the threshold set i refers to
+	 * @param i
+	 * 		One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will cause
+	 * 		an ArrayIndexOutOfBoundsException
+	 * @return true if debug mode is enabled, false otherwise
+	 */
+	public boolean debugMode(int i) {
+		return this.debug[i];
+	}
+	/**
+	 * Enables or disables debug mode for the threshold set i refers to.
+	 * This method permits multiple debug modes to be enabled
+	 * @param i
+	 * 		One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will cause
+	 * 		an ArrayIndexOutOfBoundsException
+	 * @param debug
+	 * 		A boolean value to enable debug mode if true, and disable otherwise
+	 */
+	public void setDebugMode(int i, boolean debug) {
+		this.debug[i] = debug;
+	}
+	/**
+	 * Enables or disables debug mode for the threshold set i refers to.
+	 * This method permits multiple debug modes to be enabled only if
+	 * allowMultiple is set to true.
+	 * @param i
+	 * 		One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will cause
+	 * 		an ArrayIndexOutOfBoundsException
+	 * @param debug
+	 * 		A boolean value to enable debug mode if true, and disable otherwise
+	 * @param allowMultiple
+	 * 		A boolean value specifying whether to allow multiple debug modes
+	 * 		to be set
+	 */
+	public void setDebugMode(int i, boolean debug, boolean allowMultiple) {
+		if (allowMultiple)
+			setDebugMode(i, debug);
+		else {
+			for (int j = 0; j < 5; ++j)
+				setDebugMode(j, (i == j) && debug);
+		}
 	}
 
 	/**
@@ -153,12 +226,54 @@ public class PitchConstants {
 	 *            The pitch number to use.
 	 */
 	public void setPitchNum(int newPitchNum) {
-		assert (newPitchNum >= 0 && newPitchNum <= 1) : "Invalid pitch number";
+		assert (newPitchNum == 0 || newPitchNum == 1) : "Invalid pitch number";
 		this.pitchNum = newPitchNum;
 		
 		loadConstants(System.getProperty("user.dir") + "/constants/pitch" + pitchNum);
 	}
 
+	public void saveConstants(String fileName) {
+		try {
+			// Update the pitch dimensions file 
+			FileWriter pitchDimFile = new FileWriter(new File("constants/pitch" + pitchNum + "Dimensions"));
+			pitchDimFile.write(String.valueOf(getTopBuffer()) + "\n");
+			pitchDimFile.write(String.valueOf(getBottomBuffer()) + "\n");
+			pitchDimFile.write(String.valueOf(getLeftBuffer()) + "\n");
+			pitchDimFile.write(String.valueOf(getRightBuffer()) + "\n");
+			pitchDimFile.close();
+			
+			FileWriter pitchFile = new FileWriter(new File("constants/pitch" + pitchNum));
+			// Iterate over ball, blue robot, yellow robot, grey circles, and green plates
+			// in the order they're defined above
+			for (int i = 0; i < NUM_THRESHOLDS; ++i) {
+				pitchFile.write(String.valueOf(getRedLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getRedUpper(i)) + "\n");
+				
+				pitchFile.write(String.valueOf(getGreenLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getGreenUpper(i)) + "\n");
+
+				pitchFile.write(String.valueOf(getBlueLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getBlueUpper(i)) + "\n");
+				
+				pitchFile.write(String.valueOf(getHueLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getHueUpper(i)) + "\n");
+
+				pitchFile.write(String.valueOf(getSaturationLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getSaturationUpper(i)) + "\n");
+
+				pitchFile.write(String.valueOf(getValueLower(i)) + "\n");
+				pitchFile.write(String.valueOf(getValueUpper(i)) + "\n");
+			}
+			pitchFile.close();
+			
+			System.out.println("Wrote successfully!");
+		} catch (IOException e) {
+			System.out.println("Cannot save constants file " + fileName + ":");
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Load in the constants from a file. Note that this assumes that the
 	 * constants file is well formed.
@@ -172,10 +287,10 @@ public class PitchConstants {
 		try {
 			scannerDim = new Scanner(new File(fileName + "Dimensions"));
 		} catch (FileNotFoundException e) {
-			System.err.println("Cannot load constants file " + fileName + "Dimensions" + ":");
+			System.err.println("Cannot load constants file " + fileName + "Dimensions:");
 			System.err.println(e.getMessage());
+			e.printStackTrace();
 			loadDefaultConstants();
-			
 			return;
 		}
 
@@ -194,29 +309,32 @@ public class PitchConstants {
 		} catch (FileNotFoundException e) {
 			System.err.println("Cannot load constants file " + fileName + ":");
 			System.err.println(e.getMessage());
+			e.printStackTrace();
 			loadDefaultConstants();
 			return;
 		}
 		
 		assert(scanner != null);
 		
-		// We assume that the file is well formed
-		
 		// Iterate over ball, blue robot, yellow robot, grey circles, and then green plates
 		// in the order they're defined above.
-		for (int i = 0; i < 5; ++i) {
-			this.redMin[i] = scanner.nextInt();
-			this.redMax[i] = scanner.nextInt();
-			this.greenMin[i] = scanner.nextInt();
-			this.greenMax[i] = scanner.nextInt();
-			this.blueMin[i] = scanner.nextInt();
-			this.blueMax[i] = scanner.nextInt();
-			this.hueMin[i] = scanner.nextInt();
-			this.hueMax[i] = scanner.nextInt();
-			this.saturationMin[i] = scanner.nextInt();
-			this.saturationMax[i] = scanner.nextInt();
-			this.valueMin[i] = scanner.nextInt();
-			this.valueMax[i] = scanner.nextInt();
+		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
+			this.redLower[i] = scanner.nextInt();
+			System.out.println("Threshold " + i + " redLower: " + this.redLower[i]);
+			this.redUpper[i] = scanner.nextInt();
+			System.out.println("Threshold " + i + " redUpper: " + this.redUpper[i]);
+			this.greenLower[i] = scanner.nextInt();
+			System.out.println("Threshold " + i + " greenLower: " + this.greenLower[i]);
+			this.greenUpper[i] = scanner.nextInt();
+			System.out.println("Threshold " + i + " greenUpper: " + this.greenUpper[i]);
+			this.blueLower[i] = scanner.nextInt();
+			this.blueUpper[i] = scanner.nextInt();
+			this.hueLower[i] = scanner.nextDouble();
+			this.hueUpper[i] = scanner.nextDouble();
+			this.saturationLower[i] = scanner.nextDouble();
+			this.saturationUpper[i] = scanner.nextDouble();
+			this.valueLower[i] = scanner.nextDouble();
+			this.valueUpper[i] = scanner.nextDouble();
 		}
 	}
 
@@ -228,24 +346,24 @@ public class PitchConstants {
 		// Iterate over ball, blue robot, yellow robot, grey circles, and then green plates
 		// in the order they're defined above.
 		for (int i = 0; i < 5; ++i) {
-			this.redMin[i] = 0;
-			this.redMax[i] = 255;
-			this.greenMin[i] = 0;
-			this.greenMax[i] = 255;
-			this.blueMin[i] = 0;
-			this.blueMax[i] = 255;
-			this.hueMin[i] = 0;
-			this.hueMax[i] = 10;
-			this.saturationMin[i] = 0;
-			this.saturationMax[i] = 10;
-			this.valueMin[i] = 0;
-			this.valueMax[i] = 10;
+			this.redLower[i] = 0;
+			this.redUpper[i] = 255;
+			this.greenLower[i] = 0;
+			this.greenUpper[i] = 255;
+			this.blueLower[i] = 0;
+			this.blueUpper[i] = 255;
+			this.hueLower[i] = 0.0;
+			this.hueUpper[i] = 1.0;
+			this.saturationLower[i] = 0.0;
+			this.saturationUpper[i] = 1.0;
+			this.valueLower[i] = 0.0;
+			this.valueUpper[i] = 1.0;
 		}
 
 		// Pitch Dimensions
-		this.topBuffer = 0;
-		this.bottomBuffer = 0;
-		this.leftBuffer = 0;
-		this.rightBuffer = 0;
+		this.topBuffer = 40;
+		this.bottomBuffer = 40;
+		this.leftBuffer = 20;
+		this.rightBuffer = 20;
 	}
 }

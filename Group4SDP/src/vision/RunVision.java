@@ -8,8 +8,6 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
  * @author s0840449
  */
 public class RunVision {
-    private static VisionGUI thresholdsGUI;
-    
     /**
      * The main method for the class. Creates the control
      * GUI, and initialises the image processing.
@@ -36,7 +34,7 @@ public class RunVision {
                     compressionQuality, worldState, pitchConstants);
             
             // Create the Control GUI for threshold setting/etc
-            thresholdsGUI = new VisionGUI(worldState, pitchConstants);
+            new VisionGUI(worldState, pitchConstants);
         }
         catch (Exception e) {
             e.printStackTrace();

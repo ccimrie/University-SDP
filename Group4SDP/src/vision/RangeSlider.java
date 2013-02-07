@@ -36,7 +36,6 @@ import javax.swing.JSlider;
 */
 @SuppressWarnings("serial")
 public class RangeSlider extends JSlider {
-
 	/**
 	 * Constructs a RangeSlider with default minimum and maximum values of 0
 	 * and 100.
@@ -69,34 +68,49 @@ public class RangeSlider extends JSlider {
 	public void updateUI() {
 		setUI(new RangeSliderUI(this));
 		// Update UI for slider labels. This must be called after updating the
-		// UI of the slider. Refer to JSlider.updateUI().
+		// UI of the slider. Refer to JSlider.updateUI()
 		updateLabelUIs();
 	}
 
 	/**
-	 * Returns the lower value in the range.
+	 * Provided only for UI code - sliders don't work correctly otherwise
 	 */
 	@Override
+	@Deprecated
 	public int getValue() {
+		return getLowerValue();
+	}
+	
+	/**
+	 * Returns the lower value in the range.
+	 */
+	public int getLowerValue() {
 		return super.getValue();
 	}
 
 	/**
-	 * Sets the lower value in the range.
+	 * Provided only for UI code - sliders don't work correctly otherwise
 	 */
 	@Override
+	@Deprecated
 	public void setValue(int value) {
-		int oldValue = getValue();
-		if (oldValue == value) {
-			return;
-		}
+		setLowerValue(value);
+	}
+	
+	/**
+	 * Sets the lower value in the range.
+	 */
+	public void setLowerValue(int value) {
+		int oldValue = getLowerValue();
+		
+		if (oldValue == value) return;
 
-		// Compute new value and extent to maintain upper value.
+		// Compute new value and extent to maintain upper value
 		int oldExtent = getExtent();
 		int newValue = Math.min(Math.max(getMinimum(), value), oldValue + oldExtent);
 		int newExtent = oldExtent + oldValue - newValue;
 
-		// Set new value and extent, and fire a single change event.
+		// Set new value and extent, and fire a single change event
 		getModel().setRangeProperties(newValue, newExtent, getMinimum(),
 				getMaximum(), getValueIsAdjusting());
 	}
@@ -105,15 +119,15 @@ public class RangeSlider extends JSlider {
 	 * Returns the upper value in the range.
 	 */
 	public int getUpperValue() {
-		return getValue() + getExtent();
+		return getLowerValue() + getExtent();
 	}
 
 	/**
 	 * Sets the upper value in the range.
 	 */
 	public void setUpperValue(int value) {
-		// Compute new extent.
-		int lowerValue = getValue();
+		// Compute new extent
+		int lowerValue = getLowerValue();
 		int newExtent = Math.min(Math.max(0, value - lowerValue), getMaximum() - lowerValue);
 
 		// Set extent to set upper value.
