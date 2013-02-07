@@ -239,9 +239,11 @@ public class Brick {
 		}
 
 		if (x > 0) {
+			x = x*2; //Get the maximum speed out of the mux board
 			chip.move(FRONTMOTOR, 2, x);
 			chip.move(BACKMOTOR, 1, x);
 		} else if (x < 0) {
+			x = x*2; //Get the maximum speed out of the mux board
 			chip.move(FRONTMOTOR, 1, -x);
 			chip.move(BACKMOTOR, 2, -x);
 		} else {
