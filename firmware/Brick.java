@@ -121,7 +121,8 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Rotate!", 0, 2);
 				LCD.refresh();
-				rotate(option1, 90);
+				//The angle is calculated by having option2*10 + option3
+				rotate(option1, option2*10 + option3);
 				break;
 
 			case KICK:
