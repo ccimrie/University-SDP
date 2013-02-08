@@ -522,7 +522,12 @@ public class ControlGUI2 extends JFrame {
 		
 		public void run(){
 			
-			mball.approach(worldState);
+			try {
+				mball.approach(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		}
 	}

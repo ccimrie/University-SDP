@@ -16,12 +16,12 @@ import strategy.planning.Strategy;
 public class MoveToBall2 {
 	
 	private static final int distanceFromBallToStop = 60;
-	private static boolean rotating = true;
+	private static boolean rotating = false;
 	private WorldState t = new WorldState();
 	private Vision vision;
-	private static RobotController robot;
+	//private static RobotController robot;
 	
-	public void approach(WorldState worldState) {
+	public void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball
 		//this.vision = vis;
 		t = worldState;
@@ -36,6 +36,7 @@ public class MoveToBall2 {
 		double distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
         System.out.println(String.format("Distance to ball is %f", distance));
 		double angle = TurnToBall.Turner(us, ball);
+       
         System.out.println(String.format("Angle of ball to robot is %f", angle));
         
         if(rotating /*&& robot.isMoving()*/) {
@@ -48,18 +49,19 @@ public class MoveToBall2 {
 		if(Math.abs(angle) > 30) {
 			// Stop everything and turn
 			System.out.println("Stop and turn");
-			robot.stop();
+			//robot.stop();
 			robot.rotate((int)angle);
 			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
-			return;
+			//return;
 		}
 		
 		if(distance > distanceFromBallToStop) {
 			System.out.println("Forward");
 			robot.move(0,10);
-			return;
+			Thread.sleep(5000);
+			//return;
 			// Let's not arc for this milestone as it's too complicated
 			/*if(Math.abs(angle) > 10) {
 				//TODO: Perfect this with different values for the arc radius (maybe relate it to distance / angle)
@@ -85,15 +87,15 @@ public class MoveToBall2 {
 			System.out.println("Making final correction");
 			robot.stop();
 			robot.rotate((int) angle);
-			rotating = true;
+			//rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
-			return;
+			//return;
 		}
 		
 		System.out.println("Stop");
 		robot.stop();
-		robot.stop();
+		
 	}
 ///	public WorldState getWorldState(){
 //		return this.vision.getWorldState();

@@ -89,10 +89,10 @@ public class RobotController extends Robot {
 		System.out.println("Rotate...");
 	}
 	public void rotate(int input ) {
-		int dir =1;
+		int dir =2;
 		if (input <0 && input > -180) {
 			input = -input;
-			dir = 2;
+			dir = 1;
 		}
 		
 		int op1 = input%10;
