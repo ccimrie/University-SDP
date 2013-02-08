@@ -20,7 +20,7 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 
 import vision.PitchConstants;
 import vision.Vision;
-import vision.VisionGUI;
+import vision.gui.VisionGUI;
 import vision.WorldState;
 import java.io.IOException;
 import java.util.Arrays;

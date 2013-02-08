@@ -8,8 +8,7 @@ import strategy.planning.Commands;
 
 public class RobotController extends Robot {
 	
-	private BluetoothCommunication comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
-	
+
 	public RobotController(RobotType type) {
 		super(type);
 	}
@@ -19,15 +18,6 @@ public class RobotController extends Robot {
 	}
 
 	//Opens Bluetooth communication between computer and robot
-	public void setComms(BluetoothCommunication comms) {
-		this.comms = comms;
-		try {
-			comms.openBluetoothConnection();
-		} catch (IOException e) {
-			System.out.println("Could not connect");
-			e.printStackTrace();
-		}
-	}
 
 	public void quit() {
 		int[] command = {Commands.QUIT, 0, 0, 0};
