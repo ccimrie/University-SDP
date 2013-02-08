@@ -42,6 +42,7 @@ public class VisionSettingsPanel extends JPanel {
 	// Tabs
 	private final JTabbedPane tabPane = new JTabbedPane();
 	private final JPanel mainTabPanel = new JPanel();
+	private final JPanel DistTabPanel = new JPanel();
 	private final ThresholdsPanel[] tabPanels = new ThresholdsPanel[] {
 		new ThresholdsPanel(),
 		new ThresholdsPanel(),
@@ -63,6 +64,7 @@ public class VisionSettingsPanel extends JPanel {
 				pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
 				pitchConstants.setDebugMode(PitchConstants.GREY, false);
 				pitchConstants.setDebugMode(PitchConstants.GREEN, false);
+				pitchConstants.setDebugMode(PitchConstants.DIST, false);
 				break;
 			case(1):
 				// Enable only Ball debug mode
@@ -84,6 +86,9 @@ public class VisionSettingsPanel extends JPanel {
 				// Enable only Green Plate debug mode
 				pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
 				break;
+			case(6):
+				pitchConstants.setDebugMode(PitchConstants.DIST, true, false);
+			break;
 			default:
 				System.out.println("VisionGUI: Invalid tab index");
 				System.exit(1);
@@ -94,6 +99,8 @@ public class VisionSettingsPanel extends JPanel {
 	// Radio buttons and their change listeners
 	private final JRadioButton rdbtnPitch0 = new JRadioButton("Main");
 	private final JRadioButton rdbtnPitch1 = new JRadioButton("Side Room");
+	private final JRadioButton rdbtnDist0 = new JRadioButton("On");
+	private final JRadioButton rdbtnDist1 = new JRadioButton("Off");
 	private final MouseAdapter pitchMouseListener = new MouseAdapter() {
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -101,6 +108,24 @@ public class VisionSettingsPanel extends JPanel {
 			int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
 			worldState.setPitch(pitchNum);
 			pitchConstants.setPitchNum(pitchNum);
+			reloadSliderDefaults();
+		}
+		
+	
+		
+		
+		
+	};
+	private final MouseAdapter distMouseListener = new MouseAdapter() {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// Update the world state and pitch constants
+			int distnum = rdbtnDist0.isSelected() ? 0 : 1;
+			boolean active_or_not;
+			
+			if (distnum == 1 ) {active_or_not = false;}
+			else {active_or_not = true; }
+			pitchConstants.setDistortBool(active_or_not);
 			reloadSliderDefaults();
 		}
 	};
@@ -232,6 +257,7 @@ public class VisionSettingsPanel extends JPanel {
         // The main (default) tab
         mainTabPanel.setLayout(new BoxLayout(mainTabPanel, BoxLayout.Y_AXIS));
         setUpMainPanel();
+        setUpDist();
         
         // The five threshold tabs
         for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
@@ -242,6 +268,7 @@ public class VisionSettingsPanel extends JPanel {
             tabPanels[i].setSaturationSliderChangeListener(new SaturationSliderChangeListener(i));
             tabPanels[i].setValueSliderChangeListener(new ValueSliderChangeListener(i));
         }
+        DistTabPanel.setLayout(new BoxLayout(DistTabPanel, BoxLayout.Y_AXIS));
         
         tabPane.addTab("Main", mainTabPanel);
         tabPane.addTab("Ball", tabPanels[PitchConstants.BALL]);
@@ -249,6 +276,7 @@ public class VisionSettingsPanel extends JPanel {
         tabPane.addTab("Yellow Robot", tabPanels[PitchConstants.YELLOW]);
         tabPane.addTab("Grey Circles", tabPanels[PitchConstants.GREY]);
         tabPane.addTab("Green Plates", tabPanels[PitchConstants.GREEN]);
+        tabPane.addTab("Distortion", DistTabPanel);
         
         tabPane.addChangeListener(tabChangeListener);
         this.add(tabPane);
@@ -309,7 +337,8 @@ public class VisionSettingsPanel extends JPanel {
 		directionPanel.add(rdbtnLeft);
 		
 		rdbtnRight.setSelected(true);
-		
+		rdbtnDist0.addMouseListener(distMouseListener);
+		rdbtnDist1.addMouseListener(distMouseListener);
 		rdbtnRight.addMouseListener(directionMouseListener);
 		rdbtnLeft.addMouseListener(directionMouseListener);
 		
@@ -362,7 +391,37 @@ public class VisionSettingsPanel extends JPanel {
 	
 	/**
 	 * Reloads the default values for the sliders from the PitchConstants file.
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
+	
+	
+	
+	
+	private void setUpDist() {
+		// Pitch choice
+		JPanel distPanel = new JPanel();
+		JLabel distLabel = new JLabel("Activate Distortion:");
+		distPanel.add(distLabel);
+		
+		ButtonGroup DisthChoice = new ButtonGroup();
+		DisthChoice.add(rdbtnDist0);
+		DisthChoice.add(rdbtnDist1);
+		distPanel.add(rdbtnDist0);
+		distPanel.add(rdbtnDist1);
+		
+		rdbtnDist0.setSelected(true);
+		
+		rdbtnDist0.addMouseListener(pitchMouseListener);
+		rdbtnDist1.addMouseListener(pitchMouseListener);
+		
+		DistTabPanel.add(distPanel);
+		
+
+
+	}
 	public void reloadSliderDefaults() {
 		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i)
 			tabPanels[i].setSliderValues(i, pitchConstants);

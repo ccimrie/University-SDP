@@ -14,13 +14,14 @@ import java.util.Scanner;
  */
 public class PitchConstants {
 	public static final int NUM_THRESHOLDS = 5;
+	public boolean activatedistort = true;
 
 	public static final int BALL = 0;
 	public static final int BLUE = 1;
 	public static final int YELLOW = 2;
 	public static final int GREY = 3;
 	public static final int GREEN = 4;
-	
+	public static final int DIST = 5;
 	public static final int RGBMIN = 0;
 	public static final int RGBMAX = 255;
 	public static final double HSVMIN = 0.0;
@@ -53,7 +54,8 @@ public class PitchConstants {
 	private int bottomBuffer;
 	private int leftBuffer;
 	private int rightBuffer;
-	
+	public double barrelCorrectionX;
+	public double barrelCorrectionY; 
 	/**
 	 * Default constructor.
 	 * 
@@ -144,8 +146,15 @@ public class PitchConstants {
 	public void setValueUpper(int i, double upper) {
 		this.valueUpper[i] = upper;
 	}
+	public void setDistortBool (boolean true_or_false) {
+		this.activatedistort = true_or_false;
+	}
 	
-
+	
+	public boolean getDistortbool(){
+		return   activatedistort;
+		
+	}
 	public int getTopBuffer() {
 		return topBuffer;
 	}
@@ -170,6 +179,29 @@ public class PitchConstants {
 	public int getRightBuffer() {
 		return rightBuffer;
 	}
+	
+	
+	public void setgetbarrelCorrectionX(double barrel) {
+		this.barrelCorrectionX = barrel;
+	}
+	
+	public void setgetbarrelCorrectionY(double barrel) {
+		this.barrelCorrectionY = barrel;
+	}
+	
+	
+	
+	public double  getgetbarrelCorrectionX() {
+		return barrelCorrectionX;
+	}
+	
+	public double  getgetbarrelCorrectionY() {
+		return barrelCorrectionY;
+	}
+	
+	
+	
+	
 	public void setRightBuffer(int rightBuffer) {
 		this.rightBuffer = rightBuffer;
 	}
@@ -365,5 +397,8 @@ public class PitchConstants {
 		this.bottomBuffer = 40;
 		this.leftBuffer = 20;
 		this.rightBuffer = 20;
+		// barrel parameters
+		this.barrelCorrectionX = -0.01;
+		this.barrelCorrectionY = -0.055;
 	}
 }

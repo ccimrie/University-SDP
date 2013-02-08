@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**
@@ -18,7 +19,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 public class Vision implements VideoReceiver {
 	private final int width = 640;
 	private final int height = 480;
-	
+	private DistortionFix fix = new DistortionFix();
 	// Variables used in processing video
 	private PitchConstants pitchConstants;
 	private static final double barrelCorrectionX = -0.016;
@@ -71,7 +72,22 @@ public class Vision implements VideoReceiver {
 	 */
 	public void sendNextFrame(BufferedImage frame, int frameRate,
 			int frameCounter) {
-		processAndUpdateImage(frame, frameRate, frameCounter);
+		int topBuffer = pitchConstants.getTopBuffer();
+		int bottomBuffer = frame.getHeight() - pitchConstants.getBottomBuffer();
+		int leftBuffer = pitchConstants.getLeftBuffer();
+		int rightBuffer = frame.getWidth() - pitchConstants.getRightBuffer();
+		if (pitchConstants.getDistortbool())
+		
+		{BufferedImage image = fix.removeBarrelDistortion(frame,
+				leftBuffer, rightBuffer, topBuffer, bottomBuffer);
+		processAndUpdateImage(image, frameRate, frameCounter);}
+		
+		
+		
+		else {
+			processAndUpdateImage(frame, frameRate, frameCounter);
+			
+		}
 	}
 
 	/**
@@ -268,8 +284,10 @@ public class Vision implements VideoReceiver {
 	 *            The point before correction
 	 * @return The point after correction
 	 */
-	public Point convertToBarrelCorrected(Point original) {
-		// first normalise pixel
+/**	public Point convertToBarrelCorrected(Point original) {
+	
+	
+	// first normalise pixel
 		double px = (2 * original.getX() - width) / (double) width;
 		double py = (2 * original.getY() - height * 1.005) / (double) height;
 
@@ -286,7 +304,7 @@ public class Vision implements VideoReceiver {
 
 		return new Point(pixi, pixj);
 	}
-
+*/
 	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
@@ -326,6 +344,8 @@ public class Vision implements VideoReceiver {
 		int bottomBuffer = pitchConstants.getBottomBuffer();
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
+		
+
 
 		// For every pixel within the pitch, test to see if it belongs to the
 		// ball, the yellow T, the blue T, either green plate or a grey circle.
