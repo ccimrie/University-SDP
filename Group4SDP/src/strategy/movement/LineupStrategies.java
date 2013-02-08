@@ -3,7 +3,7 @@ package strategy.movement;
 import java.awt.geom.Point2D;
 
 import world.state.PitchInfo;
-import world.state.World;
+import vision.WorldState;
 
 public class LineupStrategies {
 		
@@ -13,7 +13,7 @@ public class LineupStrategies {
     public static final float arbitraryX = 39;
     public static final float arbitraryY = 46;
     
-	public static Point2D getPointBehindBall(World world){
+	public static Point2D getPointBehindBall(WorldState world){
 
     	double targetDistFromBall = 100.0d;
     	

@@ -1,47 +1,33 @@
 package strategy.planning;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import world.state.RobotController;
 import world.state.RobotType;
-import world.state.World;
+import vision.WorldState;
 
-import communication.BluetoothCommunication;
-import communication.DeviceInfo;
 
-public abstract class Strategy implements Observer {
-        
-        World world = World.getInstance();
-        BluetoothCommunication comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
-        RobotController rc = new RobotController(RobotType.Us);
-        
-        // Returns new Server() empty constructor - same as our BluetoothConnection.java
-        //Server rc = Server.getInstance();
+public abstract class Strategy {
+		RobotController rc = new RobotController(RobotType.Us);
+		//IMPORTANT! We get our worldstate from the GUI for now. We need to decide where
+		//to take it from.
+		public static WorldState world = computer.ControlGUI2.worldState;
+        public static boolean shouldIdie = false; //Use this as a control variable if the
+        //threads should die.
         
         public void execute() {
-                // Add this instance as an observer to the world to be notified of frame updates
+   
+        		// Add this instance as an observer to the world to be notified of frame updates
                 System.out.println("[Strategy] Are we blue? " + world.areWeBlue());
                 System.out.println("[Strategy] Are we on the left side? " + world.areWeOnLeft());
                 System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
-                world.addObserver(this);
+                Thread strat = new Thread(new MainPlanner2(), "Planning Thread");
+                strat.run();
         }
         
-        public void stop() {
-                world.deleteObservers();
-                rc.setComms(comms);
+        public void stop() throws InterruptedException{
+        		shouldIdie = true;
+        		Thread.sleep(2000); //Wait for the thread to notice it needs to die
                 rc.stop();
         }
-        
-        public void stopSmoothly() {
-                world.deleteObservers();
-        }
-        
-        public void setTeam(boolean WeAreBlue) {
-                
-        }
-        
-        @Override
-        public abstract void update(Observable arg0, Object arg1);
+   
 
 }
