@@ -10,42 +10,33 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.UIManager;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.io.IOException;
+import java.util.Arrays;
+
 import javax.swing.JButton;
-import javax.swing.JRadioButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 
-import au.edu.jcu.v4l4j.V4L4JConstants;
-
+import strategy.planning.Commands;
+import strategy.planning.MoveToBall2;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.Vision;
-import vision.gui.VisionGUI;
 import vision.WorldState;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
-import communication.BluetoothCommunication;
-import communication.DeviceInfo;
-import strategy.planning.Commands;
-import strategy.planning.MoveToBall2;
-import strategy.planning.Strategy;
+import vision.gui.VisionGUI;
 import world.state.RobotController;
 import world.state.RobotType;
-import world.state.World;
-import strategy.planning.MoveToBall;
+import au.edu.jcu.v4l4j.V4L4JConstants;
 
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import javax.swing.JTextField;
+import communication.BluetoothCommunication;
+import communication.DeviceInfo;
 
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
-	Timer timer;
-	int seconds = 10;
-	
+	// Video settings
 	private static final int SATURATION = 64;
 	private static final int BRIGHTNESS = 128;
 	private static final int CONTRAST = 64;
@@ -53,95 +44,88 @@ public class ControlGUI2 extends JFrame {
 	private static final int CHROMA_GAIN = 0;
 	private static final int CHROMA_AGC = 1;
 
-	private final JFrame frame = new JFrame("Control Panel");
+	// GUI elements
+
+	private final JFrame frame = new JFrame("Group 4 control GUI");
 
 	private final JPanel startStopQuitPanel = new JPanel();
 	private final JPanel simpleMoveTestPanel = new JPanel();
-	private final JPanel actionTestPanel = new JPanel();
-	private final JPanel angleMovePanel = new JPanel();
-
+	private final JPanel panel = new JPanel();
+	private final JPanel panel_1 = new JPanel();
+	// General control buttons
 	private final JButton start = new JButton("Start");
-	private final JButton kick = new JButton("Kick");
+	private final JButton quit = new JButton("Quit");
 	private final JButton stop = new JButton("Stop");
+	// Basic movement
 	private final JButton forward = new JButton("Forward");
 	private final JButton backward = new JButton("Backward");
 	private final JButton left = new JButton("Left");
 	private final JButton right = new JButton("Right");
+	// Kick
+	private final JButton kick = new JButton("Kick");
+	// Other movement
 	private final JButton rotate = new JButton("Rotate");
-	private final JButton anglemove = new JButton("AngleMove");
-	private final JButton quit = new JButton("Quit");
+	private final JButton move = new JButton("Move");
 	private final JButton moveToBall = new JButton("MoveToBall");
-	private final JRadioButton rdbtnForwards = new JRadioButton("Forwards");
-	private final JRadioButton rdbtnBackwards = new JRadioButton("Backwards");
-	private final JRadioButton rdbtnLeft = new JRadioButton("Left");
-	private final JRadioButton rdbtnRight = new JRadioButton("Right");
-	
 	// Communication variables
 	public static BluetoothCommunication comms;
 	private static RobotController robot;
+	// OPcode fields
+	private final JLabel op1label = new JLabel("Option 1: ");
+	private final JLabel op2label = new JLabel("Option 2: ");
+	private final JLabel op3label = new JLabel("Option 3: ");
+	private final JTextField op1field = new JTextField();
+	private final JTextField op2field = new JTextField();
+	private final JTextField op3field = new JTextField();
 
 	// Strategy used for driving part of milestone 1
 	private static MoveToBall2 mball = new MoveToBall2();
 	private MoveToTheBallThread approachThread;
-	private final JPanel panel = new JPanel();
-	private final JTextField mforward1 = new JTextField();
-	private final JTextField mforward2 = new JTextField();
-	private final JPanel panel_1 = new JPanel();
-	private final JTextField mrotate = new JTextField();
-	private final JPanel panel_2 = new JPanel();
-	private final JTextField manglemove = new JTextField();
+
 	public static WorldState worldState = new WorldState();
 	public static Vision vision;
-	
+
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		// Set up vision
-		//WorldState worldState = new WorldState();
 
-        // Default to main pitch
-        PitchConstants pitchConstants = new PitchConstants(0);
-        
-        // Default values for the main vision window
-        String videoDevice = "/dev/video0";
-        int width = 640;
-        int height = 480;
-        int channel = 0;
-        int videoStandard = V4L4JConstants.STANDARD_PAL;
-        int compressionQuality = 80;
-        
-        Vision vis =null;
-        try {
-        	VideoStream vStream = new VideoStream(videoDevice, width, height,
-        			channel, videoStandard, compressionQuality);
-            
-            vStream.setSaturation(SATURATION);
-    		vStream.setBrightness(BRIGHTNESS);
-    		vStream.setContrast(CONTRAST);
-    		vStream.setHue(HUE);
-    		vStream.setChromaGain(CHROMA_GAIN);
-    		vStream.setChromaAGC(CHROMA_AGC);
-    		vStream.updateVideoDeviceSettings();
-    		
-            // Create a new Vision object to serve the main vision window
+		// Default to main pitch
+		PitchConstants pitchConstants = new PitchConstants(0);
 
-    		vision = new Vision(worldState, pitchConstants);
-    		vStream.addReceiver(vision);
-            
-            // Create the Control GUI for threshold setting/etc
-            VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants);
-            
-            vision.addVisionListener(visionGUI);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+		// Default values for the main vision window
+		String videoDevice = "/dev/video0";
+		int width = 640;
+		int height = 480;
+		int channel = 0;
+		int videoStandard = V4L4JConstants.STANDARD_PAL;
+		int compressionQuality = 80;
+
+		try {
+			VideoStream vStream = new VideoStream(videoDevice, width, height, channel, videoStandard, compressionQuality);
+
+			vStream.setSaturation(SATURATION);
+			vStream.setBrightness(BRIGHTNESS);
+			vStream.setContrast(CONTRAST);
+			vStream.setHue(HUE);
+			vStream.setChromaGain(CHROMA_GAIN);
+			vStream.setChromaAGC(CHROMA_AGC);
+			vStream.updateVideoDeviceSettings();
+
+			// Create a new Vision object to serve the main vision window
+			vision = new Vision(worldState, pitchConstants);
+			vStream.addReceiver(vision);
+
+			// Create the Control GUI for threshold setting/etc
+			VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants);
+
+			vision.addVisionListener(visionGUI);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2();
@@ -152,43 +136,34 @@ public class ControlGUI2 extends JFrame {
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
-		while (!comms.isRobotReady()){
+		while (!comms.isRobotReady()) {
 			// Reduce CPU cost
 			try {
 				Thread.sleep(10);
-			}
-			catch(InterruptedException e) {
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
-		};
-		
-		//Sets up robot
+		}
+		;
+
+		// Sets up robot
 		robot = new RobotController(RobotType.Us);
-
-
-
 		System.out.println("Robot ready!");
-		int [] command = new int [] {Commands.TEST, 0, 0, Commands.TEST};
+		int[] command = new int[] { Commands.TEST, 0, 0, Commands.TEST };
 		comms.sendToRobot(command);
 		int[] test = new int[4];
 		test = comms.receiveFromRobot();
 		System.out.println(Arrays.toString(test));
-	} 
+	}
 
 	public ControlGUI2() {
-		
-		
-		manglemove.setColumns(10);
-		mrotate.setColumns(10);
-		mforward2.setColumns(10);
-		mforward1.setColumns(10);		
+		op1field.setColumns(6);
+		op2field.setColumns(6);
+		op3field.setColumns(6);
+
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{301, 0};
-		gridBagLayout.rowHeights = new int[]{33, 33, 0, 0, 33, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, Double.MIN_VALUE};
 		frame.getContentPane().setLayout(gridBagLayout);
 
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
@@ -204,28 +179,30 @@ public class ControlGUI2 extends JFrame {
 
 		GridBagConstraints gbc_simpleMoveTestPanel = new GridBagConstraints();
 		gbc_simpleMoveTestPanel.anchor = GridBagConstraints.NORTH;
-		gbc_simpleMoveTestPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_simpleMoveTestPanel.fill = GridBagConstraints.VERTICAL;
 		gbc_simpleMoveTestPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_simpleMoveTestPanel.gridx = 0;
 		gbc_simpleMoveTestPanel.gridy = 1;
+		// gbc_simpleMoveTestPanel.gridwidth = 2;
 		frame.getContentPane().add(simpleMoveTestPanel, gbc_simpleMoveTestPanel);
-		simpleMoveTestPanel.add(forward);
-		
-		simpleMoveTestPanel.add(mforward1);
-		
-		simpleMoveTestPanel.add(mforward2);
-		
+		simpleMoveTestPanel.add(op1label);
+		simpleMoveTestPanel.add(op1field);
+		simpleMoveTestPanel.add(op2label);
+		simpleMoveTestPanel.add(op2field);
+		simpleMoveTestPanel.add(op3label);
+		simpleMoveTestPanel.add(op3field);
+
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.insets = new Insets(0, 0, 5, 0);
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 2;
 		frame.getContentPane().add(panel, gbc_panel);
+		panel.add(forward);
 		panel.add(backward);
-		panel.add(right);
-		panel.add(moveToBall);
 		panel.add(left);
-		
+		panel.add(right);
+
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
@@ -233,110 +210,9 @@ public class ControlGUI2 extends JFrame {
 		gbc_panel_1.gridy = 3;
 		frame.getContentPane().add(panel_1, gbc_panel_1);
 		panel_1.add(rotate);
-		
-		panel_1.add(mrotate);
-
-		GridBagConstraints gbc_actionTestPanel = new GridBagConstraints();
-		gbc_actionTestPanel.insets = new Insets(0, 0, 5, 0);
-		gbc_actionTestPanel.anchor = GridBagConstraints.NORTH;
-		gbc_actionTestPanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_actionTestPanel.gridx = 0;
-		gbc_actionTestPanel.gridy = 4;
-		frame.getContentPane().add(actionTestPanel, gbc_actionTestPanel);
-		actionTestPanel.add(kick);
-		
-		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
-		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_2.fill = GridBagConstraints.BOTH;
-		gbc_panel_2.gridx = 0;
-		gbc_panel_2.gridy = 5;
-		frame.getContentPane().add(panel_2, gbc_panel_2);
-		
-		panel_2.add(manglemove);
-
-		GridBagConstraints gbc_angleMovePanel = new GridBagConstraints();
-		gbc_angleMovePanel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_angleMovePanel.anchor = GridBagConstraints.NORTH;
-		gbc_angleMovePanel.gridx = 0;
-		gbc_angleMovePanel.gridy = 6;
-		frame.getContentPane().add(angleMovePanel, gbc_angleMovePanel);
-		GridBagLayout gbl_angleMovePanel = new GridBagLayout();
-		gbl_angleMovePanel.columnWidths = new int[] {79, 88, 125};
-		gbl_angleMovePanel.rowHeights = new int[] {18, 0};
-		gbl_angleMovePanel.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_angleMovePanel.rowWeights = new double[]{0.0, 0.0};
-		angleMovePanel.setLayout(gbl_angleMovePanel);
-
-		GridBagConstraints gbc_rdbtnForwards = new GridBagConstraints();
-		gbc_rdbtnForwards.anchor = GridBagConstraints.NORTHWEST;
-		gbc_rdbtnForwards.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnForwards.gridx = 0;
-		gbc_rdbtnForwards.gridy = 0;
-		rdbtnForwards.setSelected(true);
-		rdbtnForwards.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				if (rdbtnForwards.isSelected())
-					rdbtnBackwards.setSelected(false);
-				else
-					rdbtnBackwards.setSelected(true);
-			}
-		});
-		angleMovePanel.add(rdbtnForwards, gbc_rdbtnForwards);
-
-		GridBagConstraints gbc_rdbtnBackwards = new GridBagConstraints();
-		gbc_rdbtnBackwards.anchor = GridBagConstraints.NORTHWEST;
-		gbc_rdbtnBackwards.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnBackwards.gridx = 0;
-		gbc_rdbtnBackwards.gridy = 1;
-		rdbtnBackwards.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				if (rdbtnBackwards.isSelected())
-					rdbtnForwards.setSelected(false);
-				else
-					rdbtnForwards.setSelected(true);
-			}
-		});
-		angleMovePanel.add(rdbtnBackwards, gbc_rdbtnBackwards);
-
-		GridBagConstraints gbc_rdbtnLeft = new GridBagConstraints();
-		gbc_rdbtnLeft.anchor = GridBagConstraints.NORTHWEST;
-		gbc_rdbtnLeft.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnLeft.gridx = 1;
-		gbc_rdbtnLeft.gridy = 0;
-		rdbtnLeft.setSelected(true);
-		rdbtnLeft.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				if (rdbtnLeft.isSelected())
-					rdbtnRight.setSelected(false);
-				else
-					rdbtnRight.setSelected(true);
-			}
-		});
-		angleMovePanel.add(rdbtnLeft, gbc_rdbtnLeft);
-
-		GridBagConstraints gbc_rdbtnRight = new GridBagConstraints();
-		gbc_rdbtnRight.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnRight.insets = new Insets(0, 0, 0, 5);
-		gbc_rdbtnRight.gridx = 1;
-		gbc_rdbtnRight.gridy = 1;
-		rdbtnRight.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				if (rdbtnRight.isSelected())
-					rdbtnLeft.setSelected(false);
-				else
-					rdbtnLeft.setSelected(true);
-			}
-		});
-		angleMovePanel.add(rdbtnRight, gbc_rdbtnRight);
-
-		GridBagConstraints gbc_anglemove = new GridBagConstraints();
-		gbc_anglemove.fill = GridBagConstraints.VERTICAL;
-		gbc_anglemove.gridheight = 2;
-		gbc_anglemove.gridwidth = 2;
-		gbc_anglemove.gridx = 2;
-		gbc_anglemove.gridy = 0;
-		angleMovePanel.add(anglemove, gbc_anglemove);
-
+		panel_1.add(kick);
+		panel_1.add(move);
+		panel_1.add(moveToBall);
 
 		frame.addWindowListener(new ListenCloseWdw());
 
@@ -348,7 +224,7 @@ public class ControlGUI2 extends JFrame {
 	}
 
 	public void action() {
-		
+
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
@@ -357,119 +233,96 @@ public class ControlGUI2 extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				robot.kick(); 
-			} 
+				robot.kick();
+			}
 
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(mforward1.getText());
-				int op2 = Integer.parseInt(mforward2.getText());
-				robot.move(op1,op2);
-				
-				//TODO Timer?
-				timer = new Timer();
-				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), seconds * 1000);
+				int op1 = Integer.parseInt(op1field.getText());
+				int op2 = Integer.parseInt(op2field.getText());
+				robot.move(op1, op2);
 			}
-		}); 
-
+		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(mforward1.getText());
-				int op2 = Integer.parseInt(mforward2.getText());
-				robot.backward(op1,op2);
-
-				timer = new Timer();
-				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), seconds * 1000);
+				int op1 = Integer.parseInt(op1field.getText());
+				int op2 = Integer.parseInt(op2field.getText());
+				robot.backward(op1, op2);
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(mforward1.getText());
-				int op2 = Integer.parseInt(mforward2.getText());
-				robot.left(op1,op2);
-
-				timer = new Timer();
-				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), seconds * 1000);
+				int op1 = Integer.parseInt(op1field.getText());
+				int op2 = Integer.parseInt(op2field.getText());
+				robot.left(op1, op2);
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(mforward1.getText());
-				int op2 = Integer.parseInt(mforward2.getText());
-				robot.right(op1,op2);
-
-				timer = new Timer();
-				// Stop in 5 seconds
-			    timer.schedule(new Stopping(), seconds * 1000);
+				int op1 = Integer.parseInt(op1field.getText());
+				int op2 = Integer.parseInt(op2field.getText());
+				robot.right(op1, op2);
 			}
 		});
-		
-		//TODO - Attach with MoveToBall
+
+		// TODO - Attach with MoveToBall
 		moveToBall.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				approachThread = new MoveToTheBallThread();
 				approachThread.start();
-				
-	    		/*try {
-					Class mtb = Class.forName("strategy.planning." + "MoveToBall");
-					Strategy s = (Strategy)mtb.newInstance();
-				    s.stop();
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-					System.err.println("Class not found.");
-				} catch (InstantiationException e2) {
-					e2.printStackTrace();
-					System.err.println("Class could not be instantiated.");
-				} catch (IllegalAccessException e3) {
-					e3.printStackTrace();
-				} catch (ClassCastException e4) {
-					System.err.println("Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
-				}
-				*/
+
+				/*
+				 * try {
+				 * Class mtb = Class.forName("strategy.planning." + "MoveToBall");
+				 * Strategy s = (Strategy)mtb.newInstance();
+				 * s.stop();
+				 * } catch (ClassNotFoundException e1) {
+				 * e1.printStackTrace();
+				 * System.err.println("Class not found.");
+				 * } catch (InstantiationException e2) {
+				 * e2.printStackTrace();
+				 * System.err.println("Class could not be instantiated.");
+				 * } catch (IllegalAccessException e3) {
+				 * e3.printStackTrace();
+				 * } catch (ClassCastException e4) {
+				 * System.err.println(
+				 * "Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
+				 * }
+				 */
 			}
 		});
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
-				robot.stop(timer);
+				/* robot.stop(timer); */
 				robot.stop();
 			}
 		});
 
-		//TODO - Should we have timer here as well?
+		// TODO - Should we have timer here as well?
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int angle = Integer.parseInt(mrotate.getText());
+				int angle = Integer.parseInt(op1field.getText());
 				robot.rotate(angle);
 			}
 		});
 
-		anglemove.addActionListener(new ActionListener() {
+		move.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(mforward1.getText());
-				int op2 = Integer.parseInt(mforward2.getText());
-				byte direction = 0;
-				if (rdbtnForwards.isSelected())
-					direction |= 2;
-				if (rdbtnLeft.isSelected())
-					direction |= 1;
-
-				int[] command = {Commands.ANGLEMOVE, op1, op2, direction};
+				int op1 = Integer.parseInt(op1field.getText());
+				int op2 = Integer.parseInt(op2field.getText());
+				int[] command = { Commands.ANGLEMOVE, op1, op2, 0 };
 				try {
 					comms.sendToRobot(command);
-				}
-				catch (IOException e1) {
-					System.out.println("Could not send command");
+				} catch (IOException e1) {
+					System.out.println("Could not send MOVE command to robot");
 					e1.printStackTrace();
 				}
 				System.out.println("Moving at an angle...");
@@ -478,18 +331,18 @@ public class ControlGUI2 extends JFrame {
 
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int[] command = {Commands.QUIT, 0, 0, 0};
+				int[] command = { Commands.QUIT, 0, 0, 0 };
 				try {
 					comms.sendToRobot(command);
+				} catch (IOException e1) {
+					System.out.println("Could not send QUIT command to robot");
+					// e1.printStackTrace();
+				} finally {
+					System.out.println("Quitting the GUI");
+					System.exit(0);
 				}
-				catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				System.out.println("Quit...");
-				System.exit(0);
 			}
-		}); 
+		});
 	}
 
 	public void Launch() {
@@ -500,48 +353,49 @@ public class ControlGUI2 extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
-			int[] command = {Commands.QUIT, 0, 0, 0};
+			int[] command = { Commands.QUIT, 0, 0, 0 };
 			try {
 				comms.sendToRobot(command);
-			}
-			catch (IOException e1) {
+			} catch (IOException e1) {
 				System.out.println("Could not send command");
-				e1.printStackTrace();
+				// e1.printStackTrace();
+			} finally {
+				System.out.println("Quit...");
+				System.exit(0);
 			}
-			System.out.println("Quit...");
-			System.exit(0);
 		}
 	}
+
 	class MoveToTheBallThread extends Thread {
-		
-		
-		public void run(){
-			
+
+		public void run() {
+
 			try {
 				mball.approach(worldState, robot);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
 
-
-	class Stopping extends TimerTask{
-		@Override
-		public void run() {
-			int[] command = {Commands.STOP, 0, 0, 0};
-			try {
-				comms.sendToRobot(command);
-			}
-			catch (IOException e) {
-				System.out.println("Could not send command");
-				e.printStackTrace();
-			}
-			//r.stop;
-			timer.cancel();
-			System.out.println("Stop...");
-		}
-	}
+	/*
+	 * class Stopping extends TimerTask{
+	 * 
+	 * @Override
+	 * public void run() {
+	 * int[] command = {Commands.STOP, 0, 0, 0};
+	 * try {
+	 * comms.sendToRobot(command);
+	 * }
+	 * catch (IOException e) {
+	 * System.out.println("Could not send command");
+	 * e.printStackTrace();
+	 * }
+	 * //r.stop;
+	 * System.out.println("Stop...");
+	 * }
+	 * }
+	 */
 }
