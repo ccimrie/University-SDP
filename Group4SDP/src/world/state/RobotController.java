@@ -8,10 +8,10 @@ import strategy.planning.Commands;
 
 public class RobotController extends Robot {
 	
+	private BluetoothCommunication comms = computer.ControlGUI2.comms;
 	
-	
-	public RobotController(RobotType type, BluetoothCommunication comms) {
-		super(type, comms);
+	public RobotController(RobotType type) {
+		super(type);
 	}
 
 	private enum CurrentMovement {

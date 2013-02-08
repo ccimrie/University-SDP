@@ -1,18 +1,14 @@
 package world.state;
 
-import communication.BluetoothCommunication;
-
 public class Robot extends Entity {
 	
 	@Deprecated public double x;
 	@Deprecated public double y;
 	public double bearing;
 	public RobotType type;
-	protected BluetoothCommunication comms;
 	
-	public Robot(RobotType type, BluetoothCommunication comms) {
+	public Robot(RobotType type) {
 		this.type = type;
-		this.comms = comms;
 	}
 	
 
