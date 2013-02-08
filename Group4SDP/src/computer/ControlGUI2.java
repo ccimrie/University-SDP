@@ -32,7 +32,6 @@ import communication.DeviceInfo;
 import strategy.planning.Commands;
 import strategy.planning.MoveToBall2;
 import strategy.planning.Strategy;
-import strategy.movement.StraightLineVision;
 import world.state.RobotController;
 import world.state.RobotType;
 import world.state.World;
@@ -83,9 +82,7 @@ public class ControlGUI2 extends JFrame {
 
 	// Strategy used for driving part of milestone 1
 	private static MoveToBall2 mball = new MoveToBall2();
-	private DriveThread driveThread;
 	private MoveToTheBallThread approachThread;
-	private static StraightLineVision strat = new StraightLineVision();
 	private final JPanel panel = new JPanel();
 	private final JTextField mforward1 = new JTextField();
 	private final JTextField mforward2 = new JTextField();
@@ -354,8 +351,6 @@ public class ControlGUI2 extends JFrame {
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
-				driveThread = new DriveThread();
-				driveThread.start();
 			}
 		});
 
@@ -445,7 +440,6 @@ public class ControlGUI2 extends JFrame {
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the drive thread if it's running
-				driveThread.halt();
 				robot.stop(timer);
 				robot.stop();
 			}
@@ -532,67 +526,6 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 
-	class DriveThread extends Thread {
-		private int STEP_DELAY = 150;
-		private boolean halted = false;
-
-		public void halt() {
-			halted = true;
-		}
-		@Override
-		public void run() {
-			halted = false;
-			int[] command = {Commands.FORWARDS, 0, 0, 0};
-			try {
-				comms.sendToRobot(command);
-				Thread.sleep(STEP_DELAY);
-			}
-			catch (IOException e1) {
-				System.out.println("Could not send command");
-				e1.printStackTrace();
-			}
-			catch (InterruptedException e1) {
-				System.out.println("Drive thread interrupted");
-			}
-			System.out.println("Attempting to move in a straight line...");
-
-			WorldState worldState = strat.getWorldState();
-			int startX = worldState.getBlueX();
-			strat.setStart(startX, worldState.getBlueY());
-			System.out.println("StartY: " + worldState.getBlueY());
-			while (worldState.getBlueX() < 570 && !halted) {
-				int[] correction = strat.getCorrection();
-				command[1] = correction[0];
-				command[2] = correction[1];
-
-				try {
-					comms.sendToRobot(command);
-					System.out.println("Applying correction: " + Arrays.toString(correction));
-
-					// Wait before updating correction
-					Thread.sleep(STEP_DELAY);
-				}
-				catch (IOException e1) {
-					System.out.println("Could not send command");
-					e1.printStackTrace();
-				}
-				catch(InterruptedException e1) {
-					System.out.println("Drive thread interrupted");
-				}
-
-				worldState = strat.getWorldState();
-			}
-			// If the thread has been halted, the stop command was already issued.
-			if (!halted) {
-				try {
-					comms.sendToRobot(new int[]{Commands.STOP, 0, 0, 0});
-				}
-				catch(IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-	}
 
 	class Stopping extends TimerTask{
 		@Override
