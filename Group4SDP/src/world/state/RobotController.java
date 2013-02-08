@@ -8,9 +8,10 @@ import strategy.planning.Commands;
 
 public class RobotController extends Robot {
 	
-
-	public RobotController(RobotType type) {
-		super(type);
+	
+	
+	public RobotController(RobotType type, BluetoothCommunication comms) {
+		super(type, comms);
 	}
 
 	private enum CurrentMovement {
