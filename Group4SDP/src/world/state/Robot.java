@@ -11,6 +11,7 @@ public class Robot extends Entity {
 		this.type = type;
 	}
 	
+
 	public String name() {
 		return "Robot (" + type.toString() + ")";
 	}
