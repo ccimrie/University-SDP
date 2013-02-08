@@ -558,7 +558,38 @@ public class Vision implements VideoReceiver {
 		}
 
 		if (!anyDebug) {
+			int x0, x1, y0, y1;
+			double r = 100, worldAngle, lineAngle = 0;
+			boolean angleError = false;
+			
+			worldAngle = worldState.getBlueOrientation();
+			if (0.0 <= worldAngle && worldAngle < (0.5 * Math.PI)) {
+				lineAngle = Math.PI - worldAngle;
+			}
+			else if ((Math.PI / 2.0) <= worldAngle && worldAngle < Math.PI) {
+				lineAngle = worldAngle - 1.5 * Math.PI;
+			}
+			else if (Math.PI <= worldAngle && worldAngle <= (1.5 * Math.PI)) {
+				lineAngle = Math.PI - worldAngle;
+			}
+			else if ((1.5 * Math.PI) <= worldAngle && worldAngle <= (2.0 * Math.PI)) {
+				lineAngle = worldAngle - 1.5 * Math.PI;
+			}
+			else {
+				System.out.println("Angle outside 0..2pi");
+				angleError = true;
+			}
+
 			imageGraphics.setColor(Color.red);
+			if (!angleError) {
+				x0 = worldState.getBlueX();
+				y0 = worldState.getBlueY();
+				x1 = (int)(r * -Math.cos(lineAngle)) + x0;
+				y1 = (int)(r * -Math.sin(lineAngle)) + y0;
+				
+				imageGraphics.drawLine(x0, y0, x1, y1);
+			}
+			
 			imageGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 			imageGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
 			imageGraphics.setColor(Color.blue);
@@ -764,6 +795,7 @@ public class Vision implements VideoReceiver {
 		if (p1.getX() == p2.getX() || p3.getX() == p4.getX()) {
 			throw new NoAngleException("");
 		}
+		
 		imageGraphics.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 		imageGraphics.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
 		imageGraphics.drawOval(centroid.getX(), centroid.getY(), 3, 3);
