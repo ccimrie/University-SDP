@@ -91,7 +91,7 @@ public class ControlGUI2 extends JFrame {
 	private final JPanel panel_2 = new JPanel();
 	private final JTextField manglemove = new JTextField();
 	public static WorldState worldState = new WorldState();
-	static public Vision vision;
+	public static Vision vision;
 	
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
