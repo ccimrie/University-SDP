@@ -77,7 +77,7 @@ public class ControlGUI2 extends JFrame {
 	private final JRadioButton rdbtnRight = new JRadioButton("Right");
 	
 	// Communication variables
-	private static BluetoothCommunication comms;
+	public static BluetoothCommunication comms;
 	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 1
@@ -152,10 +152,6 @@ public class ControlGUI2 extends JFrame {
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
-		//Sets up robot
-		robot = new RobotController(RobotType.Us);
-		robot.setComms(comms);
-
 		while (!comms.isRobotReady()){
 			// Reduce CPU cost
 			try {
@@ -166,6 +162,11 @@ public class ControlGUI2 extends JFrame {
 				System.exit(1);
 			}
 		};
+		
+		//Sets up robot
+		robot = new RobotController(RobotType.Us);
+
+
 
 		System.out.println("Robot ready!");
 		int [] command = new int [] {Commands.TEST, 0, 0, Commands.TEST};
