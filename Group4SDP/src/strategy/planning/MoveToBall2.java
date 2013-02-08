@@ -19,7 +19,6 @@ public class MoveToBall2 {
 	private static boolean rotating = true;
 	private WorldState t = new WorldState();
 	private Vision vision;
-	public World world = new World() ;
 	private static RobotController robot;
 	
 	public void approach(WorldState worldState) {
@@ -50,7 +49,7 @@ public class MoveToBall2 {
 			// Stop everything and turn
 			System.out.println("Stop and turn");
 			robot.stop();
-			robot.rotate((int) angle);
+			robot.rotate((int)angle);
 			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
@@ -59,7 +58,7 @@ public class MoveToBall2 {
 		
 		if(distance > distanceFromBallToStop) {
 			System.out.println("Forward");
-			robot.forward(0,0);
+			robot.move(0,10);
 			return;
 			// Let's not arc for this milestone as it's too complicated
 			/*if(Math.abs(angle) > 10) {
@@ -96,8 +95,8 @@ public class MoveToBall2 {
 		robot.stop();
 		robot.stop();
 	}
-	public WorldState getWorldState(){
-		return this.vision.getWorldState();
-	}
+///	public WorldState getWorldState(){
+//		return this.vision.getWorldState();
+//	}
 	
 }
