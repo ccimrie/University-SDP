@@ -522,6 +522,9 @@ public class Vision implements VideoReceiver {
 		worldState.setYellowX(yellow.getX());
 		worldState.setYellowY(yellow.getY());
 		worldState.updateCounter();
+		worldState.setOurRobot();
+		worldState.setTheirRobot();
+		worldState.setBall();
 
 		Graphics imageGraphics = image.getGraphics();
 

@@ -19,8 +19,9 @@ import javax.swing.JRadioButton;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
 import vision.PitchConstants;
+import vision.VideoStream;
 import vision.Vision;
-import vision.VisionGUI;
+import vision.gui.VisionGUI;
 import vision.WorldState;
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.TimerTask;
 import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 import strategy.planning.Commands;
+import strategy.planning.MoveToBall2;
 import strategy.planning.Strategy;
 import strategy.movement.StraightLineVision;
 import world.state.RobotController;
@@ -44,6 +46,13 @@ import javax.swing.JTextField;
 public class ControlGUI2 extends JFrame {
 	Timer timer;
 	int seconds = 10;
+	
+	private static final int SATURATION = 64;
+	private static final int BRIGHTNESS = 128;
+	private static final int CONTRAST = 64;
+	private static final int HUE = 0;
+	private static final int CHROMA_GAIN = 0;
+	private static final int CHROMA_AGC = 1;
 
 	private final JFrame frame = new JFrame("Control Panel");
 
@@ -67,13 +76,15 @@ public class ControlGUI2 extends JFrame {
 	private final JRadioButton rdbtnBackwards = new JRadioButton("Backwards");
 	private final JRadioButton rdbtnLeft = new JRadioButton("Left");
 	private final JRadioButton rdbtnRight = new JRadioButton("Right");
-
+	
 	// Communication variables
 	private static BluetoothCommunication comms;
 	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 1
+	private static MoveToBall2 mball = new MoveToBall2();
 	private DriveThread driveThread;
+	private MoveToTheBallThread approachThread;
 	private static StraightLineVision strat = new StraightLineVision();
 	private final JPanel panel = new JPanel();
 	private final JTextField mforward1 = new JTextField();
@@ -82,7 +93,9 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField mrotate = new JTextField();
 	private final JPanel panel_2 = new JPanel();
 	private final JTextField manglemove = new JTextField();
-
+	public static WorldState worldState = new WorldState();
+	static public Vision vision;
+	
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
 		try {
@@ -91,13 +104,9 @@ public class ControlGUI2 extends JFrame {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2();
-		gui.Launch();
-		gui.action();
 		
 		// Set up vision
-		WorldState worldState = new WorldState();
+		//WorldState worldState = new WorldState();
 
         // Default to main pitch
         PitchConstants pitchConstants = new PitchConstants(0);
@@ -109,18 +118,38 @@ public class ControlGUI2 extends JFrame {
         int channel = 0;
         int videoStandard = V4L4JConstants.STANDARD_PAL;
         int compressionQuality = 80;
-
+        
+        Vision vis =null;
         try {
+        	VideoStream vStream = new VideoStream(videoDevice, width, height,
+        			channel, videoStandard, compressionQuality);
+            
+            vStream.setSaturation(SATURATION);
+    		vStream.setBrightness(BRIGHTNESS);
+    		vStream.setContrast(CONTRAST);
+    		vStream.setHue(HUE);
+    		vStream.setChromaGain(CHROMA_GAIN);
+    		vStream.setChromaAGC(CHROMA_AGC);
+    		vStream.updateVideoDeviceSettings();
+    		
             // Create a new Vision object to serve the main vision window
-           Vision vision = new Vision(videoDevice, width, height, channel, videoStandard,
-                    compressionQuality, worldState, pitchConstants);
+
+    		vision = new Vision(worldState, pitchConstants);
+    		vStream.addReceiver(vision);
             
             // Create the Control GUI for threshold setting/etc
-            VisionGUI thresholdsGUI = new VisionGUI(worldState, pitchConstants);
+            VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants);
+            
+            vision.addVisionListener(visionGUI);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+
+		// Sets up the GUI
+		ControlGUI2 gui = new ControlGUI2();
+		gui.Launch();
+		gui.action();
 
 		// Sets up the communication
 		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
@@ -150,6 +179,8 @@ public class ControlGUI2 extends JFrame {
 	} 
 
 	public ControlGUI2() {
+		
+		
 		manglemove.setColumns(10);
 		mrotate.setColumns(10);
 		mforward2.setColumns(10);
@@ -319,6 +350,7 @@ public class ControlGUI2 extends JFrame {
 	}
 
 	public void action() {
+		
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
@@ -387,7 +419,11 @@ public class ControlGUI2 extends JFrame {
 		//TODO - Attach with MoveToBall
 		moveToBall.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-	    		try {
+				
+				approachThread = new MoveToTheBallThread();
+				approachThread.start();
+				
+	    		/*try {
 					Class mtb = Class.forName("strategy.planning." + "MoveToBall");
 					Strategy s = (Strategy)mtb.newInstance();
 				    s.stop();
@@ -402,7 +438,7 @@ public class ControlGUI2 extends JFrame {
 				} catch (ClassCastException e4) {
 					System.err.println("Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
 				}
-				
+				*/
 			}
 		});
 
@@ -479,6 +515,15 @@ public class ControlGUI2 extends JFrame {
 			}
 			System.out.println("Quit...");
 			System.exit(0);
+		}
+	}
+	class MoveToTheBallThread extends Thread {
+		
+		
+		public void run(){
+			
+			mball.approach(worldState);
+			
 		}
 	}
 
