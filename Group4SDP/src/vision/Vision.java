@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**
@@ -19,7 +18,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 public class Vision implements VideoReceiver {
 	private final int width = 640;
 	private final int height = 480;
-	private DistortionFix fix = new DistortionFix();
+	
 	// Variables used in processing video
 	private PitchConstants pitchConstants;
 	private static final double barrelCorrectionX = -0.016;
@@ -72,22 +71,7 @@ public class Vision implements VideoReceiver {
 	 */
 	public void sendNextFrame(BufferedImage frame, int frameRate,
 			int frameCounter) {
-		int topBuffer = pitchConstants.getTopBuffer();
-		int bottomBuffer = frame.getHeight() - pitchConstants.getBottomBuffer();
-		int leftBuffer = pitchConstants.getLeftBuffer();
-		int rightBuffer = frame.getWidth() - pitchConstants.getRightBuffer();
-		if (pitchConstants.getDistortbool())
-		
-		{BufferedImage image = fix.removeBarrelDistortion(frame,
-				leftBuffer, rightBuffer, topBuffer, bottomBuffer);
-		processAndUpdateImage(image, frameRate, frameCounter);}
-		
-		
-		
-		else {
-			processAndUpdateImage(frame, frameRate, frameCounter);
-			
-		}
+		processAndUpdateImage(frame, frameRate, frameCounter);
 	}
 
 	/**
@@ -284,10 +268,8 @@ public class Vision implements VideoReceiver {
 	 *            The point before correction
 	 * @return The point after correction
 	 */
-/**	public Point convertToBarrelCorrected(Point original) {
-	
-	
-	// first normalise pixel
+	public Point convertToBarrelCorrected(Point original) {
+		// first normalise pixel
 		double px = (2 * original.getX() - width) / (double) width;
 		double py = (2 * original.getY() - height * 1.005) / (double) height;
 
@@ -304,7 +286,7 @@ public class Vision implements VideoReceiver {
 
 		return new Point(pixi, pixj);
 	}
-*/
+
 	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
@@ -344,8 +326,6 @@ public class Vision implements VideoReceiver {
 		int bottomBuffer = pitchConstants.getBottomBuffer();
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
-		
-
 
 		// For every pixel within the pitch, test to see if it belongs to the
 		// ball, the yellow T, the blue T, either green plate or a grey circle.
@@ -558,38 +538,7 @@ public class Vision implements VideoReceiver {
 		}
 
 		if (!anyDebug) {
-			int x0, x1, y0, y1;
-			double r = 100, worldAngle, lineAngle = 0;
-			boolean angleError = false;
-			
-			worldAngle = worldState.getBlueOrientation();
-			if (0.0 <= worldAngle && worldAngle < (0.5 * Math.PI)) {
-				lineAngle = Math.PI - worldAngle;
-			}
-			else if ((Math.PI / 2.0) <= worldAngle && worldAngle < Math.PI) {
-				lineAngle = worldAngle - 1.5 * Math.PI;
-			}
-			else if (Math.PI <= worldAngle && worldAngle <= (1.5 * Math.PI)) {
-				lineAngle = Math.PI - worldAngle;
-			}
-			else if ((1.5 * Math.PI) <= worldAngle && worldAngle <= (2.0 * Math.PI)) {
-				lineAngle = worldAngle - 1.5 * Math.PI;
-			}
-			else {
-				System.out.println("Angle outside 0..2pi");
-				angleError = true;
-			}
-
 			imageGraphics.setColor(Color.red);
-			if (!angleError) {
-				x0 = worldState.getBlueX();
-				y0 = worldState.getBlueY();
-				x1 = (int)(r * -Math.cos(lineAngle)) + x0;
-				y1 = (int)(r * -Math.sin(lineAngle)) + y0;
-				
-				imageGraphics.drawLine(x0, y0, x1, y1);
-			}
-			
 			imageGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 			imageGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
 			imageGraphics.setColor(Color.blue);
@@ -795,7 +744,6 @@ public class Vision implements VideoReceiver {
 		if (p1.getX() == p2.getX() || p3.getX() == p4.getX()) {
 			throw new NoAngleException("");
 		}
-		
 		imageGraphics.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 		imageGraphics.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
 		imageGraphics.drawOval(centroid.getX(), centroid.getY(), 3, 3);

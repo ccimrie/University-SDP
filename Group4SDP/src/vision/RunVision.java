@@ -9,13 +9,6 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
  * @author s0840449
  */
 public class RunVision {
-	private static final int SATURATION = 64;
-	private static final int BRIGHTNESS = 128;
-	private static final int CONTRAST = 64;
-	private static final int HUE = 0;
-	private static final int CHROMA_GAIN = 0;
-	private static final int CHROMA_AGC = 1;
-	
     /**
      * The main method for the class. Creates the control
      * GUI, and initialises the image processing.
@@ -39,22 +32,14 @@ public class RunVision {
         try {
         	VideoStream vStream = new VideoStream(videoDevice, width, height,
         			channel, videoStandard, compressionQuality);
-            
-            vStream.setSaturation(SATURATION);
-    		vStream.setBrightness(BRIGHTNESS);
-    		vStream.setContrast(CONTRAST);
-    		vStream.setHue(HUE);
-    		vStream.setChromaGain(CHROMA_GAIN);
-    		vStream.setChromaAGC(CHROMA_AGC);
-    		vStream.updateVideoDeviceSettings();
-    		
+        	
             // Create a new Vision object to serve the main vision window
             Vision vision = new Vision(worldState, pitchConstants);
     		
     		vStream.addReceiver(vision);
             
             // Create the Control GUI for threshold setting/etc
-            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants);
+            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream);
             
             vision.addVisionListener(gui);
         }

@@ -41,7 +41,7 @@ public class RangeSlider extends JSlider {
 	 * and 100.
 	 */
 	public RangeSlider() {
-		initSlider();
+		initSlider(10, 50);
 	}
 
 	/**
@@ -50,14 +50,19 @@ public class RangeSlider extends JSlider {
 	 */
 	public RangeSlider(int min, int max) {
 		super(min, max);
-		initSlider();
+		initSlider(Math.abs(max - min) / 8, Math.abs(max - min) / 4);
 	}
 
 	/**
 	 * Initializes the slider by setting default properties.
 	 */
-	private void initSlider() {
+	private void initSlider(int minorTick, int majorTick) {
 		setOrientation(HORIZONTAL);
+		
+		setMinorTickSpacing(minorTick);
+		setMajorTickSpacing(majorTick);
+		setPaintTicks(true);
+		setPaintLabels(true);
 	}
 
 	/**

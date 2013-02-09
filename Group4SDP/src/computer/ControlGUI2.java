@@ -36,14 +36,6 @@ import communication.DeviceInfo;
 
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
-	// Video settings
-	private static final int SATURATION = 64;
-	private static final int BRIGHTNESS = 128;
-	private static final int CONTRAST = 64;
-	private static final int HUE = 0;
-	private static final int CHROMA_GAIN = 0;
-	private static final int CHROMA_AGC = 1;
-
 	// GUI elements
 
 	private final JFrame frame = new JFrame("Group 4 control GUI");
@@ -107,20 +99,12 @@ public class ControlGUI2 extends JFrame {
 		try {
 			VideoStream vStream = new VideoStream(videoDevice, width, height, channel, videoStandard, compressionQuality);
 
-			vStream.setSaturation(SATURATION);
-			vStream.setBrightness(BRIGHTNESS);
-			vStream.setContrast(CONTRAST);
-			vStream.setHue(HUE);
-			vStream.setChromaGain(CHROMA_GAIN);
-			vStream.setChromaAGC(CHROMA_AGC);
-			vStream.updateVideoDeviceSettings();
-
 			// Create a new Vision object to serve the main vision window
 			vision = new Vision(worldState, pitchConstants);
 			vStream.addReceiver(vision);
 
 			// Create the Control GUI for threshold setting/etc
-			VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants);
+			VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants, vStream);
 
 			vision.addVisionListener(visionGUI);
 		} catch (Exception e) {

@@ -24,12 +24,12 @@ import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
 import vision.PitchConstants;
+import vision.VideoStream;
 import vision.VisionInterface;
 import vision.WorldState;
 
 @SuppressWarnings("serial")
 public class VisionGUI extends JFrame implements VisionInterface {
-	private final PitchConstants pitchConstants;
 	private final int videoWidth;
 	private final int videoHeight;
 	
@@ -48,7 +48,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	private int mouseY;
 	private String adjust = "";
 	
-	private VisionSettingsPanel settingsPanel;
+	private final VisionSettingsPanel settingsPanel;
 	private final JPanel videoDisplay = new JPanel();
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
 		@Override
@@ -60,11 +60,10 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	};
 	
 	public VisionGUI(final int videoWidth, final int videoHeight, WorldState worldState,
-			final PitchConstants pitchConsts) {
+			final PitchConstants pitchConstants, final VideoStream vStream) {
 		super("Vision");
 		this.videoWidth = videoWidth;
 		this.videoHeight = videoHeight;
-		this.pitchConstants = pitchConsts;
 
 		// Set pitch constraints
 		this.a = pitchConstants.getLeftBuffer();
@@ -73,7 +72,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		this.d = this.videoHeight - pitchConstants.getBottomBuffer() - b;
 		
 		Container contentPane = this.getContentPane();
-		//contentPane.setLayout(new FlowLayout());
 		
 		Dimension videoSize = new Dimension(videoWidth, videoHeight);
 		BufferedImage blankInitialiser = new BufferedImage(
@@ -84,17 +82,17 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		this.videoDisplay.setSize(videoSize);
 		contentPane.add(videoDisplay);
 		
-		this.settingsPanel = new VisionSettingsPanel(worldState, pitchConstants);
+		this.settingsPanel = new VisionSettingsPanel(worldState, pitchConstants, vStream);
 		settingsPanel.setLocation(videoSize.width, 0);
 		contentPane.add(settingsPanel);
 
 		this.setVisible(true);
 		this.videoDisplay.getGraphics().drawImage(blankInitialiser, 0, 0, null);
 		
-		settingsPanel.setSize(new Dimension(340, 480));
+		settingsPanel.setSize(settingsPanel.getPreferredSize());
 		Dimension frameSize = new Dimension(
-					videoWidth + settingsPanel.getSize().width,
-					Math.max(videoHeight, settingsPanel.getSize().height)
+					videoWidth + settingsPanel.getPreferredSize().width,
+					Math.max(videoHeight, settingsPanel.getPreferredSize().height)
 				);
 		contentPane.setSize(frameSize);
 		this.setSize(frameSize.width + 8, frameSize.height + 30);
@@ -124,7 +122,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 
 			public void mousePressed(MouseEvent e) {
 				// Mouse clicked
-				mouse_event = 2;
+				mouse_event = 1;
 				switch (mouse_event) {
 				case 0:
 					break;
@@ -173,30 +171,32 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				case 0:
 					break;
 				case 1:
-					Object[] options = { "Main Pitch", "Side Pitch", "Cancel" };
-					int pitchNum = JOptionPane.showOptionDialog(
-							getComponent(0),
-							"The parameters are to be set for this pitch",
-							"Picking a pitch",
-							JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE, null, options,
-							options[0]);
-
-					// If option wasn't Cancel and the dialog wasn't closed
-					if (pitchNum != 2 && pitchNum != JOptionPane.CLOSED_OPTION) {
-						int top = b;
-						int bottom = videoHeight - d - b;
-						int left = a;
-						int right = videoWidth - c - a;
-
-						if (top > 0 && bottom > 0 && left > 0 && right > 0) {
-							// Update pitch constants
-							pitchConstants.setTopBuffer(top);
-							pitchConstants.setBottomBuffer(bottom);
-							pitchConstants.setLeftBuffer(left);
-							pitchConstants.setRightBuffer(right);
-						} else {
-							System.out.println("Pitch boundary selection failed");
+					if (e.getPoint().distance(anchor) > 5) {
+						Object[] options = { "Main Pitch", "Side Pitch", "Cancel" };
+						int pitchNum = JOptionPane.showOptionDialog(
+								getComponent(0),
+								"The parameters are to be set for this pitch",
+								"Picking a pitch",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[0]);
+	
+						// If option wasn't Cancel and the dialog wasn't closed
+						if (pitchNum != 2 && pitchNum != JOptionPane.CLOSED_OPTION) {
+							int top = b;
+							int bottom = videoHeight - d - b;
+							int left = a;
+							int right = videoWidth - c - a;
+	
+							if (top > 0 && bottom > 0 && left > 0 && right > 0) {
+								// Update pitch constants
+								pitchConstants.setTopBuffer(top);
+								pitchConstants.setBottomBuffer(bottom);
+								pitchConstants.setLeftBuffer(left);
+								pitchConstants.setRightBuffer(right);
+							} else {
+								System.out.println("Pitch boundary selection failed");
+							}
 						}
 					}
 					repaint();

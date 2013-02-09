@@ -38,6 +38,7 @@ import world.state.World;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 
+// TODO: Decide whether we're scrapping or updating this GUI
 @SuppressWarnings("serial")
 public class SimpleControlGUI extends JFrame {
 	Timer timer;

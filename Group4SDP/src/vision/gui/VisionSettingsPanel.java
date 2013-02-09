@@ -15,6 +15,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import vision.PitchConstants;
+import vision.VideoStream;
 import vision.WorldState;
 
 /**
@@ -24,7 +25,7 @@ import vision.WorldState;
  * threshold values to a file.
  * 
  * @author s0840449 (original)
- * @author Alex Adams (heavy refactoring)
+ * @author Alex Adams (heavy refactoring & improvements)
  */
 @SuppressWarnings("serial")
 public class VisionSettingsPanel extends JPanel {
@@ -42,7 +43,7 @@ public class VisionSettingsPanel extends JPanel {
 	// Tabs
 	private final JTabbedPane tabPane = new JTabbedPane();
 	private final JPanel mainTabPanel = new JPanel();
-	private final JPanel DistTabPanel = new JPanel();
+	private final CameraSettingsPanel camPanel;
 	private final ThresholdsPanel[] tabPanels = new ThresholdsPanel[] {
 		new ThresholdsPanel(),
 		new ThresholdsPanel(),
@@ -57,6 +58,7 @@ public class VisionSettingsPanel extends JPanel {
 			int index = tabPane.getSelectedIndex();
 			
 			switch(index) {
+			// Main tab
 			case(0):
 				// Disable all debug modes
 				pitchConstants.setDebugMode(PitchConstants.BALL, false);
@@ -64,31 +66,41 @@ public class VisionSettingsPanel extends JPanel {
 				pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
 				pitchConstants.setDebugMode(PitchConstants.GREY, false);
 				pitchConstants.setDebugMode(PitchConstants.GREEN, false);
-				pitchConstants.setDebugMode(PitchConstants.DIST, false);
 				break;
+			// Camera tab
 			case(1):
+				// Disable all debug modes
+				pitchConstants.setDebugMode(PitchConstants.BALL, false);
+				pitchConstants.setDebugMode(PitchConstants.BLUE, false);
+				pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
+				pitchConstants.setDebugMode(PitchConstants.GREY, false);
+				pitchConstants.setDebugMode(PitchConstants.GREEN, false);
+				break;
+			// Ball tab
+			case(2):
 				// Enable only Ball debug mode
 				pitchConstants.setDebugMode(PitchConstants.BALL, true, false);
 				break;
-			case(2):
+			// Blue tab
+			case(3):
 				// Enable only Blue Robot debug mode
 				pitchConstants.setDebugMode(PitchConstants.BLUE, true, false);
 				break;
-			case(3):
+			// Yellow tab
+			case(4):
 				// Enable only Yellow Robot debug mode
 				pitchConstants.setDebugMode(PitchConstants.YELLOW, true, false);
 				break;
-			case(4):
+			// Grey Circle tab
+			case(5):
 				// Enable only Grey Circle debug mode
 				pitchConstants.setDebugMode(PitchConstants.GREY, true, false);
 				break;
-			case(5):
+			// Green Plate tab
+			case(6):
 				// Enable only Green Plate debug mode
 				pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
 				break;
-			case(6):
-				pitchConstants.setDebugMode(PitchConstants.DIST, true, false);
-			break;
 			default:
 				System.out.println("VisionGUI: Invalid tab index");
 				System.exit(1);
@@ -99,8 +111,6 @@ public class VisionSettingsPanel extends JPanel {
 	// Radio buttons and their change listeners
 	private final JRadioButton rdbtnPitch0 = new JRadioButton("Main");
 	private final JRadioButton rdbtnPitch1 = new JRadioButton("Side Room");
-	private final JRadioButton rdbtnDist0 = new JRadioButton("On");
-	private final JRadioButton rdbtnDist1 = new JRadioButton("Off");
 	private final MouseAdapter pitchMouseListener = new MouseAdapter() {
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -108,24 +118,6 @@ public class VisionSettingsPanel extends JPanel {
 			int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
 			worldState.setPitch(pitchNum);
 			pitchConstants.setPitchNum(pitchNum);
-			reloadSliderDefaults();
-		}
-		
-	
-		
-		
-		
-	};
-	private final MouseAdapter distMouseListener = new MouseAdapter() {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			// Update the world state and pitch constants
-			int distnum = rdbtnDist0.isSelected() ? 0 : 1;
-			boolean active_or_not;
-			
-			if (distnum == 1 ) {active_or_not = false;}
-			else {active_or_not = true; }
-			pitchConstants.setDistortBool(active_or_not);
 			reloadSliderDefaults();
 		}
 	};
@@ -167,7 +159,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getRedSliderValues();
-			pitchConstants.setRedLower(super.index, lowerUpper[0]);
+			pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
 			pitchConstants.setRedUpper(super.index, lowerUpper[1]);
 		}
 	}
@@ -180,7 +172,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getGreenSliderValues();
-			pitchConstants.setGreenLower(super.index, lowerUpper[0]);
+			pitchConstants.setGreenLower(super.index, Math.max(0, lowerUpper[0]));
 			pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
 		}
 	}
@@ -193,7 +185,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getBlueSliderValues();
-			pitchConstants.setBlueLower(super.index, lowerUpper[0]);
+			pitchConstants.setBlueLower(super.index, Math.max(0, lowerUpper[0]));
 			pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
 		}
 	}
@@ -206,7 +198,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getHueSliderValues();
-			pitchConstants.setHueLower(super.index, (double) lowerUpper[0] / 255.0);
+			pitchConstants.setHueLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
 			pitchConstants.setHueUpper(super.index, (double) lowerUpper[1] / 255.0);
 		}
 	}
@@ -219,7 +211,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getSaturationSliderValues();
-			pitchConstants.setSaturationLower(super.index, (double) lowerUpper[0] / 255.0);
+			pitchConstants.setSaturationLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
 			pitchConstants.setSaturationUpper(super.index, (double) lowerUpper[1] / 255.0);
 		}
 	}
@@ -232,7 +224,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getValueSliderValues();
-			pitchConstants.setValueLower(super.index, (double) lowerUpper[0] / 255.0);
+			pitchConstants.setValueLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
 			pitchConstants.setValueUpper(super.index, (double) lowerUpper[1] / 255.0);
 		}
 	}
@@ -244,20 +236,23 @@ public class VisionSettingsPanel extends JPanel {
 	 * 							direction, etc.
 	 * @param pitchConstants	A PitchConstants object to allow saving/loading of data.
 	 */
-	public VisionSettingsPanel(WorldState worldState, PitchConstants pitchConstants) {
+	public VisionSettingsPanel(WorldState worldState, final PitchConstants pitchConstants,
+			final VideoStream vStream) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
 		
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.camPanel = new CameraSettingsPanel(vStream,
+				System.getProperty("user.dir") + "/constants/pitch" + 
+				pitchConstants.getPitchNum() + "camera");
 		
 		this.setLayout(new FlowLayout());
 
         // The main (default) tab
         mainTabPanel.setLayout(new BoxLayout(mainTabPanel, BoxLayout.Y_AXIS));
         setUpMainPanel();
-        setUpDist();
         
         // The five threshold tabs
         for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
@@ -268,15 +263,14 @@ public class VisionSettingsPanel extends JPanel {
             tabPanels[i].setSaturationSliderChangeListener(new SaturationSliderChangeListener(i));
             tabPanels[i].setValueSliderChangeListener(new ValueSliderChangeListener(i));
         }
-        DistTabPanel.setLayout(new BoxLayout(DistTabPanel, BoxLayout.Y_AXIS));
         
         tabPane.addTab("Main", mainTabPanel);
+        tabPane.addTab("Camera", camPanel);
         tabPane.addTab("Ball", tabPanels[PitchConstants.BALL]);
         tabPane.addTab("Blue Robot", tabPanels[PitchConstants.BLUE]);
         tabPane.addTab("Yellow Robot", tabPanels[PitchConstants.YELLOW]);
         tabPane.addTab("Grey Circles", tabPanels[PitchConstants.GREY]);
         tabPane.addTab("Green Plates", tabPanels[PitchConstants.GREEN]);
-        tabPane.addTab("Distortion", DistTabPanel);
         
         tabPane.addChangeListener(tabChangeListener);
         this.add(tabPane);
@@ -337,8 +331,7 @@ public class VisionSettingsPanel extends JPanel {
 		directionPanel.add(rdbtnLeft);
 		
 		rdbtnRight.setSelected(true);
-		rdbtnDist0.addMouseListener(distMouseListener);
-		rdbtnDist1.addMouseListener(distMouseListener);
+		
 		rdbtnRight.addMouseListener(directionMouseListener);
 		rdbtnLeft.addMouseListener(directionMouseListener);
 		
@@ -347,13 +340,13 @@ public class VisionSettingsPanel extends JPanel {
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
 		
-		saveButton = new JButton("Save Thresholds");
+		saveButton = new JButton("Save Settings");
 		saveButton.addMouseListener(new MouseAdapter() {
 			// Attempt to write all of the current thresholds to a file with a name 
 			// based on the currently selected pitch.
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int pitchNum = (rdbtnPitch0.isSelected()) ? 0 : 1;
+				int pitchNum = pitchConstants.getPitchNum();
 				
 				int result = JOptionPane.showConfirmDialog(saveButton,
 						"Are you sure you want to save current constants for pitch " + pitchNum + "?");
@@ -361,12 +354,13 @@ public class VisionSettingsPanel extends JPanel {
 				if (result == JOptionPane.NO_OPTION || result == JOptionPane.CANCEL_OPTION) return;
 				
 				pitchConstants.saveConstants(System.getProperty("user.dir") + "/constants/pitch" + pitchNum);
+				camPanel.saveSettings(System.getProperty("user.dir") + "/constants/pitch" + pitchNum + "camera");
 			}
 		});
 		
 		saveLoadPanel.add(saveButton);
 		
-		loadButton = new JButton("Load Thresholds");
+		loadButton = new JButton("Load Settings");
 		loadButton.addMouseListener(new MouseAdapter() {
 			// Override the current threshold settings from those set in
 			// the correct constants file for the current pitch.
@@ -380,6 +374,7 @@ public class VisionSettingsPanel extends JPanel {
 				if (result == JOptionPane.NO_OPTION || result == JOptionPane.CANCEL_OPTION) return;
 				
 				pitchConstants.setPitchNum(pitchNum);
+				camPanel.loadSettings(System.getProperty("user.dir") + "/constants/pitch" + pitchNum + "camera");
 				reloadSliderDefaults();
 			}
 		});
@@ -391,37 +386,7 @@ public class VisionSettingsPanel extends JPanel {
 	
 	/**
 	 * Reloads the default values for the sliders from the PitchConstants file.
-	 * 
-	 * 
-	 * 
-	 * 
 	 */
-	
-	
-	
-	
-	private void setUpDist() {
-		// Pitch choice
-		JPanel distPanel = new JPanel();
-		JLabel distLabel = new JLabel("Activate Distortion:");
-		distPanel.add(distLabel);
-		
-		ButtonGroup DisthChoice = new ButtonGroup();
-		DisthChoice.add(rdbtnDist0);
-		DisthChoice.add(rdbtnDist1);
-		distPanel.add(rdbtnDist0);
-		distPanel.add(rdbtnDist1);
-		
-		rdbtnDist0.setSelected(true);
-		
-		rdbtnDist0.addMouseListener(pitchMouseListener);
-		rdbtnDist1.addMouseListener(pitchMouseListener);
-		
-		DistTabPanel.add(distPanel);
-		
-
-
-	}
 	public void reloadSliderDefaults() {
 		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i)
 			tabPanels[i].setSliderValues(i, pitchConstants);

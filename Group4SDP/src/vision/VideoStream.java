@@ -275,23 +275,22 @@ public class VideoStream {
 	/**
 	 * @return The Chroma AGC setting for the video device
 	 */
-	public int getChromaAGC() {
-		return chroma_agc;
+	public boolean getChromaAGC() {
+		return (chroma_agc == 1) ? true : false;
 	}
 
 	/**
 	 * Sets the Chroma AGC setting of the video device
 	 * @param chromaAGC
 	 */
-	public void setChromaAGC(int chromaAGC) {
-		this.chroma_agc = chromaAGC;
+	public void setChromaAGC(boolean chromaAGC) {
+		this.chroma_agc = chromaAGC ? 1 : 0;
 	}
 	
 	public void updateVideoDeviceSettings() {
 		try {
 			List<Control> controls = videoDev.getControlList().getList();
 			for (Control c : controls) {
-				System.out.println(c.getName());
 				if (c.getName().equals("Contrast"))
 					c.setValue(contrast);
 				else if (c.getName().equals("Brightness"))

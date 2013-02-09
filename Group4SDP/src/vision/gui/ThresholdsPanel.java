@@ -14,41 +14,41 @@ import vision.PitchConstants;
  */
 @SuppressWarnings("serial")
 public class ThresholdsPanel extends JPanel {
-	private static final int MAJOR_TICK = 50;
-	private static final int MINOR_TICK = 10;
+	private static final int SLIDER_MIN = 0;
+	private static final int SLIDER_MAX = 256;
 	
-	private int redMin;
-	private int redMax;
+	private final int redMin = SLIDER_MIN;
+	private final int redMax = SLIDER_MAX;
 	private final JPanel redPanel = new JPanel();
 	private final JLabel redLabel = new JLabel("Red:");
 	private RangeSlider redSlider;
 
-	private int greenMin;
-	private int greenMax;
+	private final int greenMin = SLIDER_MIN;
+	private final int greenMax = SLIDER_MAX;
 	private final JPanel greenPanel = new JPanel();
 	private final JLabel greenLabel = new JLabel("Green:");
 	private RangeSlider greenSlider;
 
-	private int blueMin;
-	private int blueMax;
+	private final int blueMin = SLIDER_MIN;
+	private final int blueMax = SLIDER_MAX;
 	private final JPanel bluePanel = new JPanel();
 	private final JLabel blueLabel = new JLabel("Blue:");
 	private RangeSlider blueSlider;
 
-	private int hueMin;
-	private int hueMax;
+	private final int hueMin = SLIDER_MIN;
+	private final int hueMax = SLIDER_MAX;
 	private final JPanel huePanel = new JPanel();
 	private final JLabel hueLabel = new JLabel("Hue:");
 	private RangeSlider hueSlider;
 	
-	private int saturationMin;
-	private int saturationMax;
+	private final int saturationMin = SLIDER_MIN;
+	private final int saturationMax = SLIDER_MAX;
 	private final JPanel saturationPanel = new JPanel();
 	private final JLabel saturationLabel = new JLabel("Sat:");
 	private RangeSlider saturationSlider;
 
-	private int valueMin;
-	private int valueMax;
+	private final int valueMin = SLIDER_MIN;
+	private final int valueMax = SLIDER_MAX;
 	private final JPanel valuePanel = new JPanel();
 	private final JLabel valueLabel = new JLabel("Value:");
 	private RangeSlider valueSlider;
@@ -63,127 +63,111 @@ public class ThresholdsPanel extends JPanel {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-		// Set default values
-		redMin = 0;			redMax = 255;
-		greenMin = 0;		greenMax = 255;
-		blueMin = 0;		blueMax = 255;
-		hueMin = 0;			hueMax = 255;
-		saturationMin = 0;	saturationMax = 255;
-		valueMin = 0;		valueMax = 255;
-		
 		redSlider = new RangeSlider(redMin, redMax);
-		initialiseSlider(redSlider);
 		redPanel.add(redLabel);
 		redPanel.add(redSlider);
 		this.add(redPanel);
 		
 		greenSlider = new RangeSlider(greenMin, greenMax);
-		initialiseSlider(greenSlider);
 		greenPanel.add(greenLabel);
 		greenPanel.add(greenSlider);
 		this.add(greenPanel);
 		
 		blueSlider = new RangeSlider(blueMin, blueMax);
-		initialiseSlider(blueSlider);
 		bluePanel.add(blueLabel);
 		bluePanel.add(blueSlider);
 		this.add(bluePanel);
 		
 		hueSlider = new RangeSlider(hueMin, hueMax);
-		initialiseSlider(hueSlider);
 		huePanel.add(hueLabel);
 		huePanel.add(hueSlider);
 		this.add(huePanel);
 		
 		saturationSlider = new RangeSlider(saturationMin, saturationMax);
-		initialiseSlider(saturationSlider);
 		saturationPanel.add(saturationLabel);
 		saturationPanel.add(saturationSlider);
 		this.add(saturationPanel);
 		
 		valueSlider = new RangeSlider(valueMin, valueMax);
-		initialiseSlider(valueSlider);
 		valuePanel.add(valueLabel);
 		valuePanel.add(valueSlider);
 		this.add(valuePanel);
 	}
 	
-	private void initialiseSlider(RangeSlider slider) {
-		slider.setMinorTickSpacing(MINOR_TICK);
-		slider.setMajorTickSpacing(MAJOR_TICK);
-		
-		slider.setPaintTicks(true);
-		slider.setPaintLabels(true);
-	}
-	
 	public int[] getRedSliderValues() {
-		int[] lowerUpper = new int[] {redSlider.getLowerValue(), redSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {redSlider.getLowerValue() - 1,
+				redSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setRedSliderValues(int lower, int upper) {
-		redSlider.setLowerValue(lower);
-		redSlider.setUpperValue(upper);
+		redSlider.setLowerValue(1 + lower);
+		redSlider.setUpperValue(1 + upper);
 	}
 
 	public int[] getGreenSliderValues() {
-		int[] lowerUpper = new int[] {greenSlider.getLowerValue(), greenSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {greenSlider.getLowerValue() - 1,
+				greenSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setGreenSliderValues(int lower, int upper) {
-		greenSlider.setLowerValue(lower);
-		greenSlider.setUpperValue(upper);
+		greenSlider.setLowerValue(1 + lower);
+		greenSlider.setUpperValue(1 + upper);
 	}
 
 	public int[] getBlueSliderValues() {
-		int[] lowerUpper = new int[] {blueSlider.getLowerValue(), blueSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {blueSlider.getLowerValue() - 1,
+				blueSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setBlueSliderValues(int lower, int upper) {
-		blueSlider.setLowerValue(lower);
-		blueSlider.setUpperValue(upper);
+		blueSlider.setLowerValue(1 + lower);
+		blueSlider.setUpperValue(1 + upper);
 	}
 
 	public int[] getHueSliderValues() {
-		int[] lowerUpper = new int[] {hueSlider.getLowerValue(), hueSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {hueSlider.getLowerValue() - 1,
+				hueSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setHueSliderValues(int lower, int upper) {
-		hueSlider.setLowerValue(lower);
-		hueSlider.setUpperValue(upper);
+		hueSlider.setLowerValue(1 + lower);
+		hueSlider.setUpperValue(1 + upper);
 	}
 
 	public int[] getSaturationSliderValues() {
-		int[] lowerUpper = new int[] {saturationSlider.getLowerValue(), saturationSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {saturationSlider.getLowerValue() - 1,
+				saturationSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setSaturationSliderValues(int lower, int upper) {
-		saturationSlider.setLowerValue(lower);
-		saturationSlider.setUpperValue(upper);
+		saturationSlider.setLowerValue(1 + lower);
+		saturationSlider.setUpperValue(1 + upper);
 	}
 
 	public int[] getValueSliderValues() {
-		int[] lowerUpper = new int[] {valueSlider.getLowerValue(), valueSlider.getUpperValue()};
+		int[] lowerUpper = new int[] {valueSlider.getLowerValue() - 1,
+				valueSlider.getUpperValue() - 1};
 		return lowerUpper;
 	}
 	public void setValueSliderValues(int lower, int upper) {
-		valueSlider.setLowerValue(lower);
-		valueSlider.setUpperValue(upper);
+		valueSlider.setLowerValue(1 + lower);
+		valueSlider.setUpperValue(1 + upper);
 	}
 	
 	public void setSliderValues(int index, PitchConstants pitchConstants) {
-		setRedSliderValues(pitchConstants.getRedLower(index),
-						   pitchConstants.getRedUpper(index));
-		setGreenSliderValues(pitchConstants.getGreenLower(index),
-							 pitchConstants.getGreenUpper(index));
-		setBlueSliderValues(pitchConstants.getBlueLower(index),
-							pitchConstants.getBlueUpper(index));
+		setRedSliderValues(1 + pitchConstants.getRedLower(index),
+						   1 + pitchConstants.getRedUpper(index));
+		setGreenSliderValues(1 + pitchConstants.getGreenLower(index),
+							 1 + pitchConstants.getGreenUpper(index));
+		setBlueSliderValues(1 + pitchConstants.getBlueLower(index),
+							1 + pitchConstants.getBlueUpper(index));
 		
-		setHueSliderValues((int)(255.0 * pitchConstants.getHueLower(index)),
-						   (int)(255.0 * pitchConstants.getHueUpper(index)));
-		setSaturationSliderValues((int)(255.0 * pitchConstants.getSaturationLower(index)),
-								  (int)(255.0 * pitchConstants.getSaturationUpper(index)));
-		setValueSliderValues((int)(255.0 * pitchConstants.getValueLower(index)),
-							 (int)(255.0 * pitchConstants.getValueUpper(index)));
+		setHueSliderValues(1 + (int)(255.0 * pitchConstants.getHueLower(index)),
+						   1 + (int)(255.0 * pitchConstants.getHueUpper(index)));
+		setSaturationSliderValues(1 + (int)(255.0 * pitchConstants.getSaturationLower(index)),
+								  1 + (int)(255.0 * pitchConstants.getSaturationUpper(index)));
+		setValueSliderValues(1 + (int)(255.0 * pitchConstants.getValueLower(index)),
+							 1 + (int)(255.0 * pitchConstants.getValueUpper(index)));
 	}
 	
 	public void setRedSliderChangeListener(ChangeListener listener) {
