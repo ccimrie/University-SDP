@@ -776,6 +776,7 @@ public class Vision implements VideoReceiver {
 	}
 
 	/**
+	 * THIS IS NEVER USED, BUT MIGHT BE USEFUL. DO NOT DELETE!
 	 * Finds the orientation of a robot, given a list of the points contained
 	 * within it's T-shape (in terms of a list of x coordinates and y
 	 * coordinates), the mean x and y coordinates, and the image from
@@ -798,6 +799,7 @@ public class Vision implements VideoReceiver {
 	 * @return An orientation from -Pi to Pi degrees.
 	 * @throws NoAngleException
 	 */
+	/*
 	public double findOrientation(ArrayList<Integer> xpoints,
 			ArrayList<Integer> ypoints, int meanX, int meanY,
 			BufferedImage image, boolean showImage) throws NoAngleException {
@@ -1029,5 +1031,5 @@ public class Vision implements VideoReceiver {
 		}
 
 		return angle;
-	}
+	}*/
 }
