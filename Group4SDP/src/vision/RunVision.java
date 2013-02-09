@@ -33,13 +33,17 @@ public class RunVision {
         	VideoStream vStream = new VideoStream(videoDevice, width, height,
         			channel, videoStandard, compressionQuality);
         	
+        	DistortionFix distortionFix = new DistortionFix(pitchConstants);
+        	vStream.addReceiver(distortionFix);
+        	
             // Create a new Vision object to serve the main vision window
             Vision vision = new Vision(worldState, pitchConstants);
     		
-    		vStream.addReceiver(vision);
+    		distortionFix.addReceiver(vision);
             
             // Create the Control GUI for threshold setting/etc
-            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream);
+            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
+            		vStream, distortionFix);
             
             vision.addVisionListener(gui);
         }

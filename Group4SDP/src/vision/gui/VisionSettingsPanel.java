@@ -14,6 +14,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.WorldState;
@@ -30,11 +31,13 @@ import vision.WorldState;
 @SuppressWarnings("serial")
 public class VisionSettingsPanel extends JPanel {
 	// A PitchConstants class used to load/save constants for the pitch
-	private PitchConstants pitchConstants;
+	private final PitchConstants pitchConstants;
 	
 	// Stores information about the current world state, such as shooting
 	// direction, ball location, etc
-	private WorldState worldState;
+	private final WorldState worldState;
+	
+	private final DistortionFix distortionFix;
 	
 	// Load/Save buttons
 	private JButton saveButton;
@@ -140,7 +143,22 @@ public class VisionSettingsPanel extends JPanel {
 			// Update which direction the other team's goal is in
 			int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
 			worldState.setDirection(isLeft);
-			System.out.println("Changed Direction to " + isLeft);
+		}
+	};
+	
+	private final JRadioButton rdbtnDistortOn = new JRadioButton("On");
+	private final JRadioButton rdbtnDistortOff = new JRadioButton("Off");
+	private final MouseAdapter distortionMouseListener = new MouseAdapter() {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// Update whether distortion is active
+			if (rdbtnDistortOn.isSelected()){
+			distortionFix.setActive(true);
+			}
+			else if (rdbtnDistortOff.isSelected()){
+				distortionFix.setActive(false);
+				}
+			
 		}
 	};
 	
@@ -237,13 +255,14 @@ public class VisionSettingsPanel extends JPanel {
 	 * @param pitchConstants	A PitchConstants object to allow saving/loading of data.
 	 */
 	public VisionSettingsPanel(WorldState worldState, final PitchConstants pitchConstants,
-			final VideoStream vStream) {
+			final VideoStream vStream, final DistortionFix distortionFix) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
 		
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.distortionFix = distortionFix;
 		this.camPanel = new CameraSettingsPanel(vStream,
 				System.getProperty("user.dir") + "/constants/pitch" + 
 				pitchConstants.getPitchNum() + "camera");
@@ -336,6 +355,24 @@ public class VisionSettingsPanel extends JPanel {
 		rdbtnLeft.addMouseListener(directionMouseListener);
 		
 		mainTabPanel.add(directionPanel);
+		
+		// Distortion
+		JPanel distortionPanel = new JPanel();
+		JLabel distortionLabel = new JLabel("Distortion Fix:");
+		distortionPanel.add(distortionLabel);
+		
+		ButtonGroup distortionChoice = new ButtonGroup();
+		distortionChoice.add(rdbtnDistortOn);
+		distortionPanel.add(rdbtnDistortOn);
+		distortionChoice.add(rdbtnDistortOff);
+		distortionPanel.add(rdbtnDistortOff);
+		
+		rdbtnDistortOn.setSelected(true);
+		
+		rdbtnDistortOn.addMouseListener(distortionMouseListener);
+		rdbtnDistortOff.addMouseListener(distortionMouseListener);
+		
+		mainTabPanel.add(distortionPanel);
 		
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
