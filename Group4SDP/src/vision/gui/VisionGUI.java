@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -31,6 +32,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import vision.DistortionFix;
 import vision.PitchConstants;
+import vision.Position;
 import vision.VideoStream;
 import vision.VisionInterface;
 import vision.WorldState;
@@ -58,10 +60,11 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	double locationX;
 	double locationY;
 	int rotation = 0;
-	ArrayList<Double> xList = new ArrayList();
-	ArrayList<Double> yList = new ArrayList();
+	ArrayList<Integer> xList = new ArrayList<Integer>();
+	ArrayList<Integer> yList = new ArrayList<Integer>();
 	boolean theT = false;
 
+	private final PitchConstants pitchConstants;
 	private final VisionSettingsPanel settingsPanel;
 	private final JPanel videoDisplay = new JPanel();
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
@@ -72,16 +75,17 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			System.exit(0);
 		}
 	};
-	
-	public VisionGUI(final int videoWidth, final int videoHeight, WorldState worldState,
-			final PitchConstants pitchConstants, final VideoStream vStream,
-			final DistortionFix distortionFix) {
+
+	public VisionGUI(final int videoWidth, final int videoHeight,
+			WorldState worldState, final PitchConstants pitchConsts,
+			final VideoStream vStream, final DistortionFix distortionFix) {
 
 		super("Vision");
 		this.videoWidth = videoWidth;
 		this.videoHeight = videoHeight;
 
 		// Set pitch constraints
+		this.pitchConstants = pitchConsts;
 		this.a = pitchConstants.getLeftBuffer();
 		this.b = pitchConstants.getTopBuffer();
 		this.c = this.videoWidth - pitchConstants.getRightBuffer() - a;
@@ -108,9 +112,9 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		this.videoDisplay.setMinimumSize(videoSize);
 		this.videoDisplay.setSize(videoSize);
 		contentPane.add(videoDisplay);
-		
-		this.settingsPanel = new VisionSettingsPanel(worldState, pitchConstants,
-				vStream, distortionFix);
+
+		this.settingsPanel = new VisionSettingsPanel(worldState,
+				pitchConstants, vStream, distortionFix);
 
 		settingsPanel.setLocation(videoSize.width, 0);
 		contentPane.add(settingsPanel);
@@ -136,6 +140,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			public void keyPressed(KeyEvent ke) {
 				System.out.println("Key pressed");
 			}
+
 			public void keyReleased(KeyEvent ke) {
 				System.out.println("Key released");
 				adjust = KeyEvent.getKeyText(ke.getKeyCode());
@@ -292,24 +297,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		}
 
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		// Image letterT = toolkit.getImage("icons/T.gif");
 		Graphics2D g2d = (Graphics2D) imageGraphics;
 
-		// TODO: Show T colour selector
-		if (selectionActive && mouse_event == 2 || letterAdjustment) {
-			g2d.drawImage(t, mouseX, mouseY, null);
-		}
-
-		if (theT) {
-			// System.out.println("the T is set to true");
-			for (int i = 0; i < xList.size(); i++) {
-
-				Double centerX = new Double(mouseX + locationX + xList.get(i));
-				Double centerY = new Double(mouseY + locationY + yList.get(i));
-
-				frame.setRGB(centerX.intValue(), centerY.intValue(), 65535);
-			}
-		}
 
 		if (letterAdjustment) {
 
@@ -322,10 +311,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			} else if (adjust.equals("Right")) {
 				mouseX++;
 			} else if (adjust.equals("Enter")) {
-
-				getColourRange();
-				// letterAdjustment = false;
-
+				letterAdjustment = false;
+				getColourRange(frame, PitchConstants.BLUE );
 			} else if (adjust.equals("Z")) {
 
 				double rotationRequired = Math.toRadians((double) rotation--);
@@ -367,6 +354,11 @@ public class VisionGUI extends JFrame implements VisionInterface {
 
 			}
 			adjust = "";
+		}
+
+		// TODO: Show T colour selector
+		if (selectionActive && mouse_event == 2 || letterAdjustment) {
+			g2d.drawImage(t, mouseX, mouseY, null);
 		}
 
 		// Eliminating area around the pitch dimensions
@@ -413,12 +405,19 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		videoGraphics.drawImage(frame, 0, 0, null);
 	}
 
-	public void getColourRange() {
+	public void getColourRange(BufferedImage frame, int object) {
+		
+		ArrayList<Integer> redList = new ArrayList<Integer>();
+		ArrayList<Integer> greenList = new ArrayList<Integer>();
+		ArrayList<Integer> blueList = new ArrayList<Integer>();
+		ArrayList<Float> hueList = new ArrayList<Float>();
+		ArrayList<Float> satList = new ArrayList<Float>();
+		ArrayList<Float> valList = new ArrayList<Float>();
 
-		System.out.println("Colour range");
-		int lX = (new Double(locationX)).intValue();
-		int lY = (new Double(locationY)).intValue();
+		int lX = (int)locationX;
+		int lY = (int)locationY;
 
+		//Top part of the letter T 
 		for (int x = 0 - lX; x < 27 - lX; x++)
 			for (int y = 0 - lY; y < 11 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
@@ -426,13 +425,27 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
 						* Math.cos(Math.toRadians((double) rotation));
 
-				System.out.println("x: " + x + " x': " + xR);
-				System.out.println("y: " + y + " y': " + yR);
-				xList.add(xR);
-				yList.add(yR);
+				xList.add(mouseX + lX + (int) xR);
+				yList.add(mouseY + lY + (int) yR);
+
+				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
+						+ lY + (int) yR));
+
+				float[] hsbvals = c.RGBtoHSB(c.getRed(), c.getGreen(),
+						c.getBlue(), null);
+				
+				hueList.add(hsbvals[0]);
+				satList.add(hsbvals[1]);
+				valList.add(hsbvals[2]);
+				redList.add(c.getRed());
+				greenList.add(c.getGreen());
+				blueList.add(c.getBlue());
+				// frame.setRGB(mouseX + lX + (int) xR, mouseY + lY + (int) yR,
+				// 65535);
 
 			}
 
+		//Bottom part of the letter T 
 		for (int x = 10 - lX; x < 20 - lX; x++)
 			for (int y = 10 - lY; y < 32 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
@@ -440,14 +453,116 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
 						* Math.cos(Math.toRadians((double) rotation));
 
-				System.out.println("x: " + x + " x': " + xR);
-				System.out.println("y: " + y + " y': " + yR);
-				xList.add(xR);
-				yList.add(yR);
+				xList.add(mouseX + lX + (int) xR);
+				yList.add(mouseY + lY + (int) yR);
+
+				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
+						+ lY + (int) yR));
+
+				float[] hsbvals = c.RGBtoHSB(c.getRed(), c.getGreen(),
+						c.getBlue(), null);			
+				redList.add(c.getRed());
+				greenList.add(c.getGreen());
+				blueList.add(c.getBlue());
+				hueList.add(hsbvals[0]);
+				satList.add(hsbvals[1]);
+				valList.add(hsbvals[2]);
+			
+				// frame.setRGB(mouseX + lX + (int) xR, mouseY + lY + (int) yR,
+				// 65535);
 			}
+
+		//Mean and Standard deviation calculations
+		double meanR = calcMean(redList);
+		double stdevR = calcStandardDeviation(redList);
+		double meanG = calcMean(greenList);
+		double stdevG = calcStandardDeviation(greenList);
+		double meanB = calcMean(blueList);
+		double stdevB = calcStandardDeviation(blueList);
+		double meanH = calcMeanFloat(hueList);
+		double stdevH = calcStandardDeviationFloat(hueList);
+		double meanS = calcMeanFloat(satList);
+		double stdevS = calcStandardDeviationFloat(satList);
+		double meanV = calcMeanFloat(valList);
+		double stdevV = calcStandardDeviationFloat(valList);
+
+		System.out.println("Red mean " + meanR);
+		System.out.println("Green mean " + meanG);
+		System.out.println("Blue mean " + meanB);
+		System.out.println("Red std " + stdevR);
+		System.out.println("Green std " + stdevG);
+		System.out.println("Blue std " + stdevB);
+		System.out.println("H mean " + meanH);
+		System.out.println("S mean " + meanS);
+		System.out.println("V mean " + meanV);
+		System.out.println("H std " + stdevH);
+		System.out.println("S std " + stdevS);
+		System.out.println("V std " + stdevV);
+
+		//Setting the sliders
+		pitchConstants.setRedLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanR - stdevR)));
+		pitchConstants.setRedUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanR + stdevR)));
+		
+		pitchConstants.setGreenLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanG - stdevG)));
+		pitchConstants.setGreenUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanG + stdevG)));
+		
+		pitchConstants.setBlueLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanB - stdevB)));
+		pitchConstants.setBlueUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanB + stdevB)));
+		
+		pitchConstants.setHueLower(object, Math.max(PitchConstants.RGBMIN,(float)(meanH - stdevH)));
+		pitchConstants.setHueUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanH + stdevH)));
+		
+		pitchConstants.setSaturationLower(object, Math.max(PitchConstants.RGBMIN,(float) (meanS - stdevS)));
+		pitchConstants.setSaturationUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanS + stdevS)));
+		
+		pitchConstants.setValueLower(object, Math.max(PitchConstants.RGBMIN,(float) (meanV - stdevV)));
+		pitchConstants.setValueUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanV + stdevV)));
+		
+		
 
 		theT = true;
 		rotation = 0;
+	}
+
+	public double calcStandardDeviationFloat(ArrayList<Float> points) {
+
+		double mean = calcMeanFloat(points);
+		double sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			float p = points.get(i);
+			double diff = p - mean;
+			sum += diff * diff;
+		}
+
+		return Math.sqrt(sum / points.size());
+	}
+
+	public double calcMeanFloat(ArrayList<Float> points) {
+		float sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			sum += points.get(i);
+		}
+		return (double) (sum) / points.size();
+	}
+	public double calcStandardDeviation(ArrayList<Integer> points) {
+
+		double mean = calcMean(points);
+		double sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			int p = points.get(i);
+			double diff = p - mean;
+			sum += diff * diff;
+		}
+
+		return Math.sqrt(sum / points.size());
+	}
+
+	public double calcMean(ArrayList<Integer> points) {
+		int sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			sum += points.get(i);
+		}
+		return (double) (sum) / points.size();
 	}
 
 }
