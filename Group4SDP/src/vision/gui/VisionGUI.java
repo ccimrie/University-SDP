@@ -356,7 +356,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			adjust = "";
 		}
 
-		// TODO: Show T colour selector
 		if (selectionActive && mouse_event == 2 || letterAdjustment) {
 			g2d.drawImage(t, mouseX, mouseY, null);
 		}
@@ -431,7 +430,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
 						+ lY + (int) yR));
 
-				float[] hsbvals = c.RGBtoHSB(c.getRed(), c.getGreen(),
+				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
 						c.getBlue(), null);
 				
 				hueList.add(hsbvals[0]);
@@ -459,7 +458,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
 						+ lY + (int) yR));
 
-				float[] hsbvals = c.RGBtoHSB(c.getRed(), c.getGreen(),
+				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
 						c.getBlue(), null);			
 				redList.add(c.getRed());
 				greenList.add(c.getGreen());
@@ -500,26 +499,26 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		System.out.println("V std " + stdevV);
 
 		//Setting the sliders
-		pitchConstants.setRedLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanR - stdevR)));
-		pitchConstants.setRedUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanR + stdevR)));
+		pitchConstants.setRedLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanR - 1.5*stdevR)));
+		pitchConstants.setRedUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanR + 1.5*stdevR)));
 		
-		pitchConstants.setGreenLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanG - stdevG)));
-		pitchConstants.setGreenUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanG + stdevG)));
+		pitchConstants.setGreenLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanG - 1.5*stdevG)));
+		pitchConstants.setGreenUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanG + 1.5*stdevG)));
 		
-		pitchConstants.setBlueLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanB - stdevB)));
-		pitchConstants.setBlueUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanB + stdevB)));
+		pitchConstants.setBlueLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanB - 1.5*stdevB)));
+		pitchConstants.setBlueUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanB + 1.5*stdevB)));
 		
-		pitchConstants.setHueLower(object, Math.max(PitchConstants.RGBMIN,(float)(meanH - stdevH)));
-		pitchConstants.setHueUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanH + stdevH)));
+		pitchConstants.setHueLower(object, Math.max(PitchConstants.HSVMIN,(float)(meanH - 1.5*stdevH)));
+		pitchConstants.setHueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanH + 1.5*stdevH)));
 		
-		pitchConstants.setSaturationLower(object, Math.max(PitchConstants.RGBMIN,(float) (meanS - stdevS)));
-		pitchConstants.setSaturationUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanS + stdevS)));
+		pitchConstants.setSaturationLower(object, Math.max(PitchConstants.HSVMIN,(float) (meanS - 1.5*stdevS)));
+		pitchConstants.setSaturationUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanS + 1.5*stdevS)));
 		
-		pitchConstants.setValueLower(object, Math.max(PitchConstants.RGBMIN,(float) (meanV - stdevV)));
-		pitchConstants.setValueUpper(object, Math.min(PitchConstants.RGBMAX, (float)(meanV + stdevV)));
+		pitchConstants.setValueLower(object, Math.max(PitchConstants.HSVMIN,(float) (meanV - 1.5*stdevV)));
+		pitchConstants.setValueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanV + 1.5*stdevV)));
 		
+		settingsPanel.reloadSliderDefaults();
 		
-
 		theT = true;
 		rotation = 0;
 	}
