@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
+import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.VisionInterface;
@@ -71,10 +72,11 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			System.exit(0);
 		}
 	};
+	
+	public VisionGUI(final int videoWidth, final int videoHeight, WorldState worldState,
+			final PitchConstants pitchConstants, final VideoStream vStream,
+			final DistortionFix distortionFix) {
 
-	public VisionGUI(final int videoWidth, final int videoHeight,
-			WorldState worldState, final PitchConstants pitchConstants,
-			final VideoStream vStream) {
 		super("Vision");
 		this.videoWidth = videoWidth;
 		this.videoHeight = videoHeight;
@@ -106,9 +108,10 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		this.videoDisplay.setMinimumSize(videoSize);
 		this.videoDisplay.setSize(videoSize);
 		contentPane.add(videoDisplay);
+		
+		this.settingsPanel = new VisionSettingsPanel(worldState, pitchConstants,
+				vStream, distortionFix);
 
-		this.settingsPanel = new VisionSettingsPanel(worldState,
-				pitchConstants, vStream);
 		settingsPanel.setLocation(videoSize.width, 0);
 		contentPane.add(settingsPanel);
 

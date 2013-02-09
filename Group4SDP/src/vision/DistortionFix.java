@@ -2,6 +2,7 @@ package vision;
 
 import java.awt.image.BufferedImage;
 import java.awt.Point;
+import java.util.ArrayList;
 
 /**
  * Class to remove barrel distortion from bufferedimages
@@ -12,15 +13,31 @@ import java.awt.Point;
  */
 
 
-public class DistortionFix {
+public class DistortionFix implements VideoReceiver {
 	
 	private static int width = 640;
 	private static int height = 480;
 	public static double barrelCorrectionX = -0.01;
 	public static double barrelCorrectionY = -0.055;
 
+	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	private Point p = new Point();
+	private boolean active = true;
+
+	private final PitchConstants pitchConstants;
 	
+	public DistortionFix(final PitchConstants pitchConstants) {
+		this.pitchConstants = pitchConstants;
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	/**
 	 * Remove barrel distortion on whole image
 	 * 
@@ -77,5 +94,30 @@ public class DistortionFix {
     	int pixj = (int) ((py1 + 1) * height / 2);
     	// System.out.println("New Pixel: (" + pixi + ", " + pixj + ")");
     	return new Point(pixi, pixj);
-    	}
+    }
+
+	public void addReceiver(VideoReceiver receiver) {
+		this.videoReceivers.add(receiver);
+	}
+
+	@Override
+	public void sendNextFrame(BufferedImage frame, int frameRate,
+			int frameCounter) {
+		BufferedImage processedFrame;
+		
+		if (active) {
+			int topBuffer = pitchConstants.getTopBuffer();
+			int bottomBuffer = frame.getHeight() - pitchConstants.getBottomBuffer();
+		  	int leftBuffer = pitchConstants.getLeftBuffer();
+		  	int rightBuffer = frame.getWidth() - pitchConstants.getRightBuffer();
+		  	
+		  	processedFrame = removeBarrelDistortion(frame,
+		  			leftBuffer, rightBuffer, topBuffer, bottomBuffer);
+		}
+		else
+			processedFrame = frame;
+
+		for (VideoReceiver receiver : videoReceivers)
+			receiver.sendNextFrame(processedFrame, frameRate, frameCounter);
+	}
 }
