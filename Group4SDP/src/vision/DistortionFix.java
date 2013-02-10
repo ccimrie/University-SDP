@@ -79,8 +79,6 @@ public class DistortionFix implements VideoReceiver {
     			}
     		}
     	}
- 
-    	
     	
         return newImage;
     }
@@ -145,8 +143,7 @@ public class DistortionFix implements VideoReceiver {
 	}
 
 	@Override
-	public void sendNextFrame(BufferedImage frame, int frameRate,
-			int frameCounter) {
+	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
 		BufferedImage processedFrame;
 		
 		if (active) {
@@ -162,6 +159,6 @@ public class DistortionFix implements VideoReceiver {
 			processedFrame = frame;
 
 		for (VideoReceiver receiver : videoReceivers)
-			receiver.sendNextFrame(processedFrame, frameRate, frameCounter);
+			receiver.sendFrame(processedFrame, frameRate, frameCounter);
 	}
 }

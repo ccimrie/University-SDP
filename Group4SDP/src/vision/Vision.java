@@ -20,12 +20,15 @@ public class Vision implements VideoReceiver {
 	private final int height = 480;
 	
 	// Variables used in processing video
-	private PitchConstants pitchConstants;
+	private final PitchConstants pitchConstants;
 	private static final double barrelCorrectionX = -0.016;
 	private static final double barrelCorrectionY = -0.13;
-	private WorldState worldState;
+	private final WorldState worldState;
 	
-	private ArrayList<VisionInterface> visionReceivers = new ArrayList<VisionInterface>();
+	private ArrayList<VisionDebugReceiver> visionDebugReceivers =
+			new ArrayList<VisionDebugReceiver>();
+	private ArrayList<WorldStateReceiver> worldStateReceivers = 
+			new ArrayList<WorldStateReceiver>();
 
 	/**
 	 * Default constructor.
@@ -62,16 +65,23 @@ public class Vision implements VideoReceiver {
 		return worldState;
 	}
 	
-	public void addVisionListener(VisionInterface listener) {
-		visionReceivers.add(listener);
+	/**
+	 * Adds a receiver to the list of objects which receive the vision debug overlay
+	 * @param receiver
+	 */
+	public void addVisionDebugReceiver(VisionDebugReceiver receiver) {
+		visionDebugReceivers.add(receiver);
 	}
 
 	/**
 	 * Sends the vision system the next frame to process
 	 */
-	public void sendNextFrame(BufferedImage frame, int frameRate,
-			int frameCounter) {
+	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
 		processAndUpdateImage(frame, frameRate, frameCounter);
+	}
+	
+	public void addWorldStateReceiver(WorldStateReceiver receiver) {
+		worldStateReceivers.add(receiver);
 	}
 
 	/**
@@ -296,8 +306,11 @@ public class Vision implements VideoReceiver {
 	 *            The image to process and then show.
 	 * @param counter
 	 */
-	public void processAndUpdateImage(BufferedImage image, int frameRate,
-			int counter) {		
+	public void processAndUpdateImage(BufferedImage frame, int frameRate,
+			int counter) {
+		BufferedImage debugOverlay = new BufferedImage(
+				frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		
 		int ballX = 0;
 		int ballY = 0;
 		int numBallPos = 0;
@@ -329,21 +342,21 @@ public class Vision implements VideoReceiver {
 
 		// For every pixel within the pitch, test to see if it belongs to the
 		// ball, the yellow T, the blue T, either green plate or a grey circle.
-		for (int row = topBuffer; row < image.getHeight() - bottomBuffer; row++) {
-			for (int column = leftBuffer; column < image.getWidth()
+		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++) {
+			for (int column = leftBuffer; column < frame.getWidth()
 					- rightBuffer; column++) {
 				// The RGB colours and hsv values for the current pixel.
-				Color c = new Color(image.getRGB(column, row));
+				Color c = new Color(frame.getRGB(column, row));
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
 
 				if (pitchConstants.debugMode(PitchConstants.GREY)
 						&& isGrey(c, hsbvals)) {
-					image.setRGB(column, row, 0xFFFF0099);
+					debugOverlay.setRGB(column, row, 0xFFFF0099);
 				}
 				if (pitchConstants.debugMode(PitchConstants.GREEN)
 						&& isGreen(c, hsbvals)) {
-					image.setRGB(column, row, 0xFFFF0099);
+					debugOverlay.setRGB(column, row, 0xFFFF0099);
 				}
 
 				// Is this pixel part of the Blue T?
@@ -359,7 +372,7 @@ public class Vision implements VideoReceiver {
 					// looking at, for debugging and to help with threshold
 					// setting.
 					if (pitchConstants.debugMode(PitchConstants.BLUE)) {
-						image.setRGB(column, row, 0xFFFF0099);
+						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
 				}
 
@@ -376,7 +389,7 @@ public class Vision implements VideoReceiver {
 					// looking at, for debugging and to help with threshold
 					// setting.
 					if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
-						image.setRGB(column, row, 0xFFFF0099);
+						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
 				}
 
@@ -393,7 +406,7 @@ public class Vision implements VideoReceiver {
 					// looking at, for debugging and to help with threshold
 					// setting.
 					if (pitchConstants.debugMode(PitchConstants.BALL)) {
-						image.setRGB(column, row, 0xFF000000);
+						debugOverlay.setRGB(column, row, 0xFF000000);
 					}
 				}
 			}
@@ -470,7 +483,7 @@ public class Vision implements VideoReceiver {
 
 		// Attempt to find the blue robot's orientation.
 		try {
-			double blueOrientation = findOrient(image, blue, blueXPoints,
+			double blueOrientation = findOrient(frame, debugOverlay, blue, blueXPoints,
 					blueYPoints, 120, 500);
 
 			// If angle hasn't changed much, just use the old one
@@ -490,8 +503,8 @@ public class Vision implements VideoReceiver {
 
 		// Attempt to find the yellow robot's orientation.
 		try {
-			double yellowOrientation = findOrient(image, yellow, yellowXPoints,
-					yellowYPoints, 120, 500);
+			double yellowOrientation = findOrient(frame, debugOverlay, yellow,
+					yellowXPoints, yellowYPoints, 120, 500);
 
 			// If angle hasn't changed much, just use the old one
 			double diff = Math.abs(yellowOrientation
@@ -526,7 +539,7 @@ public class Vision implements VideoReceiver {
 		worldState.setTheirRobot();
 		worldState.setBall();
 
-		Graphics imageGraphics = image.getGraphics();
+		Graphics debugGraphics = debugOverlay.getGraphics();
 
 		// Only display these markers in non-debug mode.
 		boolean anyDebug = false;
@@ -538,28 +551,26 @@ public class Vision implements VideoReceiver {
 		}
 
 		if (!anyDebug) {
-			imageGraphics.setColor(Color.red);
-			imageGraphics.drawLine(0, ball.getY(), 640, ball.getY());
-			imageGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
-			imageGraphics.setColor(Color.blue);
-			imageGraphics.drawOval(blue.getX() - 15, blue.getY() - 15, 30, 30);
-			imageGraphics.setColor(Color.yellow);
-			imageGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30, 30);
-			imageGraphics.setColor(Color.white);
+			debugGraphics.setColor(Color.red);
+			debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
+			debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
+			debugGraphics.setColor(Color.blue);
+			debugGraphics.drawOval(blue.getX() - 15, blue.getY() - 15, 30, 30);
+			debugGraphics.setColor(Color.yellow);
+			debugGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15, 30, 30);
+			debugGraphics.setColor(Color.white);
 		}
 		
-		for (VisionInterface receiver : visionReceivers)
-			receiver.sendFrame(image, frameRate, new Point(worldState.getBallX(), worldState.getBallY()),
-					new Point(worldState.getBlueX(), worldState.getBlueY()),
-					worldState.getBlueOrientation(),
-					new Point(worldState.getYellowX(), worldState.getYellowY()),
-					worldState.getYellowOrientation());
+		for (VisionDebugReceiver receiver : visionDebugReceivers)
+			receiver.sendDebugOverlay(debugOverlay);
+		for (WorldStateReceiver receiver : worldStateReceivers)
+			receiver.sendWorldState(worldState);
 	}
 
 	// TODO: find out what this is for and how it works
-	public Position[] findFurthest(Position centroid,
-			ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int distT,
-			int distM, BufferedImage image) throws NoAngleException {
+	public Position[] findFurthest(BufferedImage frame, BufferedImage debugOverlay,
+			Position centroid, ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int distT,
+			int distM) throws NoAngleException {
 		if (xpoints.size() < 5) {
 			throw new NoAngleException(
 					"List of points is too small to calculate angle");
@@ -642,26 +653,26 @@ public class Vision implements VideoReceiver {
 		points[3].setX(xpoints.get(index));
 		points[3].setY(ypoints.get(index));
 
-		Graphics imageGraphics = image.getGraphics();
+		Graphics debugGraphics = debugOverlay.getGraphics();
 		for (int i = 0; i < points.length; i++)
-			imageGraphics.drawOval(points[i].getX(), points[i].getY(), 3, 3);
+			debugGraphics.drawOval(points[i].getX(), points[i].getY(), 3, 3);
 
 		return points;
 	}
 
 	// TODO: find out how this works
-	public double findOrient(BufferedImage image, Position centroid,
-			ArrayList<Integer> xPoints, ArrayList<Integer> yPoints, int distT,
-			int distM) throws NoAngleException {
-		Graphics imageGraphics = image.getGraphics();
+	public double findOrient(BufferedImage frame, BufferedImage debugOverlay,
+			Position centroid, ArrayList<Integer> xPoints, ArrayList<Integer> yPoints,
+			int distT, int distM) throws NoAngleException {
+		Graphics debugGraphics = debugOverlay.getGraphics();
 
 		Position finalPoint = new Position(0, 0);
 		if (xPoints.size() != yPoints.size()) {
 			throw new NoAngleException("");
 		}
 
-		Position[] furthest = findFurthest(centroid, xPoints, yPoints, distT,
-				distM, image);
+		Position[] furthest = findFurthest(frame, debugOverlay, centroid,
+				xPoints, yPoints, distT, distM);
 
 		int[][] distanceMatrix = new int[4][4];
 		for (int i = 0; i < distanceMatrix.length; i++)
@@ -744,9 +755,9 @@ public class Vision implements VideoReceiver {
 		if (p1.getX() == p2.getX() || p3.getX() == p4.getX()) {
 			throw new NoAngleException("");
 		}
-		imageGraphics.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-		imageGraphics.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
-		imageGraphics.drawOval(centroid.getX(), centroid.getY(), 3, 3);
+		debugGraphics.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+		debugGraphics.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
+		debugGraphics.drawOval(centroid.getX(), centroid.getY(), 3, 3);
 
 		double m1 = (p1.getY() - p2.getY()) / (p1.getX() - p2.getX());
 		double b1 = p1.getY() - m1 * p1.getX();
@@ -763,8 +774,8 @@ public class Vision implements VideoReceiver {
 		finalPoint.setX(interX);
 		finalPoint.setY(interY);
 
-		imageGraphics.setColor(Color.RED);
-		imageGraphics.drawOval(interX, interY, 3, 3);
+		debugGraphics.setColor(Color.RED);
+		debugGraphics.drawOval(interX, interY, 3, 3);
 
 		int xvector = interX - centroid.getX();
 		int yvector = interY - centroid.getY();

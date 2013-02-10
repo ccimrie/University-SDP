@@ -41,18 +41,19 @@ public class RunVision {
         			channel, videoStandard, compressionQuality);
         	
         	DistortionFix distortionFix = new DistortionFix(pitchConstants);
-        	vStream.addReceiver(distortionFix);
         	
             // Create a new Vision object to serve the main vision window
             Vision vision = new Vision(worldState, pitchConstants);
-    		
-    		distortionFix.addReceiver(vision);
             
             // Create the Control GUI for threshold setting/etc
             VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
             		vStream, distortionFix);
-            
-            vision.addVisionListener(gui);
+
+        	vStream.addReceiver(distortionFix);
+    		distortionFix.addReceiver(gui);
+    		distortionFix.addReceiver(vision);
+            vision.addVisionDebugReceiver(gui);
+            vision.addWorldStateReceiver(gui);
         }
         catch (Exception e) {
             e.printStackTrace();
