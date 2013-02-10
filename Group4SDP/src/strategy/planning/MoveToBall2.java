@@ -22,6 +22,7 @@ public class MoveToBall2 {
 		//WorldState t = new WorldState();
 		
 		worldState.setOurRobot();
+		System.out.println(worldState.areWeBlue());
     	Robot us = worldState.ourRobot;
     	Ball ball = worldState.ball;
     	
@@ -57,13 +58,27 @@ public class MoveToBall2 {
 	
 		 while(distance > distanceFromBallToStop) {
 			//System.out.println("Forward");
-			System.out.println("Distance to ball: " + distance);
-			robot.move(0,10);
-			//worldState = new WorldState();
 			angle = TurnToBall.Turner(us, ball);
+			if((Math.abs(angle) > 30) && (Math.abs(angle) < 40) ) {
+				//Stop everything and turn
+				System.out.println("The final angle is " + angle);
+				robot.stop();
+				if (angle>0){
+					robot.rotate(5);
+				}else{
+					robot.rotate(-5);
+				}
+				Thread.sleep(1000);
+			}else if (Math.abs(angle) > 40){
+				robot.stop();
+				robot.rotate((int)angle/2);
+				Thread.sleep(2000);
+			}
+			robot.move(0,10);
 			distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
 			System.out.println("Distance to ball: " + distance);
-			//Thread.sleep(5000);
+//			System.out.println("Distance to ball: " + distance);
+			Thread.sleep(100);
 			//return;
 		}
 		

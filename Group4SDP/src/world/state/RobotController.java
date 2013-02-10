@@ -1,7 +1,7 @@
 package world.state;
 
 import java.io.IOException;
-import java.util.Timer;
+
 
 import communication.*;
 import strategy.planning.Commands;
@@ -9,7 +9,6 @@ import strategy.planning.Commands;
 public class RobotController extends Robot {
 	
 	private BluetoothCommunication comms = computer.ControlGUI2.comms;
-	
 	public RobotController(RobotType type) {
 		super(type);
 	}
@@ -33,18 +32,7 @@ public class RobotController extends Robot {
 		System.exit(0);
 	}
 	
-	
-	public void stop(Timer timer) {
-		int[] command = {Commands.STOP, 0, 0, 0};
-		try {
-			comms.sendToRobot(command);
-		} catch (IOException e1) {
-			System.out.println("Could not send command");
-			e1.printStackTrace();
-		}
-		timer.cancel();
-		System.out.println("Stop...");
-	} 
+ 
 	public void stop() {
 		int[] command = {Commands.STOP, 0, 0, 0};
 		try {

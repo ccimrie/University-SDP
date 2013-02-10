@@ -80,8 +80,9 @@ public class TurnToBall {
     public static double turnAngle(double botBearing, double toBallBearing) {
     	
     	botBearing = Math.toDegrees(botBearing);
-            double turnAngle = toBallBearing - botBearing;
-            return turnAngle;
+        double turnAngle = toBallBearing - botBearing;
+        if (turnAngle > 180.0) turnAngle = -360.0 + turnAngle;
+        return turnAngle;
     }
 
     public static double Turner(Robot us, Ball ball) {
