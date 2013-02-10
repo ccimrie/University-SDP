@@ -3,7 +3,6 @@ package strategy.planning;
 
 import vision.WorldState;
 import world.state.RobotController;
-import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
 import world.state.Ball;
 import world.state.Robot;
@@ -23,20 +22,28 @@ public class DribbleBall extends Strategy {
     	Robot us = worldState.ourRobot;
     	Ball ball = worldState.ball;
     	
-    	//Setting up the target point coordinates of the point behind the ball
-    	//TODO For future reference, check if we are on the left or right and +/- the threshold
     	double x = ball.x - threshold;
-    	double y = ball.y;
+    	double y1;
     	
-    	//Sends the the robot at the position behind the ball
-    	MoveToPoint.moveToPoint(worldState, robot, x, y);
+    	//Calculate a target point ensuring a safe distance from the ball
+    	if(us.y > ball.y){
+    		y1 = us.y + threshold;
+    	} else y1 = us.y - threshold;
+    	
+    	//Sends the the robot to the safe position, align on x axis
+    	MoveToPoint.moveToPoint(worldState, robot, x, y1);
+    	
+    	//Sends the robot exactly behind the ball, align on y axis
+    	MoveToPoint.moveToPoint(worldState, robot, x, ball.y);
     	
     	//Rotate to properly face the ball
     	double angle = TurnToBall.Turner(us, ball);
-    	robot.rotate((int)angle);
+    	if (angle>30) robot.rotate((int)angle);
     	
     	//Dribble now!
     	robot.move(0, 10);
 	}
+	
+	
 
 }
