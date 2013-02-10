@@ -196,23 +196,29 @@ public class WorldState {
     		this.ourRobot.x = blueX;
     		this.ourRobot.y = blueY;
     		this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
+    		this.ourRobot.bearing = getBlueOrientation();  
     	}
     	else {
     		this.ourRobot.x = yellowX;
     		this.ourRobot.y = yellowY;
     		this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
+    		this.ourRobot.bearing = getYellowOrientation();  
     	}
     }
     public void setTheirRobot(){
     	if (areWeBlue()){
-    		this.theirRobot.x = blueX;
-    		this.theirRobot.y = blueY;
-    		this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
-    	}
-    	else {
+    		//If we are blue, the other robot is yellow.
+    		//Please correct me if I am wrong, the code is obscure...
     		this.theirRobot.x = yellowX;
     		this.theirRobot.y = yellowY;
     		this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
+    		this.theirRobot.bearing = getYellowOrientation();
+    	}
+    	else {
+    		this.theirRobot.x = blueX;
+    		this.theirRobot.y = blueY;
+    		this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
+    		this.theirRobot.bearing = getBlueOrientation(); 
     	}
     }
     public void setBall(){
