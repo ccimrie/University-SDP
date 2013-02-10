@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import strategy.planning.Commands;
+import strategy.planning.DribbleBall;
 import strategy.planning.MoveToBall2;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -60,6 +61,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton rotate = new JButton("Rotate");
 	private final JButton move = new JButton("Move");
 	private final JButton moveToBall = new JButton("MoveToBall");
+	private final JButton dribble = new JButton("Dribble");
 	// Communication variables
 	public static BluetoothCommunication comms;
 	private static RobotController robot;
@@ -71,9 +73,13 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
 
-	// Strategy used for driving part of milestone 1
+	// Strategy used for driving part of milestone 2
 	private static MoveToBall2 mball = new MoveToBall2();
 	private MoveToTheBallThread approachThread;
+	
+	// Strategy used for driving part of milestone 2
+	private static DribbleBall dribbleBall = new DribbleBall();
+	private DribbleBallThread dribbleThread;
 
 	public static WorldState worldState = new WorldState();
 	public static Vision vision;
@@ -205,6 +211,7 @@ public class ControlGUI2 extends JFrame {
 		panel_1.add(kick);
 		panel_1.add(move);
 		panel_1.add(moveToBall);
+		panel_1.add(dribble);
 
 		frame.addWindowListener(new ListenCloseWdw());
 
@@ -262,7 +269,6 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		// TODO - Attach with MoveToBall
 		moveToBall.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -287,6 +293,14 @@ public class ControlGUI2 extends JFrame {
 				 * "Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
 				 * }
 				 */
+			}
+		});
+		
+		dribble.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				dribbleThread = new DribbleBallThread();
+				dribbleThread.start();
 			}
 		});
 
@@ -364,6 +378,20 @@ public class ControlGUI2 extends JFrame {
 
 			try {
 				mball.approach(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	class DribbleBallThread extends Thread {
+
+		public void run() {
+
+			try {
+				dribbleBall.dribbleBall(worldState, robot);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

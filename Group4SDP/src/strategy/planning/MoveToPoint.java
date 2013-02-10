@@ -15,7 +15,7 @@ public class MoveToPoint{
 	
 	private Vision vision;
 
-	public void moveToPoint(WorldState worldState, RobotController robot, double moveToX, double moveToY)  throws InterruptedException{
+	public static void moveToPoint(WorldState worldState, RobotController robot, double moveToX, double moveToY)  throws InterruptedException{
 		
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
@@ -51,18 +51,21 @@ public class MoveToPoint{
 		 while(distance > distanceFromBallToStop) {
 				//System.out.println("Forward");
 				angle = TurnToBall.AngleTurner(us, moveToX, moveToY);
-				if((Math.abs(angle) > 30) && (Math.abs(angle) < 40) ) {
+				System.out.println("The final angle is " + angle);
+				if((Math.abs(angle) > 20) && (Math.abs(angle) < 40) ) {
 					//Stop everything and turn
-					System.out.println("The final angle is " + angle);
 					robot.stop();
 					if (angle>0){
+						System.out.println("Rotating 5");
 						robot.rotate(5);
 					}else{
+						System.out.println("Rotating -5");
 						robot.rotate(-5);
 					}
 					Thread.sleep(1000);
 				}else if (Math.abs(angle) > 40){
 					robot.stop();
+					System.out.println("Rotating " + (int)angle / 2);
 					robot.rotate((int)angle/2);
 					Thread.sleep(2000);
 				}
