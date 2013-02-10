@@ -23,8 +23,8 @@ public class PitchConstants {
 	
 	public static final int RGBMIN = 0;
 	public static final int RGBMAX = 255;
-	public static final double HSVMIN = 0.0;
-	public static final double HSVMAX = 1.0;
+	public static final float HSVMIN = 0.0f;
+	public static final float HSVMAX = 1.0f;
 
 	// The pitch number. 0 is the main pitch, 1 is the side pitch
 	private int pitchNum;
@@ -36,12 +36,12 @@ public class PitchConstants {
 	private int[] greenUpper = new int[NUM_THRESHOLDS];
 	private int[] blueLower = new int[NUM_THRESHOLDS];
 	private int[] blueUpper = new int[NUM_THRESHOLDS];
-	private double[] hueLower = new double[NUM_THRESHOLDS];
-	private double[] hueUpper = new double[NUM_THRESHOLDS];
-	private double[] saturationLower = new double[NUM_THRESHOLDS];
-	private double[] saturationUpper = new double[NUM_THRESHOLDS];
-	private double[] valueLower = new double[NUM_THRESHOLDS];
-	private double[] valueUpper = new double[NUM_THRESHOLDS];
+	private float[] hueLower = new float[NUM_THRESHOLDS];
+	private float[] hueUpper = new float[NUM_THRESHOLDS];
+	private float[] saturationLower = new float[NUM_THRESHOLDS];
+	private float[] saturationUpper = new float[NUM_THRESHOLDS];
+	private float[] valueLower = new float[NUM_THRESHOLDS];
+	private float[] valueUpper = new float[NUM_THRESHOLDS];
 	// Debug 
 	private boolean[] debug = new boolean[NUM_THRESHOLDS];
 	
@@ -106,42 +106,42 @@ public class PitchConstants {
 		this.blueUpper[i] = upper;
 	}
 	
-	public double getHueLower(int i) {
+	public float getHueLower(int i) {
 		return hueLower[i];
 	}
-	public void setHueLower(int i, double lower) {
+	public void setHueLower(int i, float lower) {
 		this.hueLower[i] = lower;
 	}
-	public double getHueUpper(int i) {
+	public float getHueUpper(int i) {
 		return hueUpper[i];
 	}
-	public void setHueUpper(int i, double upper) {
+	public void setHueUpper(int i, float upper) {
 		this.hueUpper[i] = upper;
 	}
 	
-	public double getSaturationLower(int i) {
+	public float getSaturationLower(int i) {
 		return saturationLower[i];
 	}
-	public void setSaturationLower(int i, double lower) {
+	public void setSaturationLower(int i, float lower) {
 		this.saturationLower[i] = lower;
 	}
-	public double getSaturationUpper(int i) {
+	public float getSaturationUpper(int i) {
 		return saturationUpper[i];
 	}
-	public void setSaturationUpper(int i, double upper) {
+	public void setSaturationUpper(int i, float upper) {
 		this.saturationUpper[i] = upper;
 	}
 	
-	public double getValueLower(int i) {
+	public float getValueLower(int i) {
 		return valueLower[i];
 	}
-	public void setValueLower(int i, double lower) {
+	public void setValueLower(int i, float lower) {
 		this.valueLower[i] = lower;
 	}
-	public double getValueUpper(int i) {
+	public float getValueUpper(int i) {
 		return valueUpper[i];
 	}
-	public void setValueUpper(int i, double upper) {
+	public void setValueUpper(int i, float upper) {
 		this.valueUpper[i] = upper;
 	}
 	
@@ -272,9 +272,9 @@ public class PitchConstants {
 			
 			System.out.println("Wrote successfully!");
 		} catch (IOException e) {
-			System.out.println("Cannot save constants file " + fileName + ":");
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			System.err.println("Cannot save constants file " + fileName + ":");
+			System.err.println(e.getMessage());
+			e.printStackTrace(System.err);
 		}
 	}
 	
@@ -312,7 +312,7 @@ public class PitchConstants {
 		} catch (FileNotFoundException e) {
 			System.err.println("Cannot load constants file " + fileName + ":");
 			System.err.println(e.getMessage());
-			e.printStackTrace();
+			e.printStackTrace(System.err);
 			loadDefaultConstants();
 			return;
 		}
@@ -323,21 +323,17 @@ public class PitchConstants {
 		// in the order they're defined above.
 		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
 			this.redLower[i] = scanner.nextInt();
-			System.out.println("Threshold " + i + " redLower: " + this.redLower[i]);
 			this.redUpper[i] = scanner.nextInt();
-			System.out.println("Threshold " + i + " redUpper: " + this.redUpper[i]);
 			this.greenLower[i] = scanner.nextInt();
-			System.out.println("Threshold " + i + " greenLower: " + this.greenLower[i]);
 			this.greenUpper[i] = scanner.nextInt();
-			System.out.println("Threshold " + i + " greenUpper: " + this.greenUpper[i]);
 			this.blueLower[i] = scanner.nextInt();
 			this.blueUpper[i] = scanner.nextInt();
-			this.hueLower[i] = scanner.nextDouble();
-			this.hueUpper[i] = scanner.nextDouble();
-			this.saturationLower[i] = scanner.nextDouble();
-			this.saturationUpper[i] = scanner.nextDouble();
-			this.valueLower[i] = scanner.nextDouble();
-			this.valueUpper[i] = scanner.nextDouble();
+			this.hueLower[i] = scanner.nextFloat();
+			this.hueUpper[i] = scanner.nextFloat();
+			this.saturationLower[i] = scanner.nextFloat();
+			this.saturationUpper[i] = scanner.nextFloat();
+			this.valueLower[i] = scanner.nextFloat();
+			this.valueUpper[i] = scanner.nextFloat();
 		}
 	}
 
@@ -349,18 +345,18 @@ public class PitchConstants {
 		// Iterate over ball, blue robot, yellow robot, grey circles, and then green plates
 		// in the order they're defined above.
 		for (int i = 0; i < 5; ++i) {
-			this.redLower[i] = 0;
-			this.redUpper[i] = 255;
-			this.greenLower[i] = 0;
-			this.greenUpper[i] = 255;
-			this.blueLower[i] = 0;
-			this.blueUpper[i] = 255;
-			this.hueLower[i] = 0.0;
-			this.hueUpper[i] = 1.0;
-			this.saturationLower[i] = 0.0;
-			this.saturationUpper[i] = 1.0;
-			this.valueLower[i] = 0.0;
-			this.valueUpper[i] = 1.0;
+			this.redLower[i] = RGBMIN;
+			this.redUpper[i] = RGBMAX;
+			this.greenLower[i] = RGBMIN;
+			this.greenUpper[i] = RGBMAX;
+			this.blueLower[i] = RGBMIN;
+			this.blueUpper[i] = RGBMAX;
+			this.hueLower[i] = HSVMIN;
+			this.hueUpper[i] = HSVMAX;
+			this.saturationLower[i] = HSVMIN;
+			this.saturationUpper[i] = HSVMAX;
+			this.valueLower[i] = HSVMIN;
+			this.valueUpper[i] = HSVMAX;
 		}
 
 		// Pitch Dimensions

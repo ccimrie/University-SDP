@@ -7,7 +7,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -16,14 +15,24 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
+import vision.DistortionFix;
 import vision.PitchConstants;
+import vision.Position;
 import vision.VideoStream;
 import vision.VisionInterface;
 import vision.WorldState;
@@ -32,7 +41,7 @@ import vision.WorldState;
 public class VisionGUI extends JFrame implements VisionInterface {
 	private final int videoWidth;
 	private final int videoHeight;
-	
+
 	// Pitch dimension selector variables
 	private boolean selectionActive = false;
 	private Point anchor;
@@ -42,12 +51,20 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	private int d;
 
 	// Mouse listener variable
-	private int mouse_event = 0;
-	private boolean letterAdjustment = false;
-	private int mouseX;
-	private int mouseY;
-	private String adjust = "";
-	
+	int mouse_event = 0;
+	boolean letterAdjustment = false;
+	int mouseX;
+	int mouseY;
+	String adjust = "";
+	BufferedImage t = null;
+	double locationX;
+	double locationY;
+	int rotation = 0;
+	ArrayList<Integer> xList = new ArrayList<Integer>();
+	ArrayList<Integer> yList = new ArrayList<Integer>();
+	boolean theT = false;
+
+	private final PitchConstants pitchConstants;
 	private final VisionSettingsPanel settingsPanel;
 	private final JPanel videoDisplay = new JPanel();
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
@@ -58,42 +75,57 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			System.exit(0);
 		}
 	};
-	
-	public VisionGUI(final int videoWidth, final int videoHeight, WorldState worldState,
-			final PitchConstants pitchConstants, final VideoStream vStream) {
+
+	public VisionGUI(final int videoWidth, final int videoHeight,
+			WorldState worldState, final PitchConstants pitchConsts,
+			final VideoStream vStream, final DistortionFix distortionFix) {
+
 		super("Vision");
 		this.videoWidth = videoWidth;
 		this.videoHeight = videoHeight;
 
 		// Set pitch constraints
+		this.pitchConstants = pitchConsts;
 		this.a = pitchConstants.getLeftBuffer();
 		this.b = pitchConstants.getTopBuffer();
 		this.c = this.videoWidth - pitchConstants.getRightBuffer() - a;
 		this.d = this.videoHeight - pitchConstants.getBottomBuffer() - b;
-		
+
+		// Image T
+		File img = new File("icons/Tletter.png");
+		BufferedImage t = null;
+		try {
+			this.t = ImageIO.read(img);
+			locationX = this.t.getWidth(null) / 2;
+			locationY = this.t.getHeight(null) / 2;
+		} catch (IOException e) {
+			System.out.println("No T image found");
+		}
+
 		Container contentPane = this.getContentPane();
-		
+
 		Dimension videoSize = new Dimension(videoWidth, videoHeight);
-		BufferedImage blankInitialiser = new BufferedImage(
-				videoWidth, videoHeight, BufferedImage.TYPE_INT_RGB);		
+		BufferedImage blankInitialiser = new BufferedImage(videoWidth,
+				videoHeight, BufferedImage.TYPE_INT_RGB);
 		getContentPane().setLayout(null);
 		videoDisplay.setLocation(0, 0);
 		this.videoDisplay.setMinimumSize(videoSize);
 		this.videoDisplay.setSize(videoSize);
 		contentPane.add(videoDisplay);
-		
-		this.settingsPanel = new VisionSettingsPanel(worldState, pitchConstants, vStream);
+
+		this.settingsPanel = new VisionSettingsPanel(worldState,
+				pitchConstants, vStream, distortionFix);
+
 		settingsPanel.setLocation(videoSize.width, 0);
 		contentPane.add(settingsPanel);
 
 		this.setVisible(true);
-		this.videoDisplay.getGraphics().drawImage(blankInitialiser, 0, 0, null);
-		
+		this.getGraphics().drawImage(blankInitialiser, 0, 0, null);
+
 		settingsPanel.setSize(settingsPanel.getPreferredSize());
-		Dimension frameSize = new Dimension(
-					videoWidth + settingsPanel.getPreferredSize().width,
-					Math.max(videoHeight, settingsPanel.getPreferredSize().height)
-				);
+		Dimension frameSize = new Dimension(videoWidth
+				+ settingsPanel.getPreferredSize().width, Math.max(videoHeight,
+				settingsPanel.getPreferredSize().height));
 		contentPane.setSize(frameSize);
 		this.setSize(frameSize.width + 8, frameSize.height + 30);
 		// Wait for size to actually be set before setting resizable to false.
@@ -103,31 +135,33 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			e1.printStackTrace();
 		}
 		this.setResizable(false);
-		
-		this.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent ke) { }
+		videoDisplay.setFocusable(true);
+		videoDisplay.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent ke) {
+				System.out.println("Key pressed");
+			}
 
 			public void keyReleased(KeyEvent ke) {
+				System.out.println("Key released");
 				adjust = KeyEvent.getKeyText(ke.getKeyCode());
 			}
 
-			// TODO: remove commented code if it's not going to be used
 			public void keyTyped(KeyEvent e) {
-				// System.out.println("keyPressed "+e.getKeyChar());
+				System.out.println("Key typed");
 			}
 		});
-		
+
 		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
 			Rectangle selection;
 
 			public void mousePressed(MouseEvent e) {
 				// Mouse clicked
-				mouse_event = 1;
+				mouse_event = 2;
+				selectionActive = true;
 				switch (mouse_event) {
 				case 0:
 					break;
 				case 1:
-					selectionActive = true;
 					// Pitch dimension selector
 					anchor = e.getPoint();
 					System.out.println(anchor.x);
@@ -135,15 +169,16 @@ public class VisionGUI extends JFrame implements VisionInterface {
 					selection = new Rectangle(anchor);
 					break;
 				case 2:
+					videoDisplay.grabFocus();
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
 				}
+
 			}
 
-			public void mouseEntered(MouseEvent e) {}
-
 			public void mouseDragged(MouseEvent e) {
+
 				switch (mouse_event) {
 				case 0:
 					break;
@@ -172,7 +207,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 					break;
 				case 1:
 					if (e.getPoint().distance(anchor) > 5) {
-						Object[] options = { "Main Pitch", "Side Pitch", "Cancel" };
+						Object[] options = { "Main Pitch", "Side Pitch",
+								"Cancel" };
 						int pitchNum = JOptionPane.showOptionDialog(
 								getComponent(0),
 								"The parameters are to be set for this pitch",
@@ -180,26 +216,56 @@ public class VisionGUI extends JFrame implements VisionInterface {
 								JOptionPane.YES_NO_CANCEL_OPTION,
 								JOptionPane.QUESTION_MESSAGE, null, options,
 								options[0]);
-	
+
 						// If option wasn't Cancel and the dialog wasn't closed
-						if (pitchNum != 2 && pitchNum != JOptionPane.CLOSED_OPTION) {
-							int top = b;
-							int bottom = videoHeight - d - b;
-							int left = a;
-							int right = videoWidth - c - a;
-	
-							if (top > 0 && bottom > 0 && left > 0 && right > 0) {
-								// Update pitch constants
-								pitchConstants.setTopBuffer(top);
-								pitchConstants.setBottomBuffer(bottom);
-								pitchConstants.setLeftBuffer(left);
-								pitchConstants.setRightBuffer(right);
-							} else {
-								System.out.println("Pitch boundary selection failed");
+						if (pitchNum != 2
+								&& pitchNum != JOptionPane.CLOSED_OPTION) {
+							System.out.println(pitchNum);
+							try {
+								int top = b;
+								int bottom = videoHeight - d - b;
+								int left = a;
+								int right = videoWidth - c - a;
+
+								if (top > 0 && bottom > 0 && left > 0
+										&& right > 0) {
+									// Update pitch constants
+									pitchConstants.setTopBuffer(top);
+									pitchConstants.setBottomBuffer(bottom);
+									pitchConstants.setLeftBuffer(left);
+									pitchConstants.setRightBuffer(right);
+
+									// Writing the new dimensions to file
+									FileWriter writer = new FileWriter(
+											new File("constants/pitch"
+													+ pitchNum + "Dimensions"));
+
+									writer.write("" + top + "\n");
+									writer.write("" + bottom + "\n");
+									writer.write("" + left + "\n");
+									writer.write("" + right + "\n");
+
+									writer.close();
+									System.out.println("Wrote pitch const");
+								} else {
+									System.out
+											.println("Pitch selection NOT succesful");
+								}
+								System.out.print("Top: " + top + " Bottom "
+										+ bottom);
+								System.out.println(" Right " + right + " Left "
+										+ left);
+							} catch (IOException e1) {
+								System.out
+										.println("Error writing pitch dimensions to file");
+								e1.printStackTrace();
 							}
+
+							System.out.println("A: " + a + " B: " + b + " C: "
+									+ c + " D:" + d);
 						}
+						repaint();
 					}
-					repaint();
 					break;
 				case 2:
 					letterAdjustment = true;
@@ -209,20 +275,21 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				mouse_event = 0;
 			}
 		};
-		
+
 		this.videoDisplay.addMouseListener(mouseSelector);
 		this.videoDisplay.addMouseMotionListener(mouseSelector);
-		
+
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.addWindowListener(windowAdapter);
 	}
 
 	@Override
 	public void sendFrame(BufferedImage frame, int fps, Point ball,
-			Point blueRobot, double blueOrientation,
-			Point yellowRobot, double yellowOrientation) {
+			Point blueRobot, double blueOrientation, Point yellowRobot,
+			double yellowOrientation) {
 		Graphics videoGraphics = videoDisplay.getGraphics();
 		Graphics imageGraphics = frame.getGraphics();
+
 		// Draw the line around the pitch dimensions
 		if (selectionActive) {
 			imageGraphics.setColor(Color.YELLOW);
@@ -230,13 +297,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		}
 
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Image letterT = toolkit.getImage("icons/T.gif");
 		Graphics2D g2d = (Graphics2D) imageGraphics;
 
-		// TODO: Show T colour selector
-		if (selectionActive && mouse_event == 2 || letterAdjustment) {
-			g2d.drawImage(letterT, mouseX, mouseY, null);
-		}
 
 		if (letterAdjustment) {
 
@@ -250,8 +312,52 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				mouseX++;
 			} else if (adjust.equals("Enter")) {
 				letterAdjustment = false;
+				getColourRange(frame, PitchConstants.BLUE );
+			} else if (adjust.equals("Z")) {
+
+				double rotationRequired = Math.toRadians((double) rotation--);
+
+				AffineTransform tx = AffineTransform.getRotateInstance(
+						rotationRequired, locationX, locationY);
+				AffineTransformOp op = new AffineTransformOp(tx,
+						AffineTransformOp.TYPE_BILINEAR);
+				File img = new File("icons/Tletter.png");
+
+				try {
+					t = ImageIO.read(img);
+					locationX = this.t.getWidth(null) / 2;
+					locationY = this.t.getHeight(null) / 2;
+				} catch (IOException e) {
+
+				}
+
+				t = op.filter(t, null);
+
+			} else if (adjust.equals("X")) {
+
+				double rotationRequired = Math.toRadians((double) rotation++);
+
+				AffineTransform tx = AffineTransform.getRotateInstance(
+						rotationRequired, locationX, locationY);
+				AffineTransformOp op = new AffineTransformOp(tx,
+						AffineTransformOp.TYPE_BILINEAR);
+				File img = new File("icons/Tletter.png");
+
+				try {
+					t = ImageIO.read(img);
+					locationX = this.t.getWidth(null) / 2;
+					locationY = this.t.getHeight(null) / 2;
+				} catch (IOException e) {
+
+				}
+				t = op.filter(t, null);
+
 			}
 			adjust = "";
+		}
+
+		if (selectionActive && mouse_event == 2 || letterAdjustment) {
+			g2d.drawImage(t, mouseX, mouseY, null);
 		}
 
 		// Eliminating area around the pitch dimensions
@@ -285,12 +391,177 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		imageGraphics.drawString("FPS: " + fps, 15, 15);
 
 		// Display Ball & Robot Positions
-		imageGraphics.drawString("Ball: (" + ball.x + ", " + ball.y + ")", 15, 30);
+		imageGraphics.drawString("Ball: (" + ball.x + ", " + ball.y + ")", 15,
+				30);
 		imageGraphics.drawString("Blue: (" + blueRobot.x + ", " + blueRobot.y
 				+ ") Orientation: " + Math.toDegrees(blueOrientation), 15, 45);
-		imageGraphics.drawString("Yellow: (" + yellowRobot.x + ", " + yellowRobot.y
-				+ ") Orientation: " + Math.toDegrees(yellowOrientation), 15, 60);
-		
+		imageGraphics
+				.drawString(
+						"Yellow: (" + yellowRobot.x + ", " + yellowRobot.y
+								+ ") Orientation: "
+								+ Math.toDegrees(yellowOrientation), 15, 60);
+
 		videoGraphics.drawImage(frame, 0, 0, null);
 	}
+
+	public void getColourRange(BufferedImage frame, int object) {
+		
+		ArrayList<Integer> redList = new ArrayList<Integer>();
+		ArrayList<Integer> greenList = new ArrayList<Integer>();
+		ArrayList<Integer> blueList = new ArrayList<Integer>();
+		ArrayList<Float> hueList = new ArrayList<Float>();
+		ArrayList<Float> satList = new ArrayList<Float>();
+		ArrayList<Float> valList = new ArrayList<Float>();
+
+		int lX = (int)locationX;
+		int lY = (int)locationY;
+
+		//Top part of the letter T 
+		for (int x = 0 - lX; x < 27 - lX; x++)
+			for (int y = 0 - lY; y < 11 - lY; y++) {
+				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
+						* Math.sin(Math.toRadians((double) rotation));
+				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
+						* Math.cos(Math.toRadians((double) rotation));
+
+				xList.add(mouseX + lX + (int) xR);
+				yList.add(mouseY + lY + (int) yR);
+
+				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
+						+ lY + (int) yR));
+
+				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
+						c.getBlue(), null);
+				
+				hueList.add(hsbvals[0]);
+				satList.add(hsbvals[1]);
+				valList.add(hsbvals[2]);
+				redList.add(c.getRed());
+				greenList.add(c.getGreen());
+				blueList.add(c.getBlue());
+				// frame.setRGB(mouseX + lX + (int) xR, mouseY + lY + (int) yR,
+				// 65535);
+
+			}
+
+		//Bottom part of the letter T 
+		for (int x = 10 - lX; x < 20 - lX; x++)
+			for (int y = 10 - lY; y < 32 - lY; y++) {
+				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
+						* Math.sin(Math.toRadians((double) rotation));
+				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
+						* Math.cos(Math.toRadians((double) rotation));
+
+				xList.add(mouseX + lX + (int) xR);
+				yList.add(mouseY + lY + (int) yR);
+
+				Color c = new Color(frame.getRGB(mouseX + lX + (int) xR, mouseY
+						+ lY + (int) yR));
+
+				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
+						c.getBlue(), null);			
+				redList.add(c.getRed());
+				greenList.add(c.getGreen());
+				blueList.add(c.getBlue());
+				hueList.add(hsbvals[0]);
+				satList.add(hsbvals[1]);
+				valList.add(hsbvals[2]);
+			
+				// frame.setRGB(mouseX + lX + (int) xR, mouseY + lY + (int) yR,
+				// 65535);
+			}
+
+		//Mean and Standard deviation calculations
+		double meanR = calcMean(redList);
+		double stdevR = calcStandardDeviation(redList);
+		double meanG = calcMean(greenList);
+		double stdevG = calcStandardDeviation(greenList);
+		double meanB = calcMean(blueList);
+		double stdevB = calcStandardDeviation(blueList);
+		double meanH = calcMeanFloat(hueList);
+		double stdevH = calcStandardDeviationFloat(hueList);
+		double meanS = calcMeanFloat(satList);
+		double stdevS = calcStandardDeviationFloat(satList);
+		double meanV = calcMeanFloat(valList);
+		double stdevV = calcStandardDeviationFloat(valList);
+
+		System.out.println("Red mean " + meanR);
+		System.out.println("Green mean " + meanG);
+		System.out.println("Blue mean " + meanB);
+		System.out.println("Red std " + stdevR);
+		System.out.println("Green std " + stdevG);
+		System.out.println("Blue std " + stdevB);
+		System.out.println("H mean " + meanH);
+		System.out.println("S mean " + meanS);
+		System.out.println("V mean " + meanV);
+		System.out.println("H std " + stdevH);
+		System.out.println("S std " + stdevS);
+		System.out.println("V std " + stdevV);
+
+		//Setting the sliders
+		pitchConstants.setRedLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanR - 1.5*stdevR)));
+		pitchConstants.setRedUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanR + 1.5*stdevR)));
+		
+		pitchConstants.setGreenLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanG - 1.5*stdevG)));
+		pitchConstants.setGreenUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanG + 1.5*stdevG)));
+		
+		pitchConstants.setBlueLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanB - 1.5*stdevB)));
+		pitchConstants.setBlueUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanB + 1.5*stdevB)));
+		
+		pitchConstants.setHueLower(object, Math.max(PitchConstants.HSVMIN,(float)(meanH - 1.5*stdevH)));
+		pitchConstants.setHueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanH + 1.5*stdevH)));
+		
+		pitchConstants.setSaturationLower(object, Math.max(PitchConstants.HSVMIN,(float) (meanS - 1.5*stdevS)));
+		pitchConstants.setSaturationUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanS + 1.5*stdevS)));
+		
+		pitchConstants.setValueLower(object, Math.max(PitchConstants.HSVMIN,(float) (meanV - 1.5*stdevV)));
+		pitchConstants.setValueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanV + 1.5*stdevV)));
+		
+		settingsPanel.reloadSliderDefaults();
+		
+		theT = true;
+		rotation = 0;
+	}
+
+	public double calcStandardDeviationFloat(ArrayList<Float> points) {
+
+		double mean = calcMeanFloat(points);
+		double sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			float p = points.get(i);
+			double diff = p - mean;
+			sum += diff * diff;
+		}
+
+		return Math.sqrt(sum / points.size());
+	}
+
+	public double calcMeanFloat(ArrayList<Float> points) {
+		float sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			sum += points.get(i);
+		}
+		return (double) (sum) / points.size();
+	}
+	public double calcStandardDeviation(ArrayList<Integer> points) {
+
+		double mean = calcMean(points);
+		double sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			int p = points.get(i);
+			double diff = p - mean;
+			sum += diff * diff;
+		}
+
+		return Math.sqrt(sum / points.size());
+	}
+
+	public double calcMean(ArrayList<Integer> points) {
+		int sum = 0;
+		for (int i = 0; i < points.size(); i++) {
+			sum += points.get(i);
+		}
+		return (double) (sum) / points.size();
+	}
+
 }

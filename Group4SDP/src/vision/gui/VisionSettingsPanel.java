@@ -1,6 +1,8 @@
 package vision.gui;
 
-import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.BoxLayout;
@@ -14,9 +16,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.WorldState;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import javax.swing.SwingConstants;
 
 /**
  * Creates and maintains the swing-based Control GUI, which 
@@ -29,12 +35,21 @@ import vision.WorldState;
  */
 @SuppressWarnings("serial")
 public class VisionSettingsPanel extends JPanel {
+	public static final int MOUSE_MODE_OFF = 0;
+	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
+	public static final int MOUSE_MODE_BLUE_T = 2;
+	public static final int MOUSE_MODE_YELLOW_T = 3;
+	
 	// A PitchConstants class used to load/save constants for the pitch
-	private PitchConstants pitchConstants;
+	private final PitchConstants pitchConstants;
 	
 	// Stores information about the current world state, such as shooting
 	// direction, ball location, etc
-	private WorldState worldState;
+	private final WorldState worldState;
+	
+	private final DistortionFix distortionFix;
+	
+	private int mouseMode;
 	
 	// Load/Save buttons
 	private JButton saveButton;
@@ -102,7 +117,7 @@ public class VisionSettingsPanel extends JPanel {
 				pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
 				break;
 			default:
-				System.out.println("VisionGUI: Invalid tab index");
+				System.err.println("VisionGUI: Invalid tab index");
 				System.exit(1);
 			}
 		}
@@ -140,9 +155,28 @@ public class VisionSettingsPanel extends JPanel {
 			// Update which direction the other team's goal is in
 			int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
 			worldState.setDirection(isLeft);
-			System.out.println("Changed Direction to " + isLeft);
 		}
 	};
+	
+	private final JRadioButton rdbtnDistortOn = new JRadioButton("On");
+	private final JRadioButton rdbtnDistortOff = new JRadioButton("Off");
+	private final MouseAdapter distortionMouseListener = new MouseAdapter() {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// Update whether distortion is active
+			if (rdbtnDistortOn.isSelected()){
+				distortionFix.setActive(true);
+			}
+			else {
+				distortionFix.setActive(false);
+			}
+		}
+	};
+	
+	private final JRadioButton rdbtnMouseModeOff = new JRadioButton();
+	private final JRadioButton rdbtnMouseModePitch = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeBlue = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeYellow = new JRadioButton();
 	
 	private abstract class BaseSliderChangeListener implements ChangeListener {
 		protected int index;
@@ -198,8 +232,8 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getHueSliderValues();
-			pitchConstants.setHueLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
-			pitchConstants.setHueUpper(super.index, (double) lowerUpper[1] / 255.0);
+			pitchConstants.setHueLower(super.index, (float) Math.max(0, lowerUpper[0]) / 255.0f);
+			pitchConstants.setHueUpper(super.index, (float) lowerUpper[1] / 255.0f);
 		}
 	}
 	
@@ -211,8 +245,8 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getSaturationSliderValues();
-			pitchConstants.setSaturationLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
-			pitchConstants.setSaturationUpper(super.index, (double) lowerUpper[1] / 255.0);
+			pitchConstants.setSaturationLower(super.index, (float) Math.max(0, lowerUpper[0]) / 255.0f);
+			pitchConstants.setSaturationUpper(super.index, (float) lowerUpper[1] / 255.0f);
 		}
 	}
 
@@ -224,8 +258,8 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = tabPanels[super.index].getValueSliderValues();
-			pitchConstants.setValueLower(super.index, (double) Math.max(0, lowerUpper[0]) / 255.0);
-			pitchConstants.setValueUpper(super.index, (double) lowerUpper[1] / 255.0);
+			pitchConstants.setValueLower(super.index, (float) Math.max(0, lowerUpper[0]) / 255.0f);
+			pitchConstants.setValueUpper(super.index, (float) lowerUpper[1] / 255.0f);
 		}
 	}
 	
@@ -237,18 +271,17 @@ public class VisionSettingsPanel extends JPanel {
 	 * @param pitchConstants	A PitchConstants object to allow saving/loading of data.
 	 */
 	public VisionSettingsPanel(WorldState worldState, final PitchConstants pitchConstants,
-			final VideoStream vStream) {
+			final VideoStream vStream, final DistortionFix distortionFix) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
 		
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.distortionFix = distortionFix;
 		this.camPanel = new CameraSettingsPanel(vStream,
 				System.getProperty("user.dir") + "/constants/pitch" + 
 				pitchConstants.getPitchNum() + "camera");
-		
-		this.setLayout(new FlowLayout());
 
         // The main (default) tab
         mainTabPanel.setLayout(new BoxLayout(mainTabPanel, BoxLayout.Y_AXIS));
@@ -274,6 +307,7 @@ public class VisionSettingsPanel extends JPanel {
         
         tabPane.addChangeListener(tabChangeListener);
         this.add(tabPane);
+        this.setSize(this.getPreferredSize());
         
 		reloadSliderDefaults();
 	}
@@ -321,7 +355,7 @@ public class VisionSettingsPanel extends JPanel {
 		
 		// Direction choice
 		JPanel directionPanel = new JPanel();
-		JLabel directionLabel = new JLabel("Our shooting direction:");
+		JLabel directionLabel = new JLabel("Our shoot direction:");
 		directionPanel.add(directionLabel);
 		
 		ButtonGroup directionChoice = new ButtonGroup();
@@ -336,6 +370,169 @@ public class VisionSettingsPanel extends JPanel {
 		rdbtnLeft.addMouseListener(directionMouseListener);
 		
 		mainTabPanel.add(directionPanel);
+		
+		// Distortion
+		JPanel distortionPanel = new JPanel();
+		JLabel distortionLabel = new JLabel("Distortion Fix:");
+		distortionPanel.add(distortionLabel);
+		
+		ButtonGroup distortionChoice = new ButtonGroup();
+		distortionChoice.add(rdbtnDistortOn);
+		distortionPanel.add(rdbtnDistortOn);
+		distortionChoice.add(rdbtnDistortOff);
+		distortionPanel.add(rdbtnDistortOff);
+		
+		rdbtnDistortOn.setSelected(true);
+		
+		rdbtnDistortOn.addMouseListener(distortionMouseListener);
+		rdbtnDistortOff.addMouseListener(distortionMouseListener);
+		
+		mainTabPanel.add(distortionPanel);
+		
+		// Mouse mode selector
+		JPanel mouseModePanel = new JPanel();
+		GridBagLayout gbl_mouseModePanel = new GridBagLayout();
+		gbl_mouseModePanel.columnWidths = new int[]{41, 0, 0};
+		gbl_mouseModePanel.rowHeights = new int[]{36, 0, 0, 19, 0, 0};
+		gbl_mouseModePanel.columnWeights = new double[]{1.0, Double.MIN_VALUE, 1.0};
+		gbl_mouseModePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		mouseModePanel.setLayout(gbl_mouseModePanel);
+		JLabel mouseModeLabel = new JLabel("Mouse Mode");
+		GridBagConstraints gbc_mouseModeLabel = new GridBagConstraints();
+		gbc_mouseModeLabel.gridwidth = 2;
+		gbc_mouseModeLabel.fill = GridBagConstraints.VERTICAL;
+		gbc_mouseModeLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeLabel.gridx = 0;
+		gbc_mouseModeLabel.gridy = 0;
+		mouseModePanel.add(mouseModeLabel, gbc_mouseModeLabel);
+		
+		ButtonGroup mouseModeChoice = new ButtonGroup();
+		mainTabPanel.add(mouseModePanel);
+		mouseModeChoice.add(rdbtnMouseModeOff);
+		mouseModeChoice.add(rdbtnMouseModePitch);
+		mouseModeChoice.add(rdbtnMouseModeBlue);
+		mouseModeChoice.add(rdbtnMouseModeYellow);
+		rdbtnMouseModeOff.setSelected(true);
+		
+		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
+		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeOff.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeOff.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeOff.gridx = 0;
+		gbc_rdbtnMouseModeOff.gridy = 1;
+		mouseModePanel.add(rdbtnMouseModeOff, gbc_rdbtnMouseModeOff);
+		rdbtnMouseModeOff.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModeOff.isSelected())
+					setMouseMode(MOUSE_MODE_OFF);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModeOffLabel = new GridBagConstraints();
+		gbc_mouseModeOffLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeOffLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeOffLabel.gridx = 1;
+		gbc_mouseModeOffLabel.gridy = 1;
+		JLabel mouseModeOffLabel = new JLabel("Off");
+		mouseModeOffLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeOffLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModeOff.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModeOffLabel, gbc_mouseModeOffLabel);
+		
+		GridBagConstraints gbc_rdbtnMouseModePitch = new GridBagConstraints();
+		gbc_rdbtnMouseModePitch.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModePitch.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModePitch.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModePitch.gridx = 0;
+		gbc_rdbtnMouseModePitch.gridy = 2;
+		mouseModePanel.add(rdbtnMouseModePitch, gbc_rdbtnMouseModePitch);
+		rdbtnMouseModePitch.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModePitch.isSelected())
+					setMouseMode(MOUSE_MODE_PITCH_BOUNDARY);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModePitchLabel = new GridBagConstraints();
+		gbc_mouseModePitchLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModePitchLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModePitchLabel.gridx = 1;
+		gbc_mouseModePitchLabel.gridy = 2;
+		JLabel mouseModePitchLabel = new JLabel("Pitch Boundary Selection");
+		mouseModePitchLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModePitchLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModePitch.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModePitchLabel, gbc_mouseModePitchLabel);
+		
+		GridBagConstraints gbc_rdbtnMouseModeBlue = new GridBagConstraints();
+		gbc_rdbtnMouseModeBlue.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeBlue.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeBlue.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeBlue.gridx = 0;
+		gbc_rdbtnMouseModeBlue.gridy = 3;
+		mouseModePanel.add(rdbtnMouseModeBlue, gbc_rdbtnMouseModeBlue);
+		rdbtnMouseModeBlue.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModeBlue.isSelected())
+					setMouseMode(MOUSE_MODE_BLUE_T);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModeBlueLabel = new GridBagConstraints();
+		gbc_mouseModeBlueLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeBlueLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeBlueLabel.gridx = 1;
+		gbc_mouseModeBlueLabel.gridy = 3;
+		JLabel mouseModeBlueLabel = new JLabel("Blue T Plate Selection");
+		mouseModeBlueLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeBlueLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModeBlue.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModeBlueLabel, gbc_mouseModeBlueLabel);
+		
+		GridBagConstraints gbc_rdbtnMouseModeYellow = new GridBagConstraints();
+		gbc_rdbtnMouseModeYellow.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeYellow.insets = new Insets(0, 0, 0, 5);
+		gbc_rdbtnMouseModeYellow.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeYellow.gridx = 0;
+		gbc_rdbtnMouseModeYellow.gridy = 4;
+		mouseModePanel.add(rdbtnMouseModeYellow, gbc_rdbtnMouseModeYellow);
+		rdbtnMouseModeYellow.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModeYellow.isSelected())
+					setMouseMode(MOUSE_MODE_YELLOW_T);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModeYellowLabel = new GridBagConstraints();
+		gbc_mouseModeYellowLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeYellowLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_mouseModeYellowLabel.gridx = 1;
+		gbc_mouseModeYellowLabel.gridy = 4;
+		JLabel mouseModeYellowLabel = new JLabel("Yellow T Plate Selection");
+		mouseModeYellowLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeYellowLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModeYellow.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModeYellowLabel, gbc_mouseModeYellowLabel);
 		
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
@@ -390,5 +587,13 @@ public class VisionSettingsPanel extends JPanel {
 	public void reloadSliderDefaults() {
 		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i)
 			tabPanels[i].setSliderValues(i, pitchConstants);
+	}
+
+	public int getMouseMode() {
+		return mouseMode;
+	}
+
+	public void setMouseMode(int mouseMode) {
+		this.mouseMode = mouseMode;
 	}
 }
