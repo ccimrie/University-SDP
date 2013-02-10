@@ -90,5 +90,38 @@ public class TurnToBall {
         double angle = turnAngle(us.bearing, ballBearing);
         return angle;
     }
+public static double findPointBearing(Robot us, double x, double y) {
+    //calculates the bearing of a point (x,y) relative to the robot (using the robot as the origin and "north"
+    // as being up on the camera feed)	
+    	double pointBearing = 0;
 
+            //calculates the angle depending on which quadrant around the robot the point is in
+        	double xDiff = x - us.x;
+        	double yDiff = y - us.y;
+        	
+            if (xDiff > 0) {
+            	if(yDiff > 0){
+            		pointBearing = 90 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		pointBearing = 90 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            }
+            else {
+            	if(yDiff > 0){
+            		pointBearing = 270 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		pointBearing = 270 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            }
+        
+            return pointBearing;
+    }
+//This method calculates the angle between the robot and a point (x,y)
+public static double AngleTurner(Robot us, double x, double y) {
+	double pointBearing = findPointBearing(us, x, y);
+    double angle = turnAngle(us.bearing, pointBearing);
+    return angle;
+}
 }
