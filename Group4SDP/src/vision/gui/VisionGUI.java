@@ -9,7 +9,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -90,7 +89,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 
 		// Image T
 		File img = new File("icons/Tletter.png");
-		BufferedImage t = null;
 		try {
 			this.t = ImageIO.read(img);
 			locationX = this.t.getWidth(null) / 2;
@@ -302,7 +300,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			imageGraphics.drawRect(a, b, c, d);
 		}
 
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Graphics2D g2d = (Graphics2D) imageGraphics;
 
 		boolean mouseModeBlueT =

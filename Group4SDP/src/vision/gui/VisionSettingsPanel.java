@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -126,9 +127,9 @@ public class VisionSettingsPanel extends JPanel {
 	// Radio buttons and their change listeners
 	private final JRadioButton rdbtnPitch0 = new JRadioButton("Main");
 	private final JRadioButton rdbtnPitch1 = new JRadioButton("Side Room");
-	private final MouseAdapter pitchMouseListener = new MouseAdapter() {
+	private final ActionListener pitchActionListener = new ActionListener() {
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			// Update the world state and pitch constants
 			int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
 			worldState.setMainPitch(rdbtnPitch0.isSelected());
@@ -140,9 +141,9 @@ public class VisionSettingsPanel extends JPanel {
 
 	private final JRadioButton rdbtnYellow = new JRadioButton("Yellow");
 	private final JRadioButton rdbtnBlue = new JRadioButton("Blue");
-	private final MouseAdapter colourMouseListener = new MouseAdapter() {
+	private final ActionListener colourActionListener = new ActionListener() {
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			// Update which colour is ours
 			worldState.setColour(rdbtnBlue.isSelected() ? 1 : 0);
 			worldState.setWeAreBlue(rdbtnBlue.isSelected());
@@ -151,9 +152,9 @@ public class VisionSettingsPanel extends JPanel {
 
 	private final JRadioButton rdbtnRight = new JRadioButton("Right");
 	private final JRadioButton rdbtnLeft = new JRadioButton("Left");
-	private final MouseAdapter directionMouseListener = new MouseAdapter() {
+	private final ActionListener directionActionListener = new ActionListener() {
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			// Update which direction the other team's goal is in
 			int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
 			worldState.setDirection(isLeft);
@@ -163,9 +164,9 @@ public class VisionSettingsPanel extends JPanel {
 	
 	private final JRadioButton rdbtnDistortOn = new JRadioButton("On");
 	private final JRadioButton rdbtnDistortOff = new JRadioButton("Off");
-	private final MouseAdapter distortionMouseListener = new MouseAdapter() {
+	private final ActionListener distortionActionListener = new ActionListener() {
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			// Update whether distortion is active
 			if (rdbtnDistortOn.isSelected()){
 				distortionFix.setActive(true);
@@ -331,8 +332,8 @@ public class VisionSettingsPanel extends JPanel {
 		pitchPanel.add(rdbtnPitch0);
 		pitchPanel.add(rdbtnPitch1);
 		
-		rdbtnPitch0.addMouseListener(pitchMouseListener);
-		rdbtnPitch1.addMouseListener(pitchMouseListener);
+		rdbtnPitch0.addActionListener(pitchActionListener);
+		rdbtnPitch1.addActionListener(pitchActionListener);
 		
 		mainTabPanel.add(pitchPanel);
 		
@@ -348,8 +349,8 @@ public class VisionSettingsPanel extends JPanel {
 		colourPanel.add(rdbtnBlue);
 		
 		
-		rdbtnYellow.addMouseListener(colourMouseListener);
-		rdbtnBlue.addMouseListener(colourMouseListener);
+		rdbtnYellow.addActionListener(colourActionListener);
+		rdbtnBlue.addActionListener(colourActionListener);
 		
 		mainTabPanel.add(colourPanel);
 		
@@ -364,8 +365,8 @@ public class VisionSettingsPanel extends JPanel {
 		directionChoice.add(rdbtnLeft);
 		directionPanel.add(rdbtnLeft);
 		
-		rdbtnRight.addMouseListener(directionMouseListener);
-		rdbtnLeft.addMouseListener(directionMouseListener);
+		rdbtnRight.addActionListener(directionActionListener);
+		rdbtnLeft.addActionListener(directionActionListener);
 		
 		mainTabPanel.add(directionPanel);
 		
@@ -380,8 +381,8 @@ public class VisionSettingsPanel extends JPanel {
 		distortionChoice.add(rdbtnDistortOff);
 		distortionPanel.add(rdbtnDistortOff);
 		
-		rdbtnDistortOn.addMouseListener(distortionMouseListener);
-		rdbtnDistortOff.addMouseListener(distortionMouseListener);
+		rdbtnDistortOn.addActionListener(distortionActionListener);
+		rdbtnDistortOff.addActionListener(distortionActionListener);
 		
 		mainTabPanel.add(distortionPanel);
 		
@@ -576,10 +577,15 @@ public class VisionSettingsPanel extends JPanel {
 		mainTabPanel.add(saveLoadPanel);
 
 		rdbtnPitch0.setSelected(true);
+		rdbtnPitch0.doClick();
 		rdbtnYellow.setSelected(true);
+		rdbtnYellow.doClick();
 		rdbtnRight.setSelected(true);
+		rdbtnRight.doClick();
 		rdbtnDistortOn.setSelected(true);
+		rdbtnDistortOn.doClick();
 		rdbtnMouseModeOff.setSelected(true);
+		rdbtnMouseModeOff.doClick();
 	}
 	
 	/**
