@@ -2,7 +2,6 @@ package strategy.planning;
 
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
-import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotController;
 import vision.Vision;
@@ -10,16 +9,13 @@ import vision.WorldState;
 
 public class MoveToPoint{
 	
-	private static final int distanceFromBallToStop = 60;
-	private static boolean rotating = false;
-	
-	private Vision vision;
+	private static final int distanceFromPointToStop = 60;
+	private static final int threshold = 75;
 
-	public void moveToPoint(WorldState worldState, RobotController robot, double moveToX, double moveToY)  throws InterruptedException{
+	public static void moveToPoint(WorldState worldState, RobotController robot, double moveToX, double moveToY)  throws InterruptedException{
 		
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
-    	Ball ball = worldState.ball;
     	
     	// Plan:
     	// 0. Get bearings
@@ -42,14 +38,14 @@ public class MoveToPoint{
 			System.out.println("Stop and turn");
 			robot.stop();
 			robot.rotate((int)angle);
-			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
 			//return;
 		}
 		
-		 while(distance > distanceFromBallToStop) {
+		 while(distance > distanceFromPointToStop) {
 				//System.out.println("Forward");
+			 	
 				angle = TurnToBall.AngleTurner(us, moveToX, moveToY);
 				if((Math.abs(angle) > 30) && (Math.abs(angle) < 40) ) {
 					//Stop everything and turn

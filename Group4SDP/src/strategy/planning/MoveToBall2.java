@@ -36,12 +36,6 @@ public class MoveToBall2 {
        
         System.out.println(String.format("Angle of ball to robot is %f", angle));
 
-//        if(rotating /*&& robot.isMoving()*/) {
-//        	// This is to simulate turning "blocking"
-//        	System.out.println("Still turning");
-//        	return;
-//        }
-//        rotating = false;
         
 		if(Math.abs(angle) > 20) {
 			// Stop and turn
