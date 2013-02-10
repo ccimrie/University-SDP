@@ -61,7 +61,7 @@ public class VideoStream {
 				BufferedImage frameBuffer = frame.getBufferedImage();
 				
 				for (VideoReceiver receiver : videoReceivers)
-					receiver.sendNextFrame(frameBuffer, frameRate, frameCounter);
+					receiver.sendFrame(frameBuffer, frameRate, frameCounter);
 			}
 			else if (frameCounter > 3) ready = true;
 			++frameCounter;
