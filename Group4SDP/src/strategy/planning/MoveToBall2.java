@@ -1,8 +1,5 @@
 package strategy.planning;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
 import vision.Vision;
@@ -39,28 +36,34 @@ public class MoveToBall2 {
        
         System.out.println(String.format("Angle of ball to robot is %f", angle));
         
-        if(rotating /*&& robot.isMoving()*/) {
-        	// This is to simulate turning "blocking"
-        	System.out.println("Still turning");
-        	return;
-        }
-        rotating = false;
+//        if(rotating /*&& robot.isMoving()*/) {
+//        	// This is to simulate turning "blocking"
+//        	System.out.println("Still turning");
+//        	return;
+//        }
+//        rotating = false;
         
-		if(Math.abs(angle) > 30) {
-			// Stop everything and turn
+		if(Math.abs(angle) > 20) {
+			// Stop and turn
 			System.out.println("Stop and turn");
-			//robot.stop();
+			robot.stop();
 			robot.rotate((int)angle);
 			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
+			//angle = TurnToBall.Turner(us, ball);
 			//return;
+			
 		}
-		
-		if(distance > distanceFromBallToStop) {
-			System.out.println("Forward");
+	
+		 while(distance > distanceFromBallToStop + 5 || distance > distanceFromBallToStop - 5) {
+			//System.out.println("Forward");
+			System.out.println("Distance to ball: " + distance);
 			robot.move(0,10);
-			Thread.sleep(5000);
+			t = new WorldState();
+			angle = TurnToBall.Turner(us, ball);
+			distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
+			//Thread.sleep(5000);
 			//return;
 			// Let's not arc for this milestone as it's too complicated
 			/*if(Math.abs(angle) > 10) {
@@ -81,19 +84,18 @@ public class MoveToBall2 {
 			*/
 		}
 		
-		// Being close to the ball we can perform one last minor turn
-		if(Math.abs(angle) > 10) {
-			// Stop everything and turn
-			System.out.println("Making final correction");
-			robot.stop();
-			robot.rotate((int) angle);
-			//rotating = true;
-			// We don't want to carry on after this command!
-			// This also removes the need for that else block
-			//return;
-		}
+//		// Being close to the ball we can perform one last minor turn
+//		if(Math.abs(angle) > 10) {
+//			// Stop everything and turn
+//			System.out.println("Making final correction");
+//			robot.stop();
+//			robot.rotate((int) angle);
+//			//rotating = true;
+//			// We don't want to carry on after this command!
+//			// This also removes the need for that else block
+//			//return;
+//		}
 		
-		System.out.println("Stop");
 		robot.stop();
 		
 	}
