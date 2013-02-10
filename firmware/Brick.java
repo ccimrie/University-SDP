@@ -33,6 +33,7 @@ public class Brick {
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
 	private final static int ROTATE = 6;
+	private final static int ROTATEMOVE = 7;
 	private final static int TEST = 66;
 
 	// I2C motor board
@@ -121,8 +122,8 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Rotate!", 0, 2);
 				LCD.refresh();
-				//The angle is calculated by having option2*10 + option3
-				rotate(option1, option2*10 + option3);
+				// The angle is calculated by having option2*10 + option3
+				rotate(option1, option2 * 10 + option3);
 				break;
 
 			case KICK:
@@ -137,6 +138,14 @@ public class Brick {
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
 				move(option1, option2);
+				// rotateMove(option1, option2, 6);
+				break;
+			case ROTATEMOVE:
+				LCD.clear();
+				LCD.drawString("Moving at an angle!", 0, 2);
+				LCD.refresh();
+				rotateMove(option1, option2, option3);
+				// rotateMove(option1, option2, 6);
 				break;
 
 			case TEST:
@@ -163,6 +172,7 @@ public class Brick {
 		connection.close();
 		LCD.clear();
 	}
+
 	/**
 	 * Rotate at a direction
 	 * 
@@ -174,36 +184,36 @@ public class Brick {
 		rightMotor.setAcceleration(2000);
 		leftMotor.setSpeed(400);
 		rightMotor.setSpeed(400);
-		angle= (int) (angle * 2);
+		angle = (int) (angle * 2);
 		chip.move(1, DO_NOTHING, 0);
 		chip.move(2, DO_NOTHING, 0);
-		
+
 		switch (dir) {
 		case 1:
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(angle);
-						
+
 			break;
 		case 2:
 			leftMotor.rotate(angle, true);
-			rightMotor.rotate(-angle);			
-			break;	
+			rightMotor.rotate(-angle);
+			break;
 		}
 		stop();
 	}
-	
-	public static void siderotate(int dir, int angle) throws InterruptedException{
-		//Some code here to transform angle into time needed to rotate
+
+	public static void siderotate(int dir, int angle) throws InterruptedException {
+		// Some code here to transform angle into time needed to rotate
 		int sleeptime = 1000;
-		
+
 		switch (dir) {
 		case 1:
 			chip.move(1, FORWARDS, 230);
-			chip.move(2, BACKWARDS, 230);			
+			chip.move(2, BACKWARDS, 230);
 			break;
 		case 2:
 			chip.move(1, BACKWARDS, 230);
-			chip.move(2, FORWARDS, 230);			
+			chip.move(2, FORWARDS, 230);
 			break;
 		}
 		Thread.sleep(sleeptime);
@@ -223,6 +233,9 @@ public class Brick {
 	private static void move(int x, int y) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
+		// Multiplying by 2, since byte only allows upto 127
+		y = y * 2;
+		x = x * 2;
 		if (y > 0) {
 			leftMotor.setSpeed(y + 500);
 			rightMotor.setSpeed(y + 500);
@@ -239,11 +252,9 @@ public class Brick {
 		}
 
 		if (x > 0) {
-			x = x*2; //Get the maximum speed out of the mux board
 			chip.move(FRONTMOTOR, 2, x);
 			chip.move(BACKMOTOR, 1, x);
 		} else if (x < 0) {
-			x = x*2; //Get the maximum speed out of the mux board
 			chip.move(FRONTMOTOR, 1, -x);
 			chip.move(BACKMOTOR, 2, -x);
 		} else {
@@ -260,11 +271,12 @@ public class Brick {
 	private static void stop() throws InterruptedException {
 		leftMotor.stop(true);
 		rightMotor.stop(true);
-		chip.stop();		
+		chip.stop();
 		Thread.sleep(10);
 		leftMotor.flt(true);
 		rightMotor.flt(true);
 	}
+
 	/**
 	 * A simple kick. Brings back the kicker to initial position after the kick.
 	 */
@@ -276,4 +288,59 @@ public class Brick {
 		kicker.flt();
 	}
 
+	/**
+	 * Rotates a certain angle while moving a certain distance.
+	 * Wheel diameter: 64mm, Radius: 32mm
+	 * Wheel distance from centre: 61mm
+	 * Motor speeds:
+	 * 28 = 502;
+	 * 200 = 580;
+	 * 2*pi*32=201.1~201mm;
+	 * 360/201~=1.79
+	 * (580-502) / (200-28)=0.45;
+	 * setSpeed is in deg/s
+	 * w is clockwise
+	 * 
+	 * @param vtx
+	 *            speed in millimetres/second to the robots right (positive) or left (negative)
+	 * @param vty
+	 *            speed in millimetres/second forwards (positive) or backwards (negative)
+	 * @param w
+	 *            angular rotation speed (in degrees/second) clockwise (positive) or counterclockwise (negative)
+	 */
+	private static void rotateMove(int vtx, int vty, int w) {
+		byte r = 61;
+		// Front wheel
+		int vf = (int) Math.rint((vtx + w * r) * 0.8);
+		// Back wheel
+		int vb = (int) Math.rint((vtx - w * r) * 0.8);
+		// Left wheel
+		int vl = (int) Math.rint((vty + w * r) * 1.79);
+		// Right wheel
+		int vr = (int) Math.rint((vty - w * r) * 1.79);
+
+		if (vf > 0)
+			chip.move(1, 2, vf);
+		else
+			chip.move(1, 1, vf);
+
+		if (vb > 0)
+			chip.move(2, 1, vf);
+		else
+			chip.move(2, 2, vf);
+
+		leftMotor.flt();
+		leftMotor.setSpeed(Math.abs(vl));
+		rightMotor.flt();
+		rightMotor.setSpeed(Math.abs(vl));
+		if (vl > 0)
+			leftMotor.forward();
+		else
+			leftMotor.backward();
+		if (vr > 0)
+			rightMotor.forward();
+		else
+			rightMotor.backward();
+
+	}
 }
