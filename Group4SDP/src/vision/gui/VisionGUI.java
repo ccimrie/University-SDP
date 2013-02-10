@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -32,7 +31,6 @@ import javax.swing.event.MouseInputAdapter;
 
 import vision.DistortionFix;
 import vision.PitchConstants;
-import vision.Position;
 import vision.VideoStream;
 import vision.VisionInterface;
 import vision.WorldState;
@@ -51,7 +49,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	private int d;
 
 	// Mouse listener variable
-	int mouse_event = 0;
 	boolean letterAdjustment = false;
 	int mouseX;
 	int mouseY;
@@ -156,19 +153,24 @@ public class VisionGUI extends JFrame implements VisionInterface {
 
 			public void mousePressed(MouseEvent e) {
 				// Mouse clicked
-				mouse_event = 2;
 				selectionActive = true;
-				switch (mouse_event) {
-				case 0:
+				switch (settingsPanel.getMouseMode()) {
+				case VisionSettingsPanel.MOUSE_MODE_OFF:
 					break;
-				case 1:
+				case VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY:
+					System.out.println("Initialised anchor");
 					// Pitch dimension selector
 					anchor = e.getPoint();
 					System.out.println(anchor.x);
 					System.out.println(anchor.y);
 					selection = new Rectangle(anchor);
 					break;
-				case 2:
+				case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+					videoDisplay.grabFocus();
+					mouseX = e.getX();
+					mouseY = e.getY();
+					break;
+				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					videoDisplay.grabFocus();
 					mouseX = e.getX();
 					mouseY = e.getY();
@@ -178,11 +180,10 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			}
 
 			public void mouseDragged(MouseEvent e) {
-
-				switch (mouse_event) {
-				case 0:
+				switch (settingsPanel.getMouseMode()) {
+				case VisionSettingsPanel.MOUSE_MODE_OFF:
 					break;
-				case 1:
+				case VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY:
 					selection.setBounds((int) Math.min(anchor.x, e.getX()),
 							(int) Math.min(anchor.y, e.getY()),
 							(int) Math.abs(e.getX() - anchor.x),
@@ -192,7 +193,11 @@ public class VisionGUI extends JFrame implements VisionInterface {
 					c = (int) Math.abs(e.getX() - anchor.x);
 					d = (int) Math.abs(e.getY() - anchor.y);
 					break;
-				case 2:
+				case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+					mouseX = e.getX();
+					mouseY = e.getY();
+					break;
+				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
@@ -202,10 +207,10 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			public void mouseReleased(MouseEvent e) {
 				selectionActive = false;
 
-				switch (mouse_event) {
-				case 0:
+				switch (settingsPanel.getMouseMode()) {
+				case VisionSettingsPanel.MOUSE_MODE_OFF:
 					break;
-				case 1:
+				case VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY:
 					if (e.getPoint().distance(anchor) > 5) {
 						Object[] options = { "Main Pitch", "Side Pitch",
 								"Cancel" };
@@ -267,12 +272,13 @@ public class VisionGUI extends JFrame implements VisionInterface {
 						repaint();
 					}
 					break;
-				case 2:
+				case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+					letterAdjustment = true;
+					break;
+				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					letterAdjustment = true;
 					break;
 				}
-
-				mouse_event = 0;
 			}
 		};
 
@@ -299,68 +305,75 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		Graphics2D g2d = (Graphics2D) imageGraphics;
 
-
-		if (letterAdjustment) {
-
-			if (adjust.equals("Up")) {
-				mouseY--;
-			} else if (adjust.equals("Down")) {
-				mouseY++;
-			} else if (adjust.equals("Left")) {
-				mouseX--;
-			} else if (adjust.equals("Right")) {
-				mouseX++;
-			} else if (adjust.equals("Enter")) {
-				letterAdjustment = false;
-				getColourRange(frame, PitchConstants.BLUE );
-			} else if (adjust.equals("Z")) {
-
-				double rotationRequired = Math.toRadians((double) rotation--);
-
-				AffineTransform tx = AffineTransform.getRotateInstance(
-						rotationRequired, locationX, locationY);
-				AffineTransformOp op = new AffineTransformOp(tx,
-						AffineTransformOp.TYPE_BILINEAR);
-				File img = new File("icons/Tletter.png");
-
-				try {
-					t = ImageIO.read(img);
-					locationX = this.t.getWidth(null) / 2;
-					locationY = this.t.getHeight(null) / 2;
-				} catch (IOException e) {
-
+		boolean mouseModeBlueT =
+				settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_BLUE_T;
+		boolean mouseModeYellowT = 
+				settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_YELLOW_T;
+		if (mouseModeBlueT || mouseModeYellowT) {
+			if (letterAdjustment) {
+	
+				if (adjust.equals("Up")) {
+					mouseY--;
+				} else if (adjust.equals("Down")) {
+					mouseY++;
+				} else if (adjust.equals("Left")) {
+					mouseX--;
+				} else if (adjust.equals("Right")) {
+					mouseX++;
+				} else if (adjust.equals("Enter")) {
+					letterAdjustment = false;
+					if (mouseModeBlueT)
+						getColourRange(frame, PitchConstants.BLUE );
+					else
+						getColourRange(frame, PitchConstants.YELLOW );
+				} else if (adjust.equals("Z")) {
+	
+					double rotationRequired = Math.toRadians((double) rotation--);
+	
+					AffineTransform tx = AffineTransform.getRotateInstance(
+							rotationRequired, locationX, locationY);
+					AffineTransformOp op = new AffineTransformOp(tx,
+							AffineTransformOp.TYPE_BILINEAR);
+					File img = new File("icons/Tletter.png");
+	
+					try {
+						t = ImageIO.read(img);
+						locationX = this.t.getWidth(null) / 2;
+						locationY = this.t.getHeight(null) / 2;
+					} catch (IOException e) {
+	
+					}
+	
+					t = op.filter(t, null);
+	
+				} else if (adjust.equals("X")) {
+	
+					double rotationRequired = Math.toRadians((double) rotation++);
+	
+					AffineTransform tx = AffineTransform.getRotateInstance(
+							rotationRequired, locationX, locationY);
+					AffineTransformOp op = new AffineTransformOp(tx,
+							AffineTransformOp.TYPE_BILINEAR);
+					File img = new File("icons/Tletter.png");
+	
+					try {
+						t = ImageIO.read(img);
+						locationX = this.t.getWidth(null) / 2;
+						locationY = this.t.getHeight(null) / 2;
+					} catch (IOException e) {
+	
+					}
+					t = op.filter(t, null);
+	
 				}
-
-				t = op.filter(t, null);
-
-			} else if (adjust.equals("X")) {
-
-				double rotationRequired = Math.toRadians((double) rotation++);
-
-				AffineTransform tx = AffineTransform.getRotateInstance(
-						rotationRequired, locationX, locationY);
-				AffineTransformOp op = new AffineTransformOp(tx,
-						AffineTransformOp.TYPE_BILINEAR);
-				File img = new File("icons/Tletter.png");
-
-				try {
-					t = ImageIO.read(img);
-					locationX = this.t.getWidth(null) / 2;
-					locationY = this.t.getHeight(null) / 2;
-				} catch (IOException e) {
-
-				}
-				t = op.filter(t, null);
-
+				adjust = "";
 			}
-			adjust = "";
+	
+			if (selectionActive || letterAdjustment) {
+				g2d.drawImage(t, mouseX, mouseY, null);
+			}
 		}
 
-		if (selectionActive && mouse_event == 2 || letterAdjustment) {
-			g2d.drawImage(t, mouseX, mouseY, null);
-		}
-
-		// Eliminating area around the pitch dimensions
 		if (!selectionActive) {
 			// Making the pitch surroundings transparent
 			Composite originalComposite = g2d.getComposite();
@@ -379,11 +392,15 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			// Setting back normal settings
 			g2d.setComposite(originalComposite);
 		}
+		
+		// Eliminating area around the pitch dimensions
+		if (settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY) {
 
-		// Draw the line around the pitch dimensions
-		if (selectionActive) {
-			imageGraphics.setColor(Color.YELLOW);
-			imageGraphics.drawRect(a, b, c, d);
+			// Draw the line around the pitch dimensions
+			if (selectionActive) {
+				imageGraphics.setColor(Color.YELLOW);
+				imageGraphics.drawRect(a, b, c, d);
+			}
 		}
 
 		// Display the FPS that the vision system is running at

@@ -331,8 +331,6 @@ public class VisionSettingsPanel extends JPanel {
 		pitchPanel.add(rdbtnPitch0);
 		pitchPanel.add(rdbtnPitch1);
 		
-		rdbtnPitch0.setSelected(true);
-		
 		rdbtnPitch0.addMouseListener(pitchMouseListener);
 		rdbtnPitch1.addMouseListener(pitchMouseListener);
 		
@@ -349,7 +347,6 @@ public class VisionSettingsPanel extends JPanel {
 		colourChoice.add(rdbtnBlue);
 		colourPanel.add(rdbtnBlue);
 		
-		rdbtnYellow.setSelected(true);
 		
 		rdbtnYellow.addMouseListener(colourMouseListener);
 		rdbtnBlue.addMouseListener(colourMouseListener);
@@ -367,8 +364,6 @@ public class VisionSettingsPanel extends JPanel {
 		directionChoice.add(rdbtnLeft);
 		directionPanel.add(rdbtnLeft);
 		
-		rdbtnRight.setSelected(true);
-		
 		rdbtnRight.addMouseListener(directionMouseListener);
 		rdbtnLeft.addMouseListener(directionMouseListener);
 		
@@ -384,8 +379,6 @@ public class VisionSettingsPanel extends JPanel {
 		distortionPanel.add(rdbtnDistortOn);
 		distortionChoice.add(rdbtnDistortOff);
 		distortionPanel.add(rdbtnDistortOff);
-		
-		rdbtnDistortOn.setSelected(true);
 		
 		rdbtnDistortOn.addMouseListener(distortionMouseListener);
 		rdbtnDistortOff.addMouseListener(distortionMouseListener);
@@ -415,7 +408,6 @@ public class VisionSettingsPanel extends JPanel {
 		mouseModeChoice.add(rdbtnMouseModePitch);
 		mouseModeChoice.add(rdbtnMouseModeBlue);
 		mouseModeChoice.add(rdbtnMouseModeYellow);
-		rdbtnMouseModeOff.setSelected(true);
 		
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
 		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
@@ -582,6 +574,12 @@ public class VisionSettingsPanel extends JPanel {
 		saveLoadPanel.add(loadButton);
 		
 		mainTabPanel.add(saveLoadPanel);
+
+		rdbtnPitch0.setSelected(true);
+		rdbtnYellow.setSelected(true);
+		rdbtnRight.setSelected(true);
+		rdbtnDistortOn.setSelected(true);
+		rdbtnMouseModeOff.setSelected(true);
 	}
 	
 	/**
