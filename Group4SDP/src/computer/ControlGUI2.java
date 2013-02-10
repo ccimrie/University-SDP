@@ -22,6 +22,7 @@ import javax.swing.UIManager;
 
 import strategy.planning.Commands;
 import strategy.planning.MoveToBall2;
+import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.Vision;
@@ -97,16 +98,22 @@ public class ControlGUI2 extends JFrame {
 		int compressionQuality = 80;
 
 		try {
-			VideoStream vStream = new VideoStream(videoDevice, width, height, channel, videoStandard, compressionQuality);
-
-			// Create a new Vision object to serve the main vision window
-			vision = new Vision(worldState, pitchConstants);
-			vStream.addReceiver(vision);
-
-			// Create the Control GUI for threshold setting/etc
-			VisionGUI visionGUI = new VisionGUI(width, height, worldState, pitchConstants, vStream);
-
-			vision.addVisionListener(visionGUI);
+        	VideoStream vStream = new VideoStream(videoDevice, width, height,
+        			channel, videoStandard, compressionQuality);
+        	
+        	DistortionFix distortionFix = new DistortionFix(pitchConstants);
+        	vStream.addReceiver(distortionFix);
+        	
+            // Create a new Vision object to serve the main vision window
+            Vision vision = new Vision(worldState, pitchConstants);
+    		
+    		distortionFix.addReceiver(vision);
+            
+            // Create the Control GUI for threshold setting/etc
+            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
+            		vStream, distortionFix);
+            
+            vision.addVisionListener(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
