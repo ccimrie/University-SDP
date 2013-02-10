@@ -27,42 +27,48 @@ public class TurnToBall {
 
         //checks if the ball is in line horizontally with the ball
 
-        if (us.x == ball.x) {
-            if (us.y > ball.y) {
-                ballBearing = Math.toDegrees(Math.PI);
-            } else {
-                ballBearing = 0;
-            }
-            return ballBearing;
-
-            //checks if the ball is in line vertically with the ball
-
-        } else if (us.y == ball.y) {
-            if (us.x > ball.x) {
-                ballBearing = Math.toDegrees(Math.PI * 1.5);
-            } else {
-                ballBearing = Math.toDegrees(Math.PI / 2);
-            }
-            return ballBearing;
-
-        } else {
+//        if (us.x == ball.x) {
+//            if (us.y > ball.y) {
+//                ballBearing = Math.toDegrees(Math.PI);
+//            } else {
+//                ballBearing = 0;
+//            }
+//            return ballBearing;
+//
+//            //checks if the ball is in line vertically with the ball
+//
+//        } else if (us.y == ball.y) {
+//            if (us.x > ball.x) {
+//                ballBearing = Math.toDegrees(Math.PI * 1.5);
+//            } else {
+//                ballBearing = Math.toDegrees(Math.PI / 2);
+//            }
+//            return ballBearing;
+//
+//        } else {
 
             //calculates the angle depending on which quadrant around the robot the ball is in
-
-            if (us.x > ball.x && us.y > ball.y) {
-                ballBearing = 360 - Math.toDegrees(Math.atan((us.x - ball.x) / (us.y - ball.y)));
-
-            } else if (us.x < ball.x && us.y > ball.y) {
-                ballBearing = Math.toDegrees(Math.atan((ball.x - us.x) / (us.y - ball.y)));
-
-            } else if (us.x < ball.x && us.y < ball.y) {
-                ballBearing = 180 - Math.toDegrees(Math.atan((ball.x - us.x) / (ball.y - us.y)));
-
-            } else {
-                ballBearing = 180 + Math.toDegrees(Math.atan((us.x - ball.x) / (ball.y - us.y)));
+        	double xDiff = ball.x - us.x;
+        	double yDiff = ball.y - us.y;
+        	
+            if (xDiff > 0) {
+            	if(yDiff > 0){
+            		ballBearing = 90 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		ballBearing = 90 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
             }
+            else {
+            	if(yDiff > 0){
+            		ballBearing = 270 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		ballBearing = 270 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            }
+        //}
             return ballBearing;
-        }
     }
 
     /*turnAngle takes the ballBearing (the output from findBearing) and botBearing
@@ -74,21 +80,8 @@ public class TurnToBall {
     public static double turnAngle(double botBearing, double toBallBearing) {
     	
     	botBearing = Math.toDegrees(botBearing);
-        if (botBearing >= toBallBearing) {
-            double turnAngle = botBearing - toBallBearing;
-            if (turnAngle > 180) {
-                return 360 - turnAngle;
-            } else {
-                return 0 - turnAngle;
-            }
-        } else {
             double turnAngle = toBallBearing - botBearing;
-            if (turnAngle > 180) {
-                return turnAngle - 360;
-            } else {
-                return turnAngle;
-            }
-        }
+            return turnAngle;
     }
 
     public static double Turner(Robot us, Ball ball) {
