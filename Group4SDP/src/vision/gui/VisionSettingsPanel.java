@@ -131,6 +131,7 @@ public class VisionSettingsPanel extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			// Update the world state and pitch constants
 			int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
+			worldState.setMainPitch(rdbtnPitch0.isSelected());
 			worldState.setPitch(pitchNum);
 			pitchConstants.setPitchNum(pitchNum);
 			reloadSliderDefaults();
@@ -144,6 +145,7 @@ public class VisionSettingsPanel extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			// Update which colour is ours
 			worldState.setColour(rdbtnBlue.isSelected() ? 1 : 0);
+			worldState.setWeAreBlue(rdbtnBlue.isSelected());
 		}
 	};
 
@@ -155,6 +157,7 @@ public class VisionSettingsPanel extends JPanel {
 			// Update which direction the other team's goal is in
 			int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
 			worldState.setDirection(isLeft);
+			worldState.setWeAreOnLeft(rdbtnLeft.isSelected());
 		}
 	};
 	
