@@ -443,8 +443,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		int lY = (int)locationY;
 
 		//Top part of the letter T 
-		for (int x = 0 - lX; x < 23 - lX; x++)
-			for (int y = 0 - lY; y < 9 - lY; y++) {
+		for (int x = 0 - lX + 12; x < 23 + 12 - lX; x++)
+			for (int y = 0 + 15 - lY; y < 9 + 15 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
 						* Math.sin(Math.toRadians((double) rotation));
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
@@ -471,8 +471,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			}
 
 		//Bottom part of the letter T 
-		for (int x = 9 - lX; x < 18 - lX; x++)
-			for (int y = 9 - lY; y < 29 - lY; y++) {
+		for (int x = 9 +12 - lX; x < 18 + 12- lX; x++)
+			for (int y = 9 + 15 - lY; y < 29 +15 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
 						* Math.sin(Math.toRadians((double) rotation));
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
@@ -497,7 +497,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				// 65535);
 			}
 
-		//Mean and Standard deviation calculations
+		//Mean and Standard deviation calculations for the RGB and HSB values
 		double meanR = calcMean(redList);
 		double stdevR = calcStandardDeviation(redList);
 		double meanG = calcMean(greenList);
