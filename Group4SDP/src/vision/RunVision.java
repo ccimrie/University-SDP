@@ -1,4 +1,6 @@
 package vision;
+import javax.swing.UIManager;
+
 import vision.gui.VisionGUI;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
@@ -16,6 +18,11 @@ public class RunVision {
      * @param args        Program arguments. Not used.
      */
     public static void main(String[] args) {
+    	try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         WorldState worldState = new WorldState();
 
         // Default to main pitch

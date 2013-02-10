@@ -88,7 +88,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		this.d = this.videoHeight - pitchConstants.getBottomBuffer() - b;
 
 		// Image T
-		File img = new File("icons/Tletter.png");
+		File img = new File("icons/Tletter2.png");
 		try {
 			this.t = ImageIO.read(img);
 			locationX = this.t.getWidth(null) / 2;
@@ -133,16 +133,13 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		videoDisplay.setFocusable(true);
 		videoDisplay.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent ke) {
-				System.out.println("Key pressed");
 			}
 
 			public void keyReleased(KeyEvent ke) {
-				System.out.println("Key released");
 				adjust = KeyEvent.getKeyText(ke.getKeyCode());
 			}
 
 			public void keyTyped(KeyEvent e) {
-				System.out.println("Key typed");
 			}
 		});
 
@@ -323,6 +320,21 @@ public class VisionGUI extends JFrame implements VisionInterface {
 						getColourRange(frame, PitchConstants.BLUE );
 					else
 						getColourRange(frame, PitchConstants.YELLOW );
+					
+					
+					//Reset the T image to initial
+					File img = new File("icons/Tletter2.png");
+					
+					try {
+						t = ImageIO.read(img);
+						locationX = this.t.getWidth(null) / 2;
+						locationY = this.t.getHeight(null) / 2;
+					} catch (IOException e) {
+	
+					}
+					
+					
+					
 				} else if (adjust.equals("Z")) {
 	
 					double rotationRequired = Math.toRadians((double) rotation--);
@@ -331,7 +343,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 							rotationRequired, locationX, locationY);
 					AffineTransformOp op = new AffineTransformOp(tx,
 							AffineTransformOp.TYPE_BILINEAR);
-					File img = new File("icons/Tletter.png");
+					File img = new File("icons/Tletter2.png");
 	
 					try {
 						t = ImageIO.read(img);
@@ -351,7 +363,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 							rotationRequired, locationX, locationY);
 					AffineTransformOp op = new AffineTransformOp(tx,
 							AffineTransformOp.TYPE_BILINEAR);
-					File img = new File("icons/Tletter.png");
+					File img = new File("icons/Tletter2.png");
 	
 					try {
 						t = ImageIO.read(img);
@@ -431,8 +443,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		int lY = (int)locationY;
 
 		//Top part of the letter T 
-		for (int x = 0 - lX; x < 27 - lX; x++)
-			for (int y = 0 - lY; y < 11 - lY; y++) {
+		for (int x = 0 - lX; x < 23 - lX; x++)
+			for (int y = 0 - lY; y < 9 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
 						* Math.sin(Math.toRadians((double) rotation));
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
@@ -459,8 +471,8 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			}
 
 		//Bottom part of the letter T 
-		for (int x = 10 - lX; x < 20 - lX; x++)
-			for (int y = 10 - lY; y < 32 - lY; y++) {
+		for (int x = 9 - lX; x < 18 - lX; x++)
+			for (int y = 9 - lY; y < 29 - lY; y++) {
 				double xR = x * Math.cos(Math.toRadians((double) rotation)) - y
 						* Math.sin(Math.toRadians((double) rotation));
 				double yR = x * Math.sin(Math.toRadians((double) rotation)) + y
@@ -522,9 +534,14 @@ public class VisionGUI extends JFrame implements VisionInterface {
 		pitchConstants.setBlueLower(object, Math.max(PitchConstants.RGBMIN,(int) (meanB - 1.5*stdevB)));
 		pitchConstants.setBlueUpper(object, Math.min(PitchConstants.RGBMAX, (int)(meanB + 1.5*stdevB)));
 		
-		pitchConstants.setHueLower(object, Math.max(PitchConstants.HSVMIN,(float)(meanH - 1.5*stdevH)));
-		pitchConstants.setHueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanH + 1.5*stdevH)));
+		//DO NOT DELETE THESE might be useful in the future
+//		pitchConstants.setHueLower(object, Math.max(PitchConstants.HSVMIN,(float)(meanH - 1.5*stdevH)));
+//		pitchConstants.setHueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanH + 1.5*stdevH)));
 		
+		//Works best with the Hue range 0-1 for the blue and yellow Ts
+		pitchConstants.setHueLower(object, Math.max(PitchConstants.HSVMIN,(float)(0)));
+		pitchConstants.setHueUpper(object, Math.min(PitchConstants.HSVMAX, (float)(1)));
+
 		pitchConstants.setSaturationLower(object, Math.max(PitchConstants.HSVMIN,(float) (meanS - 1.5*stdevS)));
 		pitchConstants.setSaturationUpper(object, Math.min(PitchConstants.HSVMAX, (float)(meanS + 1.5*stdevS)));
 		
