@@ -23,7 +23,7 @@ public class Strategy {
 		System.out.println("[Strategy] Are we blue? " + world.areWeBlue());
 		System.out.println("[Strategy] Are we on the left side? " + world.areWeOnLeft());
 		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
-		Thread strat = new Thread(new MainPlanner2(), "Planning Thread");
+		Thread strat = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
 		strat.run();
 	}
 
