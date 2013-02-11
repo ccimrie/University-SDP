@@ -7,9 +7,6 @@ import strategy.movement.TurnToBall;
 import world.state.Ball;
 import world.state.Robot;
 
-import vision.Vision;
-
-
 
 public class DribbleBall extends Strategy {
 
@@ -40,7 +37,7 @@ public class DribbleBall extends Strategy {
     	double angle = TurnToBall.Turner(us, ball);
     	if (angle>30) robot.rotate((int)angle);
     	
-    	//Dribble now!
+    	//Dribble now
     	robot.move(0, 10);
 	}
 	
