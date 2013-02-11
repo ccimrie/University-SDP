@@ -71,7 +71,11 @@ public class MoveToBall {
 			robot.rotate((int) angle);
 		}else{
 			robot.stop();
-		}	
+		}	//In case we are away from the ball, recurse.
+		if (distance > distanceFromBallToStop){
+			approach(worldState, robot);
+		}
 	}
+	
 	
 }
