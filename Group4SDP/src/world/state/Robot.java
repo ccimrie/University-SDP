@@ -2,8 +2,8 @@ package world.state;
 
 public class Robot extends Entity {
 	
-	@Deprecated public double x;
-	@Deprecated public double y;
+	public double x;
+	public double y;
 	public double bearing;
 	public RobotType type;
 	

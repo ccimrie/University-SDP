@@ -3,14 +3,14 @@ package strategy.calculations;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotType;
-import world.state.World;
+import vision.WorldState;
 import strategy.movement.TurnToBall;
 
 public class Possession {
 	
 	private static final int possessionThreshold = 45;
 	
-	public static boolean hasPossession(World world, RobotType type) {
+	public static boolean hasPossession(WorldState world, RobotType type) {
 	
 		boolean possession = false;
 		
