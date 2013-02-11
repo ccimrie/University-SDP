@@ -8,7 +8,7 @@ import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotController;
 
-public class MoveToBall2 {
+public class MoveToBall {
 	
 	private static final int distanceFromBallToStop = 60;
 	private static boolean rotating = false;
