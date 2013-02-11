@@ -492,24 +492,14 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the blue robot's orientation.
 		try {
 			double blueOrientation = findOrient(frame, debugOverlay, blue, blueXPoints,
-					blueYPoints, 120, 200);
+					blueYPoints, 120, 175);
 
-//			// If angle hasn't changed much, just use the old one
-//			double diff = Math.abs(blueOrientation
-//					- worldState.getBlueOrientation());
-//			if (blueOrientation != 0 && diff > 0.05) {
-//				// Clamp angle to 5 degree increments
-//				blueOrientation = Math
-//						.round(Math.toDegrees(blueOrientation) / 5) * 5;
-//				worldState.setBlueOrientation(Math.toRadians(blueOrientation));
-//			}
-			
 			// Use moving average to smooth the orientation over 5 frames
 			last5BlueOrients[currentOrientIndex]  = blueOrientation;
-			double mean = 0.0;
+			double sum = 0.0;
 			for (int i = 0; i < 5; ++i)
-				mean += last5BlueOrients[i];
-			worldState.setBlueOrientation(mean / 5.0);
+				sum += last5BlueOrients[i];
+			worldState.setBlueOrientation(sum / 5.0);
 		} catch (NoAngleException e) {
 			// TODO: fix the problem properly
 			// System.out.println(e.getMessage());
@@ -519,18 +509,7 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the yellow robot's orientation.
 		try {
 			double yellowOrientation = findOrient(frame, debugOverlay, yellow,
-					yellowXPoints, yellowYPoints, 120, 200);
-
-//			// If angle hasn't changed much, just use the old one
-//			double diff = Math.abs(yellowOrientation
-//					- worldState.getYellowOrientation());
-//			if (yellowOrientation != 0 && diff > 0.05) {
-//				// Clamp angle to 5 degree increments
-//				yellowOrientation = Math.round(Math
-//						.toDegrees(yellowOrientation) / 5) * 5;
-//				worldState.setYellowOrientation(Math
-//						.toRadians(yellowOrientation));
-//			}
+					yellowXPoints, yellowYPoints, 120, 175);
 
 			// Use moving average to smooth the orientation over 5 frames
 			last5YellowOrients[currentOrientIndex]  = yellowOrientation;

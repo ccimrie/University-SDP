@@ -68,6 +68,7 @@ public class RobotController extends Robot {
 		int op2 = input/10;
 		int[] command = {Commands.ROTATE, dir, op2, op1};//Angle is the sum of option1 + option2
 		try {
+			System.out.println("Str " + dir + " " + op2 + " " + op1);
 			confirmation = comms.sendToRobot(command);
 		}
 		catch (IOException e1) {

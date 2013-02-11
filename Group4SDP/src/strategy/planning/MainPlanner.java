@@ -1,101 +1,221 @@
 package strategy.planning;
 
-import java.util.Observable;
+import geometry.Vector;
 
-import strategy.calculations.BlockGoal;
-import strategy.calculations.Compare;
+import java.awt.geom.Point2D;
+
 import strategy.calculations.DistanceCalculator;
 import strategy.calculations.IsRobotFacingPoint;
+import strategy.movement.AvoidanceStrategy;
+import strategy.movement.GoToPoint;
+import strategy.movement.LineupStrategies;
+import strategy.movement.TurnToBall;
+import vision.WorldState;
 import world.state.PossessionType;
+import world.state.Robot;
+import world.state.RobotController;
+import world.state.RobotType;
+import strategy.planning.Strategy;
 
-public class MainPlanner extends Strategy {
+public class MainPlanner implements Runnable {
+	WorldState world;
+	RobotController rc;
+	Robot us;
+	Robot them;
 	
-	private final int KICK_TIMEOUT = 50; 
-	private int kickCounterTimeout = 0;
-	private int stuckCounter = 20;
-	private int goBackCounter = 0;
-	private boolean start = true, startKick = false;
-	double speed = 0.2;
-	double delta = 0.015;
+	int angleToTurnToBall = 15;
+	boolean collisionInProgress = false;
+	boolean isTurning = false;
 
-	Offensive o = new Offensive();
-	Defensive d = new Defensive();
+	enum state {
+		StartOfMatch,
+		CollisionAvoidance,
+		BallInGoal,
+		GetBehindBall,
+		TurnToBall,
+		TakePossesion,
+		DriveToGoalWithBall,
+		ShootAndScore
+	}
+	state currentState = state.StartOfMatch;
+	state newState = currentState;
+
+	public MainPlanner(WorldState world, Robot us, Robot them, RobotController rc){
+		this.world = world;
+		this.rc = rc;
+		this.us = us;
+		this.them = them;
+	}
 	
 	@Override
-	public void update(Observable arg, Object obj) {
-		// Sets default speeds
-		rc.setDefaultRotateSpeed(50.0);
-    	rc.setDefaultTravelSpeed(0.3);
+	//Run the strategy from here.
+	public void run() {
 
-		// TODO: Create start of match strategy.
-		
-    	// OBSTACLE DETECTION STRATEGY
-    	// When touch sensor is pressed, go back.
-		if(goBackCounter > 0)
-		{
+		/*The while loop will execute the strategy until it is broken or we're told to die*/
+		while (!Strategy.shouldIdie){ 
+			if (currentState != newState) {
+				System.out.println("State changed to " + currentState.toString());
+				newState = currentState;
+			}
+
+			// OBSTACLE DETECTION STRATEGY
+			// WE MUST IMPLEMENT THAT OURSELVES
+			// When touch sensor is pressed, go back no matter what.
+			/*if (collisionInProgress) {
+    		if (rc.isMoving()) {
+    			return;
+    		} else {
+    			collisionInProgress = false;
+        		System.out.println("Finished Collision");
+    			return;
+    		}
+    	}
+    	if (rc.isTouchPressed()) {
+    		System.out.println("Collision in Progress");
 			rc.travel(-0.3d, 0.3d);
-			goBackCounter --;
+			currentState = state.GetBehindBall;
+			collisionInProgress = true;
+			return;
 		}
-		else if(stuckCounter <= 0)
-		{
-			stuckCounter = 20;
-			goBackCounter = 7;
-		}
-		else if (rc.isTouchPressed()) {
-			//rc.travel(-0.3d, 0.3d);
-			stuckCounter--;
-		}
-		
-		else
-		{
-		
-			// If the ball is in the goal then stop playing.
-			// TODO: These values should not be hard coded.
-			if (world.ball.x < 40 || world.ball.x > 644) {
-				rc.stop();
-			}
-		
-			stuckCounter = 20;
-			// If our robot is facing another robot, go back.
-			if ((IsRobotFacingPoint.Turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y) < 10)
-					&& (world.ourRobot.distance(world.theirRobot) < 20)) {
+			 */
 
-				rc.travel(0.3d,-1d);
+			// BLOCK TURNS
+			//NO IDEA WHY THIS CODE IS NEEDED.
+			/*if (isTurning) {
+    		if (rc.isMoving()) {
+    			return;
+    		} else {
+        		System.out.println("Finished Turn");
+    			isTurning = false;
+    		}
+    	}
+			 */
+			// TODO: ROBOT AVOIDANCE STRATEGY
+			// We should avoid other robots like the plague to stop our vision from
+			// breaking.
+
+			// END OF PLAY STRATEGY
+			// If the ball is in the goal then stop playing.
+			if(world.ballIsInGoal()) {
+				rc.stop();
+				return;
 			}
-			
-			if (world.hasPossession == PossessionType.Both) {
-				System.out.println("Both teams have the ball.");
-				speed = 0.3;
-				rc.setDefaultTravelSpeed(speed);
-				d.defensive(world, rc);
-			} else if (world.hasPossession == PossessionType.Them) {
-				System.out.println("The enemy has the ball.");
-				speed = 0.3;
-				rc.setDefaultTravelSpeed(speed);
-				d.defensive(world, rc);
-			} else if (world.hasPossession == PossessionType.Us) {
-				System.out.println("We have the ball.");
-				o.offensive(world, rc);
-				rc.setDefaultTravelSpeed(speed);
-				speed += delta;
-				//kickCounterTimeout++;
-			//	if (kickCounterTimeout == KICK_TIMEOUT) kickCounterTimeout = 0;
-			} else {
-				double x = BlockGoal.Blockx(world.ball.x, world.ball.y);
-				double y = BlockGoal.Blocky(world.ball.x, world.ball.y); 
-				if ((world.ourRobot.x < world.ball.x && world.areWeOnLeft() && Compare.compareDouble(world.ourRobot.y,world.ball.y,40)) 
-						|| (world.ourRobot.x >= world.ball.x && !world.areWeOnLeft() && Compare.compareDouble(world.ourRobot.y,world.ball.y,40))) {
-					System.out.println("Nobody has the ball, we're gonna go get it.");
-					speed = 0.3;
-					rc.setDefaultTravelSpeed(speed);
-					BallRetrievalStrategy.ballRetrieval(world, rc);
+
+			if (currentState == state.StartOfMatch) {
+				currentState = state.GetBehindBall;
+				return;
+			}
+
+			if (currentState == state.GetBehindBall) {
+				// STEP 1
+				// ======
+				// First we want to get behind the ball
+				Point2D pointBehindBall = LineupStrategies.getPointBehindBall(world);
+				// Get the square distance between us and the destination
+				double distanceBetweenUsAndPointBehindBall = 
+					DistanceCalculator.Distance(world.ourRobot.x, world.ourRobot.y,
+							pointBehindBall.getX(), pointBehindBall.getY());
+
+				// Radius in which to stop trying to get behind ball
+				int pointRadius = 30;
+				// If we are further away than this then go to the point
+				if(distanceBetweenUsAndPointBehindBall > pointRadius) {
+					GoToPoint.goToPoint(
+							world,
+							rc,
+							new Vector(pointBehindBall.getX(),
+									pointBehindBall.getY()),
+									AvoidanceStrategy.AvoidingBall
+					);
+					return;
 				} else {
-					System.out.println("Nobody has the ball, we're getting behind it.");
-					speed = 0.3;
-					rc.setDefaultTravelSpeed(speed);
-					d.defensive(world, rc);
+					currentState = state.TurnToBall;
+					return;
 				}
 			}
+
+
+			if (currentState == state.TurnToBall) {
+				// STEP 2
+				// ======
+				// Now turn to the ball.
+
+				// If they have possession at this state, go back to one
+				if (world.hasPossession == PossessionType.Them){
+					currentState = state.GetBehindBall;
+				}
+
+				double angle = TurnToBall.Turner(world.ourRobot, world.ball);
+				if ((Math.abs(angle) > angleToTurnToBall)) {
+					rc.rotate((int)-angle);
+					isTurning = true;
+					System.out.println("Turn in Progress");
+					return;
+				} else {
+					currentState = state.TakePossesion;
+					return;
+				}
+			}
+
+			if (currentState == state.TakePossesion) {
+				// STEP 3
+				// ======
+				// Having turned to the ball, we may now slowly try to take posession.
+
+				// If they have possession at this state, go back to one
+				if (world.hasPossession == PossessionType.Them){
+					currentState = state.GetBehindBall;
+					return;
+				}
+				if (world.hasPossession == PossessionType.Us) {
+					currentState = state.DriveToGoalWithBall;
+					return;
+				}
+				// Otherwise we can get it
+				if (world.hasPossession == PossessionType.Nobody) {
+					GoToPoint.goToPoint(world, rc, world.ball.getPosition(),
+							AvoidanceStrategy.IgnoringBall);
+					return;
+				}
+			}
+
+			if (currentState == state.DriveToGoalWithBall) {
+				// STEP 4
+				// ======
+				// Having obtained posession, we may now drive towards the enemy goal.
+				if (world.hasPossession == PossessionType.Us) {
+					GoToPoint.goToPoint(world, rc,
+							world.getTheirGoal(),
+							AvoidanceStrategy.IgnoringBall);
+					currentState = state.ShootAndScore;
+				} else {
+					currentState = state.GetBehindBall;
+					return;
+				}
+			}
+
+			if (currentState == state.ShootAndScore) {
+				// STEP 5
+				// ======
+				// We are heading towards the enemy goal. Can we kick and score?
+				if (world.hasPossession != PossessionType.Us) {
+					currentState = state.GetBehindBall;
+				}
+				if (world.areWeInOurHalf() != true) {
+					// We can score!
+					double scoringAngle = IsRobotFacingPoint.Turner(
+							world.ourRobot,
+							world.getTheirGoal().getX(),
+							world.getTheirGoal().getY());
+					if(Math.abs(scoringAngle) < 15) {
+						rc.kick();
+					}
+					return;
+				}
+			}
+
+
 		}
 	}
+
 }
