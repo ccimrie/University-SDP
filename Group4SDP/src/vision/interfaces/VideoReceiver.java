@@ -1,4 +1,4 @@
-package vision;
+package vision.interfaces;
 
 import java.awt.image.BufferedImage;
 

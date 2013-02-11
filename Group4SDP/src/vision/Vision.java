@@ -6,6 +6,10 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import vision.interfaces.VideoReceiver;
+import vision.interfaces.VisionDebugReceiver;
+import vision.interfaces.WorldStateReceiver;
+
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**

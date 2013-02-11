@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import vision.interfaces.VideoReceiver;
+
 /**
  * Class to remove barrel distortion from bufferedimages
  * 

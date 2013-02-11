@@ -30,11 +30,11 @@ import javax.swing.event.MouseInputAdapter;
 
 import vision.DistortionFix;
 import vision.PitchConstants;
-import vision.VideoReceiver;
 import vision.VideoStream;
-import vision.VisionDebugReceiver;
 import vision.WorldState;
-import vision.WorldStateReceiver;
+import vision.interfaces.VideoReceiver;
+import vision.interfaces.VisionDebugReceiver;
+import vision.interfaces.WorldStateReceiver;
 
 @SuppressWarnings("serial")
 public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugReceiver,
