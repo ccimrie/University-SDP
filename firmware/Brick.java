@@ -88,7 +88,7 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Forward!", 0, 2);
 				LCD.refresh();
-				move(0, 255);
+				move(0, option1);
 				replytopc(opcode,os);
 				break;
 
@@ -96,7 +96,7 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Backward!", 0, 2);
 				LCD.refresh();
-				move(0, -255);
+				move(0, -option1);
 				replytopc(opcode,os);
 				break;
 
@@ -104,7 +104,7 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Left!", 0, 2);
 				LCD.refresh();
-				move(-255, 0);
+				move(-option1, 0);
 				replytopc(opcode,os);
 				break;
 
@@ -112,7 +112,7 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Right!", 0, 2);
 				LCD.refresh();
-				move(255, 0);
+				move(option1, 0);
 				replytopc(opcode,os);
 				break;
 
@@ -278,6 +278,8 @@ public class Brick {
 			chip.move(FRONTMOTOR, 1, -x);
 			chip.move(BACKMOTOR, 2, -x);
 		} else {
+			chip.move(1, DO_NOTHING, 0);
+			chip.move(2, DO_NOTHING, 0);
 			chip.stop();
 		}
 	}

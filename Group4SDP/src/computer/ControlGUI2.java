@@ -153,7 +153,9 @@ public class ControlGUI2 extends JFrame {
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
-
+		op1field.setText("100");
+		op2field.setText("100");
+		op3field.setText("100");
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		frame.getContentPane().setLayout(gridBagLayout);
