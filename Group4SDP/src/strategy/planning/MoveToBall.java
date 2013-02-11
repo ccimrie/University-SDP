@@ -2,7 +2,6 @@ package strategy.planning;
 
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
-import vision.Vision;
 import vision.WorldState;
 import world.state.Ball;
 import world.state.Robot;
@@ -11,7 +10,6 @@ import world.state.RobotController;
 public class MoveToBall {
 	
 	private static final int distanceFromBallToStop = 60;
-	private static boolean rotating = false;
 	
 	public void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball
@@ -39,7 +37,6 @@ public class MoveToBall {
 			System.out.println("Stop and turn");
 			robot.stop();
 			robot.rotate((int)angle);
-			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
 			//angle = TurnToBall.Turner(us, ball);
@@ -66,6 +63,7 @@ public class MoveToBall {
 		}
 		
 		// Being close to the ball we can perform one last minor turn
+		angle = TurnToBall.Turner(us, ball);
 		if(Math.abs(angle) > 10) {
 			// Stop everything and turn
 			System.out.println("Making final correction");
