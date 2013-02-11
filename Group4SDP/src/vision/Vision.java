@@ -29,6 +29,10 @@ public class Vision implements VideoReceiver {
 	private static final double barrelCorrectionY = -0.13;
 	private final WorldState worldState;
 	
+	private final double[] last5BlueOrients = new double[5];
+	private final double[] last5YellowOrients = new double[5];
+	private int currentOrientIndex = 0;
+	
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers =
 			new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = 
@@ -488,17 +492,14 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the blue robot's orientation.
 		try {
 			double blueOrientation = findOrient(frame, debugOverlay, blue, blueXPoints,
-					blueYPoints, 120, 500);
+					blueYPoints, 120, 175);
 
-			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(blueOrientation
-					- worldState.getBlueOrientation());
-			if (blueOrientation != 0 && diff > 0.05) {
-				// Clamp angle to 5 degree increments
-				blueOrientation = Math
-						.round(Math.toDegrees(blueOrientation) / 5) * 5;
-				worldState.setBlueOrientation(Math.toRadians(blueOrientation));
-			}
+			// Use moving average to smooth the orientation over 5 frames
+			last5BlueOrients[currentOrientIndex]  = blueOrientation;
+			double sum = 0.0;
+			for (int i = 0; i < 5; ++i)
+				sum += last5BlueOrients[i];
+			worldState.setBlueOrientation(sum / 5.0);
 		} catch (NoAngleException e) {
 			// TODO: fix the problem properly
 			// System.out.println(e.getMessage());
@@ -508,23 +509,22 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the yellow robot's orientation.
 		try {
 			double yellowOrientation = findOrient(frame, debugOverlay, yellow,
-					yellowXPoints, yellowYPoints, 120, 500);
+					yellowXPoints, yellowYPoints, 120, 175);
 
-			// If angle hasn't changed much, just use the old one
-			double diff = Math.abs(yellowOrientation
-					- worldState.getYellowOrientation());
-			if (yellowOrientation != 0 && diff > 0.05) {
-				// Clamp angle to 5 degree increments
-				yellowOrientation = Math.round(Math
-						.toDegrees(yellowOrientation) / 5) * 5;
-				worldState.setYellowOrientation(Math
-						.toRadians(yellowOrientation));
-			}
+			// Use moving average to smooth the orientation over 5 frames
+			last5YellowOrients[currentOrientIndex]  = yellowOrientation;
+			double sum = 0.0;
+			for (int i = 0; i < 5; ++i)
+				sum += last5YellowOrients[i];
+			worldState.setYellowOrientation(sum / 5.0);
 		} catch (NoAngleException e) {
 			// TODO: fix the problem properly
 			// System.out.println(e.getMessage());
 			// e.printStackTrace();
 		}
+		
+		++currentOrientIndex;
+		if (currentOrientIndex >= 5) currentOrientIndex = 0;
 
 		// Apply Barrel correction (fixes fish-eye effect)
 		// ball = convertToBarrelCorrected(ball);
