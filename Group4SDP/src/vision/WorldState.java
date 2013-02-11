@@ -7,7 +7,6 @@ import world.state.PossessionManager;
 import world.state.PossessionType;
 import world.state.Robot;
 import world.state.RobotType;
-import world.state.World;
 
 import geometry.Vector;
 

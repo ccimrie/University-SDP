@@ -2,88 +2,65 @@ package strategy.planning;
 
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
-import world.state.Ball;
 import world.state.Robot;
-import world.state.World;
-
-import comms.control.Server;
-
+import world.state.RobotController;
+import vision.WorldState;
 
 public class MoveToPoint{
 	
-	private static final int distanceFromBallToStop = 60;
-	private static boolean rotating = false;
+	private static final int distanceFromPointToStop = 60;
 
-	public void moveToPoint(World world, Server rc, double moveToX, double moveToY){
+	public static void moveToPoint(WorldState worldState, RobotController robot, double moveToX, double moveToY)  throws InterruptedException{
 		
-		Robot us = world.ourRobot;
-    	Ball ball = world.ball;
+		worldState.setOurRobot();
+		Robot us = worldState.ourRobot;
     	
     	// Plan:
     	// 0. Get bearings
     	// 1. Turn to face ball
     	// 2. Move forwards
 		double distance = DistanceToBall.Distance(us.x, us.y, moveToX, moveToY);
-        System.out.println(String.format("Distance to ball is %f", distance));
-		double angle = TurnToBall.Turner(us, ball);
-        System.out.println(String.format("Angle of ball to robot is %f", angle));
+        System.out.println(String.format("Distance to point is %f", distance));
+		double angle = TurnToBall.AngleTurner(us, moveToX, moveToY);
+        System.out.println(String.format("Angle of point to robot is %f", angle));
         
-        if(rotating && rc.isMoving()) {
-        	// This is to simulate turning "blocking"
-        	System.out.println("Still turning");
-        	return;
-        }
-        rotating = false;
         
-		if(Math.abs(angle) > 30) {
-			// Stop everything and turn
+		if(Math.abs(angle) > 20) {
+			// Turn to angle required
 			System.out.println("Stop and turn");
-			rc.stop();
-			rc.rotate(-angle);
-			rotating = true;
-			// We don't want to carry on after this command!
-			// This also removes the need for that else block
-			return;
+			robot.stop();
+			robot.rotate((int)angle);
 		}
 		
-		if(distance > distanceFromBallToStop) {
-			System.out.println("Forward");
-			rc.forward(0.2);
-			return;
-			// Let's not arc for this milestone as it's too complicated
-			/*if(Math.abs(angle) > 10) {
-				//TODO: Perfect this with different values for the arc radius (maybe relate it to distance / angle)
-				System.out.println("Arcing");
-				int direction;
-				if (angle > 0) {
-					direction = 1;
-				} else {
-					direction = -1;
+		 while(distance > distanceFromPointToStop) {
+			 	
+				angle = TurnToBall.AngleTurner(us, moveToX, moveToY);
+			
+				if((Math.abs(angle) > 20) && (Math.abs(angle) < 40) ) {
+					//Stop everything and turn
+					System.out.println("The final angle is " + angle);
+					robot.stop();
+					robot.rotate((int)(angle/5));
+				}else if (Math.abs(angle) > 40){
+						robot.stop();
+						robot.rotate((int)(angle/2));
 				}
-				rc.arcForward(direction * 0.25);
-			} else {
-				System.out.println("Forward");
-				rc.forward();
+
+				robot.move(0,10);
+				distance = DistanceToBall.Distance(us.x, us.y, moveToX, moveToY);
+				System.out.println("Distance to ball: " + distance);
+				Thread.sleep(100);
 			}
-			return;
-			*/
+
+			// Being close to the ball we can perform one last minor turn
+			if(Math.abs(angle) > 10) {
+				// Stop everything and turn
+				System.out.println("Making final correction");
+				robot.stop();
+				robot.rotate((int) angle);
+			}else{
+				robot.stop();
+			}		
 		}
-		
-		// Being close to the ball we can perform one last minor turn
-		if(Math.abs(angle) > 10) {
-			// Stop everything and turn
-			System.out.println("Making final correction");
-			rc.stop();
-			rc.rotate(-angle);
-			rotating = true;
-			// We don't want to carry on after this command!
-			// This also removes the need for that else block
-			return;
-		}
-		
-		System.out.println("Stop");
-		rc.stop();
-		//stop();
-	}
 	
 }

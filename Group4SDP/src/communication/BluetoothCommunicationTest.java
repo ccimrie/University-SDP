@@ -47,7 +47,7 @@ public class BluetoothCommunicationTest {
 			int [] tststr = new int [] {66,0,0,66};
 			int [] ret_expect = new int [] {66,77,88,99};
 			for (int i = 0; i < test_no; i++) {
-				comms.sendToRobot(tststr);
+				comms.sendToRobotSimple(tststr);
 				System.out.println("Wait Data from Robot");
 				int [] receive_info = new int [4];
 				try {

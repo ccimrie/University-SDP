@@ -31,11 +31,14 @@ import javax.swing.event.MouseInputAdapter;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
-import vision.VisionInterface;
 import vision.WorldState;
+import vision.interfaces.VideoReceiver;
+import vision.interfaces.VisionDebugReceiver;
+import vision.interfaces.WorldStateReceiver;
 
 @SuppressWarnings("serial")
-public class VisionGUI extends JFrame implements VisionInterface {
+public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugReceiver,
+	WorldStateReceiver {
 	private final int videoWidth;
 	private final int videoHeight;
 
@@ -46,6 +49,12 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	private int b;
 	private int c;
 	private int d;
+	
+	// Stored to only have rendering happen in one place
+	private BufferedImage frame;
+	private int fps;
+	private int frameCounter;
+	private BufferedImage debugOverlay;
 
 	// Mouse listener variable
 	boolean letterAdjustment = false;
@@ -285,19 +294,24 @@ public class VisionGUI extends JFrame implements VisionInterface {
 	}
 
 	@Override
-	public void sendFrame(BufferedImage frame, int fps, Point ball,
-			Point blueRobot, double blueOrientation, Point yellowRobot,
-			double yellowOrientation) {
-		Graphics videoGraphics = videoDisplay.getGraphics();
-		Graphics imageGraphics = frame.getGraphics();
+	public void sendFrame(BufferedImage frame, int fps, int frameCounter) {
+		this.frame = frame;
+		this.fps = fps;
+		this.frameCounter = frameCounter;
+	}
+	
+	@Override
+	public void sendDebugOverlay(BufferedImage debug) {
+		this.debugOverlay = debug;
+		Graphics debugGraphics = debugOverlay.getGraphics();
 
 		// Draw the line around the pitch dimensions
 		if (selectionActive) {
-			imageGraphics.setColor(Color.YELLOW);
-			imageGraphics.drawRect(a, b, c, d);
+			debugGraphics.setColor(Color.YELLOW);
+			debugGraphics.drawRect(a, b, c, d);
 		}
 
-		Graphics2D g2d = (Graphics2D) imageGraphics;
+		Graphics2D g2d = (Graphics2D) debugGraphics;
 
 		boolean mouseModeBlueT =
 				settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_BLUE_T;
@@ -305,7 +319,6 @@ public class VisionGUI extends JFrame implements VisionInterface {
 				settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_YELLOW_T;
 		if (mouseModeBlueT || mouseModeYellowT) {
 			if (letterAdjustment) {
-	
 				if (adjust.equals("Up")) {
 					mouseY--;
 				} else if (adjust.equals("Down")) {
@@ -332,11 +345,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 					} catch (IOException e) {
 	
 					}
-					
-					
-					
 				} else if (adjust.equals("Z")) {
-	
 					double rotationRequired = Math.toRadians((double) rotation--);
 	
 					AffineTransform tx = AffineTransform.getRotateInstance(
@@ -354,9 +363,7 @@ public class VisionGUI extends JFrame implements VisionInterface {
 					}
 	
 					t = op.filter(t, null);
-	
 				} else if (adjust.equals("X")) {
-	
 					double rotationRequired = Math.toRadians((double) rotation++);
 	
 					AffineTransform tx = AffineTransform.getRotateInstance(
@@ -389,15 +396,15 @@ public class VisionGUI extends JFrame implements VisionInterface {
 			int type = AlphaComposite.SRC_OVER;
 			AlphaComposite alphaComp = (AlphaComposite.getInstance(type, 0.6f));
 			g2d.setComposite(alphaComp);
-			imageGraphics.setColor(Color.BLACK);
+			debugGraphics.setColor(Color.BLACK);
 			// Rectangle covering the BOTTOM
-			imageGraphics.fillRect(0, 0, videoWidth, b);
+			debugGraphics.fillRect(0, 0, videoWidth, b);
 			// Rectangle covering the LEFT
-			imageGraphics.fillRect(0, b, a, videoHeight);
+			debugGraphics.fillRect(0, b, a, videoHeight);
 			// Rectangle covering the BOTTOM
-			imageGraphics.fillRect(a + c, b, videoWidth - a, videoHeight - b);
+			debugGraphics.fillRect(a + c, b, videoWidth - a, videoHeight - b);
 			// Rectangle covering the RIGHT
-			imageGraphics.fillRect(a, b + d, c, videoHeight - d);
+			debugGraphics.fillRect(a, b + d, c, videoHeight - d);
 			// Setting back normal settings
 			g2d.setComposite(originalComposite);
 		}
@@ -407,26 +414,42 @@ public class VisionGUI extends JFrame implements VisionInterface {
 
 			// Draw the line around the pitch dimensions
 			if (selectionActive) {
-				imageGraphics.setColor(Color.YELLOW);
-				imageGraphics.drawRect(a, b, c, d);
+				debugGraphics.setColor(Color.YELLOW);
+				debugGraphics.drawRect(a, b, c, d);
 			}
 		}
-
+	}
+	
+	@Override
+	public void sendWorldState(WorldState worldState) {
+		Graphics frameGraphics = frame.getGraphics();
+		
+		// Draw overlay on top of raw frame
+		frameGraphics.drawImage(debugOverlay, 0, 0, null);
+		
+		// Draw frame info and worldstate on top of the result
 		// Display the FPS that the vision system is running at
-		imageGraphics.setColor(Color.white);
-		imageGraphics.drawString("FPS: " + fps, 15, 15);
+		frameGraphics.setColor(Color.white);
+		frameGraphics.drawString("Frame: " + frameCounter, 15, 15);
+		frameGraphics.drawString("FPS: " + fps, 15, 30);
 
 		// Display Ball & Robot Positions
-		imageGraphics.drawString("Ball: (" + ball.x + ", " + ball.y + ")", 15,
-				30);
-		imageGraphics.drawString("Blue: (" + blueRobot.x + ", " + blueRobot.y
-				+ ") Orientation: " + Math.toDegrees(blueOrientation), 15, 45);
-		imageGraphics
-				.drawString(
-						"Yellow: (" + yellowRobot.x + ", " + yellowRobot.y
-								+ ") Orientation: "
-								+ Math.toDegrees(yellowOrientation), 15, 60);
-
+		int ballX = worldState.getBallX();
+		int ballY = worldState.getBallY();
+		frameGraphics.drawString("Ball: (" + ballX + ", " + ballY + ")", 15, 45);
+		int blueX = worldState.getBlueX();
+		int blueY = worldState.getBlueY();
+		double blueOrient = Math.toDegrees(worldState.getBlueOrientation());
+		frameGraphics.drawString("Blue: (" + blueX + ", " + blueY + ") Orientation: "
+				+ blueOrient, 15, 60);
+		int yellowX = worldState.getYellowX();
+		int yellowY = worldState.getYellowY();
+		double yellowOrient = Math.toDegrees(worldState.getYellowOrientation());
+		frameGraphics.drawString("Yellow: (" + yellowX + ", " + yellowY + ") Orientation: "
+				+ yellowOrient, 15, 75);
+		
+		// Draw overall composite to screen
+		Graphics videoGraphics = videoDisplay.getGraphics();
 		videoGraphics.drawImage(frame, 0, 0, null);
 	}
 

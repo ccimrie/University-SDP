@@ -13,16 +13,13 @@ public class RobotController extends Robot {
 		super(type);
 	}
 
-	private enum CurrentMovement {
-		
-	}
 
 	//Opens Bluetooth communication between computer and robot
 
 	public void quit() {
 		int[] command = {Commands.QUIT, 0, 0, 0};
 		try {
-			comms.sendToRobot(command);
+			comms.sendToRobotSimple(command);
 		}
 		catch (IOException e1) {
 			System.out.println("Could not send command");
@@ -33,42 +30,35 @@ public class RobotController extends Robot {
 	}
 	
  
-	public void stop() {
+	public int stop() {
 		int[] command = {Commands.STOP, 0, 0, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
-		
 		System.out.println("Stop...");
+		return confirmation;
 	} 
 
-	public void kick() {
+	public int kick() {
 		int[] command = {Commands.KICK, 0, 0, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Kick");
+		return confirmation;
 	}
 	
-	public void rotate() {
-		int[] command = {Commands.ROTATE, -120, -30, 0};//Angle is the sum of option1 + option2
-		try {
-			comms.sendToRobot(command);
-		}
-		catch (IOException e1) {
-			System.out.println("Could not send command");
-			e1.printStackTrace();
-		}
-		System.out.println("Rotate...");
-	}
-	public void rotate(int input ) {
+	public int rotate(int input ) {
 		int dir =2;
+		int confirmation = 0;
 		if (input <0 && input > -180) {
 			input = -input;
 			dir = 1;
@@ -78,68 +68,80 @@ public class RobotController extends Robot {
 		int op2 = input/10;
 		int[] command = {Commands.ROTATE, dir, op2, op1};//Angle is the sum of option1 + option2
 		try {
-			comms.sendToRobot(command);
+			System.out.println("Str " + dir + " " + op2 + " " + op1);
+			confirmation = comms.sendToRobot(command);
 		}
 		catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Rotate...");
+		return confirmation;
 	}
 
-	public void move(int op1, int op2) {
+	public int move(int op1, int op2) {
 		int[] command = {Commands.ANGLEMOVE, op1, op2, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Moving forward...");
+		return confirmation;
 	}
 	
-	public void forward(int op1, int op2) {
+	public int forward(int op1, int op2) {
 		int[] command = {Commands.FORWARDS, op1, op2, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Moving forward...");
+		return confirmation;
 	}
 	
-	public void backward(int op1, int op2){
+	public int backward(int op1, int op2){
 		int[] command = {Commands.BACKWARDS, op1, op2, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Moving backwards...");
+		return confirmation;
 	}
 	
-	public void left(int op1, int op2){
+	public int left(int op1, int op2){
 		int[] command = {Commands.LEFT, op1, op2, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Moving leftside...");
+		return confirmation;
 	}
 	
-	public void right(int op1, int op2){
+	public int right(int op1, int op2){
 		int[] command = {Commands.RIGHT, op1, op2, 0};
+		int confirmation = 0;
 		try {
-			comms.sendToRobot(command);
+			confirmation = comms.sendToRobot(command);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
 		System.out.println("Moving rightside...");
+		return confirmation;
 	}
 	
 	//TODO Add anglemove method

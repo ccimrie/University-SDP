@@ -1,10 +1,11 @@
 package world.state;
 
 import strategy.calculations.Possession;
+import vision.WorldState;
 
 public class PossessionManager {
 	
-	public PossessionType setPossession(World world) {
+	public PossessionType setPossession(WorldState world) {
 		PossessionType hasPossession;
 		// TODO Auto-generated method stub
 		// Code for when:

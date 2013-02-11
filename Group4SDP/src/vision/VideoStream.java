@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import vision.interfaces.VideoReceiver;
+
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
 import au.edu.jcu.v4l4j.DeviceInfo;
@@ -61,7 +63,7 @@ public class VideoStream {
 				BufferedImage frameBuffer = frame.getBufferedImage();
 				
 				for (VideoReceiver receiver : videoReceivers)
-					receiver.sendNextFrame(frameBuffer, frameRate, frameCounter);
+					receiver.sendFrame(frameBuffer, frameRate, frameCounter);
 			}
 			else if (frameCounter > 3) ready = true;
 			++frameCounter;

@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,7 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import strategy.planning.Commands;
-import strategy.planning.MoveToBall2;
+import strategy.planning.DribbleBall;
+import strategy.planning.MoveToBall;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -60,6 +60,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton rotate = new JButton("Rotate");
 	private final JButton move = new JButton("Move");
 	private final JButton moveToBall = new JButton("MoveToBall");
+	private final JButton dribble = new JButton("Dribble");
 	// Communication variables
 	public static BluetoothCommunication comms;
 	private static RobotController robot;
@@ -71,9 +72,13 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
 
-	// Strategy used for driving part of milestone 1
-	private static MoveToBall2 mball = new MoveToBall2();
+	// Strategy used for driving part of milestone 2
+	private static MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
+	
+	// Strategy used for driving part of milestone 2
+	private static DribbleBall dribbleBall = new DribbleBall();
+	private DribbleBallThread dribbleThread;
 
 	public static WorldState worldState = new WorldState();
 	public static Vision vision;
@@ -102,18 +107,19 @@ public class ControlGUI2 extends JFrame {
         			channel, videoStandard, compressionQuality);
         	
         	DistortionFix distortionFix = new DistortionFix(pitchConstants);
-        	vStream.addReceiver(distortionFix);
         	
             // Create a new Vision object to serve the main vision window
             Vision vision = new Vision(worldState, pitchConstants);
-    		
-    		distortionFix.addReceiver(vision);
             
             // Create the Control GUI for threshold setting/etc
             VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
             		vStream, distortionFix);
-            
-            vision.addVisionListener(gui);
+
+        	vStream.addReceiver(distortionFix);
+    		distortionFix.addReceiver(gui);
+    		distortionFix.addReceiver(vision);
+            vision.addVisionDebugReceiver(gui);
+            vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -141,18 +147,15 @@ public class ControlGUI2 extends JFrame {
 		// Sets up robot
 		robot = new RobotController(RobotType.Us);
 		System.out.println("Robot ready!");
-		int[] command = new int[] { Commands.TEST, 0, 0, Commands.TEST };
-		comms.sendToRobot(command);
-		int[] test = new int[4];
-		test = comms.receiveFromRobot();
-		System.out.println(Arrays.toString(test));
 	}
 
 	public ControlGUI2() {
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
-
+		op1field.setText("100");
+		op2field.setText("100");
+		op3field.setText("100");
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		frame.getContentPane().setLayout(gridBagLayout);
@@ -204,6 +207,7 @@ public class ControlGUI2 extends JFrame {
 		panel_1.add(kick);
 		panel_1.add(move);
 		panel_1.add(moveToBall);
+		panel_1.add(dribble);
 
 		frame.addWindowListener(new ListenCloseWdw());
 
@@ -261,7 +265,6 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		// TODO - Attach with MoveToBall
 		moveToBall.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -286,6 +289,14 @@ public class ControlGUI2 extends JFrame {
 				 * "Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
 				 * }
 				 */
+			}
+		});
+		
+		dribble.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				dribbleThread = new DribbleBallThread();
+				dribbleThread.start();
 			}
 		});
 
@@ -346,7 +357,7 @@ public class ControlGUI2 extends JFrame {
 		public void windowClosing(WindowEvent e) {
 			int[] command = { Commands.QUIT, 0, 0, 0 };
 			try {
-				comms.sendToRobot(command);
+				comms.sendToRobotSimple(command);
 			} catch (IOException e1) {
 				System.out.println("Could not send command");
 				// e1.printStackTrace();
@@ -363,6 +374,20 @@ public class ControlGUI2 extends JFrame {
 
 			try {
 				mball.approach(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	class DribbleBallThread extends Thread {
+
+		public void run() {
+
+			try {
+				dribbleBall.dribbleBall(worldState, robot);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
