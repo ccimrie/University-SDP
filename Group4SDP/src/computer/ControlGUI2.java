@@ -21,7 +21,7 @@ import javax.swing.UIManager;
 
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall;
-import strategy.planning.MoveToBall2;
+import strategy.planning.MoveToBall;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -73,7 +73,7 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op3field = new JTextField();
 
 	// Strategy used for driving part of milestone 2
-	private static MoveToBall2 mball = new MoveToBall2();
+	private static MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
 	
 	// Strategy used for driving part of milestone 2
