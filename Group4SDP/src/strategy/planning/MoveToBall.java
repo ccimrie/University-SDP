@@ -8,9 +8,10 @@ import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotController;
 
-public class MoveToBall {
+public class MoveToBall2 {
 	
 	private static final int distanceFromBallToStop = 60;
+	private static boolean rotating = false;
 	
 	public void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball
@@ -34,10 +35,11 @@ public class MoveToBall {
 
         
 		if(Math.abs(angle) > 20) {
-			// Stop and turn
+			// We need to get to the desired angle first.
 			System.out.println("Stop and turn");
 			robot.stop();
 			robot.rotate((int)angle);
+			rotating = true;
 			// We don't want to carry on after this command!
 			// This also removes the need for that else block
 			//angle = TurnToBall.Turner(us, ball);
@@ -52,42 +54,26 @@ public class MoveToBall {
 				//Stop everything and turn
 				System.out.println("The final angle is " + angle);
 				robot.stop();
-				if (angle>0){
-					robot.rotate(5);
-				}else{
-					robot.rotate(-5);
-				}
-				//Thread.sleep(1000);
+				robot.rotate((int)(angle/5));
 			}else if (Math.abs(angle) > 40){
 				robot.stop();
 				robot.rotate((int)angle/2);
-				//Thread.sleep(2000);
 			}
 			robot.move(0,10);
 			distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
 			System.out.println("Distance to ball: " + distance);
-//			System.out.println("Distance to ball: " + distance);
 			Thread.sleep(100);
-			//return;
 		}
 		
-//		// Being close to the ball we can perform one last minor turn
-//		if(Math.abs(angle) > 10) {
-//			// Stop everything and turn
-//			System.out.println("Making final correction");
-//			robot.stop();
-//			robot.rotate((int) angle);
-//			//rotating = true;
-//			// We don't want to carry on after this command!
-//			// This also removes the need for that else block
-//			//return;
-//		}
-		
-		robot.stop();
-		
+		// Being close to the ball we can perform one last minor turn
+		if(Math.abs(angle) > 10) {
+			// Stop everything and turn
+			System.out.println("Making final correction");
+			robot.stop();
+			robot.rotate((int) angle);
+		}else{
+			robot.stop();
+		}	
 	}
-///	public WorldState getWorldState(){
-//		return this.vision.getWorldState();
-//	}
 	
 }
