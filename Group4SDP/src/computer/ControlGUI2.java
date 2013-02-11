@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -148,11 +147,6 @@ public class ControlGUI2 extends JFrame {
 		// Sets up robot
 		robot = new RobotController(RobotType.Us);
 		System.out.println("Robot ready!");
-		int[] command = new int[] { Commands.TEST, 0, 0, Commands.TEST };
-		comms.sendToRobot(command);
-		int[] test = new int[4];
-		test = comms.receiveFromRobot();
-		System.out.println(Arrays.toString(test));
 	}
 
 	public ControlGUI2() {
@@ -361,7 +355,7 @@ public class ControlGUI2 extends JFrame {
 		public void windowClosing(WindowEvent e) {
 			int[] command = { Commands.QUIT, 0, 0, 0 };
 			try {
-				comms.sendToRobot(command);
+				comms.sendToRobotSimple(command);
 			} catch (IOException e1) {
 				System.out.println("Could not send command");
 				// e1.printStackTrace();

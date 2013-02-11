@@ -12,9 +12,6 @@ public class MoveToBall2 {
 	
 	private static final int distanceFromBallToStop = 60;
 	private static boolean rotating = false;
-	//private WorldState t = new WorldState();
-	private Vision vision;
-	//private static RobotController robot;
 	
 	public void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball
@@ -62,11 +59,11 @@ public class MoveToBall2 {
 				}else{
 					robot.rotate(-5);
 				}
-				Thread.sleep(1000);
+				//Thread.sleep(1000);
 			}else if (Math.abs(angle) > 40){
 				robot.stop();
 				robot.rotate((int)angle/2);
-				Thread.sleep(2000);
+				//Thread.sleep(2000);
 			}
 			robot.move(0,10);
 			distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);

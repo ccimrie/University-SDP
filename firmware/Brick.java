@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -88,6 +89,7 @@ public class Brick {
 				LCD.drawString("Forward!", 0, 2);
 				LCD.refresh();
 				move(0, 255);
+				replytopc(opcode,os);
 				break;
 
 			case BACKWARDS:
@@ -95,6 +97,7 @@ public class Brick {
 				LCD.drawString("Backward!", 0, 2);
 				LCD.refresh();
 				move(0, -255);
+				replytopc(opcode,os);
 				break;
 
 			case LEFT:
@@ -102,6 +105,7 @@ public class Brick {
 				LCD.drawString("Left!", 0, 2);
 				LCD.refresh();
 				move(-255, 0);
+				replytopc(opcode,os);
 				break;
 
 			case RIGHT:
@@ -109,6 +113,7 @@ public class Brick {
 				LCD.drawString("Right!", 0, 2);
 				LCD.refresh();
 				move(255, 0);
+				replytopc(opcode,os);
 				break;
 
 			case STOP:
@@ -116,6 +121,7 @@ public class Brick {
 				LCD.drawString("Stopping!", 0, 2);
 				LCD.refresh();
 				stop();
+				replytopc(opcode,os);
 				break;
 
 			case ROTATE:
@@ -124,6 +130,7 @@ public class Brick {
 				LCD.refresh();
 				// The angle is calculated by having option2*10 + option3
 				rotate(option1, option2 * 10 + option3);
+				replytopc(opcode,os);
 				break;
 
 			case KICK:
@@ -131,6 +138,7 @@ public class Brick {
 				LCD.drawString("Kicking!", 0, 2);
 				LCD.refresh();
 				kick();
+				replytopc(opcode,os);
 				break;
 
 			case MOVE:
@@ -138,14 +146,14 @@ public class Brick {
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
 				move(option1, option2);
-				// rotateMove(option1, option2, 6);
+				replytopc(opcode,os);
 				break;
 			case ROTATEMOVE:
 				LCD.clear();
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
 				rotateMove(option1, option2, option3);
-				// rotateMove(option1, option2, 6);
+				replytopc(opcode,os);
 				break;
 
 			case TEST:
@@ -172,7 +180,19 @@ public class Brick {
 		connection.close();
 		LCD.clear();
 	}
-
+	/**Replies to pc that we have received a package and finished its
+	 * execution
+	 * @param opcode the opcode we received.
+	 * @param os - the Output stream for the brick.
+	 * @throws IOException 
+	 */
+	
+	public static void replytopc(int opcode, OutputStream os) throws IOException{
+		byte [] reply = {111, (byte)opcode, 0,0};
+		os.write(reply);
+		os.flush();
+	}
+	
 	/**
 	 * Rotate at a direction
 	 * 
