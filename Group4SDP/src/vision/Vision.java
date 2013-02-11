@@ -471,7 +471,7 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the blue robot's orientation.
 		try {
 			double blueOrientation = findOrient(image, blue, blueXPoints,
-					blueYPoints, 120, 500);
+					blueYPoints, 120, 150);
 
 			// If angle hasn't changed much, just use the old one
 			double diff = Math.abs(blueOrientation
@@ -491,7 +491,7 @@ public class Vision implements VideoReceiver {
 		// Attempt to find the yellow robot's orientation.
 		try {
 			double yellowOrientation = findOrient(image, yellow, yellowXPoints,
-					yellowYPoints, 120, 500);
+					yellowYPoints, 120, 150);
 
 			// If angle hasn't changed much, just use the old one
 			double diff = Math.abs(yellowOrientation
