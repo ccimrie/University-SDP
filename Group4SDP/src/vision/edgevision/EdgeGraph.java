@@ -1,32 +1,34 @@
 package vision.edgevision;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
- * A graph of Edge objects representing edge pixel pairs which are adjacent in
- * an image
+ * A (di)graph of Edge objects representing edge pixel pairs which are adjacent
+ * in an image
  * 
  * @author Alex Adams (s1046358)
  */
 public class EdgeGraph {
 	private final ArrayList<Edge> nodes = new ArrayList<Edge>();
 	private final ArrayList<ArrayList<Integer>> arcs = new ArrayList<ArrayList<Integer>>();
-	
+
 	/**
 	 * @return The number of nodes in the graph
 	 */
 	public int nodeCount() {
 		return nodes.size();
 	}
-	
+
 	/**
 	 * Tests if the graph is empty
-	 * @return true if the graph is empty, false otherwise 
+	 * 
+	 * @return true if the graph is empty, false otherwise
 	 */
 	public boolean isEmpty() {
 		return nodes.isEmpty();
 	}
-	
+
 	/**
 	 * Tests if an index is valid
 	 * 
@@ -188,5 +190,47 @@ public class EdgeGraph {
 	public final ArrayList<Integer> getNeighbours(int index)
 			throws IndexOutOfBoundsException {
 		return arcs.get(index);
+	}
+
+	/**
+	 * Determines whether a graph is connected, i.e. whether all nodes can be
+	 * reached from any node on the graph. Since this is a digraph, this is
+	 * directly equivalent to all nodes being reachable from the first node
+	 * 
+	 * @return true if it is connected, false otherwise
+	 */
+	public boolean isConnected() {
+		int size = nodes.size();
+		// Empty or single-node graph is trivially connected
+		if (size < 2)
+			return true;
+
+		// visited is created with all false values
+		boolean[] visited = new boolean[size];
+		Stack<Integer> previousNodes = new Stack<Integer>();
+		previousNodes.ensureCapacity(size);
+
+		int visitedCount = 0;
+		int current = 0;
+		// If we visit all nodes, then the graph is connected
+		while (true) {
+			// Find an unvisited neighbour
+			ArrayList<Integer> neighbours = getNeighbours(current);
+			for (int i : neighbours) {
+				if (!visited[i]) {
+					current = i;
+					break;
+				}
+			}
+			// Check if we found one, if not the graph isn't connected.
+			if (visited[current])
+				return false;
+			++visitedCount;
+			if (visitedCount >= visited.length)
+				break;
+			visited[current] = true;
+		}
+
+		return true;
 	}
 }

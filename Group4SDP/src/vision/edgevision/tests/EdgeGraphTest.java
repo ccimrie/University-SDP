@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -16,8 +17,8 @@ import vision.edgevision.EdgeGraph;
  * @author Alex Adams (s1046358)
  */
 public class EdgeGraphTest {
-	private static final int TEST_COUNT = 500;
-	
+	private static final int TEST_COUNT = 100;
+
 	/**
 	 * Generates an Edge object based on the seed value
 	 * 
@@ -59,8 +60,86 @@ public class EdgeGraphTest {
 		for (int i = 0; i < nodes; ++i) {
 			for (int j = 0; j < i; ++j)
 				test.addArc(i, j);
-			for (int j = i + 1; j < nodes; ++j)
-				test.addArc(j, i);
+		}
+
+		return test;
+	}
+
+	/**
+	 * Generates a (randomised) EdgeGraph object with the specified number of
+	 * nodes which is guarunteed to be connected
+	 * 
+	 * @param nodes
+	 * @return
+	 */
+	private static EdgeGraph generateConnectedTestGraph(int nodes) {
+		EdgeGraph test = generateTestGraph(nodes);
+		// Don't bother with randomisation for trivial graphs
+		if (nodes < 2) return test;
+		
+		Random gen = new Random();
+		int randomiser = gen.nextInt(nodes / 2) + 1;
+
+		System.out.println("Generating new graph with randomiser = " + randomiser);
+		// Create a randomized path through the entire graph
+		for (int i = 0; i < nodes / 2; ++i) {
+			test.addArc(i, (i + randomiser) % nodes);
+			System.out.println("Generated arc " + i + " -> " + ((i + randomiser) % nodes));
+		}
+
+		// Add a few random arcs
+		for (int i = 0; i < nodes; ++i) {
+			for (int j = 0; j < i; ++j) {
+				if (gen.nextDouble() < 0.2)
+					test.addArc(i, j);
+			}
+		}
+
+		return test;
+	}
+
+	/**
+	 * Generates a (randomised) EdgeGraph object with the specified number of
+	 * nodes which is guarunteed to be unconnected
+	 * 
+	 * @param nodes
+	 * @return
+	 */
+	private static EdgeGraph generateUnconnectedTestGraph(int nodes) {
+		EdgeGraph test = generateTestGraph(nodes);
+
+		if (nodes < 2)
+			throw new IllegalArgumentException(
+					"Can't generate an unconnected graph with less than 2 nodes");
+
+		Random gen = new Random();
+
+		// Generate a split in the graph
+		int lowerValue = Math.max(1, nodes / 4);
+		int upperValue = Math.max((3 * nodes) / 4, 2);
+		int split = gen.nextInt(upperValue - lowerValue) + lowerValue;
+		int randomiser = gen.nextInt(split);
+
+		// Generate two connected subgraphs
+		for (int i = 0; i < split; ++i) {
+			test.addArc(i, (i + randomiser) % nodes);
+		}
+		for (int i = 0; i < split; ++i) {
+			for (int j = 0; j < i; ++j) {
+				if (gen.nextDouble() < 0.2)
+					test.addArc(i, j);
+			}
+		}
+
+		randomiser = gen.nextInt(nodes - split);
+		for (int i = split; i < nodes; ++i) {
+			test.addArc(i, (i + randomiser) % (nodes - split) + split);
+		}
+		for (int i = split; i < nodes; ++i) {
+			for (int j = split; j < i; ++j) {
+				if (gen.nextDouble() < 0.2)
+					test.addArc(i, j);
+			}
 		}
 
 		return test;
@@ -228,7 +307,7 @@ public class EdgeGraphTest {
 	@Test
 	public void removeArc() {
 		EdgeGraph test = generateTestGraphWithArcs(TEST_COUNT);
-		
+
 		// Test generateTestGraphWithArcs
 		for (int i = 0; i < TEST_COUNT; ++i) {
 			for (int j = 0; j < i; ++j) {
@@ -241,7 +320,7 @@ public class EdgeGraphTest {
 				assertTrue(test.hasArc(j, i));
 			}
 		}
-		
+
 		// Test removeArc
 		for (int i = 0; i < TEST_COUNT; ++i) {
 			for (int j = 0; j < i; ++j) {
@@ -255,7 +334,7 @@ public class EdgeGraphTest {
 				assertFalse(test.hasArc(j, i));
 			}
 		}
-		
+
 		// Test removeAllArcs
 		test = generateTestGraphWithArcs(TEST_COUNT);
 		for (int i = 0; i < TEST_COUNT; ++i) {
@@ -264,14 +343,14 @@ public class EdgeGraphTest {
 				assertFalse(test.hasArc(i, j));
 		}
 	}
-	
+
 	/**
 	 * Tests EdgeGraph.getNeighbours
 	 */
 	@Test
 	public void getNeighbours() {
 		EdgeGraph test = generateTestGraphWithArcs(TEST_COUNT);
-		
+
 		for (int i = 0; i < TEST_COUNT; ++i) {
 			ArrayList<Integer> neighbours = test.getNeighbours(i);
 			for (int j : neighbours) {
@@ -279,6 +358,40 @@ public class EdgeGraphTest {
 				assertTrue(test.hasArc(j, i));
 			}
 			assertFalse(neighbours.contains(i));
+		}
+	}
+
+	/**
+	 * Tests EdgeGraph.isConnected
+	 */
+	@Test
+	public void isConnected() {
+		// Test connected graphs
+		// Test trivial cases
+		assertTrue(generateConnectedTestGraph(0).isConnected());
+		assertTrue(generateConnectedTestGraph(1).isConnected());
+		// Test non-trivial cases
+		for (int i = 0; i < TEST_COUNT; ++i) {
+			for (int j = 2; j < TEST_COUNT; ++j) {
+				assertTrue(generateConnectedTestGraph(j).isConnected());
+			}
+		}
+		// Test unconnected graphs
+		// Test trivial cases
+		for (int i = 0; i < 2; ++i) {
+			try {
+				generateUnconnectedTestGraph(i);
+				fail("generateUnconnectedTestGraph(" + i + ") failed to throw an exception");
+			} catch (IllegalArgumentException e) {
+				// Ignore - it's supposed to happen
+			}
+		}
+		// Test non-trivial cases
+		for (int i = 0; i < TEST_COUNT; ++i) {
+			for (int j = 2; j < TEST_COUNT; ++j) {
+				assertFalse(generateTestGraph(j).isConnected());
+				assertFalse(generateUnconnectedTestGraph(j).isConnected());
+			}
 		}
 	}
 }
