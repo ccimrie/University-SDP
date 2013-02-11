@@ -63,6 +63,7 @@ public class MoveToBall {
 		}
 		
 		// Being close to the ball we can perform one last minor turn
+		angle = TurnToBall.Turner(us, ball);
 		if(Math.abs(angle) > 10) {
 			// Stop everything and turn
 			System.out.println("Making final correction");

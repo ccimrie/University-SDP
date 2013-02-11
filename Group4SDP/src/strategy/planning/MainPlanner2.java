@@ -3,7 +3,6 @@ package strategy.planning;
 import geometry.Vector;
 
 import java.awt.geom.Point2D;
-import java.util.Observable;
 
 import strategy.calculations.DistanceCalculator;
 import strategy.calculations.IsRobotFacingPoint;
@@ -15,12 +14,12 @@ import vision.WorldState;
 import world.state.PossessionType;
 import world.state.RobotController;
 import world.state.RobotType;
+import strategy.planning.Strategy;
 
 public class MainPlanner2 implements Runnable {
-	//IMPORTANT! We get our worldstate from the GUI for now. We need to decide where
-	//to take it from.
-	public static WorldState world = computer.ControlGUI2.worldState;
-	RobotController rc = new RobotController(RobotType.Us);
+	WorldState world = strategy.planning.Strategy.world;
+	RobotController rc = strategy.planning.Strategy.robot;
+	
 	int angleToTurnToBall = 15;
 	boolean collisionInProgress = false;
 	boolean isTurning = false;
