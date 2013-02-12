@@ -16,13 +16,6 @@ public class DribbleBall2 extends Strategy {
 	private static double dribbleDistance = 100;
 	
 	//Makes little adjustments towards the bearing of the robot, i.e. checks if it is facing the door
-	public void checkAndRotate (){
-		if ((us.bearing > 100) || (us.bearing < 80)) {
-			double angle = 90.0 - us.bearing;
-			if (angle > 180) angle = -360 + angle;
-			robot.rotate((int) angle);
-		}
-	}
 	
 	public void dribbleBall(WorldState worldState, RobotController robot)
 			throws InterruptedException {
@@ -33,8 +26,13 @@ public class DribbleBall2 extends Strategy {
 
 		// Rotate so that the robot faces the door
 		//In order to face the door we need us.bearing == 90.
+		System.out.println("The robot bearing is " + us.bearing);
 		double angle = 90.0 - us.bearing;
-		if (angle > 180) angle = -360 + angle;
+		if (angle > 180){ 
+			angle = -360 + angle;
+			System.out.println("Angle greater than 180. New angle is " + angle);
+		}
+		System.out.println("The angle is " + angle);
 		robot.rotate((int) angle);
 
 		//Check if the robot is in front of the ball on the y axis and go around the ball
@@ -55,7 +53,12 @@ public class DribbleBall2 extends Strategy {
 		}
 		
 		//Check if the robot has kept its bearing, i.e. still facing the door
-		checkAndRotate();
+		System.out.println("Before check. Bearing is " + us.bearing);
+		if ((us.bearing > 100) || (us.bearing < 80)) {
+			angle = 90.0 - us.bearing;
+			if (angle > 180) angle = -360 + angle;
+			robot.rotate((int) angle);
+		} 
 		
 		//The condition checks where the robot is in respect to the ball and aligns it properly on the x axis
 		//If the robot is ahead of the ball on the pitch
@@ -66,6 +69,7 @@ public class DribbleBall2 extends Strategy {
 			}
 			robot.stop();
 		}
+		
 		//If the robot is already behind the ball on the pitch
 		else {
 			while ((ball.x - threshold) > us.x) {
@@ -74,8 +78,13 @@ public class DribbleBall2 extends Strategy {
 			}
 			robot.stop();
 		}
+		
 		//Check if the robot has kept its bearing, i.e. still facing the door
-		checkAndRotate();
+		if ((us.bearing > 100) || (us.bearing < 80)) {
+			angle = 90.0 - us.bearing;
+			if (angle > 180) angle = -360 + angle;
+			robot.rotate((int) angle);
+		} 
 		
 		// Move either up or down along the y axis until aligning properly
 		if (us.y > ball.y) {
@@ -92,8 +101,20 @@ public class DribbleBall2 extends Strategy {
 				Thread.sleep(200);
 			}
 		}
+		if ((us.bearing > 100) || (us.bearing < 80)) {
+			angle = 90.0 - us.bearing;
+			if (angle > 180) angle = -360 + angle;
+			robot.rotate((int) angle);
+		} 
+		
 		//Check if the robot has kept its bearing, i.e. still facing the door
-		checkAndRotate();
+		if ((us.bearing > 100) || (us.bearing < 80)) {
+			angle = 90.0 - us.bearing;
+			if (angle > 180) angle = -360 + angle;
+			robot.rotate((int) angle);
+		} 
+		
+		
 		//Fix the position of the ball so that we can measure 30 cm from that point to dribble
 		double temp = ball.x;
 		
