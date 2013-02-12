@@ -25,14 +25,11 @@ public class Vision implements VideoReceiver {
 
 	// Variables used in processing video
 	private final PitchConstants pitchConstants;
-	private static final double barrelCorrectionX = -0.016;
-	private static final double barrelCorrectionY = -0.13;
 	private final WorldState worldState;
 
 	private final double[] last5BlueOrients = new double[5];
 	private final double[] last5YellowOrients = new double[5];
 	private int currentOrientIndex = 0;
-	double angle = 0;
 
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
@@ -284,33 +281,6 @@ public class Vision implements VideoReceiver {
 	}
 
 	/**
-	 * Applies a correction to counteract the barrel or fish-eye effect caused
-	 * by the camera lens
-	 * 
-	 * @param original
-	 *            The point before correction
-	 * @return The point after correction
-	 */
-	public Point convertToBarrelCorrected(Point original) {
-		// first normalise pixel
-		double px = (2 * original.getX() - width) / (double) width;
-		double py = (2 * original.getY() - height * 1.005) / (double) height;
-
-		// then compute the radius of the pixel you are working with
-		double rad = px * px + py * py;
-
-		// then compute new pixel
-		double px1 = px * (1 - barrelCorrectionX * rad);
-		double py1 = py * (1 - barrelCorrectionY * rad);
-
-		// then convert back
-		int pixi = (int) (((px1 + 1) * width) / 2);
-		int pixj = (int) (((py1 + 1) * height) / 2);
-
-		return new Point(pixi, pixj);
-	}
-
-	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
 	 * additional graphics layered on top for debugging) in the vision frame.
@@ -452,6 +422,7 @@ public class Vision implements VideoReceiver {
 		Position blue;
 		Position yellow;
 		Position green;
+		double angle = 0;
 
 		// If we have only found a few 'Ball' pixels, chances are that the ball
 		// has not actually been detected.
@@ -566,32 +537,34 @@ public class Vision implements VideoReceiver {
 				xvector = avg2.getX() - avg1.getX();
 				yvector = avg2.getY() - avg1.getY();
 			}
-
-			angle = Math.atan2(xvector, yvector);
+			
+			angle = Math.acos(yvector / Math.sqrt(xvector * xvector + yvector * yvector));
+			if (xvector < 0)
+				angle = 2.0 * Math.PI - angle;
+			
 			// angle = Math.PI - angle;
-			System.out.println("ANGLE " + Math.toDegrees(angle));
+//			System.out.println("ANGLE " + Math.toDegrees(angle));
 
 			debugGraphics.setColor(Color.white);
 			debugGraphics.drawLine(avg1.getX(), avg1.getY(), avg2.getX(),
 					avg2.getY());
 			debugGraphics.drawOval(green.getX(), green.getY(), 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[0].getX(),
-					greenPlatePoints[0].getY(), 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[1].getX(),
-					greenPlatePoints[1].getY(), 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[2].getX(),
-					greenPlatePoints[2].getY(), 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[3].getX(),
-					greenPlatePoints[3].getY(), 2, 2);
+			debugGraphics.drawOval(greenPlatePoints[0].getX() - 1,
+					greenPlatePoints[0].getY() - 1, 2, 2);
+			debugGraphics.drawOval(greenPlatePoints[1].getX() - 1,
+					greenPlatePoints[1].getY() - 1, 2, 2);
+			debugGraphics.drawOval(greenPlatePoints[2].getX() - 1,
+					greenPlatePoints[2].getY() - 1, 2, 2);
+			debugGraphics.drawOval(greenPlatePoints[3].getX() - 1,
+					greenPlatePoints[3].getY() - 1, 2, 2);
 
-			System.out.println("avg1 x " + avg1.getX());
-			System.out.println("avg1 y " + avg1.getY());
+//			System.out.println("avg1 x " + avg1.getX());
+//			System.out.println("avg1 y " + avg1.getY());
 			debugGraphics.setColor(Color.magenta);
-			debugGraphics.drawOval(avg1.getX(), avg1.getY(), 2, 2);
-			debugGraphics.setColor(Color.cyan);
-			debugGraphics.drawOval(avg2.getX(), avg2.getY(), 2, 2);
+			debugGraphics.drawOval(avg1.getX() - 5, avg1.getY() - 5, 10, 10);
+			debugGraphics.setColor(Color.black);
+			debugGraphics.drawOval(avg2.getX() - 5, avg2.getY() - 5, 10, 10);
 		} catch (NoAngleException e) {
-
 		}
 
 		// Attempt to find the blue robot's orientation.
@@ -894,7 +867,7 @@ public class Vision implements VideoReceiver {
 	}
 
 	// TODO: find out how this works
-	public double findOrient(BufferedImage frame, BufferedImage debugOverlay,
+	/*public double findOrient(BufferedImage frame, BufferedImage debugOverlay,
 			Position centroid, ArrayList<Integer> xPoints,
 			ArrayList<Integer> yPoints, int distT, int distM)
 			throws NoAngleException {
@@ -1020,7 +993,7 @@ public class Vision implements VideoReceiver {
 		angle = Math.PI - angle;
 
 		return angle;
-	}
+	}*/
 
 	/**
 	 * THIS IS NEVER USED, BUT MIGHT BE USEFUL. DO NOT DELETE! Finds the
