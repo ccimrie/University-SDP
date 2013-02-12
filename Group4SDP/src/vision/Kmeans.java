@@ -1,68 +1,67 @@
 package vision;
 import java.util.ArrayList;
+import vision.Cluster;
 
 public class Kmeans {
 	
+	public static final double errortarget = 170.0;
+	
 	public int [] dokmeans(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
+		Cluster iteration; //All the information about this iteration is kept here.
+		//We set the initial errors to some number that's not going to interfere with our condition.
+		double error1new = 200.0;
+		double error2new = 200.0;
 		int [] mean1old = mean1;
 		int [] mean2old = mean2;
 		int [] mean1new = {0,0};
 		int [] mean2new = {0,0};
-		int [] newmeans = new int[4];//The means from the new iteration the ones that we will return.
-		while ((mean1old != mean1new)&& (mean2old != mean2new)){
+		
+		//We iterate until we converge or until we get small enough of an error for our clusters (:
+		while ((mean1old != mean1new)&& (mean2old != mean2new) && ((error1new>errortarget) || (error2new>errortarget))){
 			mean1old = mean1new;
 			mean2old = mean2new;
-			int [] clusters = getclusters(xpoints, ypoints, mean1, mean2);
-			newmeans = getnewmeans(xpoints,ypoints,clusters);
-			int [] temp1 = {newmeans[0],newmeans[1]};
-			int [] temp2 = {newmeans[2],newmeans[3]};
-			mean1new = temp1;
-			mean2new = temp2;
+			iteration = getclusters(xpoints, ypoints, mean1, mean2);
+			mean1new = iteration.getmean(1);
+			mean2new = iteration.getmean(2);
+			error1new = sumsquarederror(iteration.getcluster(1, 'x'), iteration.getcluster(1, 'y'), mean1new);
+			error2new = sumsquarederror(iteration.getcluster(2, 'x'), iteration.getcluster(2, 'y'), mean2new);
 		}
+		int [] newmeans = {mean1new[0], mean1new[1], mean2new[0], mean2new[1]};
 		return newmeans;
 	}
 	
 	//Position in the returned arraylist will correspond to the nth point in the original array lists and will be
 	//either 1 or 2, depending of the cluster
-	public int [] getclusters(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
+	public Cluster getclusters(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
+		
+		//Clusters
+		ArrayList<Integer>mean1membersx = new ArrayList<Integer>();
+		ArrayList<Integer>mean1membersy = new ArrayList<Integer>();
+		ArrayList<Integer>mean2membersx = new ArrayList<Integer>();
+		ArrayList<Integer>mean2membersy = new ArrayList<Integer>();
+		
 		int pixelnum = xpoints.size();
-		int [] ret = new int[pixelnum]; // The cluster assignment of each element.
 		for (int i = 0; i<pixelnum; i++){
 			int xcurrent = xpoints.get(i);
 			int ycurrent = ypoints.get(i);
 			double mean1dist = getdistance(xcurrent,ycurrent,mean1);
 			double mean2dist = getdistance(xcurrent,ycurrent,mean2);
+			//Add the points to the appropriate clusters.
 			if (mean1dist>mean2dist){
-				ret[i] = 1;
+				mean1membersx.add(xcurrent);
+				mean1membersy.add(ycurrent);
 			}else{
-				ret[i] = 2;
+				mean2membersx.add(xcurrent);
+				mean2membersy.add(ycurrent);
 			}
 		}
+		//Get the new means using our clusters.
+		int [] newmean1 = findmeans(mean1membersx, mean1membersy);
+		int [] newmean2 = findmeans(mean1membersx, mean1membersy);
+		Cluster ret = new Cluster(mean1membersx,mean1membersy,mean2membersx,mean2membersy, newmean1, newmean2);
 		return ret;
 	}
 
-	
-	public int[] getnewmeans(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] clustermembers){
-		ArrayList<Integer>mean1membersx = new ArrayList<Integer>();
-		ArrayList<Integer>mean1membersy = new ArrayList<Integer>();
-		ArrayList<Integer>mean2membersx = new ArrayList<Integer>();
-		ArrayList<Integer>mean2membersy = new ArrayList<Integer>();
-		int pixelnum = clustermembers.length;
-		for (int i = 0; i<pixelnum; i++){
-			if (clustermembers[i] == 1){
-				mean1membersx.add(xpoints.get(i));
-				mean1membersy.add(ypoints.get(i));
-			} else {
-				mean2membersx.add(xpoints.get(i));
-				mean2membersy.add(ypoints.get(i));
-			}
-		}
-		int [] newmean1 = findmeans(mean1membersx, mean1membersy);
-		int [] newmean2 = findmeans(mean1membersx, mean1membersy);
-		//4 elements, first 2 are the x and y of the first mean, second two - of the second mean.
-		int [] ret = {newmean1[0],newmean1[1],newmean2[0],newmean2[1]};
-		return ret;
-	}
 	
 	//Get the mean for the given points.
 	//means is an array in the format {xcenter, ycenter};
@@ -82,10 +81,6 @@ public class Kmeans {
 
 	}
 	
-	public int[] getinitialmeans(int xpoints, int ypo){
-		return null;
-	}
-
 	public double sumsquarederror(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int[] center){
 		double sumsqerr = 0.0;
 		int pixelnum = xpoints.size();
