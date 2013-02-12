@@ -1,0 +1,22 @@
+A guide how to create your own strategy modules.
+
+Refer to the example file Offensive.java.
+
+Every strategy module will be a thread that is run by the main planner. It should extend the abstract
+class StrategyInterface and implement Runnable.
+
+It should have a constructor, as shown in the example java file.
+It should have a run method whose body consists of a while loop that checks for the following
+conditions: 
+
+while (!shouldidie && !Strategy.alldie){
+
+Those two booleans are the two ways we could specify that we want the thread dead. The shouldidie
+variable is provided by the abstract class and is modified when the kill() method is run (also
+provided by the abstract class). The other booleans is used when we want to kill the global strategy
+system.
+
+After the while loop is done you should always have an:
+rc.stop() to prevent the robot from moving any further after the strategy is supposed to terminate.
+
+If you have any questions, just ask (:
