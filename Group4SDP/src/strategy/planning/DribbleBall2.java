@@ -7,15 +7,23 @@ import world.state.Ball;
 import world.state.Robot;
 import world.state.PitchInfo;
 
-import geometry.Vector;
-
-//author: SP
+//author: SP + MV
 
 public class DribbleBall2 extends Strategy {
 
 	// Setting up the threshold for the target point behind the ball !!!
 	private static final double threshold = 75;
-
+	private static double dribbleDistance = 100;
+	
+	//Makes little adjustments towards the bearing of the robot, i.e. checks if it is facing the door
+	public void checkAndRotate (){
+		if ((us.bearing > 100) || (us.bearing < 80)) {
+			double angle = 90.0 - us.bearing;
+			if (angle > 180) angle = -360 + angle;
+			robot.rotate((int) angle);
+		}
+	}
+	
 	public void dribbleBall(WorldState worldState, RobotController robot)
 			throws InterruptedException {
 		// Constructing the world
@@ -46,6 +54,9 @@ public class DribbleBall2 extends Strategy {
 			}
 		}
 		
+		//Check if the robot has kept its bearing, i.e. still facing the door
+		checkAndRotate();
+		
 		//The condition checks where the robot is in respect to the ball and aligns it properly on the x axis
 		//If the robot is ahead of the ball on the pitch
 		if (us.x > ball.x){
@@ -63,7 +74,9 @@ public class DribbleBall2 extends Strategy {
 			}
 			robot.stop();
 		}
-	
+		//Check if the robot has kept its bearing, i.e. still facing the door
+		checkAndRotate();
+		
 		// Move either up or down along the y axis until aligning properly
 		if (us.y > ball.y) {
 			System.out.println("Moving up the y axis"); //Robot's left
@@ -79,8 +92,18 @@ public class DribbleBall2 extends Strategy {
 				Thread.sleep(200);
 			}
 		}
-		// Now dribble 
-		robot.move(0, 10);
+		//Check if the robot has kept its bearing, i.e. still facing the door
+		checkAndRotate();
+		//Fix the position of the ball so that we can measure 30 cm from that point to dribble
+		double temp = ball.x;
+		
+		// Now dribble for dribbleDistance distance :)
+		while (us.x < temp + dribbleDistance) {
+			robot.move(0, -127);
+			Thread.sleep(100);
+		}
+		robot.stop();
+		
 	}
 
 }
