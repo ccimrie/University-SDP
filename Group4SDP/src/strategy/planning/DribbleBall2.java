@@ -12,7 +12,7 @@ import world.state.PitchInfo;
 public class DribbleBall2 extends Strategy {
 
 	// Setting up the threshold for the target point behind the ball !!!
-	private static final double threshold = 75;
+	private static final double threshold = 60;
 	private static double dribbleDistance = 100;
 	
 	//Makes little adjustments towards the bearing of the robot, i.e. checks if it is facing the door
@@ -35,12 +35,13 @@ public class DribbleBall2 extends Strategy {
 		System.out.println("The angle is " + angle);
 		robot.rotate((int) angle);
 
+	
 		//Check if the robot is in front of the ball on the y axis and go around the ball
-		if (((us.y < ball.y + threshold) || (us.y > ball.y - threshold)) && (us.x>ball.x)) {
+		if (((us.y < ball.y + threshold) && (us.y > ball.y - threshold)) && (us.x>ball.x)) {
 			//Check which is the safer side to go around the ball
 			if (Math.abs(us.y  - PitchInfo.safeUpperBoundSide.getY()) > Math.abs(us.y  - PitchInfo.safeLowerBoundSide.getY())){
 				while ((ball.y - threshold) < us.y){
-					robot.move(-127, 0); //Robot's left
+					robot.move(-127, 0); //Robot's left   
 				}
 				robot.stop();
 			}
@@ -50,7 +51,7 @@ public class DribbleBall2 extends Strategy {
 				}
 				robot.stop();
 			}
-		}
+		}		
 		
 		//Check if the robot has kept its bearing, i.e. still facing the door
 		System.out.println("Before check. Bearing is " + us.bearing);
@@ -73,7 +74,7 @@ public class DribbleBall2 extends Strategy {
 		//If the robot is already behind the ball on the pitch
 		else {
 			while ((ball.x - threshold) > us.x) {
-				robot.move(0, -127);
+				robot.move(0, 127); //moving forwards to align
 				Thread.sleep(100);
 			}
 			robot.stop();
@@ -95,17 +96,12 @@ public class DribbleBall2 extends Strategy {
 				Thread.sleep(200);
 			}
 		} else {
-			System.out.println("Moving down the y axis"); //Robot's right
-			robot.move(127, 0);
+			System.out.println("Moving down the y axis"); //Robot's right	
 			while (us.y < ball.y) {
+				robot.move(127, 0);
 				Thread.sleep(200);
 			}
 		}
-		if ((us.bearing > 100) || (us.bearing < 80)) {
-			angle = 90.0 - us.bearing;
-			if (angle > 180) angle = -360 + angle;
-			robot.rotate((int) angle);
-		} 
 		
 		//Check if the robot has kept its bearing, i.e. still facing the door
 		if ((us.bearing > 100) || (us.bearing < 80)) {
@@ -114,13 +110,12 @@ public class DribbleBall2 extends Strategy {
 			robot.rotate((int) angle);
 		} 
 		
-		
 		//Fix the position of the ball so that we can measure 30 cm from that point to dribble
 		double temp = ball.x;
 		
 		// Now dribble for dribbleDistance distance :)
 		while (us.x < temp + dribbleDistance) {
-			robot.move(0, -127);
+			robot.move(0, 127);
 			Thread.sleep(100);
 		}
 		robot.stop();
