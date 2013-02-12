@@ -210,27 +210,84 @@ public class EdgeGraph {
 		Stack<Integer> previousNodes = new Stack<Integer>();
 		previousNodes.ensureCapacity(size);
 
-		int visitedCount = 0;
 		int current = 0;
+		int visitedCount = 1;
+		visited[current] = true;
 		// If we visit all nodes, then the graph is connected
-		while (true) {
+		while (visitedCount < visited.length) {
 			// Find an unvisited neighbour
 			ArrayList<Integer> neighbours = getNeighbours(current);
 			for (int i : neighbours) {
 				if (!visited[i]) {
+					previousNodes.push(current);
+					++visitedCount;
 					current = i;
 					break;
 				}
 			}
-			// Check if we found one, if not the graph isn't connected.
-			if (visited[current])
-				return false;
-			++visitedCount;
-			if (visitedCount >= visited.length)
-				break;
+			// If we didn't find one, then backtrack if we can; if we can't then
+			// the graph is not connected (we have returned to the start node)
+			if (visited[current]) {
+				if (!previousNodes.isEmpty())
+					current = previousNodes.pop();
+				else
+					return false;
+			}
 			visited[current] = true;
 		}
 
 		return true;
+	}
+
+	public EdgeGraph[] getConnectedSubgraphs() {
+		int size = nodes.size();
+		if (size == 0)
+			return null;
+		else if (size == 1)
+			return new EdgeGraph[] { this };
+		
+		ArrayList<ArrayList<Integer>> allSearches = new ArrayList<ArrayList<Integer>>();
+		
+		ArrayList<Integer> nodesVisited = new ArrayList<Integer>();
+		Stack<Integer> previousNodes = new Stack<Integer>();
+		previousNodes.ensureCapacity(size);
+		int current = 0;
+		nodesVisited.add(0);
+		int totalVisited = 0;
+		
+		boolean[] visited = new boolean[size];;
+		while (true) {
+			// Depth-first search to mark each subgraph's nodes
+			do {
+				visited[current] = true;
+				// Find an unvisited neighbour
+				ArrayList<Integer> neighbours = getNeighbours(current);
+				for (int i : neighbours) {
+					if (!visited[i]) {
+						previousNodes.push(current);
+						nodesVisited.add(current);
+						current = i;
+						break;
+					}
+				}
+				// If we didn't find one, then backtrack if we can; if we can't then
+				// we've finished exploring the graph
+				if (visited[current] && !previousNodes.isEmpty())
+					current = previousNodes.pop();
+			} while (!previousNodes.isEmpty());
+			
+			// Add the 
+			allSearches.add(nodesVisited);
+			totalVisited += nodesVisited.size();
+			
+			if (totalVisited >= size) break;
+
+			// Set up for the next subgraph
+			nodesVisited = new ArrayList<Integer>();
+			for (int i = 0; i < visited.length; ++i)
+				visited[i] = false;
+		}
+		
+		return null;
 	}
 }

@@ -75,18 +75,15 @@ public class EdgeGraphTest {
 	private static EdgeGraph generateConnectedTestGraph(int nodes) {
 		EdgeGraph test = generateTestGraph(nodes);
 		// Don't bother with randomisation for trivial graphs
-		if (nodes < 2) return test;
-		
+		if (nodes < 2)
+			return test;
+
 		Random gen = new Random();
-		int randomiser = gen.nextInt(nodes / 2) + 1;
 
-		System.out.println("Generating new graph with randomiser = " + randomiser);
-		// Create a randomized path through the entire graph
-		for (int i = 0; i < nodes / 2; ++i) {
-			test.addArc(i, (i + randomiser) % nodes);
-			System.out.println("Generated arc " + i + " -> " + ((i + randomiser) % nodes));
+		// Create a path through the entire graph
+		for (int i = 0; i < nodes; ++i) {
+			test.addArc(i, (i + 1) % nodes);
 		}
-
 		// Add a few random arcs
 		for (int i = 0; i < nodes; ++i) {
 			for (int j = 0; j < i; ++j) {
@@ -107,38 +104,60 @@ public class EdgeGraphTest {
 	 */
 	private static EdgeGraph generateUnconnectedTestGraph(int nodes) {
 		EdgeGraph test = generateTestGraph(nodes);
+		
+		System.out.println("Generating unconnected graph with " + nodes + " nodes");
 
 		if (nodes < 2)
 			throw new IllegalArgumentException(
 					"Can't generate an unconnected graph with less than 2 nodes");
+		// Can't have a 2-node graph with connections, so don't bother trying to make some
+		else if (nodes == 2)
+			return test;
 
 		Random gen = new Random();
 
 		// Generate a split in the graph
-		int lowerValue = Math.max(1, nodes / 4);
-		int upperValue = Math.max((3 * nodes) / 4, 2);
-		int split = gen.nextInt(upperValue - lowerValue) + lowerValue;
-		int randomiser = gen.nextInt(split);
+		int split;
+		if (nodes == 2)
+			split = 1;
+		else if (nodes <= 4)
+			split = 2;
+		else {
+			int lowerValue = Math.max(1, nodes / 4);
+			int upperValue = Math.max((3 * nodes) / 4, 2);
+			split = gen.nextInt(upperValue - lowerValue) + lowerValue;
+		}
+		
+//		System.out.println("split: " + split);
 
 		// Generate two connected subgraphs
 		for (int i = 0; i < split; ++i) {
-			test.addArc(i, (i + randomiser) % nodes);
+			test.addArc(i, (i + 1) % split);
+//			System.out.println("Added arc : " + i + " -> " + ((i + 1) % nodes));
 		}
-		for (int i = 0; i < split; ++i) {
+		int halfSubgraph = split / 2;
+		System.out.println("halfSubgraph: " + halfSubgraph);
+		for (int i = 0; i < halfSubgraph; ++i) {
 			for (int j = 0; j < i; ++j) {
-				if (gen.nextDouble() < 0.2)
+				if (gen.nextDouble() < 0.2) {
 					test.addArc(i, j);
+//					System.out.println("Added arc : " + i + " -> " + j);
+				}
 			}
 		}
 
-		randomiser = gen.nextInt(nodes - split);
 		for (int i = split; i < nodes; ++i) {
-			test.addArc(i, (i + randomiser) % (nodes - split) + split);
+			test.addArc(i, (i + 1) % (nodes - split) + split);
+//			System.out.println("Added arc : " + i + " -> " + ((i + 1) % (nodes - split) + split));
 		}
-		for (int i = split; i < nodes; ++i) {
+		halfSubgraph = (nodes + split) / 2;
+		System.out.println("halfSubgraph: " + halfSubgraph);
+		for (int i = split; i < halfSubgraph; ++i) {
 			for (int j = split; j < i; ++j) {
-				if (gen.nextDouble() < 0.2)
+				if (gen.nextDouble() < 0.2) {
 					test.addArc(i, j);
+//					System.out.println("Added arc : " + i + " -> " + j);
+				}
 			}
 		}
 
@@ -371,9 +390,9 @@ public class EdgeGraphTest {
 		assertTrue(generateConnectedTestGraph(0).isConnected());
 		assertTrue(generateConnectedTestGraph(1).isConnected());
 		// Test non-trivial cases
-		for (int i = 0; i < TEST_COUNT; ++i) {
-			for (int j = 2; j < TEST_COUNT; ++j) {
-				assertTrue(generateConnectedTestGraph(j).isConnected());
+		for (int i = 2; i < TEST_COUNT; ++i) {
+			for (int j = 0; j < TEST_COUNT; ++j) {
+				assertTrue(generateConnectedTestGraph(i).isConnected());
 			}
 		}
 		// Test unconnected graphs
@@ -381,16 +400,17 @@ public class EdgeGraphTest {
 		for (int i = 0; i < 2; ++i) {
 			try {
 				generateUnconnectedTestGraph(i);
-				fail("generateUnconnectedTestGraph(" + i + ") failed to throw an exception");
+				fail("generateUnconnectedTestGraph(" + i
+						+ ") failed to throw an exception");
 			} catch (IllegalArgumentException e) {
 				// Ignore - it's supposed to happen
 			}
 		}
 		// Test non-trivial cases
-		for (int i = 0; i < TEST_COUNT; ++i) {
-			for (int j = 2; j < TEST_COUNT; ++j) {
-				assertFalse(generateTestGraph(j).isConnected());
-				assertFalse(generateUnconnectedTestGraph(j).isConnected());
+		for (int i = 2; i < TEST_COUNT; ++i) {
+			for (int j = 0; j < TEST_COUNT; ++j) {
+				assertFalse(generateTestGraph(i).isConnected());
+				assertFalse(generateUnconnectedTestGraph(i).isConnected());
 			}
 		}
 	}
