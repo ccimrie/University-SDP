@@ -239,26 +239,31 @@ public class EdgeGraph {
 		return true;
 	}
 
+	/**
+	 * Splits a graph into its separate connected components
+	 * 
+	 * @return
+	 */
 	public EdgeGraph[] getConnectedSubgraphs() {
 		int size = nodes.size();
 		if (size == 0)
 			return null;
 		else if (size == 1)
 			return new EdgeGraph[] { this };
-		
+
 		ArrayList<ArrayList<Integer>> allSearches = new ArrayList<ArrayList<Integer>>();
-		
+
 		ArrayList<Integer> nodesVisited = new ArrayList<Integer>();
 		Stack<Integer> previousNodes = new Stack<Integer>();
 		previousNodes.ensureCapacity(size);
 		int current = 0;
 		nodesVisited.add(0);
 		int totalVisited = 0;
-		
-		boolean[] visited = new boolean[size];;
+
+		boolean[] visited = new boolean[size];
 		while (true) {
 			// Depth-first search to mark each subgraph's nodes
-			do {
+			while (true) {
 				visited[current] = true;
 				// Find an unvisited neighbour
 				ArrayList<Integer> neighbours = getNeighbours(current);
@@ -270,24 +275,29 @@ public class EdgeGraph {
 						break;
 					}
 				}
-				// If we didn't find one, then backtrack if we can; if we can't then
-				// we've finished exploring the graph
-				if (visited[current] && !previousNodes.isEmpty())
-					current = previousNodes.pop();
-			} while (!previousNodes.isEmpty());
-			
-			// Add the 
+				// If we didn't find one, then backtrack if we can; if we can't
+				// then we've finished exploring the graph
+				if (visited[current]) {
+					if (!previousNodes.isEmpty())
+						current = previousNodes.pop();
+					else
+						break;
+				}
+			}
+
+			// Store this subgraph's nodes for later
 			allSearches.add(nodesVisited);
 			totalVisited += nodesVisited.size();
-			
-			if (totalVisited >= size) break;
+
+			if (totalVisited >= size)
+				break;
 
 			// Set up for the next subgraph
 			nodesVisited = new ArrayList<Integer>();
 			for (int i = 0; i < visited.length; ++i)
 				visited[i] = false;
 		}
-		
+
 		return null;
 	}
 }
