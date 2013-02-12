@@ -492,11 +492,10 @@ public class Vision implements VideoReceiver {
 			green = new Position(worldState.getGreenX(), worldState.getGreenY());
 		}
 
-		// TODO: For the kMeans implementation
-		int[] greenMean = { green.getX(), green.getY() };
-
-		// System.out.println(Kmeans.sumsquarederror(greenXPoints,greenYPoints,
-		// greenMean));
+		
+		
+	
+		 
 
 		/** Finding the corners of the Green plates */
 
@@ -507,6 +506,33 @@ public class Vision implements VideoReceiver {
 			// centroid in which the farthest points can be located.
 			greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
 					greenYPoints, 1400);
+			
+			
+			/* TODO: For the kMeans implementation. Needs to be tested that it gets the correct means
+			 * and that it doesn't crash (:
+			int[] greenMean = { green.getX(), green.getY() };
+			System.out.println(Kmeans.sumsquarederror(greenXPoints,greenYPoints,
+					 greenMean));
+			double sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints,
+					 greenMean);
+			
+			//Check that we actually have 2 plates before attempting to kmeans them.
+			if (sumSqrdError > Kmeans.errortarget){
+				int[] mean1 ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()};
+				int[] mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
+				
+				int[] greenCendroids = Kmeans.dokmeans(greenXPoints, greenYPoints, mean1, mean2 );
+				Position plate1mean = new Position(greenCendroids[0],greenCendroids[1]);
+				Position plate2mean = new Position(greenCendroids[2],greenCendroids[3]);
+				
+			}
+			
+			*/
+			
+			
+			
+			
+			
 
 			// Finding the shortest sides of the plates and returns their
 			// average values in order to draw the line in the middle of the

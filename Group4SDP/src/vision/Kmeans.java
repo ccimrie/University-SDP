@@ -6,7 +6,7 @@ public class Kmeans {
 	
 	public static final double errortarget = 170.0;
 	
-	public int [] dokmeans(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
+	public static int [] dokmeans(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
 		Cluster iteration; //All the information about this iteration is kept here.
 		//We set the initial errors to some number that's not going to interfere with our condition.
 		double error1new = 200.0;
@@ -32,7 +32,7 @@ public class Kmeans {
 	
 	//Position in the returned arraylist will correspond to the nth point in the original array lists and will be
 	//either 1 or 2, depending of the cluster
-	public Cluster getclusters(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
+	public static Cluster getclusters(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int [] mean1, int [] mean2){
 		
 		//Clusters
 		ArrayList<Integer>mean1membersx = new ArrayList<Integer>();
@@ -40,7 +40,7 @@ public class Kmeans {
 		ArrayList<Integer>mean2membersx = new ArrayList<Integer>();
 		ArrayList<Integer>mean2membersy = new ArrayList<Integer>();
 		
-		int pixelnum = xpoints.size();
+		int pixelnum = Math.max(xpoints.size(), ypoints.size());
 		for (int i = 0; i<pixelnum; i++){
 			int xcurrent = xpoints.get(i);
 			int ycurrent = ypoints.get(i);
@@ -65,8 +65,8 @@ public class Kmeans {
 	
 	//Get the mean for the given points.
 	//means is an array in the format {xcenter, ycenter};
-	public int [] findmeans( ArrayList<Integer> xpoints, ArrayList<Integer> ypoints){
-		int pixelnum = xpoints.size();
+	public static int [] findmeans( ArrayList<Integer> xpoints, ArrayList<Integer> ypoints){
+		int pixelnum = Math.max(xpoints.size(), ypoints.size());
 
 		int xpointssum = 0;
 		int ypointssum = 0;
@@ -81,9 +81,9 @@ public class Kmeans {
 
 	}
 	
-	public double sumsquarederror(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int[] center){
+	public static double sumsquarederror(ArrayList<Integer> xpoints, ArrayList<Integer> ypoints, int[] center){
 		double sumsqerr = 0.0;
-		int pixelnum = xpoints.size();
+		int pixelnum = Math.max(xpoints.size(),ypoints.size());
 		for (int i = 0; i<pixelnum; i++){
 			sumsqerr += getdistance(xpoints.get(i), ypoints.get(i), center);
 		}
@@ -91,7 +91,7 @@ public class Kmeans {
 	}
 	
 	// mean[0] = x, mean[1] = y
-	public double getdistance(int x, int y, int [] mean){
+	public static double getdistance(int x, int y, int [] mean){
 		double distance =Math.sqrt(Math.pow((mean[0] - x),2) + Math.pow((mean[1] - y),2));
 		return distance;
 	}
