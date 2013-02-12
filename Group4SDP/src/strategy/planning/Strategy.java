@@ -2,7 +2,6 @@ package strategy.planning;
 
 import world.state.Robot;
 import world.state.RobotController;
-import world.state.RobotType;
 import vision.WorldState;
 
 
@@ -11,7 +10,7 @@ public class Strategy {
 	public static Robot them;
 	public static RobotController robot;
 	public static WorldState world;
-	public static boolean shouldIdie = false; //Use this as a control variable if the
+	public static boolean alldie = false; //Use this as a control variable if the
 	//threads should die.
 
 	public void execute(WorldState world, RobotController robot) {
@@ -28,8 +27,8 @@ public class Strategy {
 	}
 
 	public void stop() throws InterruptedException{
-		shouldIdie = true;
-		Thread.sleep(2000); //Wait for the thread to notice it needs to die
+		alldie = true;
+		Thread.sleep(2000); //Wait for all threads to notice this and terminate.
 		robot.stop();
 	}
 

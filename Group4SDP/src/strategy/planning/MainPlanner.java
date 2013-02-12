@@ -14,10 +14,9 @@ import vision.WorldState;
 import world.state.PossessionType;
 import world.state.Robot;
 import world.state.RobotController;
-import world.state.RobotType;
 import strategy.planning.Strategy;
 
-public class MainPlanner implements Runnable {
+public class MainPlanner extends StrategyInterface implements Runnable {
 	WorldState world;
 	RobotController rc;
 	Robot us;
@@ -41,10 +40,7 @@ public class MainPlanner implements Runnable {
 	state newState = currentState;
 
 	public MainPlanner(WorldState world, Robot us, Robot them, RobotController rc){
-		this.world = world;
-		this.rc = rc;
-		this.us = us;
-		this.them = them;
+		super(world, us,them, rc);
 	}
 	
 	@Override
@@ -52,7 +48,7 @@ public class MainPlanner implements Runnable {
 	public void run() {
 
 		/*The while loop will execute the strategy until it is broken or we're told to die*/
-		while (!Strategy.shouldIdie){ 
+		while (!Strategy.alldie){ 
 			if (currentState != newState) {
 				System.out.println("State changed to " + currentState.toString());
 				newState = currentState;
