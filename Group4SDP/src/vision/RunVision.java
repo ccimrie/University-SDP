@@ -50,8 +50,8 @@ public class RunVision {
             		vStream, distortionFix);
 
         	vStream.addReceiver(distortionFix);
+        	vStream.addReceiver(vision);
     		distortionFix.addReceiver(gui);
-    		distortionFix.addReceiver(vision);
             vision.addVisionDebugReceiver(gui);
             vision.addWorldStateReceiver(gui);
         }

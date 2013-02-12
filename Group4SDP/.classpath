@@ -15,5 +15,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/stax-api-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/v4l4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/miglayout15-swing.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
