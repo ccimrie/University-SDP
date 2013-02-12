@@ -34,6 +34,10 @@ public class WorldState {
 	private int yellowY;
 	private int ballX;
 	private int ballY;
+	private int greenX;
+	
+
+	private int greenY;
 	private double blueOrientation;
 	private double yellowOrientation;
 	private long counter;
@@ -77,12 +81,28 @@ public class WorldState {
     	}
 	}
 
+	public void setGreenX(int greenX) {
+		this.greenX = greenX;
+	}
+
+	public void setGreenY(int greenY) {
+		this.greenY = greenY;
+	}
+
+	public int getGreenX() {
+		return greenX;
+	}
+
+	public int getGreenY() {
+		return greenY;
+	}
+	
+	
 	public int getBlueX() {
 		return blueX;
 	}
 	public void setBlueX(int blueX) {
 		this.blueX = blueX;
-		
 		
 	}
 	public int getBlueY() {
