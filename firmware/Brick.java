@@ -29,7 +29,8 @@ public class Brick {
 	private final static int BACKWARDS = 2;
 	private final static int LEFT = 10;
 	private final static int RIGHT = 11;
-	private static final int MOVE = 12;
+	private final static int MOVE = 12;
+	private final static int SLOWMOVE = 13;
 	private final static int STOP = 3;
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
@@ -148,6 +149,15 @@ public class Brick {
 				move(option1, option2);
 				replytopc(opcode,os);
 				break;
+				
+			case SLOWMOVE:
+				LCD.clear();
+				LCD.drawString("Moving at an angle!", 0, 2);
+				LCD.refresh();
+				slowmove(option1, option2);
+				replytopc(opcode,os);
+				break;
+				
 			case ROTATEMOVE:
 				LCD.clear();
 				LCD.drawString("Moving at an angle!", 0, 2);
@@ -264,6 +274,48 @@ public class Brick {
 		} else if (y < 0) {
 			leftMotor.setSpeed(-y + 500);
 			rightMotor.setSpeed(-y + 500);
+			leftMotor.backward();
+			rightMotor.backward();
+		} else {
+			leftMotor.flt();
+			rightMotor.flt();
+		}
+
+		if (x > 0) {
+			chip.move(FRONTMOTOR, 2, x);
+			chip.move(BACKMOTOR, 1, x);
+		} else if (x < 0) {
+			chip.move(FRONTMOTOR, 1, -x);
+			chip.move(BACKMOTOR, 2, -x);
+		} else {
+			chip.move(1, DO_NOTHING, 0);
+			chip.move(2, DO_NOTHING, 0);
+			chip.stop();
+		}
+	}
+	
+	/**
+	 * Move slowly, same as the above method, except very slow
+	 * in order to use it when we're near to the ball.
+	 * 
+	 * @param x
+	 *            The X coordinate. Positive is right, negative is left.
+	 * @param y
+	 *            The Y coordinate. Positive is forward, negative is backward.
+	 * @throws InterruptedException
+	 *             When sleeping of a thread is interrupted
+	 */
+	private static void slowmove(int x, int y) throws InterruptedException {
+		leftMotor.setAcceleration(2000);
+		rightMotor.setAcceleration(2000);
+		if (y > 0) {
+			leftMotor.setSpeed(y + 250);
+			rightMotor.setSpeed(y + 250);
+			leftMotor.forward();
+			rightMotor.forward();
+		} else if (y < 0) {
+			leftMotor.setSpeed(-y + 250);
+			rightMotor.setSpeed(-y + 250);
 			leftMotor.backward();
 			rightMotor.backward();
 		} else {

@@ -1,45 +1,20 @@
 package strategy.planning;
 
-import java.util.Observable;
-import java.util.Random;
+import vision.WorldState;
+import world.state.Robot;
+import world.state.RobotController;
 
 
-public class PenaltyAttack extends Strategy {
+public class PenaltyAttack extends StrategyInterface implements Runnable {
 	
 	boolean turned = false;
 	boolean moved = false;
 	boolean kicked = false;
-	
-	public void update(Observable arg, Object obj) {
-		
-		Random generator = new Random();
-		int kick = generator.nextInt();
-		
-		if (!turned) {
-			if (kick <= 0) {
-				rc.rotate(315.0);
-				turned = true;
-			} else {
-				rc.rotate(-315.0);
-				turned = true;
-			}
-		}
-		
-		if (!rc.isMoving() && turned && !moved && !kicked) {
-			rc.travel(0.1d,0.1d);
-			moved = true;
-		}
-		
-		if (!rc.isMoving() && turned && moved && !kicked) {
-			rc.kick();
-			kicked = true;
-		}
-		
-		if (kicked) {
-			this.stop();
-			Strategy mp = new MainPlanner();
-			mp.execute();
-		}
+
+	public PenaltyAttack(WorldState world, Robot us, Robot them, RobotController rc){
+		super(world, us, them, rc);
 	}
-	
+	public void run() {
+		rc.kick();
+	}
 }
