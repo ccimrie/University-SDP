@@ -65,16 +65,19 @@ public class TestBearing {
 
 	/**
 	 * Yes, one parameter is in radians and the other is in degrees. I did not
-	 * write this method! (nor any that depend on it)
+	 * write the method being tested! (nor any that depend on it)
 	 */
 	@Test
 	public void testTurnAngle() {
-		for (double angle1 = 0.0; angle1 < Math.PI; angle1 += Math.PI / 12.0) {
+		for (double angle1 = 0.0; angle1 < Math.PI; angle1 += Math.PI / 180.0) {
 			double angle2Min = Math.toDegrees(angle1);
 			double angle2Max = Math.toDegrees(angle1 + Math.PI);
-			for (double angle2 = angle2Min; angle2 < angle2Max; angle2 += 15.0) {
-				assertEquals(Math.abs(Math.toDegrees(angle1) - angle2),
-						Math.abs(TurnToBall.turnAngle(angle1, angle2)),
+			for (double angle2 = angle2Min; angle2 < angle2Max; angle2 += 1.0) {
+				assertEquals(angle2 - Math.toDegrees(angle1),
+						TurnToBall.turnAngle(angle1, angle2),
+						FP_THRESHOLD);
+				assertEquals(Math.toDegrees(angle1) - angle2,
+						TurnToBall.turnAngle(Math.toRadians(angle2), Math.toDegrees(angle1)),
 						FP_THRESHOLD);
 			}
 		}
