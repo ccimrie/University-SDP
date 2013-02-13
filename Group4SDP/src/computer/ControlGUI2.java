@@ -20,9 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import strategy.planning.Commands;
-import strategy.planning.DribbleBall;
-import strategy.planning.DribbleBall2;
-import strategy.planning.DribbleBall4;
 import strategy.planning.DribbleBallAlex;
 import strategy.planning.MoveToBall;
 import vision.DistortionFix;
@@ -239,32 +236,28 @@ public class ControlGUI2 extends JFrame {
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.move(op1, op2);
+				robot.forward(op1, 0);
 			}
 		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.backward(op1, op2);
+				robot.backward(op1, 0);
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.left(op1, op2);
+				robot.left(op1, 0);
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.right(op1, op2);
+				robot.right(op1, 0);
 			}
 		});
 

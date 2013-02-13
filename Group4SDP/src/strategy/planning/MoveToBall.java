@@ -47,16 +47,16 @@ public class MoveToBall {
 		 while(distance > distanceFromBallToStop) {
 			//System.out.println("Forward");
 			angle = TurnToBall.Turner(us, ball);
-			if((Math.abs(angle) > 20) && (Math.abs(angle) < 40) ) {
+			if((Math.abs(angle) > 15) && (Math.abs(angle) < 40) ) {
 				//Stop everything and turn
 				System.out.println("The final angle is " + angle);
 				robot.stop();
-				robot.rotate((int)(angle/5));
+				robot.rotate((int)(angle/2));
 			}else if (Math.abs(angle) > 40){
 				robot.stop();
-				robot.rotate((int)angle/2);
+				robot.rotate((int)angle);
 			}
-			robot.move(0,10);
+			robot.move(0,80);
 			distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
 			System.out.println("Distance to ball: " + distance);
 			Thread.sleep(100);
