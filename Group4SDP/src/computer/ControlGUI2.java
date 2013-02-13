@@ -20,7 +20,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import strategy.planning.Commands;
-import strategy.planning.DribbleBallAlex;
+import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -77,7 +77,7 @@ public class ControlGUI2 extends JFrame {
 	private MoveToTheBallThread approachThread;
 	
 	// Strategy used for driving part of milestone 2
-	private static DribbleBallAlex dribbleBall = new DribbleBallAlex();
+	private static DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
 	public static WorldState worldState = new WorldState();

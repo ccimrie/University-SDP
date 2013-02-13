@@ -6,7 +6,7 @@ import world.state.Ball;
 import world.state.Robot;
 import strategy.movement.TurnToBall;
 
-public class DribbleBall4 {
+public class DribbleBall5 {
 
 	private static final double xthreshold = 70;
 	private static final double ythreshold = 70;
@@ -20,21 +20,19 @@ public class DribbleBall4 {
 		Robot us = worldState.ourRobot;
 		Ball ball = worldState.ball;
 
-		if (us.x > (ball.x - 70)) {
-			// Calculate the target point which appears behind the ball
-			double xvalue = ball.x - xthreshold;
-			double yvalue;
-			if (ball.y < 250) {
-				yvalue = ball.y + ythreshold;
-			} else {
-				yvalue = ball.y - ythreshold;
-			}
-			// Sends the the robot to the target point
-			moveToPoint.moveToPoint(worldState, robot, xvalue, yvalue);
+		if (ball.y < 250) {
+			moveToPoint.moveToPoint(worldState, robot, ball.x, ball.y
+					+ ythreshold);
+			moveToPoint.moveToPoint(worldState, robot, ball.x - xthreshold,
+					ball.y + ythreshold);
+		} else {
+			moveToPoint.moveToPoint(worldState, robot, ball.x, ball.y
+					- ythreshold);
+			moveToPoint.moveToPoint(worldState, robot, ball.x - xthreshold,
+					ball.y - ythreshold);
 		}
+		moveToPoint.moveToPoint(worldState, robot, ball.x - xthreshold, ball.y);
 
-		// Make an adjustment to face the door
-		// comment that ------
 		double angle = TurnToBall.AngleTurner(us, 5400, us.y);
 		int attempt = 0;
 		robot.stop();
@@ -48,27 +46,13 @@ public class DribbleBall4 {
 			angle = TurnToBall.AngleTurner(us, 5400, us.y);
 		}
 
-		// Move either up or down along the y axis until aligning properly
-		if (us.y > ball.y) {
-			System.out.println("Moving up the y axis"); // Robot's left
+		robot.move(0, 100);
+		// Stop preferably at 200 pixels, but 550 if we hit the edge of the
+		// pitch first
+		double stopX = Math.min(ball.x + dribbleDistance, 550);
+		while (us.x < stopX)
+			Thread.sleep(50);
 
-			while (us.y > ball.y) {
-				robot.move(-100, 0);
-				Thread.sleep(100);
-			}
-		} else {
-			System.out.println("Moving down the y axis"); // Robot's right
-			while (us.y < ball.y) {
-				robot.move(100, 0);
-				Thread.sleep(100);
-			}
-		}
-		double temp = ball.x;
-		// Now dribble
-		while (us.x < temp + dribbleDistance && us.x < 500.0) {
-			robot.move(0, 50);
-			Thread.sleep(100);
-		}
 		robot.stop();
 	}
 }
