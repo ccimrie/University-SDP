@@ -8,9 +8,9 @@ import strategy.movement.TurnToBall;
 
 public class DribbleBall4 {
 
-	private static final double xthreshold = 50;
-	private static final double ythreshold = 50;
-	private static double dribbleDistance = 120;
+	private static final double xthreshold = 60;
+	private static final double ythreshold = 60;
+	private static double dribbleDistance = 200;
 	private MoveToPoint moveToPoint = new MoveToPoint();
 
 	public void dribbleBall(WorldState worldState, RobotController robot)
@@ -24,7 +24,7 @@ public class DribbleBall4 {
 			// Calculate the target point which appears behind the ball
 			double xvalue = ball.x - xthreshold;
 			double yvalue;
-			if (us.y > ball.y) {
+			if (ball.y < 200) {
 				yvalue = ball.y + ythreshold;
 			} else {
 				yvalue = ball.y - ythreshold;
@@ -38,8 +38,8 @@ public class DribbleBall4 {
 		double angle = TurnToBall.AngleTurner(us, 5400, us.y);
 		int attempt = 0;
 		robot.stop();
-		while (Math.abs(angle) > 20 && attempt < 10) {
-			if ((Math.abs(angle) > 20) && (Math.abs(angle) < 50)) {
+		while (Math.abs(angle) > 15 && attempt < 10) {
+			if ((Math.abs(angle) > 15) && (Math.abs(angle) < 50)) {
 				robot.rotate((int) (angle / 2));
 			} else if (Math.abs(angle) > 50) {
 				robot.rotate((int) angle);
@@ -53,20 +53,20 @@ public class DribbleBall4 {
 			System.out.println("Moving up the y axis"); // Robot's left
 
 			while (us.y > ball.y) {
-				robot.move(-10, 0);
+				robot.move(-100, 0);
 				Thread.sleep(100);
 			}
 		} else {
 			System.out.println("Moving down the y axis"); // Robot's right
 			while (us.y < ball.y) {
-				robot.move(10, 0);
+				robot.move(100, 0);
 				Thread.sleep(100);
 			}
 		}
 		double temp = ball.x;
 		// Now dribble for dribbleDistance distance :)
-		while (us.x < temp + dribbleDistance) {
-			robot.move(0, 127);
+		while (us.x < temp + dribbleDistance && us.x < 500.0) {
+			robot.move(0, 50);
 			Thread.sleep(100);
 		}
 		robot.stop();

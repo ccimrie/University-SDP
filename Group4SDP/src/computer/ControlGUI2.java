@@ -23,6 +23,7 @@ import strategy.planning.Commands;
 import strategy.planning.DribbleBall;
 import strategy.planning.DribbleBall2;
 import strategy.planning.DribbleBall4;
+import strategy.planning.DribbleBallAlex;
 import strategy.planning.MoveToBall;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -79,7 +80,7 @@ public class ControlGUI2 extends JFrame {
 	private MoveToTheBallThread approachThread;
 	
 	// Strategy used for driving part of milestone 2
-	private static DribbleBall4 dribbleBall = new DribbleBall4();
+	private static DribbleBallAlex dribbleBall = new DribbleBallAlex();
 	private DribbleBallThread dribbleThread;
 
 	public static WorldState worldState = new WorldState();

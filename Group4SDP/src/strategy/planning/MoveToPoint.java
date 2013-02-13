@@ -37,17 +37,21 @@ public class MoveToPoint {
 
 			angle = TurnToBall.AngleTurner(us, moveToX, moveToY);
 
-			if ((Math.abs(angle) > 20) && (Math.abs(angle) < 70)) {
+			if ((Math.abs(angle) > 15) && (Math.abs(angle) < 50)) {
 				// Stop everything and turn
 				System.out.println("The final angle is " + angle);
 				robot.stop();
-				robot.rotate((int) (angle / 5));
-			} else if (Math.abs(angle) > 70) {
-				robot.stop();
 				robot.rotate((int) (angle / 2));
+			} else if (Math.abs(angle) > 50) {
+				robot.stop();
+				robot.rotate((int) angle);
 			}
 
-			robot.move(0, 10);
+			if ((distance - distanceFromPointToStop) > 100)
+				robot.move(0, 100);
+			else
+				robot.move(0, 50);
+			
 			distance = DistanceToBall.Distance(us.x, us.y, moveToX, moveToY);
 			System.out.println("Distance to ball: " + distance);
 			Thread.sleep(100);
