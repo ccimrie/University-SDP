@@ -47,7 +47,7 @@ public class MoveToBall {
 		 while(distance > distanceFromBallToStop) {
 			//System.out.println("Forward");
 			angle = TurnToBall.Turner(us, ball);
-			if((Math.abs(angle) > 30) && (Math.abs(angle) < 40) ) {
+			if((Math.abs(angle) > 20) && (Math.abs(angle) < 40) ) {
 				//Stop everything and turn
 				System.out.println("The final angle is " + angle);
 				robot.stop();
@@ -64,7 +64,7 @@ public class MoveToBall {
 		
 		// Being close to the ball we can perform one last minor turn
 		angle = TurnToBall.Turner(us, ball);
-		if(Math.abs(angle) > 10) {
+		if(Math.abs(angle) > 15) {
 			// Stop everything and turn
 			System.out.println("Making final correction");
 			robot.stop();

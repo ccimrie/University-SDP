@@ -582,8 +582,8 @@ public class VisionSettingsPanel extends JPanel {
 		rdbtnBlue.doClick();
 		rdbtnRight.setSelected(true);
 		rdbtnRight.doClick();
-		rdbtnDistortOn.setSelected(true);
-		rdbtnDistortOn.doClick();
+		rdbtnDistortOff.setSelected(true);
+		rdbtnDistortOff.doClick();
 		rdbtnMouseModeOff.setSelected(true);
 		rdbtnMouseModeOff.doClick();
 	}

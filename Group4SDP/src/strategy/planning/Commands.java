@@ -22,5 +22,6 @@ public class Commands {
 	public final static int LEFT = 10;
 	public final static int RIGHT = 11;
 	public final static int ANGLEMOVE = 12;
+	public final static int SLOWMOVE = 13;
 	public final static int TEST = 66;
 }

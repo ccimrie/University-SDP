@@ -59,7 +59,7 @@ public class RobotController extends Robot {
 	public int rotate(int input ) {
 		int dir =2;
 		int confirmation = 0;
-		if (input <0 && input > -180) {
+		if (input < 0 && input > -180) {
 			input = -input;
 			dir = 1;
 		}

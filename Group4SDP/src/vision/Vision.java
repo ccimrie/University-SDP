@@ -584,14 +584,25 @@ public class Vision implements VideoReceiver {
 //			System.out.println();
 
 			Position front, back;
+			// Apply Barrel correction (fixes fish-eye effect)
+			
+//			Point blueCorrected = DistortionFix.barrelCorrected(new Point(blue.getX(), blue.getY()));
+//			Point yellowCorrected = DistortionFix.barrelCorrected(new Point(yellow.getX(), yellow.getY());
+			Point avg1Corrected = DistortionFix.barrelCorrected(new Point(avg1.getX(), avg1.getY()));
+			Point avg2Corrected = DistortionFix.barrelCorrected(new Point(avg2.getX(), avg2.getY()));
+			
 			if (searchPt1GreyPoints > searchPt2GreyPoints) {
 				front = searchPt2;
 				back = searchPt1;
-				xvector = avg1.getX() - avg2.getX();
-				yvector = avg1.getY() - avg2.getY();
+//				xvector = avg1.getX() - avg2.getX();
+//				yvector = avg1.getY() - avg2.getY();
+				xvector = avg1Corrected.x - avg2Corrected.x;
+				yvector = avg1Corrected.y - avg2Corrected.y;
 			} else if (searchPt1GreyPoints < searchPt2GreyPoints) {
-				xvector = avg2.getX() - avg1.getX();
-				yvector = avg2.getY() - avg1.getY();
+//				xvector = avg2.getX() - avg1.getX();
+//				yvector = avg2.getY() - avg1.getY();
+				xvector = avg2Corrected.x - avg1Corrected.x;
+				yvector = avg2Corrected.y - avg1Corrected.y;
 				front = searchPt1;
 				back = searchPt2;
 			} else
@@ -654,20 +665,26 @@ public class Vision implements VideoReceiver {
 			 * ++currentOrientIndex; if (currentOrientIndex >= 5)
 			 * currentOrientIndex = 0;
 			 */
+			Point ballCorrected = DistortionFix.barrelCorrected(new Point(ball.getX(), ball.getY()));
+			Point greenCorrected = DistortionFix.barrelCorrected(new Point(green.getX(), green.getY()));
 
-			// Apply Barrel correction (fixes fish-eye effect)
-			// ball = convertToBarrelCorrected(ball);
-			// blue = convertToBarrelCorrected(blue);
-			// yellow = convertToBarrelCorrected(yellow);
-
-			worldState.setBallX(ball.getX());
-			worldState.setBallY(ball.getY());
-			worldState.setGreenX(green.getX());
-			worldState.setGreenY(green.getY());
-			worldState.setBlueX(green.getX());
-			worldState.setBlueY(green.getY());
-			worldState.setYellowX(green.getX());
-			worldState.setYellowY(green.getY());
+//			worldState.setBallX(ball.getX());
+//			worldState.setBallY(ball.getY());
+//			worldState.setGreenX(green.getX());
+//			worldState.setGreenY(green.getY());
+//			worldState.setBlueX(green.getX());
+//			worldState.setBlueY(green.getY());
+//			worldState.setYellowX(green.getX());
+//			worldState.setYellowY(green.getY());
+			worldState.setBallX(ballCorrected.x);
+			worldState.setBallY(ballCorrected.y);
+			worldState.setGreenX(greenCorrected.x);
+			worldState.setGreenY(greenCorrected.y);
+			worldState.setBlueX(greenCorrected.x);
+			worldState.setBlueY(greenCorrected.y);
+			worldState.setYellowX(greenCorrected.x);
+			worldState.setYellowY(greenCorrected.y);
+			
 			worldState.setBlueOrientation(angle);
 			worldState.setYellowOrientation(angle);
 			/*
