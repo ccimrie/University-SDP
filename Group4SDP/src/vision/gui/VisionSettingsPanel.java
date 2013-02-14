@@ -31,11 +31,11 @@ import javax.swing.SwingConstants;
  * etc) and threshold setting. Also allows the saving/loading of
  * threshold values to a file.
  * 
- * @author s0840449 (original)
- * @author Alex Adams (heavy refactoring & improvements)
+ * @author s0840449 - original
+ * @author Alex Adams (s1046358) - heavy refactoring & improvements
  */
 @SuppressWarnings("serial")
-public class VisionSettingsPanel extends JPanel {
+class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_OFF = 0;
 	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
 	public static final int MOUSE_MODE_BLUE_T = 2;
@@ -347,7 +347,6 @@ public class VisionSettingsPanel extends JPanel {
 		colourPanel.add(rdbtnYellow);
 		colourChoice.add(rdbtnBlue);
 		colourPanel.add(rdbtnBlue);
-		
 		
 		rdbtnYellow.addActionListener(colourActionListener);
 		rdbtnBlue.addActionListener(colourActionListener);

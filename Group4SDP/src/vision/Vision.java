@@ -16,7 +16,6 @@ import vision.interfaces.WorldStateReceiver;
  * 
  * @author s0840449
  */
-// TODO: separate the GUI - can combine it with VisionGUI.java
 public class Vision implements VideoReceiver {
 
 	// Variables used in processing video
@@ -24,7 +23,7 @@ public class Vision implements VideoReceiver {
 	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
-	
+
 	private int currentAngleIndex = 0;
 	private double[] last3Angles = new double[3];
 
@@ -50,23 +49,40 @@ public class Vision implements VideoReceiver {
 	}
 
 	/**
-	 * Adds a receiver to the list of objects which receive the vision debug
-	 * overlay
+	 * Registers an object to receive the debug overlay from the vision system
 	 * 
 	 * @param receiver
+	 *            The object being registered
 	 */
 	public void addVisionDebugReceiver(VisionDebugReceiver receiver) {
 		visionDebugReceivers.add(receiver);
 	}
 
 	/**
-	 * Sends the vision system the next frame to process
+	 * Used to send a frame to the vision system to process
+	 * 
+	 * @param frame
+	 *            The frame being sent
+	 * @param frameRate
+	 *            The current frame rate
+	 * @param frameCounter
+	 *            The current frame index
 	 */
 	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
 		processAndUpdateImage(frame, frameRate, frameCounter);
 	}
 
 	// TODO: Find out what this is.
+	// RE: I added this when I separated the listener for the vision GUI into
+	// its different parts (raw frame, debug overlay, worldstate).
+	// It could also be useful for strategy, but for now VisionGUI is the only
+	// thing that uses it.
+	/**
+	 * Registers an object to receive the world state from the vision system
+	 * 
+	 * @param receiver
+	 *            The object being registered
+	 */
 	public void addWorldStateReceiver(WorldStateReceiver receiver) {
 		worldStateReceivers.add(receiver);
 	}
@@ -281,13 +297,14 @@ public class Vision implements VideoReceiver {
 		int ballY = 0;
 		int numBallPos = 0;
 
-		int blueX = 0;
-		int blueY = 0;
-		int numBluePos = 0;
-
-		int yellowX = 0;
-		int yellowY = 0;
-		int numYellowPos = 0;
+		// TODO: not used
+		// int blueX = 0;
+		// int blueY = 0;
+		// int numBluePos = 0;
+		//
+		// int yellowX = 0;
+		// int yellowY = 0;
+		// int numYellowPos = 0;
 
 		int greenX = 0;
 		int greenY = 0;
@@ -295,10 +312,11 @@ public class Vision implements VideoReceiver {
 
 		ArrayList<Integer> ballXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> ballYPoints = new ArrayList<Integer>();
-		ArrayList<Integer> blueXPoints = new ArrayList<Integer>();
-		ArrayList<Integer> blueYPoints = new ArrayList<Integer>();
-		ArrayList<Integer> yellowXPoints = new ArrayList<Integer>();
-		ArrayList<Integer> yellowYPoints = new ArrayList<Integer>();
+		// TODO: not used
+		// ArrayList<Integer> blueXPoints = new ArrayList<Integer>();
+		// ArrayList<Integer> blueYPoints = new ArrayList<Integer>();
+		// ArrayList<Integer> yellowXPoints = new ArrayList<Integer>();
+		// ArrayList<Integer> yellowYPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenYPoints = new ArrayList<Integer>();
 
@@ -307,11 +325,8 @@ public class Vision implements VideoReceiver {
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
 
-		/**
-		 * For every pixel within the pitch, test to see if it belongs to the
-		 * ball, the yellow T, the blue T, either green plate or a grey circle.
-		 */
-
+		// For every pixel within the pitch, test to see if it belongs to the
+		// ball, the yellow T, the blue T, either green plate or a grey circle.
 		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++) {
 			for (int column = leftBuffer; column < frame.getWidth()
 					- rightBuffer; column++) {
@@ -326,47 +341,43 @@ public class Vision implements VideoReceiver {
 					debugOverlay.setRGB(column, row, 0xFFFF0099);
 				}
 
-				// TODO: Do we really need this? If we have the check in 396-398
-				if (pitchConstants.debugMode(PitchConstants.GREEN)
-						&& isGreen(c, hsbvals)) {
-					debugOverlay.setRGB(column, row, 0xFFFF0099);
-				}
+				// TODO: not used
+				// Checking if the pixel is a part of the Blue T
+				// if (isBlue(c, hsbvals)) {
+				// blueX += column;
+				// blueY += row;
+				// numBluePos++;
+				//
+				// blueXPoints.add(column);
+				// blueYPoints.add(row);
+				//
+				// // If we're in the "Blue" tab, we show what pixels we're
+				// // looking at, for debugging and to help with threshold
+				// // setting.
+				// if (pitchConstants.debugMode(PitchConstants.BLUE)) {
+				// debugOverlay.setRGB(column, row, 0xFFFF0099);
+				// }
+				// }
 
-				/** Checking if the pixel is a part of the Blue T */
-				if (isBlue(c, hsbvals)) {
-					blueX += column;
-					blueY += row;
-					numBluePos++;
+				// TODO: not used
+				// Checking if the pixel is a part of the Yellow T
+				// if (isYellow(c, hsbvals)) {
+				// yellowX += column;
+				// yellowY += row;
+				// numYellowPos++;
+				//
+				// yellowXPoints.add(column);
+				// yellowYPoints.add(row);
+				//
+				// // If we're in the "Yellow" tab, we show what pixels we're
+				// // looking at, for debugging and to help with threshold
+				// // setting.
+				// if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
+				// debugOverlay.setRGB(column, row, 0xFFFF0099);
+				// }
+				// }
 
-					blueXPoints.add(column);
-					blueYPoints.add(row);
-
-					// If we're in the "Blue" tab, we show what pixels we're
-					// looking at, for debugging and to help with threshold
-					// setting.
-					if (pitchConstants.debugMode(PitchConstants.BLUE)) {
-						debugOverlay.setRGB(column, row, 0xFFFF0099);
-					}
-				}
-
-				/** Checking if the pixel is a part of the Yellow T */
-				if (isYellow(c, hsbvals)) {
-					yellowX += column;
-					yellowY += row;
-					numYellowPos++;
-
-					yellowXPoints.add(column);
-					yellowYPoints.add(row);
-
-					// If we're in the "Yellow" tab, we show what pixels we're
-					// looking at, for debugging and to help with threshold
-					// setting.
-					if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
-						debugOverlay.setRGB(column, row, 0xFFFF0099);
-					}
-				}
-
-				/** Checking if the pixel is a part of the Green Plate */
+				// Checking if the pixel is a part of the Green Plate
 				if (isGreen(c, hsbvals)) {
 					greenX += column;
 					greenY += row;
@@ -384,7 +395,7 @@ public class Vision implements VideoReceiver {
 					}
 				}
 
-				/** Checking if the pixel is a part of the Ball */
+				// Checking if the pixel is a part of the Ball
 				if (isBall(c, hsbvals)) {
 					ballX += column;
 					ballY += row;
@@ -403,16 +414,16 @@ public class Vision implements VideoReceiver {
 			}
 		}
 
-		/** Calculating the centre points of the different obejct on the pitch */
+		// Calculating the centre points of the different obejct on the pitch
 		// Position objects to hold the centre point of the ball and both
 		// robots.
 		Position ball;
-		Position blue;
-		Position yellow;
+		// Position blue;
+		// Position yellow;
 		Position green;
 		double angle = 0;
 
-		/** Ball */
+		// Ball
 		// If we have only found a few 'Ball' pixels, chances are that the ball
 		// has not actually been detected.
 		if (numBallPos > 0) {
@@ -426,8 +437,7 @@ public class Vision implements VideoReceiver {
 			ball = new Position(worldState.getBallX(), worldState.getBallY());
 		}
 
-		// TODO: Find out how the remove outliers works and maybe clearing the
-		// point list is a better idea?
+		// TODO: maybe clearing the point list is a better idea?
 		Point ballP = new Point(ballX, ballY);
 		ArrayList<Point> goodPoints = Position.removeOutliers(ballXPoints,
 				ballYPoints, ballP);
@@ -438,48 +448,42 @@ public class Vision implements VideoReceiver {
 			ballYPoints.add((int) goodPoints.get(k).getY());
 		}
 
-		/** Blue plate */
-		// If we have only found a few 'Blue' pixels, chances are that the ball
-		// has not actually been detected.
-		if (numBluePos > 0) {
-			blueX /= numBluePos;
-			blueY /= numBluePos;
-
-			blue = new Position(blueX, blueY);
-			blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
-			blue.filterPoints(blueXPoints, blueYPoints);
-		} else {
-			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
-		}
-
-		// TODO: No outlier removal in this case? Maybe implement it
-
-		/** Yellow plate */
-		// If we have only found a few 'Yellow' pixels, chances are that the
-		// yellow T has not actually been detected.
-		if (numYellowPos > 0) {
-			yellowX /= numYellowPos;
-			yellowY /= numYellowPos;
-
-			yellow = new Position(yellowX, yellowY);
-			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
-			yellow.filterPoints(yellowXPoints, yellowYPoints);
-		} else {
-			yellow = new Position(worldState.getYellowX(),
-					worldState.getYellowY());
-		}
+		/*
+		 * TODO: Decide if we're keeping this (it's not needed if we have the
+		 * centroid of the green plates) // Blue plate // If we have only found
+		 * a few 'Blue' pixels, chances are that the ball // has not actually
+		 * been detected. if (numBluePos > 0) { blueX /= numBluePos; blueY /=
+		 * numBluePos;
+		 * 
+		 * blue = new Position(blueX, blueY);
+		 * blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
+		 * blue.filterPoints(blueXPoints, blueYPoints); } else { blue = new
+		 * Position(worldState.getBlueX(), worldState.getBlueY()); }
+		 * 
+		 * // TODO: No outlier removal in this case? Maybe implement it
+		 * 
+		 * // Yellow plate // If we have only found a few 'Yellow' pixels,
+		 * chances are that the // yellow T has not actually been detected. if
+		 * (numYellowPos > 0) { yellowX /= numYellowPos; yellowY /=
+		 * numYellowPos;
+		 * 
+		 * yellow = new Position(yellowX, yellowY);
+		 * yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
+		 * yellow.filterPoints(yellowXPoints, yellowYPoints); } else { yellow =
+		 * new Position(worldState.getYellowX(), worldState.getYellowY()); }
+		 */
 
 		// TODO: Find out how the remove outliers works and maybe clearing the
-		// point list is a better idea?
-		Point yellowP = new Point(yellowX, yellowY);
-		goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints,
-				yellowP);
-		yellowXPoints = new ArrayList<Integer>();
-		yellowYPoints = new ArrayList<Integer>();
-		for (int k = 0; k < goodPoints.size(); k++) {
-			yellowXPoints.add((int) goodPoints.get(k).getX());
-			yellowYPoints.add((int) goodPoints.get(k).getY());
-		}
+		// point list is a better idea? Also, not used
+		// Point yellowP = new Point(yellowX, yellowY);
+		// goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints,
+		// yellowP);
+		// yellowXPoints = new ArrayList<Integer>();
+		// yellowYPoints = new ArrayList<Integer>();
+		// for (int k = 0; k < goodPoints.size(); k++) {
+		// yellowXPoints.add((int) goodPoints.get(k).getX());
+		// yellowYPoints.add((int) goodPoints.get(k).getY());
+		// }
 
 		/** Green plate */
 		// If we have only found a few 'Green' pixels, chances are that the ball
@@ -495,11 +499,6 @@ public class Vision implements VideoReceiver {
 			green = new Position(worldState.getGreenX(), worldState.getGreenY());
 		}
 
-		
-		
-	
-		 
-
 		/** Finding the corners of the Green plates */
 
 		Position[] greenPlatePoints = null;
@@ -509,33 +508,28 @@ public class Vision implements VideoReceiver {
 			// centroid in which the farthest points can be located.
 			greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
 					greenYPoints, 1400);
-			
-			
-			/* TODO: For the kMeans implementation. Needs to be tested that it gets the correct means
-			 * and that it doesn't crash (:
-			int[] greenMean = { green.getX(), green.getY() };
-			System.out.println(Kmeans.sumsquarederror(greenXPoints,greenYPoints,
-					 greenMean));
-			double sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints,
-					 greenMean);
-			
-			//Check that we actually have 2 plates before attempting to kmeans them.
-			if (sumSqrdError > Kmeans.errortarget){
-				int[] mean1 ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()};
-				int[] mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
-				
-				int[] greenCendroids = Kmeans.dokmeans(greenXPoints, greenYPoints, mean1, mean2 );
-				Position plate1mean = new Position(greenCendroids[0],greenCendroids[1]);
-				Position plate2mean = new Position(greenCendroids[2],greenCendroids[3]);
-				
-			}
-			
-			*/
-			
-			
-			
-			
-			
+
+			/*
+			 * TODO: For the kMeans implementation. Needs to be tested that it
+			 * gets the correct means and that it doesn't crash (: int[]
+			 * greenMean = { green.getX(), green.getY() };
+			 * System.out.println(Kmeans
+			 * .sumsquarederror(greenXPoints,greenYPoints, greenMean)); double
+			 * sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints,
+			 * greenMean);
+			 * 
+			 * //Check that we actually have 2 plates before attempting to
+			 * kmeans them. if (sumSqrdError > Kmeans.errortarget){ int[] mean1
+			 * ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()}; int[]
+			 * mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
+			 * 
+			 * int[] greenCendroids = Kmeans.dokmeans(greenXPoints,
+			 * greenYPoints, mean1, mean2 ); Position plate1mean = new
+			 * Position(greenCendroids[0],greenCendroids[1]); Position
+			 * plate2mean = new Position(greenCendroids[2],greenCendroids[3]);
+			 * 
+			 * }
+			 */
 
 			// Finding the shortest sides of the plates and returns their
 			// average values in order to draw the line in the middle of the
@@ -550,13 +544,11 @@ public class Vision implements VideoReceiver {
 			float[] colourHSV = Color.RGBtoHSB(colour.getRed(),
 					colour.getGreen(), colour.getBlue(), null);
 
-			Position tCentroid;
-			// TODO: Now it's the same for both robots
-			boolean isBlue = isBlue(colour, colourHSV);
-			if (isBlue) {
-				tCentroid = blue;
-			} else
-				tCentroid = yellow;
+			/*
+			 * TODO: Currently unused Position tCentroid; // TODO: Now it's the
+			 * same for both robots boolean isBlue = isBlue(colour, colourHSV);
+			 * if (isBlue) tCentroid = blue; else tCentroid = yellow;
+			 */
 
 			/**
 			 * Determining the orientation of the plate by looking at square at
@@ -610,22 +602,26 @@ public class Vision implements VideoReceiver {
 			// back, the other is the fron
 			Position front, back;
 			// Apply Barrel correction (fixes fish-eye effect)
-			
-//			Point blueCorrected = DistortionFix.barrelCorrected(new Point(blue.getX(), blue.getY()));
-//			Point yellowCorrected = DistortionFix.barrelCorrected(new Point(yellow.getX(), yellow.getY());
-			Point avg1Corrected = DistortionFix.barrelCorrected(new Point(avg1.getX(), avg1.getY()));
-			Point avg2Corrected = DistortionFix.barrelCorrected(new Point(avg2.getX(), avg2.getY()));
-			
+
+			// Point blueCorrected = DistortionFix.barrelCorrected(new
+			// Point(blue.getX(), blue.getY()));
+			// Point yellowCorrected = DistortionFix.barrelCorrected(new
+			// Point(yellow.getX(), yellow.getY());
+			Point avg1Corrected = DistortionFix.barrelCorrect(new Point(avg1
+					.getX(), avg1.getY()));
+			Point avg2Corrected = DistortionFix.barrelCorrect(new Point(avg2
+					.getX(), avg2.getY()));
+
 			if (searchPt1GreyPoints > searchPt2GreyPoints) {
 				front = searchPt2;
 				back = searchPt1;
-//				xvector = avg1.getX() - avg2.getX();
-//				yvector = avg1.getY() - avg2.getY();
+				// xvector = avg1.getX() - avg2.getX();
+				// yvector = avg1.getY() - avg2.getY();
 				xvector = avg1Corrected.x - avg2Corrected.x;
 				yvector = avg1Corrected.y - avg2Corrected.y;
 			} else if (searchPt1GreyPoints < searchPt2GreyPoints) {
-//				xvector = avg2.getX() - avg1.getX();
-//				yvector = avg2.getY() - avg1.getY();
+				// xvector = avg2.getX() - avg1.getX();
+				// yvector = avg2.getY() - avg1.getY();
 				xvector = avg2Corrected.x - avg1Corrected.x;
 				yvector = avg2Corrected.y - avg1Corrected.y;
 				front = searchPt1;
@@ -637,11 +633,12 @@ public class Vision implements VideoReceiver {
 					/ Math.sqrt(xvector * xvector + yvector * yvector));
 			if (xvector > 0)
 				angle = 2.0 * Math.PI - angle;
-			
+
 			last3Angles[currentAngleIndex++] = angle;
-			if (currentAngleIndex >= 3) currentAngleIndex = 0;
-			
-			/**Debugging shapes drawn on the debugging layer of the video feed*/
+			if (currentAngleIndex >= 3)
+				currentAngleIndex = 0;
+
+			/** Debugging shapes drawn on the debugging layer of the video feed */
 			debugGraphics.setColor(Color.magenta);
 			debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10, 10);
 			debugGraphics.setColor(Color.black);
@@ -692,17 +689,19 @@ public class Vision implements VideoReceiver {
 			 * ++currentOrientIndex; if (currentOrientIndex >= 5)
 			 * currentOrientIndex = 0;
 			 */
-			Point ballCorrected = DistortionFix.barrelCorrected(new Point(ball.getX(), ball.getY()));
-			Point greenCorrected = DistortionFix.barrelCorrected(new Point(green.getX(), green.getY()));
+			Point ballCorrected = DistortionFix.barrelCorrect(new Point(ball
+					.getX(), ball.getY()));
+			Point greenCorrected = DistortionFix.barrelCorrect(new Point(green
+					.getX(), green.getY()));
 
-//			worldState.setBallX(ball.getX());
-//			worldState.setBallY(ball.getY());
-//			worldState.setGreenX(green.getX());
-//			worldState.setGreenY(green.getY());
-//			worldState.setBlueX(green.getX());
-//			worldState.setBlueY(green.getY());
-//			worldState.setYellowX(green.getX());
-//			worldState.setYellowY(green.getY());
+			// worldState.setBallX(ball.getX());
+			// worldState.setBallY(ball.getY());
+			// worldState.setGreenX(green.getX());
+			// worldState.setGreenY(green.getY());
+			// worldState.setBlueX(green.getX());
+			// worldState.setBlueY(green.getY());
+			// worldState.setYellowX(green.getX());
+			// worldState.setYellowY(green.getY());
 			worldState.setBallX(ballCorrected.x);
 			worldState.setBallY(ballCorrected.y);
 			worldState.setGreenX(greenCorrected.x);
@@ -711,7 +710,7 @@ public class Vision implements VideoReceiver {
 			worldState.setBlueY(greenCorrected.y);
 			worldState.setYellowX(greenCorrected.x);
 			worldState.setYellowY(greenCorrected.y);
-			
+
 			worldState.setBlueOrientation(angle);
 			worldState.setYellowOrientation(angle);
 			worldState.updateCounter();
@@ -733,11 +732,15 @@ public class Vision implements VideoReceiver {
 				debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 				debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
 				debugGraphics.setColor(Color.blue);
-				debugGraphics.drawOval(blue.getX() - 15, blue.getY() - 15, 30,
-						30);
+				// TODO: Since the current setup uses the green plates, we may
+				// not need this anymore
+				// debugGraphics.drawOval(blue.getX() - 15, blue.getY() - 15,
+				// 30,
+				// 30);
 				debugGraphics.setColor(Color.yellow);
-				debugGraphics.drawOval(yellow.getX() - 15, yellow.getY() - 15,
-						30, 30);
+				// debugGraphics.drawOval(yellow.getX() - 15, yellow.getY() -
+				// 15,
+				// 30, 30);
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (NoAngleException e) {

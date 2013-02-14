@@ -18,10 +18,9 @@ import au.edu.jcu.v4l4j.exceptions.ImageFormatException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 /**
- * Reads frames from a video device, giving options for camera
- * controls
+ * Reads frames from a video device, giving options for camera controls
  * 
- * @author Alex Adams
+ * @author Alex Adams (s1046358)
  */
 public class VideoStream {
 	private String videoDevName;
@@ -38,57 +37,68 @@ public class VideoStream {
 	private int hue;
 	private int chroma_gain;
 	private int chroma_agc;
-	
+
 	private VideoDevice videoDev;
 	private FrameGrabber frameGrabber;
-	
+
 	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	// Used to calculate FPS
 	private long lastFrame = System.currentTimeMillis();
-	
+
 	private final CaptureCallback frameGrabberCallback = new CaptureCallback() {
 		public void exceptionReceived(V4L4JException e) {
 			System.err.println("Unable to capture frame:");
 			e.printStackTrace();
 		}
 
+		/**
+		 * Called by V4L4J when a new frame is generated
+		 * 
+		 * @param frame
+		 *            The frame that was generated
+		 */
 		public void nextFrame(VideoFrame frame) {
 			// Calculate frame rate based on time between calls
 			long thisFrame = System.currentTimeMillis();
 			int frameRate = (int) (1000 / (thisFrame - lastFrame));
 			lastFrame = thisFrame;
-			
-			// Wait for video device to initialise properly before reading frames
+
+			// Wait for video device to initialise properly before reading
+			// frames
 			if (ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
-				
+
 				for (VideoReceiver receiver : videoReceivers)
 					receiver.sendFrame(frameBuffer, frameRate, frameCounter);
-			}
-			else if (frameCounter > 3) ready = true;
+			} else if (frameCounter > 3)
+				ready = true;
 			++frameCounter;
 			frame.recycle();
 		}
 	};
-	
+
 	private int frameCounter = 0;
 	private boolean ready = false;
-	
+
 	/**
 	 * Constructs a VideoStream object connected to the specified video device
 	 * 
-	 * @param videoDevice The name of the video device the stream is for
-	 * @param width The width in pixels of the stream source
-	 * @param height The height in pixels of the stream source
-	 * @param channel The video channel of the device
-	 * @param videoStandard The video standard of the device
-	 * @param compressionQuality The desired compression quality of the frames as a percentage
+	 * @param videoDevice
+	 *            The name of the video device the stream is for
+	 * @param width
+	 *            The width in pixels of the stream source
+	 * @param height
+	 *            The height in pixels of the stream source
+	 * @param channel
+	 *            The video channel of the device
+	 * @param videoStandard
+	 *            The video standard of the device
+	 * @param compressionQuality
+	 *            The desired compression quality of the frames as a percentage
 	 */
-	public VideoStream(String videoDevice, int width, int height, int channel, int videoStandard, int compressionQuality) {
-		// Store initial values for debugging purposes
+	public VideoStream(String videoDevice, int width, int height, int channel,
+			int videoStandard, int compressionQuality) {
 		this.videoDevName = videoDevice;
-		this.width = width;
-		this.height = height;
 		this.channel = channel;
 		this.videoStandard = videoStandard;
 		this.compressionQuality = compressionQuality;
@@ -96,7 +106,7 @@ public class VideoStream {
 		try {
 			videoDev = new VideoDevice(videoDevice);
 			DeviceInfo deviceInfo = videoDev.getDeviceInfo();
-			
+
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
 						"Unable to detect any native formats for the device!");
@@ -108,16 +118,25 @@ public class VideoStream {
 			frameGrabber.setCaptureCallback(frameGrabberCallback);
 			frameGrabber.startCapture();
 
-			width = frameGrabber.getWidth();
-			height = frameGrabber.getHeight();
-		}
-		catch (V4L4JException e) {
-			System.out.println("Couldn't initialise video stream: " + e.getMessage());
+			this.width = frameGrabber.getWidth();
+			this.height = frameGrabber.getHeight();
+		} catch (V4L4JException e) {
+			System.err.println("Couldn't initialise the frame grabber: "
+					+ e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
+
+	/**
+	 * Reinitialises the frame grabber for the video stream. This is called when
+	 * either the video standard or compression quality is changed since these
+	 * can't be updated otherwise
+	 * 
+	 * @throws V4L4JException
+	 *             when the frame grabber fails to start capturing frames with
+	 *             the new settings
+	 */
 	private void reinitialiseFrameGrabber() throws V4L4JException {
 		frameGrabber.stopCapture();
 		frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
@@ -125,15 +144,19 @@ public class VideoStream {
 		frameGrabber.setCaptureCallback(frameGrabberCallback);
 		frameGrabber.startCapture();
 	}
-	
+
 	/**
-	 * @return The name of the video device the stream was initialised with
+	 * Gets the name of the video device the video stream is linked to
+	 * 
+	 * @return The name of the video device
 	 */
 	public String getVideoDeviceName() {
 		return this.videoDevName;
 	}
-	
+
 	/**
+	 * Gets the width and height of the video stream as a Dimension object
+	 * 
 	 * @return The dimensions of the video stream in pixels
 	 */
 	public Dimension getDimensions() {
@@ -141,22 +164,27 @@ public class VideoStream {
 	}
 
 	/**
-	 * Sets the channel for the video stream
-	 * @param channel The channel to set the stream to
+	 * Sets the video channel for the video stream
+	 * 
+	 * @param channel
+	 *            The channel to set the video stream to
 	 */
 	public void setChannel(int channel) {
 		this.channel = channel;
 	}
-	
+
 	/**
+	 * Gets the video channel used by the video stream
+	 * 
 	 * @return The channel used by the video stream
 	 */
 	public int getChannel() {
 		return this.channel;
 	}
-	
+
 	/**
-	 * Sets a new value for the video standard of the stream
+	 * Sets a new value for the video standard of the video stream
+	 * 
 	 * @param videoStandard
 	 */
 	public void setVideoStandard(int videoStandard) {
@@ -164,23 +192,26 @@ public class VideoStream {
 			this.videoStandard = videoStandard;
 			// Adjust the frame grabber to the new setting
 			reinitialiseFrameGrabber();
-		}
-		catch (V4L4JException e) {
-			System.out.println("Couldn't change the video standard: " + e.getMessage());
+		} catch (V4L4JException e) {
+			System.err.println("Couldn't change the video standard: "
+					+ e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
+
 	/**
+	 * Gets the video standard currently used by the video stream
+	 * 
 	 * @return The video standard used by the video stream
 	 */
 	public int getVideoStandard() {
 		return this.videoStandard;
 	}
-	
+
 	/**
-	 * Sets a new value for the JPEG compression quality of the stream
+	 * Sets a new value for the JPEG compression quality of the video stream
+	 * 
 	 * @param compressionQuality
 	 */
 	public void setCompressionQuality(int compressionQuality) {
@@ -188,33 +219,46 @@ public class VideoStream {
 			this.compressionQuality = compressionQuality;
 			// Adjust the frame grabber to the new setting
 			reinitialiseFrameGrabber();
-		}
-		catch (V4L4JException e) {
-			System.out.println("Couldn't change the compressionQuality: " + e.getMessage());
+		} catch (V4L4JException e) {
+			System.err.println("Couldn't change the compressionQuality: "
+					+ e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
+
 	/**
-	 * @return The JPEG compression quality the video stream is set to as a percentage
+	 * Gets the JPEG compression quality of the video stream
+	 * 
+	 * @return The JPEG compression quality the video stream is set to as a
+	 *         percentage
 	 */
 	public int getCompressionQuality() {
 		return this.compressionQuality;
 	}
-	
+
 	/**
+	 * Gets the saturation setting of the video device
+	 * 
 	 * @return The saturation setting for the video device
 	 */
 	public int getSaturation() {
 		return saturation;
 	}
 
+	/**
+	 * Sets the saturation setting of the video device
+	 * 
+	 * @param saturation
+	 *            The new setting
+	 */
 	public void setSaturation(int saturation) {
 		this.saturation = saturation;
 	}
 
 	/**
+	 * Gets the brightness setting of the video device
+	 * 
 	 * @return The brightness setting for the video device
 	 */
 	public int getBrightness() {
@@ -223,6 +267,7 @@ public class VideoStream {
 
 	/**
 	 * Sets the brightness of the video device
+	 * 
 	 * @param brightness
 	 */
 	public void setBrightness(int brightness) {
@@ -230,6 +275,8 @@ public class VideoStream {
 	}
 
 	/**
+	 * Gets the contrast setting of the video device
+	 * 
 	 * @return The contrast setting for the video device
 	 */
 	public int getContrast() {
@@ -238,6 +285,7 @@ public class VideoStream {
 
 	/**
 	 * Sets the contrast of the video device
+	 * 
 	 * @param contrast
 	 */
 	public void setContrast(int contrast) {
@@ -245,6 +293,8 @@ public class VideoStream {
 	}
 
 	/**
+	 * Gets the hue setting of the video device
+	 * 
 	 * @return The hue setting for the video device
 	 */
 	public int getHue() {
@@ -253,6 +303,7 @@ public class VideoStream {
 
 	/**
 	 * Sets the hue of the video device
+	 * 
 	 * @param hue
 	 */
 	public void setHue(int hue) {
@@ -260,6 +311,8 @@ public class VideoStream {
 	}
 
 	/**
+	 * Gets the Chroma Gain setting of the video device
+	 * 
 	 * @return The Chroma Gain setting for the video device
 	 */
 	public int getChromaGain() {
@@ -268,13 +321,16 @@ public class VideoStream {
 
 	/**
 	 * Sets the Chroma Gain setting of the video device
+	 * 
 	 * @param chromaGain
 	 */
 	public void setChromaGain(int chromaGain) {
 		this.chroma_gain = chromaGain;
 	}
-	
+
 	/**
+	 * Gets the Chroma AGC setting of the video device
+	 * 
 	 * @return The Chroma AGC setting for the video device
 	 */
 	public boolean getChromaAGC() {
@@ -283,12 +339,18 @@ public class VideoStream {
 
 	/**
 	 * Sets the Chroma AGC setting of the video device
+	 * 
 	 * @param chromaAGC
 	 */
 	public void setChromaAGC(boolean chromaAGC) {
 		this.chroma_agc = chromaAGC ? 1 : 0;
 	}
-	
+
+	/**
+	 * Updates the video device's controls with the settings of the video
+	 * stream. This should be called after any call to setBrightness, etc if the
+	 * settings are intended to affect the device output
+	 */
 	public void updateVideoDeviceSettings() {
 		try {
 			List<Control> controls = videoDev.getControlList().getList();
@@ -307,15 +369,18 @@ public class VideoStream {
 					c.setValue(chroma_agc);
 			}
 		} catch (V4L4JException e) {
-			System.out.println("Cannot set video device settings: " + e.getMessage());
+			System.err.println("Cannot set video device settings: "
+					+ e.getMessage());
 			e.printStackTrace();
 		}
 		videoDev.releaseControlList();
 	}
-	
+
 	/**
 	 * Registers an object to receive frames from the video stream
+	 * 
 	 * @param receiver
+	 *            The object being registered
 	 */
 	public void addReceiver(VideoReceiver receiver) {
 		this.videoReceivers.add(receiver);
