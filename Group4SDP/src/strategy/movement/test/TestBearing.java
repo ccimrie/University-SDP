@@ -48,7 +48,7 @@ public class TestBearing {
 			for (int y = 0; y < 480; y += 5) {
 				Robot robot = makeRobot(RobotType.Us, x, y, 0.0);
 				for (int r = 50; r < 500; r += 50) {
-					for (double angle = 0.0; angle < 360.0; angle += 5.0) {
+					for (double angle = 0.0; angle < 360.0; angle += 1.0) {
 						Ball ball = makeBall(
 								(double) r * Math.sin(Math.toRadians(angle))
 										+ x,
@@ -89,7 +89,7 @@ public class TestBearing {
 			for (int y = 0; y < 480; y += 5) {
 				Robot robot = makeRobot(RobotType.Us, x, y, 0.0);
 				for (int r = 50; r < 500; r += 50) {
-					for (double angle = 0.0; angle < 360.0; angle += 5.0) {
+					for (double angle = 0.0; angle < 360.0; angle += 1.0) {
 						assertEquals(angle, TurnToBall.findPointBearing(robot,
 								(double) r * Math.sin(Math.toRadians(angle)) + x,
 								(double) -r * Math.cos(Math.toRadians(angle)) + y),
