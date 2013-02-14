@@ -212,8 +212,8 @@ public class Brick {
 	public static void rotate(int dir, int angle) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
-		leftMotor.setSpeed(400);
-		rightMotor.setSpeed(400);
+		leftMotor.setSpeed(250);
+		rightMotor.setSpeed(250);
 		angle = (int) (angle * 2);
 		chip.move(1, DO_NOTHING, 0);
 		chip.move(2, DO_NOTHING, 0);
@@ -264,16 +264,16 @@ public class Brick {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
 		// Multiplying by 2, since byte only allows upto 127
-		y = y * 2;
+		y = y * 6;
 		x = x * 2;
 		if (y > 0) {
-			leftMotor.setSpeed(y + 500);
-			rightMotor.setSpeed(y + 500);
+			leftMotor.setSpeed(y);
+			rightMotor.setSpeed(y);
 			leftMotor.forward();
 			rightMotor.forward();
 		} else if (y < 0) {
-			leftMotor.setSpeed(-y + 500);
-			rightMotor.setSpeed(-y + 500);
+			leftMotor.setSpeed(-y);
+			rightMotor.setSpeed(-y);
 			leftMotor.backward();
 			rightMotor.backward();
 		} else {

@@ -1,125 +1,98 @@
 package strategy.planning;
 
 import vision.WorldState;
-import world.state.RobotController;
-
 import world.state.Ball;
 import world.state.Robot;
-import world.state.PitchInfo;
+import world.state.RobotController;
 
 //author: SP + MV
 
 public class DribbleBall2 extends Strategy {
 
 	// Setting up the threshold for the target point behind the ball !!!
-	private static final double threshold = 60;
-	private static double dribbleDistance = 100;
-	
-	//Makes little adjustments towards the bearing of the robot, i.e. checks if it is facing the door
-	
-	public void dribbleBall(WorldState worldState, RobotController robot)
-			throws InterruptedException {
+	private static final double threshold = 50;
+
+	// private static double dribbleDistance = 100;
+
+	public void rotateToExit(Robot us, RobotController robot) {
+		double damn = Math.toDegrees(us.bearing);
+		double angle = 0;
+		while (damn < 86 || damn > 94) {
+			damn = Math.toDegrees(us.bearing);
+			if (damn >= 0 && damn <= 270) {
+				angle = 90 - damn;
+			} else if (damn > 270 && damn <= 360) {
+				angle = 450 - damn;
+			} else
+				break;
+			System.out.println("Rotating angle is " + angle);
+			robot.rotate((int) angle);
+		}
+	}
+
+	public void dribbleBall(WorldState worldState, RobotController robot) throws InterruptedException {
 		// Constructing the world
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
 		Ball ball = worldState.ball;
-
-		// Rotate so that the robot faces the door
-		//In order to face the door we need us.bearing == 90.
-		System.out.println("The robot bearing is " + us.bearing);
-		double angle = 90.0 - us.bearing;
-		if (angle > 180){ 
-			angle = -360 + angle;
-			System.out.println("Angle greater than 180. New angle is " + angle);
-		}
-		System.out.println("The angle is " + angle);
-		robot.rotate((int) angle);
-
-	
-		//Check if the robot is in front of the ball on the y axis and go around the ball
-		if (((us.y < ball.y + threshold) && (us.y > ball.y - threshold)) && (us.x>ball.x)) {
-			//Check which is the safer side to go around the ball
-			if (Math.abs(us.y  - PitchInfo.safeUpperBoundSide.getY()) > Math.abs(us.y  - PitchInfo.safeLowerBoundSide.getY())){
-				while ((ball.y - threshold) < us.y){
-					robot.move(-127, 0); //Robot's left   
+		rotateToExit(us, robot);
+		robot.stop();
+		if (us.x > ball.x) {
+			// Move infront of a ball a little
+			if (us.x < ball.x + threshold) {
+				robot.move(0, 10);
+				while (us.x < ball.x + threshold) {
+					Thread.sleep(20);
 				}
 				robot.stop();
-			}
-			else {
-				while ((ball.y + threshold) < us.y){
-					robot.move(127, 0); //Robot's right
-				}
+				rotateToExit(us, robot);
 				robot.stop();
 			}
-		}		
-		
-		//Check if the robot has kept its bearing, i.e. still facing the door
-		System.out.println("Before check. Bearing is " + us.bearing);
-		if ((us.bearing > 100) || (us.bearing < 80)) {
-			angle = 90.0 - us.bearing;
-			if (angle > 180) angle = -360 + angle;
-			robot.rotate((int) angle);
-		} 
-		
-		//The condition checks where the robot is in respect to the ball and aligns it properly on the x axis
-		//If the robot is ahead of the ball on the pitch
-		if (us.x > ball.x){
-			while ((ball.x - threshold) < us.x) {	
-				robot.move(0, -127);
-				Thread.sleep(100);
+			// Ball is behind
+			if (us.y >= ball.y - threshold && ball.y >= 300) {
+				robot.move(-80, 0);
+				while (us.y >= ball.y - threshold) {
+					Thread.sleep(200);
+					rotateToExit(us, robot);
+					robot.move(-80, 0);
+				}
+				robot.stop();
+				rotateToExit(us, robot);
+				robot.stop();
+			} else if (us.y < ball.y + threshold && ball.y < 300) {
+				robot.move(80, 0);
+				while (us.y < ball.y + threshold) {
+					Thread.sleep(20);
+				}
+				robot.stop();
+				rotateToExit(us, robot);
+				robot.stop();
 			}
-			robot.stop();
+
 		}
-		
-		//If the robot is already behind the ball on the pitch
-		else {
-			while ((ball.x - threshold) > us.x) {
-				robot.move(0, 127); //moving forwards to align
-				Thread.sleep(100);
-			}
-			robot.stop();
-		}
-		
-		//Check if the robot has kept its bearing, i.e. still facing the door
-		if ((us.bearing > 100) || (us.bearing < 80)) {
-			angle = 90.0 - us.bearing;
-			if (angle > 180) angle = -360 + angle;
-			robot.rotate((int) angle);
-		} 
-		
-		// Move either up or down along the y axis until aligning properly
-		if (us.y > ball.y) {
-			System.out.println("Moving up the y axis"); //Robot's left
-			
-			while (us.y > ball.y) {
-				robot.move(-127, 0);
-				Thread.sleep(200);
-			}
-		} else {
-			System.out.println("Moving down the y axis"); //Robot's right	
-			while (us.y < ball.y) {
-				robot.move(127, 0);
-				Thread.sleep(200);
-			}
-		}
-		
-		//Check if the robot has kept its bearing, i.e. still facing the door
-		if ((us.bearing > 100) || (us.bearing < 80)) {
-			angle = 90.0 - us.bearing;
-			if (angle > 180) angle = -360 + angle;
-			robot.rotate((int) angle);
-		} 
-		
-		//Fix the position of the ball so that we can measure 30 cm from that point to dribble
-		double temp = ball.x;
-		
-		// Now dribble for dribbleDistance distance :)
-		while (us.x < temp + dribbleDistance) {
-			robot.move(0, 127);
-			Thread.sleep(100);
+		// Now the ball is behind us and out of the way.
+		robot.move(0, -80);
+		while (us.x > ball.x - threshold) {
+			Thread.sleep(20);
 		}
 		robot.stop();
-		
-	}
+		rotateToExit(us, robot);
+		robot.stop();
+		robot.move(-55, 0);
+		while (us.y > ball.y) {
+			Thread.sleep(10);
+		}
+		rotateToExit(us, robot);
+		robot.stop();
+		robot.move(55, 0);
+		while (us.y < ball.y) {
+			Thread.sleep(10);
+		}
+		rotateToExit(us, robot);
+		robot.stop();
+		robot.move(0, 100);
+		Thread.sleep(2500);
+		robot.stop();
 
+	}
 }

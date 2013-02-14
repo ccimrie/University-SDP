@@ -20,7 +20,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import strategy.planning.Commands;
-import strategy.planning.DribbleBall2;
+import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -77,7 +77,7 @@ public class ControlGUI2 extends JFrame {
 	private MoveToTheBallThread approachThread;
 	
 	// Strategy used for driving part of milestone 2
-	private static DribbleBall2 dribbleBall = new DribbleBall2();
+	private static DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
 	public static WorldState worldState = new WorldState();
@@ -236,32 +236,28 @@ public class ControlGUI2 extends JFrame {
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.move(op1, op2);
+				robot.forward(op1, 0);
 			}
 		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.backward(op1, op2);
+				robot.backward(op1, 0);
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.left(op1, op2);
+				robot.left(op1, 0);
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				robot.right(op1, op2);
+				robot.right(op1, 0);
 			}
 		});
 
@@ -305,6 +301,10 @@ public class ControlGUI2 extends JFrame {
 				// Stop the drive thread if it's running
 				/* robot.stop(timer); */
 				robot.stop();
+				/*if (approachThread != null)
+					approachThread.stop();
+				if (dribbleThread != null)
+					dribbleThread.stop();*/
 			}
 		});
 
