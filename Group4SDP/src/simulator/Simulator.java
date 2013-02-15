@@ -46,10 +46,14 @@ public class Simulator {
             ourRobot = matchTest.ourRobo;
             enemyRobot = matchTest.enemyRobo;
             ball = matchTest.ball;
+            
             if (ourRobot == null) {
+            	
                 System.out.println("our robot is null");
                 System.out.println("");
+               // System.out.println(ball.getAngle());
             } else {
+            	
             	// Sorry for breaking this, please fix it :)
                 //double angle = TurnToBall.findBearing(ourRobot.robot.getWorldCenter().x, ourRobot.robot.getWorldCenter().y,
                 //        ball.getWorldCenter().x, ball.getWorldCenter().y);

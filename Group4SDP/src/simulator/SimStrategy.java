@@ -94,18 +94,17 @@ public class SimStrategy extends Thread{
 			//update();
 			//GoToPointSim.goToPoint(world, rc, world.ball.getPosition(), AvoidanceStrategy.AvoidingBall);
 			//dummy_rotate.goToPoint(world, rc);
-			try {
-				gotoball.approach(world, rc);
-			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-	try {
-		gotoball.approach(world, rc);
-	} catch (InterruptedException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
+			
+		/**	try {
+					gotoball.approach(world, rc);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			*/	
+				dummy_rotate.dummy(world, rc);
+			
+
 	
 		
 			try {

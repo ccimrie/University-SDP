@@ -20,7 +20,7 @@ public class RoboFootball extends TestbedTest {
     public static final float scale = 20.0f;
 
     boolean firstTime = false;
-    boolean simulatorMode = false;
+    boolean simulatorMode = true;
     boolean ourRoboKick = false, ourRoboTurnLeft = false, ourRoboTurnRight = false,
             ourRoboGoForward = false, ourRoboGoBackwards = false;
     long kickStep = 0;
