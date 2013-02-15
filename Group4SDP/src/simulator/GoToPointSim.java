@@ -62,11 +62,11 @@ public class GoToPointSim {
 		return false;
 	}
 	
-	public static void goToPoint(WorldInterface world, ServerInterface rc, Vector point, AvoidanceStrategy mode)
+	public static void goToPoint(SimWorld world, SimServer
+			rc, double x, double y, AvoidanceStrategy mode)
 	{
 		
-		double x = point.getX();
-		double y = point.getY();
+	
 		//mode: 0-defensive 1-retrieval 2-offensive
 		usX = world.getOurRobot().x;
 		usY = world.getOurRobot().y;

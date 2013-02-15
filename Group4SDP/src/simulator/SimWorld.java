@@ -22,12 +22,13 @@ public class SimWorld implements WorldInterface {
 	{
 		ourRobot.x = ourX;
 		ourRobot.y = ourY;
-		ourRobot.bearing = (ourBearing%(2*Math.PI)) + Math.PI/2.0f;
-		
+		ourRobot.bearing = (((ourBearing)%(2*Math.PI))+  Math.PI/2.0f);
+
 		theirRobot.x = theirX;
 		theirRobot.y = theirY;
-		theirRobot.bearing = (theirBearing%(2*Math.PI)) + Math.PI/2.0f;
-		
+		//theirRobot.bearing = (theirBearing%(2*Math.PI)) + Math.PI/2.0f;
+		theirRobot.bearing = (((theirBearing)%(2*Math.PI))+  Math.PI/2.0f);
+
 		ball.x = ballX;
 		ball.y = ballY;
 	}

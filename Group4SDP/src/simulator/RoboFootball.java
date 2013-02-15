@@ -115,8 +115,8 @@ public class RoboFootball extends TestbedTest {
         ballbd.angularDamping = 1.0f;
         ballbd.linearDamping = 0.5f;
         ballbd.bullet = true;
-        ballbd.position.set(pitchL * scale / 2, pitchW * scale / 2);
-
+        //ballbd.position.set(pitchL * scale / 2, pitchW * scale / 2);
+        ballbd.position.set(3, (float) 2.5);
         this.ball = getWorld().createBody(ballbd);
         this.ball.createFixture(fdb);
     }

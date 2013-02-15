@@ -87,22 +87,15 @@ public class SimStrategy extends Thread{
 		System.out.println(world.ball.x);
 		
 		rc.setDefaultRotateSpeed(2.0d);
+		dummy_rotate.dummy(world, rc);
 		
 		//rc.rotate(Math.PI);
-		while(true)
+/**		while(true)
 		{
 			//update();
 			//GoToPointSim.goToPoint(world, rc, world.ball.getPosition(), AvoidanceStrategy.AvoidingBall);
 			//dummy_rotate.goToPoint(world, rc);
-			
-		/**	try {
-					gotoball.approach(world, rc);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			*/	
-				dummy_rotate.dummy(world, rc);
+	
 			
 
 	
@@ -114,7 +107,7 @@ public class SimStrategy extends Thread{
                 e.printStackTrace();
             }
 			
-		}
+		}*/
 	}
 
 }

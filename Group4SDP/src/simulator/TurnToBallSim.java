@@ -62,7 +62,7 @@ public class TurnToBallSim {
 
 		// Use the dot product formula to determine the angle between the vector
 		// (0, -1) (up to the camera) and the vector (xDiff, yDiff)
-		bearing = Math.acos(-yDiff / Math.sqrt(xDiff * xDiff + yDiff * yDiff));
+		bearing = Math.acos(yDiff / Math.sqrt(xDiff * xDiff + yDiff * yDiff));
 
 		// Correct for the case when the angle calculated above is the
 		// counterclockwise bearing instead of clockwise

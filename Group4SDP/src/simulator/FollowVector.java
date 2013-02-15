@@ -21,7 +21,7 @@ public class FollowVector {
 		return Math.signum(angle)*();
 	}
 	*/
-	public static void followVector(WorldInterface world, ServerInterface rc, double dx, double dy)
+	public static void followVector(SimWorld world, SimServer rc, double dx, double dy)
 	{
 		
 		if(isRotating) {

@@ -8,7 +8,8 @@ import simulator.FollowVector;
 import comms.control.ServerInterface;
 import geometry.Vector;
 import strategy.movement.DistanceToBall;
-import strategy.movement.TurnToBall;
+
+
 import vision.WorldState;
 import world.state.Ball;
 import world.state.Robot;
@@ -34,7 +35,7 @@ public class gotoball {
     	// 2. Move forwards
 		double distance = DistanceToBall.Distance(us.x, us.y, ball.x, ball.y);
         System.out.println(String.format("Distance to ball is %f", distance));
-		double angle = TurnToBall.Turner(us, ball);
+		double angle = TurnToBallSim.Turner(us, ball);
        
         System.out.println(String.format("Angle of ball to robot is %f", angle));
 
@@ -53,7 +54,7 @@ public class gotoball {
 	
 		 while(distance > distanceFromBallToStop) {
 			//System.out.println("Forward");
-			angle = TurnToBall.Turner(us, ball);
+			angle = TurnToBallSim.Turner(us, ball);
 			if((Math.abs(angle) > 15) && (Math.abs(angle) < 40) ) {
 				//Stop everything and turn
 				System.out.println("The final angle is " + angle);
@@ -72,7 +73,7 @@ public class gotoball {
 		}
 		
 		// Being close to the ball we can perform one last minor turn
-		angle = TurnToBall.Turner(us, ball);
+		angle = TurnToBallSim.Turner(us, ball);
 		if(Math.abs(angle) > 15) {
 			// Stop everything and turn
 			System.out.println("Making final correction");
