@@ -1,5 +1,11 @@
 package simulator;
 
+import geometry.Vector;
+import strategy.movement.AvoidanceStrategy;
+import strategy.movement.DistanceToBall;
+import strategy.movement.TurnToBall;
+import world.state.Ball;
+import world.state.Robot;
 import strategy.movement.AvoidanceStrategy;
 import strategy.movement.DistanceToBall;
 import strategy.movement.GoToPoint;
@@ -8,21 +14,16 @@ import world.state.Ball;
 import world.state.Robot;
 import simulator.gotoball;
 
-public class SimStrategy extends Thread{
-	
-	private static final float distanceFromBallToStop = 8.0f ;
-	
-	SimWorld world;
-	SimServer rc;
-	
-	public SimStrategy(SimWorld world, SimServer rc)
-	{
-		this.world = world;
-		this.rc = rc;
-	}
-	
-	public void update() {
-		/**
+import comms.control.ServerInterface;
+
+public class dummy_rotate {
+	private static final int distanceFromBallToStop = 60;
+	/**
+	 * @param args
+	 */
+	public static void goToPoint(SimWorld world, SimServer rc)
+	{ 
+		
 		// First we turn to the ball
     	Robot us = world.ourRobot;
     	Ball ball = world.ball;
@@ -69,53 +70,17 @@ public class SimStrategy extends Thread{
 			} else {
 				System.out.println("Forward");
 				rc.forward();
-				
 			}
 			return;
-			
-			
+			*/
 		}
 		
-	//	System.out.println("Stop");
-	//	rc.stop();
-		*/
-	}
-	
-	public void run()
-	{
-		System.out.println("started strategy");
-		System.out.println(world.ball.x);
-		
-		rc.setDefaultRotateSpeed(2.0d);
-		
-		//rc.rotate(Math.PI);
-		while(true)
-		{
-			//update();
-			//GoToPointSim.goToPoint(world, rc, world.ball.getPosition(), AvoidanceStrategy.AvoidingBall);
-			//dummy_rotate.goToPoint(world, rc);
-			try {
-				gotoball.approach(world, rc);
-			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-	try {
-		gotoball.approach(world, rc);
-	} catch (InterruptedException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
-	
-		
-			try {
-				
-                Thread.sleep(30);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-			
-		}
+		System.out.println("Stop");
+		rc.stop();
+		//rc.travel(80.0);
+		//rc.rotate(10.0);
+		// TODO Auto-generated method stub
+
 	}
 
 }

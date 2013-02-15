@@ -64,6 +64,7 @@ public class GoToPointSim {
 	
 	public static void goToPoint(WorldInterface world, ServerInterface rc, Vector point, AvoidanceStrategy mode)
 	{
+		
 		double x = point.getX();
 		double y = point.getY();
 		//mode: 0-defensive 1-retrieval 2-offensive
