@@ -529,9 +529,11 @@ public class Vision implements VideoReceiver {
 
 			
 					//Check that we actually have 2 plates before attempting to kmeans them
-		    if (sumSqrdError > Kmeans.errortarget){ 
-		    	int[] mean1 ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()}; 
-		    	int[] mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
+		    if (sumSqrdError > Kmeans.errortarget){
+		    	Position [] furthestGreen = findFurtherestNocenter(debugOverlay, greenXPoints,
+						greenYPoints);
+		    	int[] mean1 ={furthestGreen[0].getX(), furthestGreen[0].getY()}; 
+		    	int[] mean2 = {furthestGreen[1].getX(), furthestGreen[1].getY()};
 		    	Cluster kmeansres = Kmeans.dokmeans(greenXPoints, greenYPoints, mean1, mean2 ); 
 		    	Position plate1mean = new Position(kmeansres.getmean(1)[0],kmeansres.getmean(1)[1]); 
 		    	Position plate2mean = new Position(kmeansres.getmean(2)[0],kmeansres.getmean(2)[1]);
@@ -921,6 +923,27 @@ public class Vision implements VideoReceiver {
 		return points;
 	}
 
+	//Finds two furtherest points by comparing all points between each other.
+	public Position [] findFurtherestNocenter(BufferedImage debugOverlay, ArrayList<Integer> xpoints,
+			ArrayList<Integer> ypoints){
+		int maxdist = 0;
+		Position point1 = new Position(0,0);
+		Position point2 = new Position(0,0);
+		for (int i = 0; i<xpoints.size(); i++){
+			for (int j = i+1; j<xpoints.size(); j++){
+				int tempdist = Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i), xpoints.get(j), ypoints.get(j));
+				if (maxdist< tempdist){
+					point1.setX(xpoints.get(i));
+					point1.setY(ypoints.get(i));
+					point2.setX(xpoints.get(j));
+					point2.setY(ypoints.get(j));
+					maxdist = tempdist;
+				}
+			}
+		}
+		Position [] ret = {point1,point2};
+		return ret;
+	}
 	/**
 	 * Finds the two mean points of the two shortest sides.
 	 * 
