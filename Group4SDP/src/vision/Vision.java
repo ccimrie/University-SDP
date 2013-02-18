@@ -300,11 +300,23 @@ public class Vision implements VideoReceiver {
 		int greenX = 0;
 		int greenY = 0;
 		int numGreenPos = 0;
+		
+		int yellowY = 0;
+		int yellowX = 0;
+		int numYellowPos = 0;
+		
+		int blueX = 0;
+		int blueY = 0;
+		int numBluePos = 0;
 
 		ArrayList<Integer> ballXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> ballYPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenYPoints = new ArrayList<Integer>();
+		ArrayList<Integer> yellowXPoints = new ArrayList<Integer>();
+		ArrayList<Integer> yellowYPoints = new ArrayList<Integer>();
+		ArrayList<Integer> blueXPoints = new ArrayList<Integer>();
+		ArrayList<Integer> blueYPoints = new ArrayList<Integer>();
 
 		int topBuffer = pitchConstants.getTopBuffer();
 		int bottomBuffer = pitchConstants.getBottomBuffer();
@@ -343,7 +355,45 @@ public class Vision implements VideoReceiver {
 					debugOverlay.setRGB(column, row, 0xFFFF0099);
 				}
 
-				// Checking if the pixel is a part of the Green Plate
+				
+				/**Checking if the pixel is a part of the Blue T*/
+				if (isBlue(c, hsbvals)) {
+					blueX += column;
+					blueY += row;
+					numBluePos++;
+
+					blueXPoints.add(column);
+					blueYPoints.add(row);
+
+					// If we're in the "Green Plate" tab, we show what pixels
+					// we're
+					// looking at, for debugging and to help with threshold
+					// setting.
+					if (pitchConstants.debugMode(PitchConstants.BLUE)) {
+						debugOverlay.setRGB(column, row, 0xFFFF0099);
+					}
+				}
+				
+
+				/**Checking if the pixel is a part of the Yellow T*/
+				if (isYellow(c, hsbvals)) {
+					yellowX += column;
+					yellowY += row;
+					numYellowPos++;
+
+					yellowXPoints.add(column);
+					yellowYPoints.add(row);
+
+					// If we're in the "Green Plate" tab, we show what pixels
+					// we're
+					// looking at, for debugging and to help with threshold
+					// setting.
+					if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
+						debugOverlay.setRGB(column, row, 0xFFFF0099);
+					}
+				}
+						
+				/**Checking if the pixel is a part of the Green Plate*/
 				if (isGreen(c, hsbvals)) {
 					greenX += column;
 					greenY += row;
@@ -385,8 +435,34 @@ public class Vision implements VideoReceiver {
 		// robots.
 		Position ball;
 		Position green;
+		Position blue;
+		Position yellow; 
 		double angle = 0;
 
+		/** Yellow */
+		if (numYellowPos > 0) {
+			yellowX /= numYellowPos;
+			yellowY /= numYellowPos;
+
+			yellow = new Position(yellowX, yellowY);
+			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
+			yellow.filterPoints(yellowXPoints, yellowYPoints);
+		} else {
+			yellow = new Position(worldState.getYellowX(), worldState.getYellowY());
+		}
+		
+		/** Blue */
+		if (numBluePos > 0) {
+			blueX /= numBluePos;
+			blueY /= numBluePos;
+
+			blue = new Position(blueX, blueY);
+			blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
+			blue.filterPoints(blueXPoints, blueYPoints);
+		} else {
+			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
+		}
+		
 		/** Ball */
 		// If we have only found a few 'Ball' pixels, chances are that the ball
 		// has not actually been detected.
@@ -400,6 +476,7 @@ public class Vision implements VideoReceiver {
 		} else {
 			ball = new Position(worldState.getBallX(), worldState.getBallY());
 		}
+		
 
 		// TODO: maybe clearing the point list is a better idea?
 		Point ballP = new Point(ballX, ballY);
@@ -466,12 +543,23 @@ public class Vision implements VideoReceiver {
 
 				Position[] furthestGreen = findFurtherestNoCenter(debugOverlay,
 						greenXPoints, greenYPoints);
+				
+				
+//				int[] mean1 = { furthestGreen[0].getX(),
+//						furthestGreen[0].getY() };
+//				int[] mean2 = { furthestGreen[1].getX(),
+//						furthestGreen[1].getY() };
 
-				int[] mean1 = { furthestGreen[0].getX(),
-						furthestGreen[0].getY() };
-				int[] mean2 = { furthestGreen[1].getX(),
-						furthestGreen[1].getY() };
-
+				int[] mean1 = {blue.getX(), blue.getY() };
+				int[] mean2 = {yellow.getX(), yellow.getY() };
+				
+				
+				debugGraphics.setColor(Color.WHITE);
+				debugGraphics.drawRect(blue.getX() - 5, blue.getY() - 5, 10,
+						10);
+				debugGraphics
+						.drawRect(yellow.getX() - 5, yellow.getY() - 5, 10, 10);
+					
 				Cluster kmeansres = Kmeans.dokmeans(greenXPoints, greenYPoints,
 						mean1, mean2);
 				Position plate1mean = new Position(kmeansres.getmean(1)[0],
@@ -482,11 +570,6 @@ public class Vision implements VideoReceiver {
 				ArrayList<Integer> cluster1y = kmeansres.getcluster(1, 'y');
 				ArrayList<Integer> cluster2x = kmeansres.getcluster(2, 'x');
 				ArrayList<Integer> cluster2y = kmeansres.getcluster(2, 'y');
-
-				System.out.println("Cluster 1 x " + cluster1x.size());
-				System.out.println("Cluster 1 y " + cluster1y.size());
-				System.out.println("Cluster 2 x " + cluster2x.size());
-				System.out.println("Cluster 2 y " + cluster2y.size());
 
 				// Only display these markers in non-debug mode.
 				boolean anyDebug = false;
@@ -627,6 +710,11 @@ public class Vision implements VideoReceiver {
 				 * Debugging shapes drawn on the debugging layer of the video
 				 * feed
 				 */
+				
+				
+				
+				
+			
 				debugGraphics.setColor(Color.magenta);
 				debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10,
 						10);
