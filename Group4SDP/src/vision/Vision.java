@@ -506,30 +506,73 @@ public class Vision implements VideoReceiver {
 
 			// The constant 1400 passed is the max squared distance from the
 			// centroid in which the farthest points can be located.
+		//for one pain
+		//greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
+			//		greenYPoints, 1400, true);
+			
 			greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
-					greenYPoints, 1400);
+					greenYPoints, 1400, true);
 
 			/*
 			 * TODO: For the kMeans implementation. Needs to be tested that it
-			 * gets the correct means and that it doesn't crash (: int[]
-			 * greenMean = { green.getX(), green.getY() };
-			 * System.out.println(Kmeans
-			 * .sumsquarederror(greenXPoints,greenYPoints, greenMean)); double
-			 * sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints,
-			 * greenMean);
-			 * 
-			 * //Check that we actually have 2 plates before attempting to
-			 * kmeans them. if (sumSqrdError > Kmeans.errortarget){ int[] mean1
-			 * ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()}; int[]
-			 * mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
-			 * 
-			 * int[] greenCendroids = Kmeans.dokmeans(greenXPoints,
-			 * greenYPoints, mean1, mean2 ); Position plate1mean = new
-			 * Position(greenCendroids[0],greenCendroids[1]); Position
-			 * plate2mean = new Position(greenCendroids[2],greenCendroids[3]);
-			 * 
-			 * }
-			 */
+			 * gets the correct means and that it doesn't crash (: int[] */
+			int [] greenMean = { green.getX(), green.getY() };
+			double sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints, greenMean);
+			System.out.println(sumSqrdError); //DEeeeebug
+
+			debugGraphics.setColor(Color.black);
+			debugGraphics.drawRect(greenPlatePoints[0].getX() - 5, greenPlatePoints[0].getY() - 5, 10, 10);
+			System.out.println("Black coordinates " + greenPlatePoints[0].getX() + " "  + greenPlatePoints[0].getY());
+			debugGraphics.setColor(Color.WHITE);
+			debugGraphics.drawRect(greenPlatePoints[1].getX() - 5,greenPlatePoints[1].getY() - 5, 10, 10);
+			System.out.println("White coordinates " + greenPlatePoints[1].getX() + " "  + greenPlatePoints[1].getY());
+
+			
+					//Check that we actually have 2 plates before attempting to kmeans them
+		    if (sumSqrdError > Kmeans.errortarget){ 
+		    	int[] mean1 ={greenPlatePoints[0].getX(), greenPlatePoints[0].getY()}; 
+		    	int[] mean2 = {greenPlatePoints[1].getX(), greenPlatePoints[1].getY()};
+		    	Cluster kmeansres = Kmeans.dokmeans(greenXPoints, greenYPoints, mean1, mean2 ); 
+		    	Position plate1mean = new Position(kmeansres.getmean(1)[0],kmeansres.getmean(1)[1]); 
+		    	Position plate2mean = new Position(kmeansres.getmean(2)[0],kmeansres.getmean(2)[1]);
+		    	ArrayList<Integer> cluster1x = kmeansres.getcluster(1, 'x');
+		    	ArrayList<Integer> cluster1y = kmeansres.getcluster(1, 'y');
+		    	ArrayList<Integer> cluster2x = kmeansres.getcluster(2, 'x');
+		    	ArrayList<Integer> cluster2y = kmeansres.getcluster(2, 'y');
+		    	
+		    	System.out.println("Cluster 1 x " + cluster1x.size());
+		    	System.out.println("Cluster 1 y " + cluster1y.size());
+		    	System.out.println("Cluster 2 x " + cluster2x.size());
+		    	System.out.println("Cluster 2 y " + cluster2y.size());
+		    	
+
+				// Only display these markers in non-debug mode.
+				boolean anyDebug = false;
+				for (int i = 0; i < 5; ++i) {
+					if (pitchConstants.debugMode(i)) {
+						anyDebug = true;
+						break;
+					}
+				}
+
+				if (!anyDebug) {
+		    	
+		    	if (cluster1x.size() > 0 && cluster2x.size() > 0 && cluster1y.size() > 0 && cluster2y.size() > 0) {
+		    	for (int i = 0; i < cluster1x.size(); i++){
+		    		debugGraphics.setColor(Color.CYAN);
+		    		debugGraphics.drawRect(cluster1x.get(i), cluster1y.get(i), 1, 1);
+				    }
+		    	
+		    	for (int i = 0; i < cluster2x.size(); i++){
+		    		debugGraphics.setColor(Color.magenta);
+		    		debugGraphics.drawRect(cluster2x.get(i), cluster2y.get(i), 1, 1);
+				    }
+		    	}
+		    	
+		    	
+				}
+		    }
+			
 
 			// Finding the shortest sides of the plates and returns their
 			// average values in order to draw the line in the middle of the
@@ -595,8 +638,8 @@ public class Vision implements VideoReceiver {
 				}
 			}
 
-			double xvector;
-			double yvector;
+			double xvector = 0;
+			double yvector = 0;
 
 			// Checking which side has more "grey" points - that side is the
 			// back, the other is the fron
@@ -626,8 +669,8 @@ public class Vision implements VideoReceiver {
 				yvector = avg2Corrected.y - avg1Corrected.y;
 				front = searchPt1;
 				back = searchPt2;
-			} else
-				throw new NoAngleException("Can't distinguish front vs back");
+			}
+				//throw new NoAngleException("Can't distinguish front vs back");
 
 			angle = Math.acos(yvector
 					/ Math.sqrt(xvector * xvector + yvector * yvector));
@@ -639,10 +682,10 @@ public class Vision implements VideoReceiver {
 				currentAngleIndex = 0;
 
 			/** Debugging shapes drawn on the debugging layer of the video feed */
-			debugGraphics.setColor(Color.magenta);
-			debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10, 10);
-			debugGraphics.setColor(Color.black);
-			debugGraphics.drawRect(back.getX() - 5, back.getY() - 5, 10, 10);
+//			debugGraphics.setColor(Color.magenta);
+//			debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10, 10);
+//			debugGraphics.setColor(Color.black);
+//			debugGraphics.drawRect(back.getX() - 5, back.getY() - 5, 10, 10);
 
 			debugGraphics.setColor(Color.white);
 			debugGraphics.drawLine(avg1.getX(), avg1.getY(), avg2.getX(),
@@ -773,11 +816,17 @@ public class Vision implements VideoReceiver {
 	 */
 	public Position[] findFurthest(BufferedImage debugOverlay,
 			Position centroid, ArrayList<Integer> xpoints,
-			ArrayList<Integer> ypoints, int distMax) throws NoAngleException {
+			ArrayList<Integer> ypoints, int distMax, boolean twoPlates) throws NoAngleException {
 		if (xpoints.size() < 5) {
 			throw new NoAngleException(
 					"List of points is too small to calculate angle");
 		}
+		int distBetween = 0;
+		if(twoPlates){
+			distBetween = 640000;
+		}
+		else distBetween = 500;
+		
 		// Intialising the array of four points
 		Position[] points = new Position[4];
 		for (int i = 0; i < points.length; i++) {
@@ -810,7 +859,7 @@ public class Vision implements VideoReceiver {
 			double distTo0 = Position.sqrdEuclidDist(points[0].getX(),
 					points[0].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > 500) {
+			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween) {
 				dist = currentDist;
 				index = i;
 			}
@@ -831,7 +880,7 @@ public class Vision implements VideoReceiver {
 			double distTo1 = Position.sqrdEuclidDist(points[1].getX(),
 					points[1].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > 500
+			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween
 					&& distTo1 > 500) {
 				dist = currentDist;
 				index = i;
@@ -855,7 +904,7 @@ public class Vision implements VideoReceiver {
 			double distTo2 = Position.sqrdEuclidDist(points[2].getX(),
 					points[2].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > 500
+			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween
 					&& distTo1 > 500 && distTo2 > 500) {
 				dist = currentDist;
 				index = i;
