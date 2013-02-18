@@ -841,7 +841,7 @@ public class Vision implements VideoReceiver {
 			double currentDist = Position.sqrdEuclidDist(centroid.getX(),
 					centroid.getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax) {
+			if (currentDist > dist && currentDist < distBetween) {
 				dist = currentDist;
 				index = i;
 			}
