@@ -297,26 +297,12 @@ public class Vision implements VideoReceiver {
 		int ballY = 0;
 		int numBallPos = 0;
 
-		// TODO: not used
-		// int blueX = 0;
-		// int blueY = 0;
-		// int numBluePos = 0;
-		//
-		// int yellowX = 0;
-		// int yellowY = 0;
-		// int numYellowPos = 0;
-
 		int greenX = 0;
 		int greenY = 0;
 		int numGreenPos = 0;
 
 		ArrayList<Integer> ballXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> ballYPoints = new ArrayList<Integer>();
-		// TODO: not used
-		// ArrayList<Integer> blueXPoints = new ArrayList<Integer>();
-		// ArrayList<Integer> blueYPoints = new ArrayList<Integer>();
-		// ArrayList<Integer> yellowXPoints = new ArrayList<Integer>();
-		// ArrayList<Integer> yellowYPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenXPoints = new ArrayList<Integer>();
 		ArrayList<Integer> greenYPoints = new ArrayList<Integer>();
 
@@ -341,41 +327,21 @@ public class Vision implements VideoReceiver {
 					debugOverlay.setRGB(column, row, 0xFFFF0099);
 				}
 
-				// TODO: not used
-				// Checking if the pixel is a part of the Blue T
-				// if (isBlue(c, hsbvals)) {
-				// blueX += column;
-				// blueY += row;
-				// numBluePos++;
-				//
-				// blueXPoints.add(column);
-				// blueYPoints.add(row);
-				//
 				// // If we're in the "Blue" tab, we show what pixels we're
 				// // looking at, for debugging and to help with threshold
 				// // setting.
-				// if (pitchConstants.debugMode(PitchConstants.BLUE)) {
-				// debugOverlay.setRGB(column, row, 0xFFFF0099);
-				// }
-				// }
+				if (pitchConstants.debugMode(PitchConstants.BLUE)
+						&& isBlue(c, hsbvals)) {
+					debugOverlay.setRGB(column, row, 0xFFFF0099);
+				}
 
-				// TODO: not used
-				// Checking if the pixel is a part of the Yellow T
-				// if (isYellow(c, hsbvals)) {
-				// yellowX += column;
-				// yellowY += row;
-				// numYellowPos++;
-				//
-				// yellowXPoints.add(column);
-				// yellowYPoints.add(row);
-				//
-				// // If we're in the "Yellow" tab, we show what pixels we're
-				// // looking at, for debugging and to help with threshold
-				// // setting.
-				// if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
-				// debugOverlay.setRGB(column, row, 0xFFFF0099);
-				// }
-				// }
+				// If we're in the "Yellow" tab, we show what pixels we're
+				// looking at, for debugging and to help with threshold
+				// setting.
+				if (pitchConstants.debugMode(PitchConstants.YELLOW)
+						&& isYellow(c, hsbvals)) {
+					debugOverlay.setRGB(column, row, 0xFFFF0099);
+				}
 
 				// Checking if the pixel is a part of the Green Plate
 				if (isGreen(c, hsbvals)) {
@@ -418,12 +384,10 @@ public class Vision implements VideoReceiver {
 		// Position objects to hold the centre point of the ball and both
 		// robots.
 		Position ball;
-		// Position blue;
-		// Position yellow;
 		Position green;
 		double angle = 0;
 
-		// Ball
+		/** Ball */
 		// If we have only found a few 'Ball' pixels, chances are that the ball
 		// has not actually been detected.
 		if (numBallPos > 0) {
@@ -448,43 +412,6 @@ public class Vision implements VideoReceiver {
 			ballYPoints.add((int) goodPoints.get(k).getY());
 		}
 
-		/*
-		 * TODO: Decide if we're keeping this (it's not needed if we have the
-		 * centroid of the green plates) // Blue plate // If we have only found
-		 * a few 'Blue' pixels, chances are that the ball // has not actually
-		 * been detected. if (numBluePos > 0) { blueX /= numBluePos; blueY /=
-		 * numBluePos;
-		 * 
-		 * blue = new Position(blueX, blueY);
-		 * blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
-		 * blue.filterPoints(blueXPoints, blueYPoints); } else { blue = new
-		 * Position(worldState.getBlueX(), worldState.getBlueY()); }
-		 * 
-		 * // TODO: No outlier removal in this case? Maybe implement it
-		 * 
-		 * // Yellow plate // If we have only found a few 'Yellow' pixels,
-		 * chances are that the // yellow T has not actually been detected. if
-		 * (numYellowPos > 0) { yellowX /= numYellowPos; yellowY /=
-		 * numYellowPos;
-		 * 
-		 * yellow = new Position(yellowX, yellowY);
-		 * yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
-		 * yellow.filterPoints(yellowXPoints, yellowYPoints); } else { yellow =
-		 * new Position(worldState.getYellowX(), worldState.getYellowY()); }
-		 */
-
-		// TODO: Find out how the remove outliers works and maybe clearing the
-		// point list is a better idea? Also, not used
-		// Point yellowP = new Point(yellowX, yellowY);
-		// goodPoints = Position.removeOutliers(yellowXPoints, yellowYPoints,
-		// yellowP);
-		// yellowXPoints = new ArrayList<Integer>();
-		// yellowYPoints = new ArrayList<Integer>();
-		// for (int k = 0; k < goodPoints.size(); k++) {
-		// yellowXPoints.add((int) goodPoints.get(k).getX());
-		// yellowYPoints.add((int) goodPoints.get(k).getY());
-		// }
-
 		/** Green plate */
 		// If we have only found a few 'Green' pixels, chances are that the ball
 		// has not actually been detected.
@@ -501,52 +428,65 @@ public class Vision implements VideoReceiver {
 
 		/** Finding the corners of the Green plates */
 
-		Position[] greenPlatePoints = null;
+		Position[] greenPlateCorners = null;
 		try {
 
 			// The constant 1400 passed is the max squared distance from the
-			// centroid in which the farthest points can be located.
-		//for one pain
-		//greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
-			//		greenYPoints, 1400, true);
-			
-			greenPlatePoints = findFurthest(debugOverlay, green, greenXPoints,
-					greenYPoints, 1400, true);
+			// centroid in which the farthest points can be located.for one pain
+
+			// For one plate
+			greenPlateCorners = findFurthest(debugOverlay, green, greenXPoints,
+					greenYPoints, 1400);
 
 			/*
 			 * TODO: For the kMeans implementation. Needs to be tested that it
-			 * gets the correct means and that it doesn't crash (: int[] */
-			int [] greenMean = { green.getX(), green.getY() };
-			double sumSqrdError = Kmeans.sumsquarederror(greenXPoints,greenYPoints, greenMean);
-			System.out.println(sumSqrdError); //DEeeeebug
+			 * gets the correct means and that it doesn't crash (:
+			 */
+			int[] greenMean = { green.getX(), green.getY() };
+			double sumSqrdError = Kmeans.sumsquarederror(greenXPoints,
+					greenYPoints, greenMean);
+			// System.out.println(sumSqrdError); //DEeeeebug
+			//
+			// debugGraphics.setColor(Color.black);
+			// debugGraphics.drawRect(greenPlateCorners[0].getX() - 5,
+			// greenPlateCorners[0].getY() - 5, 10, 10);
+			// System.out.println("Black coordinates "
+			// + greenPlateCorners[0].getX() + " "
+			// + greenPlateCorners[0].getY());
+			// debugGraphics.setColor(Color.WHITE);
+			// debugGraphics.drawRect(greenPlateCorners[1].getX() - 5,
+			// greenPlateCorners[1].getY() - 5, 10, 10);
+			// System.out.println("White coordinates "
+			// + greenPlateCorners[1].getX() + " "
+			// + greenPlateCorners[1].getY());
 
-			debugGraphics.setColor(Color.black);
-			debugGraphics.drawRect(greenPlatePoints[0].getX() - 5, greenPlatePoints[0].getY() - 5, 10, 10);
-			System.out.println("Black coordinates " + greenPlatePoints[0].getX() + " "  + greenPlatePoints[0].getY());
-			debugGraphics.setColor(Color.WHITE);
-			debugGraphics.drawRect(greenPlatePoints[1].getX() - 5,greenPlatePoints[1].getY() - 5, 10, 10);
-			System.out.println("White coordinates " + greenPlatePoints[1].getX() + " "  + greenPlatePoints[1].getY());
+			// Check that we actually have 2 plates before attempting to kmeans
+			// them
+			if (sumSqrdError > Kmeans.errortarget) {
 
-			
-					//Check that we actually have 2 plates before attempting to kmeans them
-		    if (sumSqrdError > Kmeans.errortarget){
-		    	Position [] furthestGreen = findFurtherestNocenter(debugOverlay, greenXPoints,
-						greenYPoints);
-		    	int[] mean1 ={furthestGreen[0].getX(), furthestGreen[0].getY()}; 
-		    	int[] mean2 = {furthestGreen[1].getX(), furthestGreen[1].getY()};
-		    	Cluster kmeansres = Kmeans.dokmeans(greenXPoints, greenYPoints, mean1, mean2 ); 
-		    	Position plate1mean = new Position(kmeansres.getmean(1)[0],kmeansres.getmean(1)[1]); 
-		    	Position plate2mean = new Position(kmeansres.getmean(2)[0],kmeansres.getmean(2)[1]);
-		    	ArrayList<Integer> cluster1x = kmeansres.getcluster(1, 'x');
-		    	ArrayList<Integer> cluster1y = kmeansres.getcluster(1, 'y');
-		    	ArrayList<Integer> cluster2x = kmeansres.getcluster(2, 'x');
-		    	ArrayList<Integer> cluster2y = kmeansres.getcluster(2, 'y');
-		    	
-		    	System.out.println("Cluster 1 x " + cluster1x.size());
-		    	System.out.println("Cluster 1 y " + cluster1y.size());
-		    	System.out.println("Cluster 2 x " + cluster2x.size());
-		    	System.out.println("Cluster 2 y " + cluster2y.size());
-		    	
+				Position[] furthestGreen = findFurtherestNoCenter(debugOverlay,
+						greenXPoints, greenYPoints);
+
+				int[] mean1 = { furthestGreen[0].getX(),
+						furthestGreen[0].getY() };
+				int[] mean2 = { furthestGreen[1].getX(),
+						furthestGreen[1].getY() };
+
+				Cluster kmeansres = Kmeans.dokmeans(greenXPoints, greenYPoints,
+						mean1, mean2);
+				Position plate1mean = new Position(kmeansres.getmean(1)[0],
+						kmeansres.getmean(1)[1]);
+				Position plate2mean = new Position(kmeansres.getmean(2)[0],
+						kmeansres.getmean(2)[1]);
+				ArrayList<Integer> cluster1x = kmeansres.getcluster(1, 'x');
+				ArrayList<Integer> cluster1y = kmeansres.getcluster(1, 'y');
+				ArrayList<Integer> cluster2x = kmeansres.getcluster(2, 'x');
+				ArrayList<Integer> cluster2y = kmeansres.getcluster(2, 'y');
+
+				System.out.println("Cluster 1 x " + cluster1x.size());
+				System.out.println("Cluster 1 y " + cluster1y.size());
+				System.out.println("Cluster 2 x " + cluster2x.size());
+				System.out.println("Cluster 2 y " + cluster2y.size());
 
 				// Only display these markers in non-debug mode.
 				boolean anyDebug = false;
@@ -558,182 +498,161 @@ public class Vision implements VideoReceiver {
 				}
 
 				if (!anyDebug) {
-		    	
-		    	if (cluster1x.size() > 0 && cluster2x.size() > 0 && cluster1y.size() > 0 && cluster2y.size() > 0) {
-		    	for (int i = 0; i < cluster1x.size(); i++){
-		    		debugGraphics.setColor(Color.CYAN);
-		    		debugGraphics.drawRect(cluster1x.get(i), cluster1y.get(i), 1, 1);
-				    }
-		    	
-		    	for (int i = 0; i < cluster2x.size(); i++){
-		    		debugGraphics.setColor(Color.magenta);
-		    		debugGraphics.drawRect(cluster2x.get(i), cluster2y.get(i), 1, 1);
-				    }
-		    	}
-		    	
-		    	
+					debugGraphics.setColor(Color.black);
+					debugGraphics.drawRect(plate1mean.getX() - 5,
+							plate1mean.getY() - 5, 10, 10);
+					debugGraphics.setColor(Color.WHITE);
+					debugGraphics.drawRect(plate2mean.getX() - 5,
+							plate2mean.getY() - 5, 10, 10);
+					if (cluster1x.size() > 0 && cluster2x.size() > 0
+							&& cluster1y.size() > 0 && cluster2y.size() > 0) {
+						for (int i = 0; i < cluster1x.size(); i++) {
+							debugGraphics.setColor(Color.CYAN);
+							debugGraphics.drawRect(cluster1x.get(i),
+									cluster1y.get(i), 1, 1);
+						}
+
+						for (int i = 0; i < cluster2x.size(); i++) {
+							debugGraphics.setColor(Color.magenta);
+							debugGraphics.drawRect(cluster2x.get(i),
+									cluster2y.get(i), 1, 1);
+						}
+					}
+
 				}
-		    }
-			
+			} else {
 
-			// Finding the shortest sides of the plates and returns their
-			// average values in order to draw the line in the middle of the
-			// plate
-			Position[] avgPts = findAvgPtOfTwoShortestSides(greenPlatePoints);
-			Position avg1 = avgPts[0];
-			Position avg2 = avgPts[1];
+				// Finding the shortest sides of the plates and returns their
+				// average values in order to draw the line in the middle of the
+				// plate
+				Position[] avgPts = findAvgPtOfTwoShortestSides(greenPlateCorners);
+				Position avg1 = avgPts[0];
+				Position avg2 = avgPts[1];
 
-			// Determining the colour of the centroid of the plate to determine
-			// the colour of the robot
-			Color colour = new Color(frame.getRGB(green.getX(), green.getY()));
-			float[] colourHSV = Color.RGBtoHSB(colour.getRed(),
-					colour.getGreen(), colour.getBlue(), null);
+				// Determining the colour of the centroid of the plate to
+				// determine
+				// the colour of the robot
+				Color colour = new Color(frame.getRGB(green.getX(),
+						green.getY()));
+				float[] colourHSV = Color.RGBtoHSB(colour.getRed(),
+						colour.getGreen(), colour.getBlue(), null);
 
-			/*
-			 * TODO: Currently unused Position tCentroid; // TODO: Now it's the
-			 * same for both robots boolean isBlue = isBlue(colour, colourHSV);
-			 * if (isBlue) tCentroid = blue; else tCentroid = yellow;
-			 */
+				/*
+				 * TODO: Currently unused Position tCentroid; // TODO: Now it's
+				 * the same for both robots boolean isBlue = isBlue(colour,
+				 * colourHSV); if (isBlue) tCentroid = blue; else tCentroid =
+				 * yellow;
+				 */
 
-			/**
-			 * Determining the orientation of the plate by looking at square at
-			 * around the top 1/7 of the plate and bottom 1/7 to find the grey
-			 * circle.
-			 */
+				/**
+				 * Determining the orientation of the plate by looking at square
+				 * at around the top 1/7 of the plate and bottom 1/7 to find the
+				 * grey circle.
+				 */
 
-			int searchPtX = (6 * avg1.getX() + avg2.getX()) / 7;
-			int searchPtY = (6 * avg1.getY() + avg2.getY()) / 7;
-			Position searchPt1 = new Position(searchPtX, searchPtY);
+				int searchPtX = (6 * avg1.getX() + avg2.getX()) / 7;
+				int searchPtY = (6 * avg1.getY() + avg2.getY()) / 7;
+				Position searchPt1 = new Position(searchPtX, searchPtY);
 
-			searchPtX = (avg1.getX() + 6 * avg2.getX()) / 7;
-			searchPtY = (avg1.getY() + 6 * avg2.getY()) / 7;
-			Position searchPt2 = new Position(searchPtX, searchPtY);
+				searchPtX = (avg1.getX() + 6 * avg2.getX()) / 7;
+				searchPtY = (avg1.getY() + 6 * avg2.getY()) / 7;
+				Position searchPt2 = new Position(searchPtX, searchPtY);
 
-			// Try one (short) side
-			int searchPt1GreyPoints = 0;
-			int xMin = searchPt1.getX() - 5, xMax = xMin + 10;
-			int yMin = searchPt1.getY() - 5, yMax = yMin + 10;
-			for (int x = xMin; x < xMax; ++x) {
-				for (int y = yMin; y < yMax; ++y) {
-					colour = new Color(frame.getRGB(x, y));
-					colourHSV = Color.RGBtoHSB(colour.getRed(),
-							colour.getGreen(), colour.getBlue(), colourHSV);
-					if (isGrey(colour, colourHSV)) {
-						++searchPt1GreyPoints;
+				// Try one (short) side
+				int searchPt1GreyPoints = 0;
+				int xMin = searchPt1.getX() - 5, xMax = xMin + 10;
+				int yMin = searchPt1.getY() - 5, yMax = yMin + 10;
+				for (int x = xMin; x < xMax; ++x) {
+					for (int y = yMin; y < yMax; ++y) {
+						colour = new Color(frame.getRGB(x, y));
+						colourHSV = Color.RGBtoHSB(colour.getRed(),
+								colour.getGreen(), colour.getBlue(), colourHSV);
+						if (isGrey(colour, colourHSV)) {
+							++searchPt1GreyPoints;
+						}
 					}
 				}
-			}
-			// Try the other side
-			int searchPt2GreyPoints = 0;
-			xMin = searchPt2.getX() - 5;
-			xMax = xMin + 10;
-			yMin = searchPt2.getY() - 5;
-			yMax = yMin + 10;
-			for (int x = xMin; x < xMax; ++x) {
-				for (int y = yMin; y < yMax; ++y) {
-					colour = new Color(frame.getRGB(x, y));
-					colourHSV = Color.RGBtoHSB(colour.getRed(),
-							colour.getGreen(), colour.getBlue(), colourHSV);
-					if (isGrey(colour, colourHSV)) {
-						++searchPt2GreyPoints;
+				// Try the other side
+				int searchPt2GreyPoints = 0;
+				xMin = searchPt2.getX() - 5;
+				xMax = xMin + 10;
+				yMin = searchPt2.getY() - 5;
+				yMax = yMin + 10;
+				for (int x = xMin; x < xMax; ++x) {
+					for (int y = yMin; y < yMax; ++y) {
+						colour = new Color(frame.getRGB(x, y));
+						colourHSV = Color.RGBtoHSB(colour.getRed(),
+								colour.getGreen(), colour.getBlue(), colourHSV);
+						if (isGrey(colour, colourHSV)) {
+							++searchPt2GreyPoints;
+						}
 					}
 				}
+
+				double xvector = 0;
+				double yvector = 0;
+
+				// Checking which side has more "grey" points - that side is the
+				// back, the other is the front
+				Position front = null, back = null;
+				Point avg1Corrected = DistortionFix.barrelCorrect(new Point(
+						avg1.getX(), avg1.getY()));
+				Point avg2Corrected = DistortionFix.barrelCorrect(new Point(
+						avg2.getX(), avg2.getY()));
+
+				if (searchPt1GreyPoints > searchPt2GreyPoints) {
+					front = searchPt2;
+					back = searchPt1;
+					xvector = avg1Corrected.x - avg2Corrected.x;
+					yvector = avg1Corrected.y - avg2Corrected.y;
+				} else if (searchPt1GreyPoints < searchPt2GreyPoints) {
+					xvector = avg2Corrected.x - avg1Corrected.x;
+					yvector = avg2Corrected.y - avg1Corrected.y;
+					front = searchPt1;
+					back = searchPt2;
+				}
+				// throw new
+				// NoAngleException("Can't distinguish front vs back");
+
+				angle = Math.acos(yvector
+						/ Math.sqrt(xvector * xvector + yvector * yvector));
+				if (xvector > 0)
+					angle = 2.0 * Math.PI - angle;
+
+				last3Angles[currentAngleIndex++] = angle;
+				if (currentAngleIndex >= 3)
+					currentAngleIndex = 0;
+
+				/**
+				 * Debugging shapes drawn on the debugging layer of the video
+				 * feed
+				 */
+				debugGraphics.setColor(Color.magenta);
+				debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10,
+						10);
+				debugGraphics.setColor(Color.black);
+				debugGraphics
+						.drawRect(back.getX() - 5, back.getY() - 5, 10, 10);
+				
+				//Line through the averages for one plate
+				debugGraphics.setColor(Color.white);
+				debugGraphics.drawLine(avg1.getX(), avg1.getY(), avg2.getX(),
+						avg2.getY());
+				debugGraphics.drawOval(green.getX(), green.getY(), 2, 2);
+				
+				//The ovals around the 4 corners of the plate
+				debugGraphics.drawOval(greenPlateCorners[0].getX() - 1,
+						greenPlateCorners[0].getY() - 1, 2, 2);
+				debugGraphics.drawOval(greenPlateCorners[1].getX() - 1,
+						greenPlateCorners[1].getY() - 1, 2, 2);
+				debugGraphics.drawOval(greenPlateCorners[2].getX() - 1,
+						greenPlateCorners[2].getY() - 1, 2, 2);
+				debugGraphics.drawOval(greenPlateCorners[3].getX() - 1,
+						greenPlateCorners[3].getY() - 1, 2, 2);
 			}
-
-			double xvector = 0;
-			double yvector = 0;
-
-			// Checking which side has more "grey" points - that side is the
-			// back, the other is the fron
-			Position front, back;
-			// Apply Barrel correction (fixes fish-eye effect)
-
-			// Point blueCorrected = DistortionFix.barrelCorrected(new
-			// Point(blue.getX(), blue.getY()));
-			// Point yellowCorrected = DistortionFix.barrelCorrected(new
-			// Point(yellow.getX(), yellow.getY());
-			Point avg1Corrected = DistortionFix.barrelCorrect(new Point(avg1
-					.getX(), avg1.getY()));
-			Point avg2Corrected = DistortionFix.barrelCorrect(new Point(avg2
-					.getX(), avg2.getY()));
-
-			if (searchPt1GreyPoints > searchPt2GreyPoints) {
-				front = searchPt2;
-				back = searchPt1;
-				// xvector = avg1.getX() - avg2.getX();
-				// yvector = avg1.getY() - avg2.getY();
-				xvector = avg1Corrected.x - avg2Corrected.x;
-				yvector = avg1Corrected.y - avg2Corrected.y;
-			} else if (searchPt1GreyPoints < searchPt2GreyPoints) {
-				// xvector = avg2.getX() - avg1.getX();
-				// yvector = avg2.getY() - avg1.getY();
-				xvector = avg2Corrected.x - avg1Corrected.x;
-				yvector = avg2Corrected.y - avg1Corrected.y;
-				front = searchPt1;
-				back = searchPt2;
-			}
-				//throw new NoAngleException("Can't distinguish front vs back");
-
-			angle = Math.acos(yvector
-					/ Math.sqrt(xvector * xvector + yvector * yvector));
-			if (xvector > 0)
-				angle = 2.0 * Math.PI - angle;
-
-			last3Angles[currentAngleIndex++] = angle;
-			if (currentAngleIndex >= 3)
-				currentAngleIndex = 0;
-
-			/** Debugging shapes drawn on the debugging layer of the video feed */
-//			debugGraphics.setColor(Color.magenta);
-//			debugGraphics.drawRect(front.getX() - 5, front.getY() - 5, 10, 10);
-//			debugGraphics.setColor(Color.black);
-//			debugGraphics.drawRect(back.getX() - 5, back.getY() - 5, 10, 10);
-
-			debugGraphics.setColor(Color.white);
-			debugGraphics.drawLine(avg1.getX(), avg1.getY(), avg2.getX(),
-					avg2.getY());
-			debugGraphics.drawOval(green.getX(), green.getY(), 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[0].getX() - 1,
-					greenPlatePoints[0].getY() - 1, 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[1].getX() - 1,
-					greenPlatePoints[1].getY() - 1, 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[2].getX() - 1,
-					greenPlatePoints[2].getY() - 1, 2, 2);
-			debugGraphics.drawOval(greenPlatePoints[3].getX() - 1,
-					greenPlatePoints[3].getY() - 1, 2, 2);
-
 			// System.out.println("avg1 x " + avg1.getX());
 			// System.out.println("avg1 y " + avg1.getY());
 
-			// Attempt to find the blue robot's orientation.
-			/*
-			 * try { // double blueOrientation =
-			 * 
-			 * findOrient(frame, debugOverlay, blue, blueXPoints, blueYPoints,
-			 * 120, 175); double blueOrientation = angle;
-			 * 
-			 * // Use moving average to smooth the orientation over 5 frames
-			 * last5BlueOrients[currentOrientIndex] = blueOrientation; double
-			 * sum = 0.0; for (int i = 0; i < 5; ++i) sum +=
-			 * last5BlueOrients[i]; worldState.setBlueOrientation(sum / 5.0); }
-			 * catch (NoAngleException e) { // TODO: fix the problem properly //
-			 * System.out.println(e.getMessage()); // e.printStackTrace(); }
-			 * 
-			 * // Attempt to find the yellow robot's orientation. try { double
-			 * yellowOrientation = angle; findOrient(frame, debugOverlay,
-			 * yellow, yellowXPoints, yellowYPoints, 120, 175);
-			 * 
-			 * // Use moving average to smooth the orientation over 5 frames
-			 * last5YellowOrients[currentOrientIndex] = yellowOrientation;
-			 * double sum = 0.0; for (int i = 0; i < 5; ++i) sum +=
-			 * last5YellowOrients[i]; worldState.setYellowOrientation(sum /
-			 * 5.0); } catch (NoAngleException e) { // TODO: fix the problem
-			 * properly // System.out.println(e.getMessage()); //
-			 * e.printStackTrace(); }
-			 * 
-			 * ++currentOrientIndex; if (currentOrientIndex >= 5)
-			 * currentOrientIndex = 0;
-			 */
 			Point ballCorrected = DistortionFix.barrelCorrect(new Point(ball
 					.getX(), ball.getY()));
 			Point greenCorrected = DistortionFix.barrelCorrect(new Point(green
@@ -776,16 +695,6 @@ public class Vision implements VideoReceiver {
 				debugGraphics.setColor(Color.red);
 				debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 				debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
-				debugGraphics.setColor(Color.blue);
-				// TODO: Since the current setup uses the green plates, we may
-				// not need this anymore
-				// debugGraphics.drawOval(blue.getX() - 15, blue.getY() - 15,
-				// 30,
-				// 30);
-				debugGraphics.setColor(Color.yellow);
-				// debugGraphics.drawOval(yellow.getX() - 15, yellow.getY() -
-				// 15,
-				// 30, 30);
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (NoAngleException e) {
@@ -818,17 +727,12 @@ public class Vision implements VideoReceiver {
 	 */
 	public Position[] findFurthest(BufferedImage debugOverlay,
 			Position centroid, ArrayList<Integer> xpoints,
-			ArrayList<Integer> ypoints, int distMax, boolean twoPlates) throws NoAngleException {
+			ArrayList<Integer> ypoints, int distMax) throws NoAngleException {
 		if (xpoints.size() < 5) {
 			throw new NoAngleException(
 					"List of points is too small to calculate angle");
 		}
-		int distBetween = 0;
-		if(twoPlates){
-			distBetween = 640000;
-		}
-		else distBetween = 500;
-		
+
 		// Intialising the array of four points
 		Position[] points = new Position[4];
 		for (int i = 0; i < points.length; i++) {
@@ -843,7 +747,7 @@ public class Vision implements VideoReceiver {
 			double currentDist = Position.sqrdEuclidDist(centroid.getX(),
 					centroid.getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distBetween) {
+			if (currentDist > dist && currentDist < distMax) {
 				dist = currentDist;
 				index = i;
 			}
@@ -861,7 +765,7 @@ public class Vision implements VideoReceiver {
 			double distTo0 = Position.sqrdEuclidDist(points[0].getX(),
 					points[0].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween) {
+			if (currentDist > dist && currentDist < distMax && distTo0 > 500) {
 				dist = currentDist;
 				index = i;
 			}
@@ -882,7 +786,7 @@ public class Vision implements VideoReceiver {
 			double distTo1 = Position.sqrdEuclidDist(points[1].getX(),
 					points[1].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween
+			if (currentDist > dist && currentDist < distMax && distTo0 > 500
 					&& distTo1 > 500) {
 				dist = currentDist;
 				index = i;
@@ -906,7 +810,7 @@ public class Vision implements VideoReceiver {
 			double distTo2 = Position.sqrdEuclidDist(points[2].getX(),
 					points[2].getY(), xpoints.get(i), ypoints.get(i));
 
-			if (currentDist > dist && currentDist < distMax && distTo0 > distBetween
+			if (currentDist > dist && currentDist < distMax && distTo0 > 500
 					&& distTo1 > 500 && distTo2 > 500) {
 				dist = currentDist;
 				index = i;
@@ -923,16 +827,29 @@ public class Vision implements VideoReceiver {
 		return points;
 	}
 
-	//Finds two furtherest points by comparing all points between each other.
-	public Position [] findFurtherestNocenter(BufferedImage debugOverlay, ArrayList<Integer> xpoints,
-			ArrayList<Integer> ypoints){
+	/**
+	 * Finds two furtherest points by comparing all points between each other.
+	 * 
+	 * @param debugOverlay
+	 *            The second top layer on top of the video feed, that is used to
+	 *            draw on for debugging.
+	 * @param xpoints
+	 *            Set of x coordinates of points from which the farthest points
+	 *            are selected.
+	 * @param ypoints
+	 *            Set of y coordinates of points from which the farthest points
+	 *            are selected.
+	 */
+	public Position[] findFurtherestNoCenter(BufferedImage debugOverlay,
+			ArrayList<Integer> xpoints, ArrayList<Integer> ypoints) {
 		int maxdist = 0;
-		Position point1 = new Position(0,0);
-		Position point2 = new Position(0,0);
-		for (int i = 0; i<xpoints.size(); i++){
-			for (int j = i+1; j<xpoints.size(); j++){
-				int tempdist = Position.sqrdEuclidDist(xpoints.get(i), ypoints.get(i), xpoints.get(j), ypoints.get(j));
-				if (maxdist< tempdist){
+		Position point1 = new Position(0, 0);
+		Position point2 = new Position(0, 0);
+		for (int i = 0; i < xpoints.size(); i++) {
+			for (int j = i + 1; j < xpoints.size(); j++) {
+				int tempdist = Position.sqrdEuclidDist(xpoints.get(i),
+						ypoints.get(i), xpoints.get(j), ypoints.get(j));
+				if (maxdist < tempdist) {
 					point1.setX(xpoints.get(i));
 					point1.setY(ypoints.get(i));
 					point2.setX(xpoints.get(j));
@@ -941,9 +858,10 @@ public class Vision implements VideoReceiver {
 				}
 			}
 		}
-		Position [] ret = {point1,point2};
+		Position[] ret = { point1, point2 };
 		return ret;
 	}
+
 	/**
 	 * Finds the two mean points of the two shortest sides.
 	 * 
