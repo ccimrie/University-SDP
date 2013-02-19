@@ -15,7 +15,7 @@ public class Cluster {
 			ArrayList<Integer> cluster2membersx,
 			ArrayList<Integer> cluster2membersy, int[] mean1, int[] mean2) {
 		this.cluster1membersx = cluster1membersx;
-		this.cluster1membersx = cluster1membersy;
+		this.cluster1membersy = cluster1membersy;
 		this.cluster2membersx = cluster2membersx;
 		this.cluster2membersy = cluster2membersy;
 		this.mean1 = mean1;
