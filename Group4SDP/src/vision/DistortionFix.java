@@ -100,10 +100,10 @@ public class DistortionFix implements VideoReceiver {
 	 *            Point to fix
 	 * @return Fixed Point
 	 */
-	public static Point barrelCorrect(Point p) {
+	public static Position barrelCorrect(Position p) {
 		// first normalise pixel
-		double px = (2 * p.x - width) / (double) width;
-		double py = (2 * p.y - height) / (double) height;
+		double px = (2 * p.getX() - width) / (double) width;
+		double py = (2 * p.getY() - height) / (double) height;
 
 		// then compute the radius of the pixel you are working with
 		double rad = px * px + py * py;
@@ -116,7 +116,7 @@ public class DistortionFix implements VideoReceiver {
 		int pixi = (int) ((px1 + 1) * width / 2);
 		int pixj = (int) ((py1 + 1) * height / 2);
 
-		return new Point(pixi, pixj);
+		return new Position(pixi, pixj);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class DistortionFix implements VideoReceiver {
 	 * Used to correct the distortion in an image without producing an odd
 	 * grid-like visual artifact
 	 * 
-	 * @see {@link #invBarrelCorrect(Point)} for correcting an image
+	 * @see {@link #barrelCorrect(Point)} for correcting a single point
 	 * 
 	 * @param p
 	 *            Point to "unfix"
