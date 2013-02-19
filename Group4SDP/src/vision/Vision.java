@@ -65,27 +65,6 @@ public class Vision implements VideoReceiver {
 	}
 
 	/**
-	 * TODO: Do we really need this method? As it only calls a similar method
-	 * and passes the same parameters :) Used to send a frame to the vision
-	 * system to process
-	 * 
-	 * @param frame
-	 *            The frame being sent
-	 * @param frameRate
-	 *            The current frame rate
-	 * @param frameCounter
-	 *            The current frame index
-	 */
-	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
-		processAndUpdateImage(frame, frameRate, frameCounter);
-	}
-
-	// TODO: Find out what this is.
-	// RE: I added this when I separated the listener for the vision GUI into
-	// its different parts (raw frame, debug overlay, worldstate).
-	// It could also be useful for strategy, but for now VisionGUI is the only
-	// thing that uses it.
-	/**
 	 * Registers an object to receive the world state from the vision system
 	 * 
 	 * @param receiver
@@ -105,8 +84,7 @@ public class Vision implements VideoReceiver {
 	 * @param counter
 	 * @throws NoAngleException
 	 */
-	public void processAndUpdateImage(BufferedImage frame, int frameRate,
-			int counter) {
+	public void sendFrame(BufferedImage frame, int frameRate, int counter) {
 		BufferedImage debugOverlay = new BufferedImage(frame.getWidth(),
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics debugGraphics = debugOverlay.getGraphics();
@@ -142,8 +120,11 @@ public class Vision implements VideoReceiver {
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
 
-		// For every pixel within the pitch, test to see if it belongs to the
-		// ball, the yellow T, the blue T, either green plate or a grey circle.
+		/**
+		 * Processing every pixel in the frame. For every pixel within the
+		 * pitch, test to see if it belongs to the ball, the Yellow T, Blue T,
+		 * Green plate, Grey circle
+		 */
 		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++) {
 			for (int column = leftBuffer; column < frame.getWidth()
 					- rightBuffer; column++) {
@@ -228,7 +209,7 @@ public class Vision implements VideoReceiver {
 					}
 				}
 
-				// Checking if the pixel is a part of the Ball
+				/** Checking if the pixel is a part of the Ball */
 				if (isColour(c, hsbvals, BALL)) {
 					ballX += column;
 					ballY += row;
@@ -247,9 +228,11 @@ public class Vision implements VideoReceiver {
 			}
 		}
 
-		// Calculating the centre points of the different obejct on the pitch
-		// Position objects to hold the centre point of the ball and both
-		// robots.
+		/**
+		 * Calculating the centre points of the different objects on the pitch.
+		 * Position objects to hold the centre point of the ball, both Ts and
+		 */
+
 		Position ball;
 		Position green;
 		Position blue;
@@ -328,11 +311,12 @@ public class Vision implements VideoReceiver {
 			// them
 			if (sumSqrdError > Kmeans.errortarget) {
 				/** TWO PLATES ON FIELD SCENARIO - RUN KMEANS */
-				differentiateBetweenPlates(frame, debugOverlay, greenXPoints, greenYPoints,
-						blue, yellow);
+				differentiateBetweenPlates(frame, debugOverlay, greenXPoints,
+						greenYPoints, blue, yellow);
 			} else {
 				/** ONE PLATE ON FIELD SCENARIO - NO KMEANS NEEDED */
-				processSinglePlate(frame, debugOverlay, green, greenXPoints, greenYPoints);
+				processSinglePlate(frame, debugOverlay, green, greenXPoints,
+						greenYPoints);
 
 			}
 
@@ -341,7 +325,7 @@ public class Vision implements VideoReceiver {
 			Point greenCorrected = DistortionFix.barrelCorrect(new Point(green
 					.getX(), green.getY()));
 
-			/**Worldstate settings*/
+			/** Worldstate settings */
 			// TODO: Sort out all of the world state settings.
 			worldState.setBallX(ballCorrected.x);
 			worldState.setBallY(ballCorrected.y);
@@ -373,7 +357,10 @@ public class Vision implements VideoReceiver {
 			}
 		} catch (Exception e) {
 			debugGraphics.setColor(Color.red);
-			debugGraphics.drawString(e.getMessage(), 320, 240);
+			if (e.getMessage()!= null)
+			System.out.println(e.getMessage());
+			else System.out.println("Error mesasge is null ");
+			//debugGraphics.drawString(e.getMessage(), 320, 240);
 		}
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
@@ -383,8 +370,8 @@ public class Vision implements VideoReceiver {
 	}
 
 	/**
-	 * Determines if a pixel is part of the object specified, based on input RGB colours
-	 * and hsv values.
+	 * Determines if a pixel is part of the object specified, based on input RGB
+	 * colours and hsv values.
 	 * 
 	 * @param color
 	 *            The RGB colours for the pixel.
@@ -652,10 +639,29 @@ public class Vision implements VideoReceiver {
 		return result;
 	}
 
-	public void differentiateBetweenPlates(BufferedImage frame, BufferedImage debugOverlay,
-			ArrayList<Integer> xPoints, ArrayList<Integer> yPoints,
-			Position blueTCentroid, Position yellowTCentroid) {
-		
+	/**
+	 * Finds the two mean points of the two shortest sides.
+	 * 
+	 * @param frame
+	 *            The frame that is being processed
+	 * @param debugOverlay
+	 *            The debugging layer on top of the frame
+	 * @param xPoints
+	 *            The x points of the green pixels
+	 * @param yPoints
+	 *            The y points of the green pixels
+	 * @params blueTCentroid 
+	 * 			  The blue T centroid, that is used as one of the
+	 *         initial means for the kMeans
+	 * @params yellowTCentroid 
+	 * 			  The yellow T centroid, that is used as one of the
+	 *         initial means for the kMeans
+	 */
+	public void differentiateBetweenPlates(BufferedImage frame,
+			BufferedImage debugOverlay, ArrayList<Integer> xPoints,
+			ArrayList<Integer> yPoints, Position blueTCentroid,
+			Position yellowTCentroid) {
+
 		Graphics debugGraphics = debugOverlay.getGraphics();
 
 		// Use the centroids of the Ts as the initial means for kMeans
@@ -673,8 +679,10 @@ public class Vision implements VideoReceiver {
 		ArrayList<Integer> cluster2x = kmeansres.getcluster(2, 'x');
 		ArrayList<Integer> cluster2y = kmeansres.getcluster(2, 'y');
 
-		processSinglePlate(frame, debugOverlay, plate1mean, cluster1x, cluster1y);
-		processSinglePlate(frame, debugOverlay, plate2mean, cluster2x, cluster2y);
+		processSinglePlate(frame, debugOverlay, plate1mean, cluster1x,
+				cluster1y);
+		processSinglePlate(frame, debugOverlay, plate2mean, cluster2x,
+				cluster2y);
 
 		// TODO: DEBUGING
 		// Only display these markers in non-debug mode.
@@ -713,9 +721,24 @@ public class Vision implements VideoReceiver {
 
 	}
 
-	public void processSinglePlate(BufferedImage frame, BufferedImage debugOverlay, Position plateCentroid,
+	/**
+	 * Finds the two mean points of the two shortest sides.
+	 * 
+	 * @param frame
+	 *            The frame that is being processed
+	 * @param debugOverlay
+	 *            The debugging layer on top of the frame
+	 * @param plateCentroids
+	 * 			  The centroid of the plate
+	 * @param xPoints
+	 *            The x points of the green pixels
+	 * @param yPoints
+	 *            The y points of the green pixels
+	 */
+	public void processSinglePlate(BufferedImage frame,
+			BufferedImage debugOverlay, Position plateCentroid,
 			ArrayList<Integer> xPoints, ArrayList<Integer> yPoints) {
-		
+
 		Graphics debugGraphics = debugOverlay.getGraphics();
 
 		// The constant 1400 passed is the max squared distance from the
@@ -805,6 +828,12 @@ public class Vision implements VideoReceiver {
 		Point avg2Corrected = DistortionFix.barrelCorrect(new Point(
 				avg2.getX(), avg2.getY()));
 
+		
+		System.out.println("PT1 " + searchPt1GreyPoints);
+		System.out.println("PT2 " + searchPt2GreyPoints);
+		
+		
+			
 		int PLATE = -1;
 		if (searchPt1GreyPoints > searchPt2GreyPoints) {
 			front = searchPt2;
