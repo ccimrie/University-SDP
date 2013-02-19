@@ -1,6 +1,5 @@
 package vision;
 
-import java.awt.Point;
 import java.util.ArrayList;
 
 /**
@@ -84,7 +83,7 @@ public class Position {
 		}
 
 		// Use old values if not changed much
-		if (sqrdEuclidDist(this.getX(), this.getY(), oldX, oldY) < 9) {
+		if (sqrdEuclidDist(this, new Position(oldX, oldY)) < 9) {
 			this.setX(oldX);
 			this.setY(oldY);
 		}
@@ -95,37 +94,25 @@ public class Position {
 	 * compare it to. Any points too far away from the current centre are
 	 * removed, then a new mean point is calculated and set as the centre point.
 	 * 
-	 * @param xs
-	 *            The new set of x points.
-	 * @param ys
-	 *            The new set of y points.
+	 * @param points
+	 *            The set of points
 	 */
-	public void filterPoints(ArrayList<Integer> xs, ArrayList<Integer> ys) {
-		if (xs.size() > 0) {
-			int stdev = 0;
-
-			// Standard deviation
-			for (int i = 0; i < xs.size(); i++) {
-				int x = xs.get(i);
-				int y = ys.get(i);
-
-				stdev += sqrdEuclidDist(x, y, this.getX(), this.getY());
-			}
-			stdev = (int) Math.sqrt((double) stdev / xs.size());
+	public void filterPoints(ArrayList<Position> points) {
+		if (points.size() > 0) {
+			double stdev = standardDeviation(points, this);
 
 			int count = 0;
 			int newX = 0;
 			int newY = 0;
 
 			// Remove points further than standard deviation
-			for (int i = 0; i < xs.size(); i++) {
-				int x = xs.get(i);
-				int y = ys.get(i);
-				if (Math.abs(x - this.getX()) < stdev
-						&& Math.abs(y - this.getY()) < stdev) {
-					newX += x;
-					newY += y;
-					count++;
+			for (int i = 0; i < points.size(); ++i) {
+				Position p = points.get(i);
+
+				if (Math.sqrt(sqrdEuclidDist(this, p)) < stdev) {
+					newX += p.getX();
+					newY += p.getY();
+					++count;
 				}
 			}
 
@@ -146,29 +133,25 @@ public class Position {
 	 * which are more than 1.17 standard deviations from the centroid and
 	 * returns the rest
 	 * 
-	 * @param xs
-	 *            The x coordinates of the points
-	 * @param ys
-	 *            The y coordinates of the points
+	 * @param points
+	 *            The set of points
 	 * @param centroid
 	 *            The centroid of the points
 	 * @return An ArrayList of points which are within 1.17 standard deviations
 	 *         of the centroid
 	 */
-	public static ArrayList<Point> removeOutliers(ArrayList<Integer> xs,
-			ArrayList<Integer> ys, Point centroid) {
-		ArrayList<Point> goodPoints = new ArrayList<Point>();
-		if (xs.size() > 0) {
-			double stdDev = standardDeviation(xs, ys, centroid);
+	public static ArrayList<Position> removeOutliers(
+			ArrayList<Position> points, Position centroid) {
+		ArrayList<Position> goodPoints = new ArrayList<Position>();
+
+		if (points.size() > 0) {
+			double stdDev = standardDeviation(points, centroid);
 			// Remove points further than 1.17 standard deviations
 			stdDev *= 1.17;
-			for (int i = 0; i < xs.size(); i++) {
-				int x = xs.get(i);
-				int y = ys.get(i);
-				if (Math.abs(x - centroid.getX()) < stdDev
-						&& Math.abs(y - centroid.getY()) < stdDev) {
-					goodPoints.add(new Point(x, y));
-				}
+			for (int i = 0; i < points.size(); ++i) {
+				Position p = points.get(i);
+				if (Math.sqrt(sqrdEuclidDist(centroid, p)) < stdDev)
+					goodPoints.add(p);
 			}
 		}
 
@@ -179,46 +162,38 @@ public class Position {
 	 * Calculates the standard deviation for a set of points in two dimensions
 	 * given the centroid
 	 * 
-	 * @param xs
-	 *            The x coordinates of the points
-	 * @param ys
-	 *            The y coordinates of the points
+	 * @param points
+	 *            The set of points
 	 * @param centroid
 	 *            The centroid of the points
 	 * @return The two-dimensional standard deviation of the points
 	 */
-	public static double standardDeviation(ArrayList<Integer> xs,
-			ArrayList<Integer> ys, Point centroid) {
+	public static double standardDeviation(ArrayList<Position> points,
+			Position centroid) {
 		double variance = 0.0;
 
 		// Standard deviation
-		for (int i = 0; i < xs.size(); i++) {
-			int x = xs.get(i);
-			int y = ys.get(i);
-
-			variance += sqrdEuclidDist(x, y, (int) centroid.getX(),
-					(int) centroid.getY());
+		for (int i = 0; i < points.size(); ++i) {
+			variance += sqrdEuclidDist(points.get(i), centroid);
 		}
 
-		return Math.sqrt(variance / (double) (xs.size()));
+		return Math.sqrt(variance / (double) (points.size()));
 	}
 
 	/**
 	 * Calculates the squared euclidean distance between two 2D points.
 	 * 
-	 * @param x1
-	 *            The x-coordinate of the first point.
-	 * @param y1
-	 *            The y-coordinate of the first point.
-	 * @param x2
-	 *            The x-coordinate of the second point.
-	 * @param y2
-	 *            The y-coordinate of the second point.
+	 * @param p1
+	 *            The first point.
+	 * @param p2
+	 *            The second point.
 	 * 
 	 * @return The squared euclidean distance between the two points.
 	 */
-	public static int sqrdEuclidDist(int x1, int y1, int x2, int y2) {
-		int xdiff = x1 - x2, ydiff = y1 - y2;
-		return xdiff * xdiff + ydiff * ydiff;
+	public static int sqrdEuclidDist(Position p1, Position p2) {
+		int xDiff = p2.getX() - p1.getX();
+		int yDiff = p2.getY() - p1.getY();
+
+		return xDiff * xDiff + yDiff * yDiff;
 	}
 }
