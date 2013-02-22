@@ -14,7 +14,6 @@ import balle.controller.Controller;
 import balle.controller.DummyController;
 import balle.io.reader.SocketVisionReader;
 import balle.logging.StrategyLogAppender;
-import balle.memory.ConfigFile;
 import balle.misc.Globals;
 import balle.simulator.Simulator;
 import balle.simulator.SoftBot;
@@ -125,14 +124,9 @@ public class RunnerWithoutLogger {
 
 	public static void initialiseGUI(Controller controllerA,
 			Controller controllerB, AbstractWorld worldA, AbstractWorld worldB, Simulator simulator) {
-		Config config;
-		try {
-			config = (new ConfigFile(Globals.resFolder, Globals.configFolder))
-					.read();
-		} catch (IOException e) {
-			config = new Config();
-			System.err.println("No config file found");
-		}
+		
+		Config config = new Config();
+	
 
 		Globals.initGlobals(config);
 

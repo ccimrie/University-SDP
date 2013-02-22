@@ -1,9 +1,9 @@
 package balle.misc;
 
-import balle.memory.utility.Saves;
 
 
-public class Powers implements Saves {
+
+public class Powers  {
 	private int power;
 	private float velocity;
 
