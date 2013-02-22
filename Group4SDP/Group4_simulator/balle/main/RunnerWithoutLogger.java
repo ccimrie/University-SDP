@@ -8,12 +8,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 
-import balle.bluetooth.Communicator;
-import balle.controller.BluetoothController;
+
+
 import balle.controller.Controller;
 import balle.controller.DummyController;
 import balle.io.reader.SocketVisionReader;
-import balle.logging.StrategyLogAppender;
 import balle.misc.Globals;
 import balle.simulator.Simulator;
 import balle.simulator.SoftBot;
@@ -188,10 +187,9 @@ public class RunnerWithoutLogger {
 		// If you're getting a merge conflict here leave this before
 		// SimpleWorldGUI start!
 
-		if (useDummyController)
+
 			controllerA = new DummyController();
-		else
-			controllerA = new BluetoothController(new Communicator());
+	
 
 		// Wait for controller to initialise
 		while (!controllerA.isReady()) {
