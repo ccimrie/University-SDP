@@ -30,7 +30,6 @@ public class Brick {
 	private final static int LEFT = 10;
 	private final static int RIGHT = 11;
 	private final static int MOVE = 12;
-	private final static int SLOWMOVE = 13;
 	private final static int STOP = 3;
 	private final static int KICK = 4;
 	private final static int QUIT = 5;
@@ -46,9 +45,8 @@ public class Brick {
 	private final static int BACKMOTOR = 2;
 
 	// Renaming motors for easier recognition and change implementation.
-	private static NXTRegulatedMotor kicker = Motor.A;
-	private static NXTRegulatedMotor leftMotor = Motor.B;
-	private static NXTRegulatedMotor rightMotor = Motor.C;
+	private static NXTRegulatedMotor leftMotor = Motor.C;
+	private static NXTRegulatedMotor rightMotor = Motor.B;
 
 	public static void main(String[] args) throws Exception {
 
@@ -150,14 +148,6 @@ public class Brick {
 				replytopc(opcode,os);
 				break;
 				
-			case SLOWMOVE:
-				LCD.clear();
-				LCD.drawString("Moving at an angle!", 0, 2);
-				LCD.refresh();
-				slowmove(option1, option2);
-				replytopc(opcode,os);
-				break;
-				
 			case ROTATEMOVE:
 				LCD.clear();
 				LCD.drawString("Moving at an angle!", 0, 2);
@@ -195,61 +185,13 @@ public class Brick {
 	 * @param opcode the opcode we received.
 	 * @param os - the Output stream for the brick.
 	 * @throws IOException 
-	 */
-	
+	 */	
 	public static void replytopc(int opcode, OutputStream os) throws IOException{
 		byte [] reply = {111, (byte)opcode, 0,0};
 		os.write(reply);
 		os.flush();
 	}
 	
-	/**
-	 * Rotate at a direction
-	 * 
-	 * @param: dir 1 counterclockwise (left), 2 clockwise (right)
-	 * 
-	 */
-	public static void rotate(int dir, int angle) throws InterruptedException {
-		leftMotor.setAcceleration(2000);
-		rightMotor.setAcceleration(2000);
-		leftMotor.setSpeed(250);
-		rightMotor.setSpeed(250);
-		angle = (int) (angle * 2);
-		chip.move(1, DO_NOTHING, 0);
-		chip.move(2, DO_NOTHING, 0);
-
-		switch (dir) {
-		case 1:
-			leftMotor.rotate(-angle, true);
-			rightMotor.rotate(angle);
-
-			break;
-		case 2:
-			leftMotor.rotate(angle, true);
-			rightMotor.rotate(-angle);
-			break;
-		}
-		stop();
-	}
-
-	public static void siderotate(int dir, int angle) throws InterruptedException {
-		// Some code here to transform angle into time needed to rotate
-		int sleeptime = 1000;
-
-		switch (dir) {
-		case 1:
-			chip.move(1, FORWARDS, 230);
-			chip.move(2, BACKWARDS, 230);
-			break;
-		case 2:
-			chip.move(1, BACKWARDS, 230);
-			chip.move(2, FORWARDS, 230);
-			break;
-		}
-		Thread.sleep(sleeptime);
-		chip.stop();
-	}
-
 	/**
 	 * Move in a direction relative to the robot
 	 * 
@@ -263,79 +205,37 @@ public class Brick {
 	private static void move(int x, int y) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
-		// Multiplying by 2, since byte only allows upto 127
-		y = y * 6;
-		x = x * 2;
+		y = y * 7;
+		// Multiplying by 2, since byte only allows upto 127,
+		// gets values upto 100, transforms 
+		x = (int) Math.floor(x * 2.55);
 		if (y > 0) {
 			leftMotor.setSpeed(y);
 			rightMotor.setSpeed(y);
-			leftMotor.forward();
+			leftMotor.backward();
 			rightMotor.forward();
 		} else if (y < 0) {
 			leftMotor.setSpeed(-y);
 			rightMotor.setSpeed(-y);
-			leftMotor.backward();
-			rightMotor.backward();
-		} else {
-			leftMotor.flt();
-			rightMotor.flt();
-		}
-
-		if (x > 0) {
-			chip.move(FRONTMOTOR, 2, x);
-			chip.move(BACKMOTOR, 1, x);
-		} else if (x < 0) {
-			chip.move(FRONTMOTOR, 1, -x);
-			chip.move(BACKMOTOR, 2, -x);
-		} else {
-			chip.move(1, DO_NOTHING, 0);
-			chip.move(2, DO_NOTHING, 0);
-			chip.stop();
-		}
-	}
-	
-	/**
-	 * Move slowly, same as the above method, except very slow
-	 * in order to use it when we're near to the ball.
-	 * 
-	 * @param x
-	 *            The X coordinate. Positive is right, negative is left.
-	 * @param y
-	 *            The Y coordinate. Positive is forward, negative is backward.
-	 * @throws InterruptedException
-	 *             When sleeping of a thread is interrupted
-	 */
-	private static void slowmove(int x, int y) throws InterruptedException {
-		leftMotor.setAcceleration(2000);
-		rightMotor.setAcceleration(2000);
-		if (y > 0) {
-			leftMotor.setSpeed(y + 250);
-			rightMotor.setSpeed(y + 250);
 			leftMotor.forward();
-			rightMotor.forward();
-		} else if (y < 0) {
-			leftMotor.setSpeed(-y + 250);
-			rightMotor.setSpeed(-y + 250);
-			leftMotor.backward();
 			rightMotor.backward();
 		} else {
 			leftMotor.flt();
 			rightMotor.flt();
 		}
-
+	
 		if (x > 0) {
-			chip.move(FRONTMOTOR, 2, x);
-			chip.move(BACKMOTOR, 1, x);
+			chip.move(FRONTMOTOR, FORWARDS, x);
+			chip.move(BACKMOTOR, FORWARDS, x);
 		} else if (x < 0) {
-			chip.move(FRONTMOTOR, 1, -x);
-			chip.move(BACKMOTOR, 2, -x);
+			chip.move(FRONTMOTOR, BACKWARDS, -x);
+			chip.move(BACKMOTOR, BACKWARDS, -x);
 		} else {
 			chip.move(1, DO_NOTHING, 0);
 			chip.move(2, DO_NOTHING, 0);
 			chip.stop();
 		}
 	}
-
 	/**
 	 * Stops all motors, makes them float afterwards.
 	 * 
@@ -350,16 +250,37 @@ public class Brick {
 		leftMotor.flt(true);
 		rightMotor.flt(true);
 	}
-
 	/**
-	 * A simple kick. Brings back the kicker to initial position after the kick.
+	 * Rotate at a direction
+	 * 
+	 * @param: dir 1 counterclockwise (left), 2 clockwise (right)
+	 * 
 	 */
-	private static void kick() {
-		kicker.setSpeed(900);
-		kicker.rotateTo(60);
-		kicker.setSpeed(250);
-		kicker.rotateTo(0);
-		kicker.flt();
+	public static void rotate(int dir, int angle) throws InterruptedException {
+		leftMotor.setAcceleration(2000);
+		rightMotor.setAcceleration(2000);
+		leftMotor.setSpeed(350);
+		rightMotor.setSpeed(350);
+		angle = (int) (angle * 2);
+		chip.move(1, DO_NOTHING, 0);
+		chip.move(2, DO_NOTHING, 0);
+
+		switch (dir) {
+		case 1:
+			chip.move(1, FORWARDS, 50);
+			chip.move(2, FORWARDS, 50);
+			leftMotor.rotate(angle, true);
+			rightMotor.rotate(angle, true);
+			break;
+		case 2:
+			chip.move(1, BACKWARDS, 50);
+			chip.move(2, BACKWARDS, 50);
+			leftMotor.rotate(-angle, true);
+			rightMotor.rotate(-angle, true);
+			break;
+		}
+		chip.stop();
+		stop();
 	}
 
 	/**
@@ -385,24 +306,24 @@ public class Brick {
 	private static void rotateMove(int vtx, int vty, int w) {
 		byte r = 61;
 		// Front wheel
-		int vf = (int) Math.rint((vtx + w * r) * 0.8);
+		int vf = (int) Math.rint((vtx + Math.toRadians(w) * r) * 0.8);
 		// Back wheel
-		int vb = (int) Math.rint((vtx - w * r) * 0.8);
+		int vb = (int) Math.rint((vtx - Math.toRadians(w) * r) * 0.8);
 		// Left wheel
-		int vl = (int) Math.rint((vty + w * r) * 1.79);
+		int vl = (int) Math.rint((vty + Math.toRadians(w) * r) * 1.79);
 		// Right wheel
-		int vr = (int) Math.rint((vty - w * r) * 1.79);
-
+		int vr = (int) Math.rint((vty - Math.toRadians(w) * r) * 1.79);
+	
 		if (vf > 0)
 			chip.move(1, 2, vf);
 		else
 			chip.move(1, 1, vf);
-
+	
 		if (vb > 0)
 			chip.move(2, 1, vf);
 		else
 			chip.move(2, 2, vf);
-
+	
 		leftMotor.flt();
 		leftMotor.setSpeed(Math.abs(vl));
 		rightMotor.flt();
@@ -415,6 +336,13 @@ public class Brick {
 			rightMotor.forward();
 		else
 			rightMotor.backward();
-
+	
+	}
+	/**
+	 * A simple kick. Brings back the kicker to initial position after the kick.
+	 * @throws InterruptedException 
+	 */
+	private static void kick() throws InterruptedException {
+		chip.kick(); 
 	}
 }
