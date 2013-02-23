@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.DebugGraphics;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -49,6 +50,13 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 	private int b;
 	private int c;
 	private int d;
+	
+	//Colour selector variables
+	private boolean colourSelectionActive = false; 
+	private int f;
+	private int g; 
+	private int h; 
+	private int i; 
 	
 	// Stored to only have rendering happen in one place
 	private BufferedImage frame;
@@ -151,11 +159,12 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 			public void keyTyped(KeyEvent e) {
 			}
 		});
-
+		//settingsPanel.setMouseMode(4);
 		MouseInputAdapter mouseSelector = new MouseInputAdapter() {
 			Rectangle selection;
 
 			public void mousePressed(MouseEvent e) {
+				
 				// Mouse clicked
 				selectionActive = true;
 				switch (settingsPanel.getMouseMode()) {
@@ -179,6 +188,17 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
+				case 4: 
+					colourSelectionActive = true; 
+					anchor = e.getPoint();
+					System.out.println(anchor.x);
+					System.out.println(anchor.y);
+					selection = new Rectangle(anchor);
+					 f = 0; 
+					 g = 0;
+					 h = 0;
+					 i = 0;
+					 
 				}
 
 			}
@@ -204,6 +224,20 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					mouseX = e.getX();
 					mouseY = e.getY();
+					break;
+				case 4: // Select the green plates 
+					selection.setBounds((int) Math.min(anchor.x, e.getX()),
+							(int) Math.min(anchor.y, e.getY()),
+							(int) Math.abs(e.getX() - anchor.x),
+							(int) Math.abs(e.getY() - anchor.y));
+					f = (int) Math.min(anchor.x, e.getX());
+					g = (int) Math.min(anchor.y, e.getY());
+					h = (int) Math.abs(e.getX() - anchor.x);
+					i = (int) Math.abs(e.getY() - anchor.y);
+					break;
+				case 5: 
+					break;
+				case 6:
 					break;
 				}
 			}
@@ -272,7 +306,14 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 
 							System.out.println("A: " + a + " B: " + b + " C: "
 									+ c + " D:" + d);
-						}
+						}else if (pitchNum == JOptionPane.CLOSED_OPTION || pitchNum == 2){
+							System.out.println("Closed option picked");
+							a = pitchConstants.getLeftBuffer();
+							b = pitchConstants.getTopBuffer();
+							c = videoWidth - pitchConstants.getRightBuffer() - pitchConstants.getLeftBuffer();
+							d = videoHeight - pitchConstants.getTopBuffer() - pitchConstants.getBottomBuffer();
+							//selectionActive = false;
+							}
 						repaint();
 					}
 					break;
@@ -281,6 +322,13 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					letterAdjustment = true;
+					break;
+				case 4:
+					//selectionActive = false; 
+					System.out.println("case 4");
+					System.out.println("F: " + f + " G: " + g + " H: "
+							+ h + " I:" + i);
+					getColourRange(frame, PitchConstants.GREEN);
 					break;
 				}
 			}
@@ -382,6 +430,47 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 					t = op.filter(t, null);
 	
 				}
+				else if (adjust.equals("A")) {
+					rotation-=10;
+					double rotationRequired = Math.toRadians((double) rotation);
+	
+					AffineTransform tx = AffineTransform.getRotateInstance(
+							rotationRequired, locationX, locationY);
+					AffineTransformOp op = new AffineTransformOp(tx,
+							AffineTransformOp.TYPE_BILINEAR);
+					File img = new File("icons/Tletter2.png");
+	
+					try {
+						t = ImageIO.read(img);
+						locationX = this.t.getWidth(null) / 2;
+						locationY = this.t.getHeight(null) / 2;
+					} catch (IOException e) {
+	
+					}
+	
+					t = op.filter(t, null);
+				}
+				else if (adjust.equals("S")) {
+					rotation+=10;
+					double rotationRequired = Math.toRadians((double) rotation);
+	
+					AffineTransform tx = AffineTransform.getRotateInstance(
+							rotationRequired, locationX, locationY);
+					AffineTransformOp op = new AffineTransformOp(tx,
+							AffineTransformOp.TYPE_BILINEAR);
+					File img = new File("icons/Tletter2.png");
+	
+					try {
+						t = ImageIO.read(img);
+						locationX = this.t.getWidth(null) / 2;
+						locationY = this.t.getHeight(null) / 2;
+					} catch (IOException e) {
+	
+					}
+	
+					t = op.filter(t, null);
+				}
+				
 				adjust = "";
 			}
 	
@@ -389,7 +478,7 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 				g2d.drawImage(t, mouseX, mouseY, null);
 			}
 		}
-
+	// Eliminating area around the pitch dimensions
 		if (!selectionActive) {
 			// Making the pitch surroundings transparent
 			Composite originalComposite = g2d.getComposite();
@@ -409,7 +498,7 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 			g2d.setComposite(originalComposite);
 		}
 		
-		// Eliminating area around the pitch dimensions
+	
 		if (settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY) {
 
 			// Draw the line around the pitch dimensions
@@ -418,6 +507,17 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 				debugGraphics.drawRect(a, b, c, d);
 			}
 		}
+		
+		
+		if (settingsPanel.getMouseMode() == 4) {
+
+			// Draw the line around the pitch dimensions
+			if (selectionActive) {
+				debugGraphics.setColor(Color.RED);
+				debugGraphics.drawRect(f, g, h, i);
+			}
+		}
+		
 	}
 	
 	@Override
@@ -462,6 +562,8 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 		ArrayList<Float> satList = new ArrayList<Float>();
 		ArrayList<Float> valList = new ArrayList<Float>();
 
+		
+		if (object  ==PitchConstants.BLUE  || object == PitchConstants.YELLOW){
 		int lX = (int)locationX;
 		int lY = (int)locationY;
 
@@ -519,7 +621,22 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 				// frame.setRGB(mouseX + lX + (int) xR, mouseY + lY + (int) yR,
 				// 65535);
 			}
-
+		}else{
+	
+		for (int x = f; x < f + h; x++)
+			for (int y = g; y < g + i; y++) {
+				Color c = new Color(frame.getRGB(x, y));
+				frame.setRGB(x, y, (Color.red).getRGB());
+				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
+						c.getBlue(), null);			
+				redList.add(c.getRed());
+				greenList.add(c.getGreen());
+				blueList.add(c.getBlue());
+				hueList.add(hsbvals[0]);
+				satList.add(hsbvals[1]);
+				valList.add(hsbvals[2]);
+			}
+		}
 		//Mean and Standard deviation calculations for the RGB and HSB values
 		double meanR = calcMean(redList);
 		double stdevR = calcStandardDeviation(redList);
@@ -533,7 +650,7 @@ public class VisionGUI extends JFrame implements VideoReceiver, VisionDebugRecei
 		double stdevS = calcStandardDeviationFloat(satList);
 		double meanV = calcMeanFloat(valList);
 		double stdevV = calcStandardDeviationFloat(valList);
-
+		
 		System.out.println("Red mean " + meanR);
 		System.out.println("Green mean " + meanG);
 		System.out.println("Blue mean " + meanB);

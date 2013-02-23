@@ -36,7 +36,7 @@ public class RunVision {
 		int height = 480;
 		int channel = 0;
 		int videoStandard = V4L4JConstants.STANDARD_PAL;
-		int compressionQuality = 100;
+		int compressionQuality = 80;
 
 		try {
 			VideoStream vStream = new VideoStream(videoDevice, width, height,

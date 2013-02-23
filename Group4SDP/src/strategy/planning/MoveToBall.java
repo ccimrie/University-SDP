@@ -11,7 +11,7 @@ public class MoveToBall {
 	
 	private static final int distanceFromBallToStop = 60;
 	
-	public void approach(WorldState worldState, RobotController robot) throws InterruptedException {
+	public static  void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball
 		//this.vision = vis;
 		//WorldState t = new WorldState();
