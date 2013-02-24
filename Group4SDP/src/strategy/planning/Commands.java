@@ -16,7 +16,7 @@ public class Commands {
 	public final static int KICK = 4;
 	public final static int QUIT = 5;
 	public final static int ROTATE = 6;
-	public final static int TRAVEL_BACKWARDS_SLIGHTLY = 7;
+	public final static int ROTATEMOVE = 7;
 	public final static int TRAVEL_ARC = 8;
 	public final static int ACCELERATE = 9;
 	public final static int LEFT = 10;

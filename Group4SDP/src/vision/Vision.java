@@ -345,7 +345,7 @@ public class Vision implements VideoReceiver {
 			}
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-//			e.printStackTrace(System.err);
+			// e.printStackTrace(System.err);
 		}
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
@@ -719,7 +719,7 @@ public class Vision implements VideoReceiver {
 		// centroid in which the farthest points can be located.for one
 		// pain
 		Position[] plateCorners = null;
-		plateCorners = findFurthest(debugOverlay, plateCentroid, points, 1400);
+		plateCorners = findFurthest(debugOverlay, plateCentroid, points, 800);
 
 		// Finding the shortest sides of the plates and returns their
 		// average values in order to draw the line in the middle of the
@@ -752,7 +752,7 @@ public class Vision implements VideoReceiver {
 			for (int y = yMin; y < yMax; ++y) {
 				colour = new Color(frame.getRGB(x, y));
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
-						colour.getBlue(), colourHSV);
+						colour.getBlue(), null);
 
 				if (isColour(colour, colourHSV, GREY_CIRCLE))
 					++searchPt1GreyPoints;
@@ -768,7 +768,7 @@ public class Vision implements VideoReceiver {
 			for (int y = yMin; y < yMax; ++y) {
 				colour = new Color(frame.getRGB(x, y));
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
-						colour.getBlue(), colourHSV);
+						colour.getBlue(), null);
 
 				if (isColour(colour, colourHSV, GREY_CIRCLE))
 					++searchPt2GreyPoints;
