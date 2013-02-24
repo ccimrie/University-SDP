@@ -40,6 +40,8 @@ class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
 	public static final int MOUSE_MODE_BLUE_T = 2;
 	public static final int MOUSE_MODE_YELLOW_T = 3;
+	public static final int MOUSE_MODE_GREEN_PLATES = 4;
+	public static final int MOUSE_MODE_GREY_CIRCLES = 5;
 	
 	// A PitchConstants class used to load/save constants for the pitch
 	private final PitchConstants pitchConstants;
@@ -181,6 +183,8 @@ class VisionSettingsPanel extends JPanel {
 	private final JRadioButton rdbtnMouseModePitch = new JRadioButton();
 	private final JRadioButton rdbtnMouseModeBlue = new JRadioButton();
 	private final JRadioButton rdbtnMouseModeYellow = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeGreenPlates = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeGreyCircles = new JRadioButton();
 	
 	private abstract class BaseSliderChangeListener implements ChangeListener {
 		protected int index;
@@ -388,10 +392,10 @@ class VisionSettingsPanel extends JPanel {
 		// Mouse mode selector
 		JPanel mouseModePanel = new JPanel();
 		GridBagLayout gbl_mouseModePanel = new GridBagLayout();
-		gbl_mouseModePanel.columnWidths = new int[]{41, 0, 0};
-		gbl_mouseModePanel.rowHeights = new int[]{36, 0, 0, 19, 0, 0};
-		gbl_mouseModePanel.columnWeights = new double[]{1.0, Double.MIN_VALUE, 1.0};
-		gbl_mouseModePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+//		gbl_mouseModePanel.columnWidths = new int[]{41, 0, 0};
+//		gbl_mouseModePanel.rowHeights = new int[]{36, 0, 0, 19, 0, 0};
+//		gbl_mouseModePanel.columnWeights = new double[]{1.0, Double.MIN_VALUE, 1.0};
+//		gbl_mouseModePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		mouseModePanel.setLayout(gbl_mouseModePanel);
 		JLabel mouseModeLabel = new JLabel("Mouse Mode");
 		GridBagConstraints gbc_mouseModeLabel = new GridBagConstraints();
@@ -408,6 +412,8 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeChoice.add(rdbtnMouseModePitch);
 		mouseModeChoice.add(rdbtnMouseModeBlue);
 		mouseModeChoice.add(rdbtnMouseModeYellow);
+		mouseModeChoice.add(rdbtnMouseModeGreenPlates);
+		mouseModeChoice.add(rdbtnMouseModeGreyCircles);
 		
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
 		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
@@ -501,7 +507,7 @@ class VisionSettingsPanel extends JPanel {
 		
 		GridBagConstraints gbc_rdbtnMouseModeYellow = new GridBagConstraints();
 		gbc_rdbtnMouseModeYellow.anchor = GridBagConstraints.EAST;
-		gbc_rdbtnMouseModeYellow.insets = new Insets(0, 0, 0, 5);
+		gbc_rdbtnMouseModeYellow.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnMouseModeYellow.fill = GridBagConstraints.VERTICAL;
 		gbc_rdbtnMouseModeYellow.gridx = 0;
 		gbc_rdbtnMouseModeYellow.gridy = 4;
@@ -516,7 +522,7 @@ class VisionSettingsPanel extends JPanel {
 		
 		GridBagConstraints gbc_mouseModeYellowLabel = new GridBagConstraints();
 		gbc_mouseModeYellowLabel.anchor = GridBagConstraints.WEST;
-		gbc_mouseModeYellowLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_mouseModeYellowLabel.insets = new Insets(0, 0,5, 5);
 		gbc_mouseModeYellowLabel.gridx = 1;
 		gbc_mouseModeYellowLabel.gridy = 4;
 		JLabel mouseModeYellowLabel = new JLabel("Yellow T Plate Selection");
@@ -528,6 +534,70 @@ class VisionSettingsPanel extends JPanel {
 			}
 		});
 		mouseModePanel.add(mouseModeYellowLabel, gbc_mouseModeYellowLabel);
+		
+		GridBagConstraints gbc_rdbtnMouseModeGreenPlates = new GridBagConstraints();
+		gbc_rdbtnMouseModeGreenPlates.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeGreenPlates.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeGreenPlates.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeGreenPlates.gridx = 0;
+		gbc_rdbtnMouseModeGreenPlates.gridy = 5;
+		mouseModePanel.add(rdbtnMouseModeGreenPlates, gbc_rdbtnMouseModeGreenPlates);
+		rdbtnMouseModeGreenPlates.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModeGreenPlates.isSelected())
+					setMouseMode(MOUSE_MODE_GREEN_PLATES);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModeGreenPlatesLabel = new GridBagConstraints();
+		gbc_mouseModeGreenPlatesLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeGreenPlatesLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeGreenPlatesLabel.gridx = 1;
+		gbc_mouseModeGreenPlatesLabel.gridy = 5;
+		JLabel mouseModeGreenPlatesLabel = new JLabel("Green Plate Selection");
+		mouseModeGreenPlatesLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeGreenPlatesLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModeGreenPlates.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModeGreenPlatesLabel, gbc_mouseModeGreenPlatesLabel);
+		
+		GridBagConstraints gbc_rdbtnMouseModeGreyCircles = new GridBagConstraints();
+		gbc_rdbtnMouseModeGreyCircles.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeGreyCircles.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeGreyCircles.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeGreyCircles.gridx = 0;
+		gbc_rdbtnMouseModeGreyCircles.gridy = 6;
+		mouseModePanel.add(rdbtnMouseModeGreyCircles, gbc_rdbtnMouseModeGreyCircles);
+		rdbtnMouseModeGreyCircles.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (rdbtnMouseModeGreyCircles.isSelected())
+					setMouseMode(MOUSE_MODE_GREY_CIRCLES);
+			}
+		});
+		
+		GridBagConstraints gbc_mouseModeGreyCirclesLabel = new GridBagConstraints();
+		gbc_mouseModeGreyCirclesLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeGreyCirclesLabel.insets = new Insets(0, 0,5, 5);
+		gbc_mouseModeGreyCirclesLabel.gridx = 1;
+		gbc_mouseModeGreyCirclesLabel.gridy = 6;
+		JLabel mouseModeGreyCirclesLabel = new JLabel("Grey Circle Selection");
+		mouseModeGreyCirclesLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeGreyCirclesLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				rdbtnMouseModeGreyCircles.doClick();
+			}
+		});
+		mouseModePanel.add(mouseModeGreyCirclesLabel, gbc_mouseModeGreyCirclesLabel);
+		
+		
+		
+		
 		
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
