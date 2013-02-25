@@ -226,7 +226,7 @@ public class ControlGUI2 extends JFrame {
 				// Run in a new thread to free up UI while running
 				Movement m = new Movement(worldState, robot);
 				try {
-					m.moveToPoint(300, 300);
+					m.moveToPoint(321, 244);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

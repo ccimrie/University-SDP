@@ -45,8 +45,9 @@ public class Brick {
 	private final static int BACKMOTOR = 2;
 
 	// Renaming motors for easier recognition and change implementation.
-	private static NXTRegulatedMotor leftMotor = Motor.C;
-	private static NXTRegulatedMotor rightMotor = Motor.B;
+	private static NXTRegulatedMotor kicker = Motor.A;
+	private static NXTRegulatedMotor leftMotor = Motor.B;
+	private static NXTRegulatedMotor rightMotor = Motor.C;
 
 	public static void main(String[] args) throws Exception {
 
@@ -270,13 +271,13 @@ public class Brick {
 			chip.move(1, FORWARDS, 50);
 			chip.move(2, FORWARDS, 50);
 			leftMotor.rotate(angle, true);
-			rightMotor.rotate(angle, true);
+			rightMotor.rotate(angle);
 			break;
 		case 2:
 			chip.move(1, BACKWARDS, 50);
 			chip.move(2, BACKWARDS, 50);
 			leftMotor.rotate(-angle, true);
-			rightMotor.rotate(-angle, true);
+			rightMotor.rotate(-angle);
 			break;
 		}
 		chip.stop();
@@ -288,11 +289,8 @@ public class Brick {
 	 * Wheel diameter: 64mm, Radius: 32mm
 	 * Wheel distance from centre: 61mm
 	 * Motor speeds:
-	 * 28 = 502;
-	 * 200 = 580;
 	 * 2*pi*32=201.1~201mm;
 	 * 360/201~=1.79
-	 * (580-502) / (200-28)=0.45;
 	 * setSpeed is in deg/s
 	 * w is clockwise
 	 * 
@@ -343,6 +341,10 @@ public class Brick {
 	 * @throws InterruptedException 
 	 */
 	private static void kick() throws InterruptedException {
-		chip.kick(); 
+	 	kicker.setSpeed(900);
+	 	kicker.rotateTo(-60);
+	 	kicker.setSpeed(250);
+	 	kicker.rotateTo(0);
+	 	kicker.flt();
 	}
 }
