@@ -352,4 +352,7 @@ public class WorldState {
 	public void updatePossesion(){
 		hasPossession = pm.setPossession(this);
 	}
+	public PossessionType getPosession(){
+		return hasPossession;
+	}
 }
