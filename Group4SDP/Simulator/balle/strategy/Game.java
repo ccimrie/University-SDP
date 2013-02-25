@@ -37,6 +37,11 @@ import balle.world.objects.Pitch;
 import balle.world.objects.RectangularObject;
 import balle.world.objects.Robot;
 
+/**
+ * This class is their planner and it 
+ * @author s1037059
+ *
+ */
 public class Game extends AbstractPlanner {
 
     private static final Logger LOG = Logger.getLogger(Game.class);
@@ -57,6 +62,22 @@ public class Game extends AbstractPlanner {
     protected boolean initial;
 
     private String currentStrategy = null;
+    
+    public Game() {
+        defensiveStrategy = new GoToBallSafeProportional(0.5, 0.4, true);
+		defenceInterceptStrategy = new DefenceInterceptStrategy();
+        opponentKickDefendStrategy = new DefensiveStrategy(new GoToObjectPFN(0));
+        pickBallFromWallStrategy = new KickFromWall(new GoToObjectPFN(0));
+		backingOffStrategy = new BackingOffStrategy();
+        turningExecutor = new IncFaceAngle();
+        kickingStrategy = new Dribble();
+        initialStrategy = new InitialBezierStrategy();
+		goToBallPFN = new GoToBallSafeProportional();
+		goToBallBezier = new SimpleGoToBallFaceGoal(new BezierNav(
+                new SimplePathFinder(new CustomCHI())));
+        goToBallPrecision = new GoToBall(new GoToObjectPFN(0), false);
+        initial = false;
+    }
 
     public String getCurrentStrategy() {
         return currentStrategy;
@@ -104,21 +125,6 @@ public class Game extends AbstractPlanner {
         kickingStrategy.setTriggerHappy(triggerHappy);
     }
 
-    public Game() {
-        defensiveStrategy = new GoToBallSafeProportional(0.5, 0.4, true);
-		defenceInterceptStrategy = new DefenceInterceptStrategy();
-        opponentKickDefendStrategy = new DefensiveStrategy(new GoToObjectPFN(0));
-        pickBallFromWallStrategy = new KickFromWall(new GoToObjectPFN(0));
-		backingOffStrategy = new BackingOffStrategy();
-        turningExecutor = new IncFaceAngle();
-        kickingStrategy = new Dribble();
-        initialStrategy = new InitialBezierStrategy();
-		goToBallPFN = new GoToBallSafeProportional();
-		goToBallBezier = new SimpleGoToBallFaceGoal(new BezierNav(
-                new SimplePathFinder(new CustomCHI())));
-        goToBallPrecision = new GoToBall(new GoToObjectPFN(0), false);
-        initial = false;
-    }
 
     public boolean isInitial(Snapshot snapshot) {
         if (initial == false)

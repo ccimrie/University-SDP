@@ -45,11 +45,15 @@ public class Runner {
 		try {
 			getOptionParser().printHelpOn(System.out);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("IOException" + e);
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * This method reads in various options for the robot controlled via RunConfigurations
+	 * @ OptionParser
+	 */
 	public static OptionParser getOptionParser() {
 		OptionParser parser = new OptionParser();
 		parser.acceptsAll(asList("s", "simulator"));
@@ -190,7 +194,7 @@ public class Runner {
 			boolean useDummyController, StrategyLogPane strategyLog) {
 
         SimulatedWorld world;
-		SocketVisionReader visionInput;
+		//SocketVisionReader visionInput;
 		Controller controllerA;
 
 		// Initialise world
@@ -225,9 +229,10 @@ public class Runner {
 
 
         controllerA.addListener(world);
-		// Create visionInput buffer
-		visionInput = new SocketVisionReader();
-		visionInput.addListener(world);
+		
+        // Create visionInput buffer
+		//visionInput = new SocketVisionReader();
+		//visionInput.addListener(world);
 
         initialiseGUI(controllerA, null, world, null, strategyLog, null);
 	}
