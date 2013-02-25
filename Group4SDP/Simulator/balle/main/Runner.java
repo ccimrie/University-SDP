@@ -16,7 +16,6 @@ import balle.bluetooth.Communicator;
 import balle.controller.BluetoothController;
 import balle.controller.Controller;
 import balle.controller.DummyController;
-import balle.io.reader.SocketVisionReader;
 import balle.logging.StrategyLogAppender;
 import balle.memory.ConfigFile;
 import balle.misc.Globals;
