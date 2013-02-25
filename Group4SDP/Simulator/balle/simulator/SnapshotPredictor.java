@@ -1,4 +1,3 @@
-
 package balle.simulator;
 
 import java.util.List;

@@ -8,7 +8,8 @@ import java.util.List;
 import org.jbox2d.common.Vec2;
 
 import balle.main.Config;
-
+import balle.memory.FolderReader;
+import balle.memory.PowersConfigFile;
 import balle.world.AngularVelocity;
 import balle.world.Orientation;
 import balle.world.Velocity;
@@ -87,8 +88,8 @@ public class Globals {
 	public static final float ARBITRARY_BALL_VEL_SCALING = 1;
     public static final double VELOCITY_NOISE_THRESHOLD = 1e-8;
 
-	
-
+	public static final FolderReader resFolder = new FolderReader("res");
+	public static final String configFolder = "initConfig.txt";
 
 
 	// --------
@@ -210,10 +211,10 @@ public class Globals {
 	// Methods dealing with variable fields.
 
 	public static void initGlobals(Config config) {
-		//setPowerVelo(config.get(Config.POWER_VELO_DATA));
+		setPowerVelo(config.get(Config.POWER_VELO_DATA));
 	}
 
-	/**public static void setPowerVelo(String filename) {
+	public static void setPowerVelo(String filename) {
 		if (filename == null || filename.equals("[DEFAULT]"))
 			return;
 
@@ -227,7 +228,6 @@ public class Globals {
 			e.printStackTrace();
 		}
 	}
-	*/
 
 
 

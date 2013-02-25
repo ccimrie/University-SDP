@@ -55,7 +55,7 @@ public class StrategyFactory {
                 LOG.warn("Skipping designator " + designator
                         + " as it is does not return an instance of AbstractPlanner");
                 continue;
-            } else if (!Modifier.isStatic(m.getModifiers())) {
+            } else if (!java.lang.reflect.Modifier.isStatic(m.getModifiers())) {
                 LOG.warn("Skipping designator " + designator + " as it is not static");
                 continue;
             } else if (m.getParameterTypes().length != annotation

@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 
 import balle.controller.Controller;
-
+import balle.memory.ConfigFile;
 import balle.misc.Globals;
 import balle.simulator.Simulator;
 import balle.strategy.StrategyFactory;
@@ -45,6 +45,7 @@ public class StratTab extends JPanel implements ActionListener {
 	private JButton noiseButton;
 	private JButton randomButton;
 	private JButton resetButton;
+	private JButton saveButton;
 	private boolean isBlue;
 	private ArrayList<String> stratTabs;
 	private String[] strings = new String[0];
@@ -170,7 +171,12 @@ public class StratTab extends JPanel implements ActionListener {
 		c.gridy = 5;
 		controlPanel.add(resetButton, c);
 
-		
+		saveButton = new JButton("Save");
+		saveButton.addActionListener(this);
+		saveButton.setActionCommand("save");
+		c.gridx = 2;
+		c.gridy = 2;
+		controlPanel.add(saveButton, c);
 
         greenStrategy.addActionListener(new ActionListener() {
             @Override
@@ -340,7 +346,16 @@ public class StratTab extends JPanel implements ActionListener {
 							simulator.getYellowSoft());
 				}
 			}
-		} 
+		} else if (event.getActionCommand().equals("save")) {
+			try {
+				ConfigFile cf = new ConfigFile(Globals.resFolder,
+						Globals.configFolder);
+				cf.write(config);
+			} catch (IOException e) {
+				System.err.println("Couldn't save configurations.");
+			}
+
+		}
 	}
 
 	public boolean isSimulator() {

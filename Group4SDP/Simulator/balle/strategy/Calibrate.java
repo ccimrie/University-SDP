@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import balle.controller.Controller;
+import balle.memory.PowersConfigFile;
 import balle.misc.Globals;
 import balle.misc.Powers;
 import balle.strategy.planner.AbstractPlanner;
@@ -106,11 +107,15 @@ public class Calibrate extends AbstractPlanner {
 	public void stop(Controller controller) {
 		super.stop(controller);
 
-	
-			
+		try {
+			PowersConfigFile pcf = new PowersConfigFile(Globals.resFolder,
+					"powersConfig.txt");
+			pcf.writeArray(record);
 			record = new ArrayList<Powers>();
 
-		
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 

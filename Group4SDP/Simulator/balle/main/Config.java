@@ -2,9 +2,9 @@ package balle.main;
 
 import java.util.ArrayList;
 
+import balle.memory.utility.Saves;
 
-
-public class Config  {
+public class Config implements Saves {
 	public static final int NAME = 0;
 	public static final int GREEN_STRATEGY = 1;
 	public static final int RED_STRATEGY = 2;
@@ -30,15 +30,32 @@ public class Config  {
 		args[3] = "[DEFAULT]";
 		return args;
 	}
-	
-
-	
 
 
-	
+	// Memory
+
+	@Override
+	public String save() {
+		String out = "";
+		for (String str : args)
+			out += str + "\n";
+		return out;
+	}
+
+	public static Config load(ArrayList<String> lines) {
+		String[] defaults = defaults();
+		String[] strings = new String[defaults.length];
+
+		for (int i = 0; i < defaults.length; i++)
+			if (i >= lines.size())
+				strings[i] = defaults[i];
+			else
+				strings[i] = lines.get(i);
+		return new Config(strings);
+	}
 
 	// Interface
-	
+
 	public String get(int index) {
 		return args[index];
 	}
