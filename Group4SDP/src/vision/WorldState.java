@@ -42,7 +42,7 @@ public class WorldState {
 	private boolean weAreBlue = true;
 	private boolean weAreOnLeft = true;
 	private boolean mainPitch = true;
-
+	
 	private PossessionManager pm = new PossessionManager();
 
 	public int frame;
@@ -348,5 +348,8 @@ public class WorldState {
 			}
 		}
 		return false;
+	}
+	public void updatePossesion(){
+		hasPossession = pm.setPossession(this);
 	}
 }

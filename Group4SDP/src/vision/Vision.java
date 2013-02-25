@@ -327,6 +327,7 @@ public class Vision implements VideoReceiver {
 			worldState.setOurRobot();
 			worldState.setTheirRobot();
 			worldState.setBall();
+			worldState.updatePossesion();
 
 			// Only display these markers in non-debug mode.
 			boolean anyDebug = false;
