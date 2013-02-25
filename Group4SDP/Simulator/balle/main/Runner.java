@@ -83,9 +83,6 @@ public class Runner {
 
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		OptionParser parser = getOptionParser();
 		OptionSet options = parser.parse(args);
