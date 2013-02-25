@@ -720,7 +720,7 @@ public class Vision implements VideoReceiver {
 		// centroid in which the farthest points can be located.for one
 		// pain
 		Position[] plateCorners = null;
-		plateCorners = findFurthest(debugOverlay, plateCentroid, points, 800);
+		plateCorners = findFurthest(debugOverlay, plateCentroid, points, 850);
 
 		// Finding the shortest sides of the plates and returns their
 		// average values in order to draw the line in the middle of the
