@@ -5,7 +5,7 @@ import vision.Cluster;
 
 public class Kmeans {
 
-	public static final double errortarget = 170.0;
+	public static final double errortarget = 200.0;
 
 	public static Cluster doKmeans(ArrayList<Position> points, Position mean1,
 			Position mean2) {
