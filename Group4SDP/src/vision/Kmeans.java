@@ -55,7 +55,7 @@ public class Kmeans {
 			double mean2dist = getDistance(p, mean2);
 
 			// Add the points to the appropriate clusters.
-			if (mean1dist > mean2dist)
+			if (mean1dist < mean2dist)
 				mean1members.add(p);
 			else
 				mean2members.add(p);
