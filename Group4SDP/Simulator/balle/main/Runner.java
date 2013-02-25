@@ -12,7 +12,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import balle.bluetooth.Communicator;
 import balle.controller.Controller;
 import balle.controller.DummyController;
 import balle.logging.StrategyLogAppender;
@@ -184,7 +183,6 @@ public class Runner {
 		gui.start();
 
 		strategyRunner.start();
-
 	}
 
 	public static void runRobot(boolean isMainPitch, boolean balleIsBlue,
