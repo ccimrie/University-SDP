@@ -215,7 +215,7 @@ public class Vision implements VideoReceiver {
 		 * Position objects to hold the centre point of the ball, both Ts and
 		 */
 
-		Position ball;
+		Position ball = null;
 		Position green;
 		Position blue;
 		Position yellow;
@@ -244,22 +244,6 @@ public class Vision implements VideoReceiver {
 		} else {
 			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
 		}
-
-		/** Ball */
-		// If we have only found a few 'Ball' pixels, chances are that the ball
-		// has not actually been detected.
-		if (numBallPos > 10) {
-			ballX /= numBallPos;
-			ballY /= numBallPos;
-
-			ball = new Position(ballX, ballY);
-			ball.fixValues(worldState.getBallX(), worldState.getBallY());
-			ball.filterPoints(ballPoints);
-		} else {
-			ball = new Position(worldState.getBallX(), worldState.getBallY());
-		}
-
-		ballPoints = Position.removeOutliers(ballPoints, ball);
 
 		/** Green plate */
 		if (numGreenPos > 20) {
@@ -305,6 +289,32 @@ public class Vision implements VideoReceiver {
 				else
 					yellowAngle = angle;
 			}
+			
+			/** Ball */
+			// If we have only found a few 'Ball' pixels, chances are that the ball
+			// has not actually been detected.
+			if (numBallPos > 15) {
+				ballX /= numBallPos;
+				ballY /= numBallPos;
+
+				ball = new Position(ballX, ballY);
+				ball.fixValues(worldState.getBallX(), worldState.getBallY());
+				ball.filterPoints(ballPoints);
+			} else {
+				int ballrobot = worldState.whoHasTheBall();
+				switch (ballrobot) {
+				case 1: // Blue robot has the ball
+					ball = new Position((int)(blue.getX() + 30*Math.sin(blueAngle)), (int)(blue.getY() - 30*Math.cos(blueAngle)));
+					break;
+				case 2:
+					ball = new Position((int)(yellow.getX() + 30*Math.sin(yellowAngle)), (int)(yellow.getY() - 30*Math.cos(yellowAngle)));
+					break;
+				case -1:
+					ball = new Position(worldState.getBallX(), worldState.getBallY());
+				}
+			}
+
+			ballPoints = Position.removeOutliers(ballPoints, ball);
 
 			ball = DistortionFix.barrelCorrect(ball);
 			green = DistortionFix.barrelCorrect(green);
