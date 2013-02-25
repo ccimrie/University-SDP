@@ -71,7 +71,7 @@ public class Runner {
 
 		// For all other Log messages. Throws error for some reason
 		// don't know if causing any real problems
-		PropertyConfigurator.configure("log4j.properties");
+		//PropertyConfigurator.configure("log4j.properties");
 
 		if (verbose) {
 			Logger.getRootLogger().setLevel(Level.TRACE);
