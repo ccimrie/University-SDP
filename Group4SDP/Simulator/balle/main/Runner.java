@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import balle.bluetooth.Communicator;
-import balle.controller.BluetoothController;
 import balle.controller.Controller;
 import balle.controller.DummyController;
 import balle.logging.StrategyLogAppender;
@@ -216,22 +215,13 @@ public class Runner {
 		// If you're getting a merge conflict here leave this before
 		// SimpleWorldGUI start!
 
-		if (useDummyController)
-			controllerA = new DummyController();
-		else
-			controllerA = new BluetoothController(new Communicator());
+        //Set controller to DummyController and wait for controller to be ready
+		controllerA = new DummyController();
 
-		// Wait for controller to initialise
 		while (!controllerA.isReady()) {
 			continue;
 		}
-
-
         controllerA.addListener(world);
-		
-        // Create visionInput buffer
-		//visionInput = new SocketVisionReader();
-		//visionInput.addListener(world);
 
         initialiseGUI(controllerA, null, world, null, strategyLog, null);
 	}
