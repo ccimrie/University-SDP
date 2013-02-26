@@ -364,7 +364,8 @@ public class Vision implements VideoReceiver {
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (Exception e) {
-			System.err.println(e.getClass().toString() + ": " + e.getMessage());
+			debugGraphics.drawString(e.getMessage(), 15, 440);
+//			System.err.println(e.getClass().toString() + ": " + e.getMessage());
 //			e.printStackTrace(System.err);
 		}
 

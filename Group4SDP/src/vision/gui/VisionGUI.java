@@ -443,37 +443,36 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		frameGraphics.drawString("FPS: " + fps, 15, 30);
 
 		// Display Ball & Robot Positions
-		int x = worldState.getBallX();
-		int y = worldState.getBallY();
-		double velX = worldState.getBallXVelocity();
-		double velY = worldState.getBallYVelocity();
 		frameGraphics.drawString("Ball:", 15, 45);
-		frameGraphics.drawString("(" + x + ", " + y + ")", 60, 45);
+		frameGraphics.drawString("(" + worldState.getBallX() + ", "
+				+ worldState.getBallY() + ")", 60, 45);
 		frameGraphics.drawString(
-				"vel: (" + df.format(velX) + ", " + df.format(velY) + ")", 140,
+				"vel: (" + df.format(worldState.getBallXVelocity()) + ", "
+						+ df.format(worldState.getBallYVelocity()) + ")", 140,
 				45);
 
-		x = worldState.getBlueX();
-		x = worldState.getBlueY();
-		velX = worldState.getBlueXVelocity();
-		velY = worldState.getBlueYVelocity();
-		double orient = Math.toDegrees(worldState.getBlueOrientation());
 		frameGraphics.drawString("Blue:", 15, 60);
-		frameGraphics.drawString("(" + x + ", " + y + ")", 60, 60);
+		frameGraphics.drawString("(" + worldState.getBlueX() + ", "
+				+ worldState.getBlueY() + ")", 60, 60);
 		frameGraphics.drawString(
-				"vel: (" + df.format(velX) + ", " + df.format(velY) + ")", 140, 60);
-		frameGraphics.drawString("angle: " + df.format(orient), 260, 60);
+				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
+						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
+				60);
+		frameGraphics
+				.drawString(
+						"angle: " + df.format(worldState.getBlueOrientation()),
+						260, 60);
 
-		x = worldState.getYellowX();
-		x = worldState.getYellowY();
-		velX = worldState.getYellowXVelocity();
-		velY = worldState.getYellowYVelocity();
-		orient = Math.toDegrees(worldState.getYellowOrientation());
 		frameGraphics.drawString("Yellow:", 15, 75);
-		frameGraphics.drawString("(" + x + ", " + y + ")", 60, 75);
+		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
+				+ worldState.getYellowY() + ")", 60, 75);
 		frameGraphics.drawString(
-				"vel: (" + df.format(velX) + ", " + df.format(velY) + ")", 140, 75);
-		frameGraphics.drawString("angle: " + df.format(orient), 260, 75);
+				"vel: (" + df.format(worldState.getYellowXVelocity()) + ", "
+						+ df.format(worldState.getYellowYVelocity()) + ")",
+				140, 75);
+		frameGraphics.drawString(
+				"angle: " + df.format(worldState.getYellowOrientation()), 260,
+				75);
 
 		// Draw overall composite to screen
 		Graphics videoGraphics = videoDisplay.getGraphics();
