@@ -3,6 +3,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Line2D.Double;
 
 import geometry.Vector;
+import strategy.calculations.DistanceCalculator;
 import vision.*;
 
 
@@ -40,27 +41,59 @@ public class HittingObstacle {
 	Vector southEastPole = PitchInfo.getRightGoalBottom();
 	
 	
-	Vector northEastCorner =  new Vector(593, 92);
-	Vector southEastCorner =  new Vector(593, 392);
+	Vector northEastCorner =  new Vector(598, 92);
+	Vector southEastCorner =  new Vector(608, 395);
 	
 	
 public boolean nearSouth(WorldState world){
 				
-		if (world.getOurRobot().y>394)
-			
+	double YaxisRobot = world.getOurRobot().y;
+	
+	double angle = Math.toDegrees(world.getOurRobot().bearing);
+	double correction = Math.abs(Math.sin(angle)*5);
+	
+	if( world.getOurRobot().x > 500){
 		
-			return true;
 		
-		else return false;
+		YaxisRobot -= 4;
+		
+		
+	}else if ( world.getOurRobot().x > 230){
+		YaxisRobot -= 2;
+	}
+	
+	
+	if (YaxisRobot>354)
+		
+		
+	
+		return true;
+	
+	else return false;
 		
 		
 		
 	}
 	
 	
-public boolean nearTop(WorldState world){
+public boolean nearNorth(WorldState world){
+	
+		double YaxisRobot = world.getOurRobot().y;
 		
-		if (world.getOurRobot().y<98)
+		double angle = Math.toDegrees(world.getOurRobot().bearing);
+		double correction = Math.abs(Math.sin(angle)*5);
+		
+		if((world.getOurRobot().x< 222 &&  world.getOurRobot().x> 35) || (world.getOurRobot().x<596 && world.getOurRobot().x>109 ) ){
+			
+			
+			YaxisRobot -=  10;
+			
+			
+		}
+		
+		
+		if (YaxisRobot<124+correction )
+			
 			
 		
 			return true;
@@ -73,8 +106,11 @@ public boolean nearTop(WorldState world){
 	
 public boolean nearNorthWest(WorldState world){
 	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
-		
-		if (pointToLineDistance(northWestCorner,northWestPole, positionOurRobot ) <5){
+		double x = world.getOurRobot().x;
+		double y = world.getOurRobot().y;
+		double nwp = northWestPole.getY();
+		double nwc = northWestCorner.getY(); 
+		if (x < 73 && y < nwp && y > nwc){
 			
 			return true;
 		}
@@ -91,57 +127,66 @@ public boolean nearNorthWest(WorldState world){
 
 public boolean nearSouthWest(WorldState world){
 	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+	double x = world.getOurRobot().x;
+	double y = world.getOurRobot().y;
+	double nsp = southWestPole.getY();
+	double nsc = southWestCorner.getY(); 
+	if (x < 73 && y > nsp && y < nsc){
 		
-		if (pointToLineDistance(southWestCorner,southWestPole, positionOurRobot ) <5){
-			
-			return true;
-		}
-			
-		
-			
-		
-		else return false;
-		
-		
-		
+		return true;
 	}
+		
+	
+		
+	
+	else return false;
+	
+	
+	
+}
 
 
 
 public boolean nearNorthEast(WorldState world){
 	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+	double x = world.getOurRobot().x;
+	double y = world.getOurRobot().y;
+	double nep = northEastPole.getY();
+	double nec = northEastCorner.getY(); 
+	if (x > 564 && y < nep && y > nec){
 		
-		if (pointToLineDistance(northEastCorner,northEastPole, positionOurRobot ) <5){
-			
-			return true;
-		}
-			
-		
-			
-		
-		else return false;
-		
-		
-		
+		return true;
 	}
+		
+	
+		
+	
+	else return false;
+	
+	
+	
+}
 
 
 public boolean nearSouthEast(WorldState world){
 	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+	double x = world.getOurRobot().x;
+	double y = world.getOurRobot().y;
+	double sep = southEastPole.getY();
+	double sec = southEastCorner.getY(); 
+	if (x > 568 && y > sep && y < sec){
 		
-		if (pointToLineDistance(southEastCorner,southEastPole, positionOurRobot ) <5){
-			
-			return true;
-		}
-			
-		
-			
-		
-		else return false;
-		
-		
-		
+		return true;
 	}
+		
+	
+		
+	
+	else return false;
+	
+	
+	
+}
 
 
 
@@ -151,7 +196,7 @@ public boolean nearSouthEast(WorldState world){
 	
 public boolean notHittingWall(WorldState world){
 	
-	if((nearSouth(world) ||  nearTop(world) || nearNorthWest(world) || nearSouthWest(world) || 
+	if((nearSouth(world) ||  nearNorth(world) || nearNorthWest(world) || nearSouthWest(world) || 
 			nearNorthEast(world) || nearSouthEast(world)) == false )
 		return true;
 	
@@ -160,6 +205,12 @@ public boolean notHittingWall(WorldState world){
 	
 	
 	
+	
+}
+public boolean inCorner (WorldState world) {
+	if ((nearSouth(world) && (nearSouthEast(world) ||nearSouthWest(world)  )) ||
+			(nearNorth(world) && (nearNorthEast(world) ||nearNorthWest(world)))) return true;
+	else return false;
 }
 	
 	
@@ -189,11 +240,11 @@ public boolean notHittingWall(WorldState world){
 		Vector southWest =  new Vector(world.getTheirRobot().x-36, world.getTheirRobot().y+32);
 		
 		Vector southEast =  new Vector(world.getTheirRobot().x+37, world.getTheirRobot().y+30);
+		double d = DistanceCalculator.Distance(world.getOurRobot().x, world.getOurRobot().y,
+				world.getTheirRobot().x, world.getTheirRobot().y);
+		System.out.println("Distance: " + d);
 		
-	
-		
-		if(pointToLineDistance(northWest,southEast, positionOurRobot )< 5 ||  pointToLineDistance(northWest,northEast, positionOurRobot )< 5   ||  pointToLineDistance(southWest,southEast, positionOurRobot )< 5  
-				||  pointToLineDistance(northEast,southEast, positionOurRobot )< 5 )
+		if( d < 75 )
 		{
 			
 			return true;
