@@ -90,6 +90,65 @@ public class TurnToBall {
         double angle = turnAngle(us.bearing, ballBearing);
         return angle;
     }
+public static double findBearinggoal(Robot us, double x, double y) {
+    	
+    	double ballBearing = 0;
+
+        //checks if the ball is in line horizontally with the ball
+
+//        if (us.x == ball.x) {
+//            if (us.y > ball.y) {
+//                ballBearing = Math.toDegrees(Math.PI);
+//            } else {
+//                ballBearing = 0;
+//            }
+//            return ballBearing;
+//
+//            //checks if the ball is in line vertically with the ball
+//
+//        } else if (us.y == ball.y) {
+//            if (us.x > ball.x) {
+//                ballBearing = Math.toDegrees(Math.PI * 1.5);
+//            } else {
+//                ballBearing = Math.toDegrees(Math.PI / 2);
+//            }
+//            return ballBearing;
+//
+//        } else {
+
+            //calculates the angle depending on which quadrant around the robot the ball is in
+        	double xDiff = x - us.x;
+        	double yDiff = y - us.y;
+        	
+            if (xDiff > 0) {
+            	if(yDiff > 0){
+            		ballBearing = 90 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		ballBearing = 90 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            }
+            else {
+            	if(yDiff > 0){
+            		ballBearing = 270 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            	else {
+            		ballBearing = 270 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
+            	}
+            }
+        //}
+            return ballBearing;
+    }
+
+    
+public static double TurnerGoal(Robot us, double x, double y) {
+    	double goalBearing = findBearinggoal(us, x, y);
+        double angle = turnAngle(us.bearing, goalBearing);
+        return angle;
+    }
+    
+    
+    
 public static double findPointBearing(Robot us, double x, double y) {
     //calculates the bearing of a point (x,y) relative to the robot (using the robot as the origin and "north"
     // as being up on the camera feed)	

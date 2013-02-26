@@ -15,6 +15,11 @@ public class PenaltyAttack extends StrategyInterface implements Runnable {
 		super(world, us, them, rc);
 	}
 	public void run() {
+		int a = (int) (Math.random()*10);
+		if (a >5 ) rc.rotate(-22);
+		else rc.rotate(22);
+		
+		
 		rc.kick();
 	}
 }

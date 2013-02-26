@@ -7,6 +7,7 @@ import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.AvoidanceStrategy;
 import strategy.movement.GoToPoint;
 import strategy.movement.Inteception;
+import strategy.movement.Movement;
 import world.state.PossessionType;
 import world.state.Robot;
 import world.state.RobotController;
@@ -20,45 +21,43 @@ import strategy.calculations.*;
 public class Offensive extends StrategyInterface implements Runnable{
 	Inteception take = new Inteception();
 	MoveToBall mb = new MoveToBall();
+	Thread movthread;
 	public Offensive(WorldState world, Robot us, Robot them, RobotController rc){
 		super(world, us, them, rc);
+		
 	}
 
 	public void run(){
 		
 		while (!shouldidie && !Strategy.alldie){		
-			Vector theirGoal = world.getTheirGoal();
-
-			if((us.x < world.getMidPoint() && world.ourHalfLeft()) 
-					|| (us.x >= world.getMidPoint() && !world.ourHalfLeft())){
-
-				System.out.println("OUR HALF YEAH!");
-				//GoToPoint.goToPoint(world, server, theirGoal, AvoidanceStrategy.Aggressive);
-				
-			} else {
+			
 				if (world.getPosession() == PossessionType.Us){
 					System.out.println("We got ball");
 					
 					PlainScoring killthemALL = new PlainScoring();
-					try {
-						killthemALL.domination(world, us, them, rc);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
+						//killthemALL.domination(world, us, them, rc);
+						killthemALL.faceGoal();
+				
 					
 				} else{
-					try {
+					
 						System.out.println("Going to the ball");
-						MoveToBall.approach(world, rc);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+						//Movement mv = new Movement();
+						
+					/**	Movement mover = new Movement(world, rc, world.getBallX(), world.getBallY(), 0,0,0.0,3);
+						
+						if ( !movthread.isAlive()){
+						movthread = new Thread(mover, "Movement Thread");
+						movthread.start();
+						}
+						**/
+						
+					
 				}
 				
 
-			}
+			
 		
 		rc.stop();
 	}
