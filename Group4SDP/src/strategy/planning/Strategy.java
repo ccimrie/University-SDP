@@ -24,11 +24,11 @@ public class Strategy implements Runnable {
 		System.out.println("[Strategy] Are we blue? " + world.areWeBlue());
 		System.out.println("[Strategy] Are we on the left side? " + world.areWeOnLeft());
 		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
-		Thread plan = new Thread(new MainPlanner(Strategy.world, Strategy.us, Strategy.them, Strategy.robot), "Planning Thread");
+		Thread plan = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
 		plan.run();
 	}
 
-	public void stop() throws InterruptedException{
+	public static void stop() throws InterruptedException{
 		alldie = true;
 		Thread.sleep(2000); //Wait for all threads to notice this and terminate.
 		robot.stop();
