@@ -26,6 +26,14 @@ public class Strategy implements Runnable {
 		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
 		Thread plan = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
 		plan.start();
+		while (true) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void stop() throws InterruptedException{
