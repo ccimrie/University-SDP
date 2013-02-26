@@ -23,6 +23,7 @@ import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
+import strategy.planning.Offensive;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -270,8 +271,12 @@ public class ControlGUI2 extends JFrame {
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
-				Thread strat = new Thread (new Strategy(worldState, robot));
-				strat.start();
+				//Thread strat = new Thread (new Strategy(worldState, robot));
+				//strat.start();
+				System.out.println(" Starting the domination");
+				Offensive anihilation = new Offensive(worldState, worldState.getOurRobot(), 
+						worldState.getTheirRobot(), robot);
+				anihilation.run();
 			}
 		});
 		
