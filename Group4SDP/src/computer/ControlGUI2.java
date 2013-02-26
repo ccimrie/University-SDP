@@ -23,6 +23,7 @@ import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
+import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -50,6 +51,8 @@ public class ControlGUI2 extends JFrame {
 	private final JButton start = new JButton("Start");
 	private final JButton quit = new JButton("Quit");
 	private final JButton stop = new JButton("Stop");
+	private final JButton stratStart = new JButton("Strat Start");
+	private final JButton stratStop= new JButton("Strat Stop");
 	// Basic movement
 	private final JButton forward = new JButton("Forward");
 	private final JButton backward = new JButton("Backward");
@@ -83,6 +86,8 @@ public class ControlGUI2 extends JFrame {
 
 	public static WorldState worldState = new WorldState();
 	public static Vision vision;
+	
+	public static Strategy strat;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -171,6 +176,8 @@ public class ControlGUI2 extends JFrame {
 		startStopQuitPanel.add(start);
 		startStopQuitPanel.add(stop);
 		startStopQuitPanel.add(quit);
+		startStopQuitPanel.add(stratStart);
+		startStopQuitPanel.add(stratStop);
 
 		GridBagConstraints gbc_simpleMoveTestPanel = new GridBagConstraints();
 		gbc_simpleMoveTestPanel.anchor = GridBagConstraints.NORTH;
@@ -257,6 +264,26 @@ public class ControlGUI2 extends JFrame {
 						e1.printStackTrace();
 					}
 				}*/
+			}
+		});
+		
+		stratStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Run in a new thread to free up UI while running
+				Thread strat = new Thread (new Strategy(worldState, robot));
+				strat.run();
+			}
+		});
+		
+		stratStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Run in a new thread to free up UI while running
+				try {
+					strat.stop();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 

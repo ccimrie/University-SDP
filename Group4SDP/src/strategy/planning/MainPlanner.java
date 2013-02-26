@@ -17,10 +17,6 @@ import world.state.RobotController;
 import strategy.planning.Strategy;
 
 public class MainPlanner extends StrategyInterface implements Runnable {
-	WorldState world;
-	RobotController rc;
-	Robot us;
-	Robot them;
 	
 	int angleToTurnToBall = 15;
 	boolean collisionInProgress = false;
@@ -96,6 +92,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 				rc.stop();
 				return;
 			}
+
 
 			if (currentState == state.StartOfMatch) {
 				currentState = state.GetBehindBall;
