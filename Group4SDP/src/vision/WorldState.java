@@ -42,6 +42,8 @@ public class WorldState {
 	private boolean weAreBlue = true;
 	private boolean weAreOnLeft = true;
 	private boolean mainPitch = true;
+	private boolean blueHasBall = false;
+	private boolean greenHasBall = false;
 	
 	private PossessionManager pm = new PossessionManager();
 
@@ -349,8 +351,42 @@ public class WorldState {
 		}
 		return false;
 	}
+	
+	public int whoHasTheBall(){
+		if (blueHasBall){
+			return 1;
+		}
+		if (greenHasBall){
+			return 2;
+		}
+		return -1;
+	}
+	
 	public void updatePossesion(){
 		hasPossession = pm.setPossession(this);
+		if (weAreBlue){
+			if (hasPossession == PossessionType.Us){
+				blueHasBall = true;
+				greenHasBall = false;
+			} else if (hasPossession == PossessionType.Them){
+				blueHasBall = false;
+				greenHasBall = true;
+			}else{
+				blueHasBall = false;
+				greenHasBall = false;
+			}
+		}else {
+			if (hasPossession == PossessionType.Us){
+				blueHasBall = false;
+				greenHasBall = true;
+			} else if (hasPossession == PossessionType.Them){
+				blueHasBall = true;
+				greenHasBall = false;
+			}else{
+				blueHasBall = false;
+				greenHasBall = false;
+			}
+		}
 	}
 	public PossessionType getPosession(){
 		return hasPossession;

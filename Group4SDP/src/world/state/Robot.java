@@ -4,7 +4,7 @@ public class Robot extends Entity {
 	
 	public double x;
 	public double y;
-	public double bearing;
+	public double bearing; // In radians
 	public RobotType type;
 	
 	public Robot(RobotType type) {

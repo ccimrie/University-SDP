@@ -24,9 +24,14 @@ public class PitchInfo {
 	 * M = 
 	 */
 	private final static double edgeSafeDist = 15;
-	    
-	private static Vector leftGoalCentreSide = new Vector(40.0, 160.0);
-	private static Vector rightGoalCentreSide = new Vector(644.0, 193.0);
+	//Dimensions of the left goal    
+	private static Vector leftGoalCentreSide = new Vector(30.0, 250.0);
+	private static Vector leftGoalTop = new Vector(30.0, 170.0);
+	private static Vector leftGoalBottom = new Vector(30.0, 330.0);
+	//Dimensions of the right goal
+	private static Vector rightGoalCentreSide = new Vector(600.0, 240.0);
+	private static Vector rightGoalTop = new Vector(600.0, 160.0);
+	private static Vector rightGoalBottom = new Vector(600.0, 320);
 	
 	public static final Vector lowerBoundSide = new Vector(36.0,18.0);
 	public static final Vector upperBoundSide = new Vector(658.0,344.0);
@@ -96,11 +101,23 @@ public class PitchInfo {
 	public static void setLeftGoalCentreSide(Vector leftGoalCentreSide) {
 		PitchInfo.leftGoalCentreSide = leftGoalCentreSide;
 	}
+	public static Vector getLeftGoalTop() {
+		return leftGoalTop;
+	}
+	public static Vector getLeftGoalBottom() {
+		return leftGoalBottom;
+	}
 	public static Vector getRightGoalCentreSide() {
 		return rightGoalCentreSide;
 	}
 	public static void setRightGoalCentreSide(Vector rightGoalCentreSide) {
 		PitchInfo.rightGoalCentreSide = rightGoalCentreSide;
+	}
+	public static Vector getRightGoalTop() {
+		return rightGoalTop;
+	}
+	public static Vector getRightGoalBottom() {
+		return rightGoalBottom;
 	}
 	public static Vector getLeftGoalCentreMain() {
 		return leftGoalCentreMain;

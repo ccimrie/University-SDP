@@ -88,7 +88,7 @@ public class RobotController extends Robot {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
-		System.out.println("Moving forward...");
+		System.out.println("Moving");
 		return confirmation;
 	}
 	
