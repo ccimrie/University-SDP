@@ -11,19 +11,19 @@ import world.state.RobotController;
  * 
  * @author Jakov Smelkin
  */
-public class Movement extends Thread{
+public class Movement extends Thread {
 
 	// private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
 	private static int DIST_TH = 10;
 	private boolean die = false;
-	private int movetopointx = 0;
-	private int movetopointy = 0;
-	private int speedx = 0;
-	private int speedy = 0;
+	private double movetopointx = 0;
+	private double movetopointy = 0;
+	private double speedx = 0;
+	private double speedy = 0;
 	private double angle = 0.0;
-	private int methodtouse = 0;;
+	private int methodtouse = 0;
 
 	/**
 	 * Constructor for the movement class
@@ -32,10 +32,22 @@ public class Movement extends Thread{
 	 *            a world state from the vision, giving us information on robots, ball etc.
 	 * @param robot
 	 *            A {@link world.state.RobotController} class that prepares byte commands to the robot.
+	 * @param movetoPointX
+	 *            Move to position X units down from top left corner of the video feed
+	 * @param movetoPointY
+	 *            Move to position Y units right from top left corner of the video feed
+	 * @param speedX
+	 *            Speed right (for positive values) or left (for negative ones).
+	 * @param speedY
+	 *            Speed forward (for positive values) or backward (for negative ones).
+	 * @param angle
+	 *            Angle, in radians (0 to 2*PI)
+	 * @param methodToUse
+	 *            A method to call: </br>1 - {@link #move(double speedX, double speedY)}, </br> 2 -
+	 *            {@link #move(double angle)},</br> 3 - {@link #moveToPoint(double movetoPointX, double movetoPointY)},
+	 *            </br>4 - {@link #moveToPointAndStop(double movetoPointX, double movetoPointY)},
 	 */
-	public Movement(WorldState worldState, RobotController robot,
-			int movetopointx, int movetopointy,
-			int speedx, int speedy, double angle, int methodtouse) {
+	public Movement(WorldState worldState, RobotController robot, double movetopointx, double movetopointy, double speedx, double speedy, double angle, int methodtouse) {
 		super();
 		// this.worldState = worldState;
 		this.robot = robot;
@@ -45,36 +57,37 @@ public class Movement extends Thread{
 		this.speedx = speedx;
 		this.speedy = speedy;
 		this.angle = angle;
-		this.methodtouse = methodtouse; //1 move (x, y speed)
-		//2 for move (angle)
-		//3 for move2point 
-		
+		this.methodtouse = methodtouse;
+
 	}
-	
-	public void run(){
-		switch (methodtouse){
-		case 1:
-			move(speedx,speedy);
-			break;
-		case 2:
-			move(angle);
-			break;
-		case 3:
-			try {
+
+	public void run() {
+		try {
+			switch (methodtouse) {
+			case 1:
+				move(speedx, speedy);
+				break;
+			case 2:
+				move(angle);
+				break;
+			case 3:
 				moveToPoint(movetopointx, movetopointy);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				break;
+			case 4:
+				moveToPointAndStop(movetopointx, movetopointy);
+				break;
 			}
-			break;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
-	public void die() throws InterruptedException{
+
+	public void die() throws InterruptedException {
 		die = true;
 		Thread.sleep(50);
 		robot.stop();
-	
+
 	}
 
 	/**
@@ -109,7 +122,7 @@ public class Movement extends Thread{
 	 * @param x
 	 *            Move to position x units down from top left corner of the video feed
 	 * @param y
-	 *            Move to position y units left from top left corner of the video feed
+	 *            Move to position y units right from top left corner of the video feed
 	 * @throws InterruptedException
 	 *             when Thread.sleep() is interrupted.
 	 * @see #moveToPointAndStop(double, double)
@@ -200,6 +213,5 @@ public class Movement extends Thread{
 	public void moveToPointAndAvoid(double x, double y, double avoidX, double avoidY) {
 		if (avoidX <= Math.max(x, us.x)) {}
 	}
-	
-	
+
 }
