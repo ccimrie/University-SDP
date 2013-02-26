@@ -37,6 +37,8 @@ public class Offensive extends StrategyInterface implements Runnable{
 				
 			} else {
 				if (world.getPosession() == PossessionType.Us){
+					System.out.println("We got ball");
+					
 					PlainScoring killthemALL = new PlainScoring();
 					try {
 						killthemALL.domination(world, us, them, rc);
@@ -47,6 +49,7 @@ public class Offensive extends StrategyInterface implements Runnable{
 					
 				} else{
 					try {
+						System.out.println("Going to the ball");
 						MoveToBall.approach(world, rc);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
