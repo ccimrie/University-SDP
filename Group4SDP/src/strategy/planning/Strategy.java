@@ -25,7 +25,7 @@ public class Strategy implements Runnable {
 		System.out.println("[Strategy] Are we on the left side? " + world.areWeOnLeft());
 		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
 		Thread plan = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
-		plan.run();
+		plan.start();
 	}
 
 	public static void stop() throws InterruptedException{

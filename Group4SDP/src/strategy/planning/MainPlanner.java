@@ -42,7 +42,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 		Thread strategy;
 		// TODO change this to StartOfGame strategy
 		strategy = new Thread(new Defensive(world, us, them, rc), "Defense Thread");
-		strategy.run();
+		strategy.start();
 		
 		/*The while loop will execute the strategy until it is broken or we're told to die*/
 		while (!Strategy.alldie) {

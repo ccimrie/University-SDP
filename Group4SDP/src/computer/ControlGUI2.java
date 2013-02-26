@@ -271,7 +271,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
 				Thread strat = new Thread (new Strategy(worldState, robot));
-				strat.run();
+				strat.start();
 			}
 		});
 		
