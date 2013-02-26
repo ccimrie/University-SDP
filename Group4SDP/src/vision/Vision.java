@@ -13,7 +13,6 @@ import vision.interfaces.WorldStateReceiver;
  * The main class for showing the video feed and processing the video data.
  * Identifies ball and robot locations, and robot orientations.
  * 
- * @author s0840449
  */
 public class Vision implements VideoReceiver {
 
@@ -25,7 +24,10 @@ public class Vision implements VideoReceiver {
 
 	private int currentAngleIndex = 0;
 	private double[] last3Angles = new double[3];
-
+	
+	private Position bluePlateCentroid = new Position (0, 0);
+	private Position yellowPlateCentroid = new Position (0, 0);
+	
 	private final int YELLOW_T = 0;
 	private final int BLUE_T = 1;
 	private final int BALL = 2;
@@ -283,11 +285,15 @@ public class Vision implements VideoReceiver {
 
 				// If the single plate is blue, assign the angle to the blue
 				// plate
-				if (numBluePos > numYellowPos)
+				if (numBluePos > numYellowPos){
 					blueAngle = angle;
+					bluePlateCentroid = green;
+				}
 				// Otherwise assign it to the yellow plate
-				else
+				else {
 					yellowAngle = angle;
+					yellowPlateCentroid = green;
+				}
 			}
 			
 			/** Ball */
@@ -327,10 +333,10 @@ public class Vision implements VideoReceiver {
 			worldState.setBallY(ball.getY());
 			worldState.setGreenX(green.getX());
 			worldState.setGreenY(green.getY());
-			worldState.setBlueX(blue.getX());
-			worldState.setBlueY(blue.getY());
-			worldState.setYellowX(yellow.getX());
-			worldState.setYellowY(yellow.getY());
+			worldState.setBlueX(bluePlateCentroid.getX());
+			worldState.setBlueY(bluePlateCentroid.getY());
+			worldState.setYellowX(yellowPlateCentroid.getX());
+			worldState.setYellowY(yellowPlateCentroid.getY());
 			worldState.setBlueOrientation(blueAngle);
 			worldState.setYellowOrientation(yellowAngle);
 			worldState.updateCounter();
@@ -701,6 +707,9 @@ public class Vision implements VideoReceiver {
 				cluster1);
 		double yellowAngle = findPlateAngle(frame, debugOverlay, plate2mean,
 				cluster2);
+		
+		bluePlateCentroid = plate1mean;
+		yellowPlateCentroid = plate2mean;
 
 		return new double[] { blueAngle, yellowAngle };
 	}
