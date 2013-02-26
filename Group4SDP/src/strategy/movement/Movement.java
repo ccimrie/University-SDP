@@ -18,6 +18,12 @@ public class Movement extends Thread{
 	private Robot us;
 	private static int DIST_TH = 10;
 	private boolean die = false;
+	private int movetopointx = 0;
+	private int movetopointy = 0;
+	private int speedx = 0;
+	private int speedy = 0;
+	private double angle = 0.0;
+	private int methodtouse = 0;;
 
 	/**
 	 * Constructor for the movement class
@@ -27,14 +33,45 @@ public class Movement extends Thread{
 	 * @param robot
 	 *            A {@link world.state.RobotController} class that prepares byte commands to the robot.
 	 */
-	public Movement(WorldState worldState, RobotController robot) {
+	public Movement(WorldState worldState, RobotController robot,
+			int movetopointx, int movetopointy,
+			int speedx, int speedy, double angle, int methodtouse) {
 		super();
 		// this.worldState = worldState;
 		this.robot = robot;
 		us = worldState.ourRobot;
+		this.movetopointx = movetopointx;
+		this.movetopointy = movetopointy;
+		this.speedx = speedx;
+		this.speedy = speedy;
+		this.angle = angle;
+		this.methodtouse = methodtouse; //1 move (x, y speed)
+		//2 for move (angle)
+		//3 for move2point 
+		
+	}
+	
+	public void run(){
+		switch (methodtouse){
+		case 1:
+			move(speedx,speedy);
+			break;
+		case 2:
+			move(angle);
+			break;
+		case 3:
+			try {
+				moveToPoint(movetopointx, movetopointy);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
+		}
 	}
 	
 	public void die() throws InterruptedException{
+		die = true;
 		Thread.sleep(50);
 		robot.stop();
 	
