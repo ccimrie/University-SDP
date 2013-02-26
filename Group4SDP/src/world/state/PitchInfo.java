@@ -47,7 +47,7 @@ public class PitchInfo {
 	static Vector lowerBoundMain = new Vector(39.0,46.0);
 	static Vector upperBoundMain = new Vector(664.0,370.0);
 
-	public static double midPointMain = 355.0;
+	public static double midPointMain = 300.0;
 	
 	public static double safeDistanceFromWall = 25;
 	
