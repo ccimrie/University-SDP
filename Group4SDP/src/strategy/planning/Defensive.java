@@ -24,71 +24,89 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 	private Ball ball;
 	private static final double threshold = 50;
+
 	// The upper and lower bounds stay for the upper and lower y coordinates of
 	// the goal
 
 	public void run() {
-//		double previousTheirBearing = 0;
-//		double theirBearing;
-
+		// double previousTheirBearing = 0;
+		// double theirBearing;
+		Vector ourGoalCenter, ourGoalTop, ourGoalBottom;
 		while (!Strategy.alldie && !shouldidie) {
-		
+			ourGoalCenter = PitchInfo.getLeftGoalCentreSide();
+			ourGoalTop = PitchInfo.getLeftGoalTop();
+			ourGoalBottom = PitchInfo.getLeftGoalBottom();
+			Movement move = new Movement(world, rc,
+					(int) (ourGoalCenter.getX() + threshold),
+					(int) ourGoalCenter.getY(), 0, 0, 0.0, 3);
+			System.out.println("Left: x "
+					+ (int) (ourGoalCenter.getX() + threshold)
+					+ " y " + (int) ourGoalCenter.getY());
+			Thread moverthr = new Thread(move, "I'm a mover thread");
+			moverthr.start();
+			while (moverthr.isAlive()) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (!moverthr.isAlive())
+				break;
+			System.out.println("Point reached Left");
+			
+
 			// Defining auxiliary parameters used for calculating
-
-			double angle, ythreshold, destY;
-
-			Vector ourGoalCenter, ourGoalTop, ourGoalBottom;
-
-			if (world.areWeOnLeft()) {
-				ourGoalCenter = PitchInfo.getLeftGoalCentreSide();
-				ourGoalTop = PitchInfo.getLeftGoalTop();
-				ourGoalBottom = PitchInfo.getLeftGoalBottom();
-				// In case they have possession of the ball, our robot goes to
-				// defend the door
-				if (Possession.hasPossession(world, RobotType.Them)) {
-					try {
-						Movement move = new Movement(world, rc, (int)(ourGoalCenter.getX() + threshold),
-								(int)ourGoalCenter.getY(), 0,0,0.0,3);
-						System.out.println("Left: x " +(int)(ourGoalCenter.getX() + threshold) +" y " +(int)ourGoalCenter.getY());
-						Thread moverthr = new Thread(move, "I'm a mover thread");
-						moverthr.start();
-						while(moverthr.isAlive()){
-							Thread.sleep(50);
-						}
-						if (!moverthr.isAlive())
-							break;
-						System.out.println("Point reached Left");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+//
+//			double angle, ythreshold, destY;
+//
+//			Vector ourGoalCenter, ourGoalTop, ourGoalBottom;
+//
+//			if (world.areWeOnLeft()) {
+//				ourGoalCenter = PitchInfo.getLeftGoalCentreSide();
+//				ourGoalTop = PitchInfo.getLeftGoalTop();
+//				ourGoalBottom = PitchInfo.getLeftGoalBottom();
+//				// In case they have possession of the ball, our robot goes to
+//				// defend the door
+//				if (Possession.hasPossession(world, RobotType.Them)) {
+//					try {
+//						Movement move = new Movement(world, rc,
+//								(int) (ourGoalCenter.getX() + threshold),
+//								(int) ourGoalCenter.getY(), 0, 0, 0.0, 3);
+//						System.out.println("Left: x "
+//								+ (int) (ourGoalCenter.getX() + threshold)
+//								+ " y " + (int) ourGoalCenter.getY());
+//						Thread moverthr = new Thread(move, "I'm a mover thread");
+//						moverthr.start();
+//						while (moverthr.isAlive()) {
+//							Thread.sleep(50);
+//						}
+//						if (!moverthr.isAlive())
+//							break;
+//						System.out.println("Point reached Left");
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 					// Now turn to face the ball (and the other robot
 					// correspondingly)
-					TurnToBall.Turner(us, ball);
+//					TurnToBall.Turner(us, ball);
 					// Calculating the ball kicking line
 					// Given their bearing, calculate where exactly in our goal
 					// they are aiming
 					/*
-					theirBearing = them.bearing;
-					if (Math.abs(previousTheirBearing - theirBearing) < 15) {
-						angle = Math.abs(270 - theirBearing);
-						ythreshold = (them.x - ourGoalCenter.getX())
-								* Math.tan(angle);
-						// Upper half of the field
-						if (them.y < ourGoalCenter.getY()) {
-							destY = them.y + ythreshold;
-						} else
-							destY = them.y - ythreshold;
-						try {
-							move.moveToPoint(ourGoalCenter.getX() + threshold,
-									destY);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						previousTheirBearing = theirBearing;
-					}
-*/
+					 * theirBearing = them.bearing; if
+					 * (Math.abs(previousTheirBearing - theirBearing) < 15) {
+					 * angle = Math.abs(270 - theirBearing); ythreshold =
+					 * (them.x - ourGoalCenter.getX()) Math.tan(angle); // Upper
+					 * half of the field if (them.y < ourGoalCenter.getY()) {
+					 * destY = them.y + ythreshold; } else destY = them.y -
+					 * ythreshold; try { move.moveToPoint(ourGoalCenter.getX() +
+					 * threshold, destY); } catch (InterruptedException e) { //
+					 * TODO Auto-generated catch block e.printStackTrace(); }
+					 * previousTheirBearing = theirBearing; }
+					 */
 					// The kick line of the attacking robot is calculated, the
 					// target point on the
 					// y axis is destY
@@ -104,97 +122,92 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// System.out.println("Enter rikushet defence mode");
 					// //Enter the rikushet strategy
 					// }
-				} else {
-					try {
-						Movement move = new Movement(world, rc, (int)(ball.x),
-								(int)(ball.y), 0,0,0.0,3);
-						Thread moverthr = new Thread(move, "I'm a mover thread");
-						moverthr.start();
-						while(moverthr.isAlive()){
-							Thread.sleep(50);
-						}
-						System.out.println("Ball reached");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						
-					}
-				}
-			} else {
-				ourGoalCenter = PitchInfo.getRightGoalCentreSide();
-				ourGoalTop = PitchInfo.getRightGoalTop();
-				ourGoalBottom = PitchInfo.getRightGoalBottom();
-				if (Possession.hasPossession(world, RobotType.Them)) {
-					try {
-						Movement move = new Movement(world, rc, (int)(ourGoalCenter.getX() - threshold),
-								(int)ourGoalCenter.getY(), 0,0,0.0,3);
-						System.out.println("Right: x " +(int)(ourGoalCenter.getX() + threshold) +" y " +(int)ourGoalCenter.getY());
-						Thread moverthr = new Thread(move, "I'm a mover thread");
-						moverthr.start();
-						while(moverthr.isAlive()){
-							Thread.sleep(50);
-						}
-						if (!moverthr.isAlive())
-							break;
-						System.out.println("Point reached Right");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+//				} else {
+//					try {
+//						Movement move = new Movement(world, rc, (int) (ball.x),
+//								(int) (ball.y), 0, 0, 0.0, 3);
+//						Thread moverthr = new Thread(move, "I'm a mover thread");
+//						moverthr.start();
+//						while (moverthr.isAlive()) {
+//							Thread.sleep(50);
+//						}
+//						System.out.println("Ball reached");
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//
+//					}
+//				}
+//			} else {
+//				ourGoalCenter = PitchInfo.getRightGoalCentreSide();
+//				ourGoalTop = PitchInfo.getRightGoalTop();
+//				ourGoalBottom = PitchInfo.getRightGoalBottom();
+//				if (Possession.hasPossession(world, RobotType.Them)) {
+//					try {
+//						Movement move = new Movement(world, rc,
+//								(int) (ourGoalCenter.getX() - threshold),
+//								(int) ourGoalCenter.getY(), 0, 0, 0.0, 3);
+//						System.out.println("Right: x "
+//								+ (int) (ourGoalCenter.getX() + threshold)
+//								+ " y " + (int) ourGoalCenter.getY());
+//						Thread moverthr = new Thread(move, "I'm a mover thread");
+//						moverthr.start();
+//						while (moverthr.isAlive()) {
+//							Thread.sleep(50);
+//						}
+//						if (!moverthr.isAlive())
+//							break;
+//						System.out.println("Point reached Right");
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 					// Now turn to face the ball (and the other robot
 					// correspondingly)
-					TurnToBall.Turner(us, ball);
+//					TurnToBall.Turner(us, ball);
 					// Calculating the ball kicking line
 					// Given their bearing, calculate where exactly in our goal
 					// they are aiming
-				//	theirBearing = them.bearing;
+					// theirBearing = them.bearing;
 					/*
-					if (Math.abs(previousTheirBearing - theirBearing) < 15) {
-						angle = Math.abs(90 - theirBearing);
-						ythreshold = (ourGoalCenter.getX() - them.x)
-								* Math.tan(angle);
-						// Upper half of the field
-						if (them.y < ourGoalCenter.getY()) {
-							destY = them.y + ythreshold;
-						} else
-							destY = them.y - ythreshold;
-						try {
-							move.moveToPoint(ourGoalCenter.getX() + threshold,
-									destY);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						previousTheirBearing = theirBearing;
-					}*/
-				} else {
-					try {
-						Movement move = new Movement(world, rc, (int)(ball.x),
-								(int)(ball.y), 0,0,0.0,3);
-						Thread moverthr = new Thread(move, "I'm a mover thread");
-						moverthr.start();
-						while(moverthr.isAlive()){
-							Thread.sleep(50);
-						}
-						System.out.println("Ball reached");
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-			}
+					 * if (Math.abs(previousTheirBearing - theirBearing) < 15) {
+					 * angle = Math.abs(90 - theirBearing); ythreshold =
+					 * (ourGoalCenter.getX() - them.x) Math.tan(angle); // Upper
+					 * half of the field if (them.y < ourGoalCenter.getY()) {
+					 * destY = them.y + ythreshold; } else destY = them.y -
+					 * ythreshold; try { move.moveToPoint(ourGoalCenter.getX() +
+					 * threshold, destY); } catch (InterruptedException e) { //
+					 * TODO Auto-generated catch block e.printStackTrace(); }
+					 * previousTheirBearing = theirBearing; }
+					 */
+//				} else {
+//					try {
+//						Movement move = new Movement(world, rc, (int) (ball.x),
+//								(int) (ball.y), 0, 0, 0.0, 3);
+//						Thread moverthr = new Thread(move, "I'm a mover thread");
+//						moverthr.start();
+//						while (moverthr.isAlive()) {
+//							Thread.sleep(50);
+//						}
+//						System.out.println("Ball reached");
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//
+//				}
+//			}
 
 			// pos stands for the position behind the ball
-			Vector pos;
-
-			if (world.areWeOnLeft()) {
-				pos = new Vector(ball.getPosition().getX() - 20, ball
-						.getPosition().getY());
-			} else {
-				pos = new Vector(ball.getPosition().getX() + 20, ball
-						.getPosition().getY());
-			}
+//			Vector pos;
+//
+//			if (world.areWeOnLeft()) {
+//				pos = new Vector(ball.getPosition().getX() - 20, ball
+//						.getPosition().getY());
+//			} else {
+//				pos = new Vector(ball.getPosition().getX() + 20, ball
+//						.getPosition().getY());
+//			}
 
 			// if(Vector.distanceSquared(pos, us.getPosition()) <= 100){
 			//
