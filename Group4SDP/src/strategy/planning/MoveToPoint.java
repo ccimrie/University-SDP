@@ -9,6 +9,7 @@ import vision.WorldState;
 public class MoveToPoint {
 
 	private static final int distanceFromPointToStop = 20;
+	
 
 	public void moveToPoint(WorldState worldState, RobotController robot,
 			double moveToX, double moveToY) throws InterruptedException {
