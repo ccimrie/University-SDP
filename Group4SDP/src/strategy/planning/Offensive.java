@@ -34,9 +34,11 @@ public class Offensive extends StrategyInterface implements Runnable{
 
 				System.out.println("OUR HALF YEAH!");
 				//GoToPoint.goToPoint(world, server, theirGoal, AvoidanceStrategy.Aggressive);
-
+				
 			} else {
 				if (world.getPosession() == PossessionType.Us){
+					System.out.println("We got ball");
+					
 					PlainScoring killthemALL = new PlainScoring();
 					try {
 						killthemALL.domination(world, us, them, rc);
@@ -44,26 +46,17 @@ public class Offensive extends StrategyInterface implements Runnable{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				} else
+					
+				} else{
 					try {
+						System.out.println("Going to the ball");
 						MoveToBall.approach(world, rc);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				double angle = IsRobotFacingPoint.Turner(us, theirGoal.getX(), theirGoal.getY());
-				System.out.println(Math.abs(angle));
-				if(Math.abs(angle) > 40){
-
-					System.out.println("Their half wrong angle");
-					//Go to point not implemented.
-					//	GoToPoint.goToPoint(world, server, theirGoal, AvoidanceStrategy.Aggressive);
-
-				} else {
-
-					System.out.println("Kicking!");
-					rc.kick();
 				}
+				
 
 			}
 		

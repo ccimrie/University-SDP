@@ -23,6 +23,7 @@ import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
+import strategy.planning.Offensive;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -231,13 +232,13 @@ public class ControlGUI2 extends JFrame {
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
-				Movement m = new Movement(worldState, robot);
-				try {
-					m.moveToPoint(538, 191);
-				} catch (InterruptedException e1) {
+				//Movement m = new Movement(worldState, robot);
+				//try {
+					//m.moveToPoint(538, 191);
+				//} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				//	e1.printStackTrace();
+				//}
 				/*for (int i=90; i<=7200; i+=360){
 					m.move(Math.toRadians(i));
 					try {

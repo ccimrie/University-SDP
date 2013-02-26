@@ -26,7 +26,7 @@ public class PlainScoring{
 	public void domination(WorldState world, Robot us, Robot them,
 			RobotController rc) throws InterruptedException {
 		geometry.Vector a = world.getTheirGoal();
-		
+		System.out.println( "Domination is started");
 		//Case where we have the ball and the opponent is behind us and 
 		double angle = IsRobotFacingPoint.Turner(us, a.getX(), a.getY());
 		double angleT = IsRobotFacingPoint.Turner(us, them.x, them.y);
