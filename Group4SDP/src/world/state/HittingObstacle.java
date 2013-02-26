@@ -28,8 +28,23 @@ public class HittingObstacle {
 	 * 
 	 */
 	
+	Vector northWestPole = PitchInfo.getLeftGoalTop();
+	Vector southWestPole = PitchInfo.getLeftGoalBottom();
 	
-	public boolean nearSouth(WorldState world){
+	
+	Vector northWestCorner =  new Vector(35, 94);
+	Vector southWestCorner =  new Vector(35, 392);
+	
+	
+	Vector northEastPole = PitchInfo.getRightGoalTop();
+	Vector southEastPole = PitchInfo.getRightGoalBottom();
+	
+	
+	Vector northEastCorner =  new Vector(593, 92);
+	Vector southEastCorner =  new Vector(593, 392);
+	
+	
+public boolean nearSouth(WorldState world){
 				
 		if (world.getOurRobot().y>394)
 			
@@ -43,7 +58,7 @@ public class HittingObstacle {
 	}
 	
 	
-	public boolean nearTop(WorldState world){
+public boolean nearTop(WorldState world){
 		
 		if (world.getOurRobot().y<98)
 			
@@ -55,6 +70,100 @@ public class HittingObstacle {
 		
 		
 	}
+	
+public boolean nearNorthWest(WorldState world){
+	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+		
+		if (pointToLineDistance(northWestCorner,northWestPole, positionOurRobot ) <5){
+			
+			return true;
+		}
+			
+		
+			
+		
+		else return false;
+		
+		
+		
+	}
+	
+
+public boolean nearSouthWest(WorldState world){
+	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+		
+		if (pointToLineDistance(southWestCorner,southWestPole, positionOurRobot ) <5){
+			
+			return true;
+		}
+			
+		
+			
+		
+		else return false;
+		
+		
+		
+	}
+
+
+
+public boolean nearNorthEast(WorldState world){
+	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+		
+		if (pointToLineDistance(northEastCorner,northEastPole, positionOurRobot ) <5){
+			
+			return true;
+		}
+			
+		
+			
+		
+		else return false;
+		
+		
+		
+	}
+
+
+public boolean nearSouthEast(WorldState world){
+	Vector positionOurRobot =  new Vector(world.getOurRobot().x, world.getOurRobot().y);
+		
+		if (pointToLineDistance(southEastCorner,southEastPole, positionOurRobot ) <5){
+			
+			return true;
+		}
+			
+		
+			
+		
+		else return false;
+		
+		
+		
+	}
+
+
+
+
+
+
+	
+public boolean notHittingWall(WorldState world){
+	
+	if((nearSouth(world) ||  nearTop(world) || nearNorthWest(world) || nearSouthWest(world) || 
+			nearNorthEast(world) || nearSouthEast(world)) == false )
+		return true;
+	
+	
+	else return false;
+	
+	
+	
+}
+	
+	
+
 	
 	
 	/*
