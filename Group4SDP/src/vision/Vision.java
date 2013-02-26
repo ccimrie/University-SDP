@@ -21,9 +21,6 @@ public class Vision implements VideoReceiver {
 	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
-
-	private int currentAngleIndex = 0;
-	private double[] last3Angles = new double[3];
 	
 	private Position bluePlateCentroid = new Position (0, 0);
 	private Position yellowPlateCentroid = new Position (0, 0);
@@ -825,10 +822,6 @@ public class Vision implements VideoReceiver {
 				/ Math.sqrt(xvector * xvector + yvector * yvector));
 		if (xvector > 0)
 			angle = 2.0 * Math.PI - angle;
-
-		last3Angles[currentAngleIndex++] = angle;
-		if (currentAngleIndex >= 3)
-			currentAngleIndex = 0;
 
 		/** Debugging shapes drawn on the debugging layer of the video feed */
 		debugGraphics.setColor(Color.magenta);

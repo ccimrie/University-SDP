@@ -18,20 +18,25 @@ import vision.WorldState;
  * (will be easier via eclipse refactoring tools)
  */
 public class WorldState {
+	/** The number of frames used to calculate velocity */
+	private static final int NUM_FRAMES = 3;
+	
 	private int direction; // 0 = right, 1 = left.
 	private int colour; // 0 = yellow, 1 = blue
 	private int pitch; // 0 = main, 1 = side room
-	private int blueX;
-	private int blueY;
-	private int yellowX;
-	private int yellowY;
-	private int ballX;
-	private int ballY;
-	private int greenX;
-
-	private int greenY;
-	private double blueOrientation;
-	private double yellowOrientation;
+	
+	private int currentFrame = 0;
+	private int[] blueX = new int[NUM_FRAMES];
+	private int[] blueY = new int[NUM_FRAMES];
+	private int[] yellowX = new int[NUM_FRAMES];
+	private int[] yellowY = new int[NUM_FRAMES];
+	private int[] ballX = new int[NUM_FRAMES];
+	private int[] ballY = new int[NUM_FRAMES];
+	private int[] greenX = new int[NUM_FRAMES];
+	private int[] greenY = new int[NUM_FRAMES];
+	
+	private double[] blueOrientation = new double[NUM_FRAMES];
+	private double[] yellowOrientation = new double[NUM_FRAMES];
 	private long counter;
 
 	// Used to filter out invalid bearings
@@ -59,111 +64,93 @@ public class WorldState {
 		this.direction = 0;
 		this.colour = 0;
 		this.pitch = 0;
-
-		// object properties
-		this.blueX = 0;
-		this.blueY = 0;
-		this.yellowX = 0;
-		this.yellowY = 0;
-		this.ballX = 0;
-		this.ballY = 0;
-		this.blueOrientation = 0;
-		this.yellowOrientation = 0;
-
-		// TODO: not used
-		// for (int i = 0; i < 3; i++) {
-		// ourBearings[i] = 0.0;
-		// theirBearings[i] = 0.0;
-		// }
 	}
-
+	
 	public void setGreenX(int greenX) {
-		this.greenX = greenX;
-	}
-
-	public void setGreenY(int greenY) {
-		this.greenY = greenY;
+		this.greenX[currentFrame] = greenX;
 	}
 
 	public int getGreenX() {
-		return greenX;
+		return greenX[currentFrame];
+	}
+	
+	public void setGreenY(int greenY) {
+		this.greenY[currentFrame] = greenY;
 	}
 
 	public int getGreenY() {
-		return greenY;
-	}
-
-	public int getBlueX() {
-		return blueX;
+		return greenY[currentFrame];
 	}
 
 	public void setBlueX(int blueX) {
-		this.blueX = blueX;
+		this.blueX[currentFrame] = blueX;
+	}
 
+	public int getBlueX() {
+		return blueX[currentFrame];
 	}
 
 	public int getBlueY() {
-		return blueY;
+		return blueY[currentFrame];
 
 	}
 
 	public void setBlueY(int blueY) {
-		this.blueY = blueY;
+		this.blueY[currentFrame] = blueY;
 
 	}
 
 	public int getYellowX() {
-		return yellowX;
+		return yellowX[currentFrame];
 	}
 
 	public void setYellowX(int yellowX) {
-		this.yellowX = yellowX;
+		this.yellowX = yellowX[currentFrame];
 
 	}
 
 	public int getYellowY() {
-		return yellowY;
+		return yellowY[currentFrame];
 	}
 
 	public void setYellowY(int yellowY) {
-		this.yellowY = yellowY;
+		this.yellowY[currentFrame] = yellowY;
 
 	}
 
 	public int getBallX() {
-		return ballX;
+		return ballX[currentFrame];
 	}
 
 	public void setBallX(int ballX) {
-		this.ballX = ballX;
+		this.ballX[currentFrame] = ballX;
 
 	}
 
 	public int getBallY() {
-		return ballY;
+		return ballY[currentFrame];
 	}
 
 	public void setBallY(int ballY) {
-		this.ballY = ballY;
+		this.ballY[currentFrame] = ballY;
 
 	}
 
 	public double getBlueOrientation() {
-		return blueOrientation;
+		return blueOrientation[currentFrame];
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
-		this.blueOrientation = blueOrientation;
+		this.blueOrientation[currentFrame] = blueOrientation;
 
 	}
 
 	public double getYellowOrientation() {
-		return yellowOrientation;
+		return yellowOrientation[currentFrame];
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
-		this.yellowOrientation = yellowOrientation;
-
+		this.yellowOrientation[currentFrame] = yellowOrientation;
 	}
 
 	public int getDirection() {
