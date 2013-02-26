@@ -14,25 +14,23 @@ import world.state.RobotType;
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
 //the pitch.
 
-public class Defensive extends StrategyInterface {
+public class Defensive extends StrategyInterface implements Runnable {
 	
 	public Defensive(WorldState world, Robot us, Robot them, RobotController rc) {
 		super(world, us, them, rc);
+		this.ball = world.ball;
 		// TODO Auto-generated constructor stub
 	}
 	
+	private Ball ball;
 	private static final double threshold = 20;
 	//The upper and lower bounds stay for the upper and lower y coordinates of the goal
 	private static final double upperBound = 165;
 	private static final double lowerBound = 320;
 	
-	public void defensive(WorldState world, RobotController robot){
+	public void run(){
 		
-		Ball ball = world.getBall();
-		Robot us = world.getOurRobot();
-		Robot them = world.getTheirRobot();
-		
-		Movement move = new Movement(world, robot);
+		Movement move = new Movement(world, rc);
 		//Defining auxiliary parameters used for calculating
 		double themballdist;
 		double angle, ythreshold, destY;
