@@ -23,20 +23,14 @@ public class Defensive extends StrategyInterface implements Runnable {
 	}
 
 	private Ball ball;
-	private static final double threshold = 40;
+	private static final double threshold = 50;
 	// The upper and lower bounds stay for the upper and lower y coordinates of
 	// the goal
-	private static final double upperBound = 165;
-	private static final double lowerBound = 320;
 
 	public void run() {
-		double previousTheirBearing = 0;
-		double theirBearing;
-		Movement move = new Movement(world, rc);
-		if (world==null)
-			 System.out.println("world null");
-		if (rc==null)
-		 System.out.println("rc null");
+//		double previousTheirBearing = 0;
+//		double theirBearing;
+
 		while (!Strategy.alldie && !shouldidie) {
 		
 			// Defining auxiliary parameters used for calculating
@@ -53,8 +47,17 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// defend the door
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						move.moveToPointAndStop(ourGoalCenter.getX() + threshold,
-								ourGoalCenter.getY());
+						Movement move = new Movement(world, rc, (int)(ourGoalCenter.getX() + threshold),
+								(int)ourGoalCenter.getY(), 0,0,0.0,3);
+						System.out.println("Left: x " +(int)(ourGoalCenter.getX() + threshold) +" y " +(int)ourGoalCenter.getY());
+						Thread moverthr = new Thread(move, "I'm a mover thread");
+						moverthr.start();
+						while(moverthr.isAlive()){
+							Thread.sleep(50);
+						}
+						if (!moverthr.isAlive())
+							break;
+						System.out.println("Point reached Left");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -103,10 +106,18 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// }
 				} else {
 					try {
-						move.moveToPointAndStop(ball.x, ball.y);
+						Movement move = new Movement(world, rc, (int)(ball.x),
+								(int)(ball.y), 0,0,0.0,3);
+						Thread moverthr = new Thread(move, "I'm a mover thread");
+						moverthr.start();
+						while(moverthr.isAlive()){
+							Thread.sleep(50);
+						}
+						System.out.println("Ball reached");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						
 					}
 				}
 			} else {
@@ -115,8 +126,17 @@ public class Defensive extends StrategyInterface implements Runnable {
 				ourGoalBottom = PitchInfo.getRightGoalBottom();
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						move.moveToPointAndStop(ourGoalCenter.getX() - threshold,
-								ourGoalCenter.getY());
+						Movement move = new Movement(world, rc, (int)(ourGoalCenter.getX() - threshold),
+								(int)ourGoalCenter.getY(), 0,0,0.0,3);
+						System.out.println("Right: x " +(int)(ourGoalCenter.getX() + threshold) +" y " +(int)ourGoalCenter.getY());
+						Thread moverthr = new Thread(move, "I'm a mover thread");
+						moverthr.start();
+						while(moverthr.isAlive()){
+							Thread.sleep(50);
+						}
+						if (!moverthr.isAlive())
+							break;
+						System.out.println("Point reached Right");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -127,7 +147,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// Calculating the ball kicking line
 					// Given their bearing, calculate where exactly in our goal
 					// they are aiming
-					theirBearing = them.bearing;
+				//	theirBearing = them.bearing;
 					/*
 					if (Math.abs(previousTheirBearing - theirBearing) < 15) {
 						angle = Math.abs(90 - theirBearing);
@@ -149,7 +169,14 @@ public class Defensive extends StrategyInterface implements Runnable {
 					}*/
 				} else {
 					try {
-						move.moveToPointAndStop(ball.x, ball.y);
+						Movement move = new Movement(world, rc, (int)(ball.x),
+								(int)(ball.y), 0,0,0.0,3);
+						Thread moverthr = new Thread(move, "I'm a mover thread");
+						moverthr.start();
+						while(moverthr.isAlive()){
+							Thread.sleep(50);
+						}
+						System.out.println("Ball reached");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
