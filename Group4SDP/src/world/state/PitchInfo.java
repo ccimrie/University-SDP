@@ -26,12 +26,12 @@ public class PitchInfo {
 	private final static double edgeSafeDist = 15;
 	//Dimensions of the left goal    
 	private static Vector leftGoalCentreSide = new Vector(30.0, 250.0);
-	private static Vector leftGoalTop = new Vector(30.0, 170.0);
-	private static Vector leftGoalBottom = new Vector(30.0, 330.0);
+	private static Vector leftGoalTop = new Vector(35.0, 170.0);
+	private static Vector leftGoalBottom = new Vector(35.0, 315.0);
 	//Dimensions of the right goal
 	private static Vector rightGoalCentreSide = new Vector(600.0, 240.0);
-	private static Vector rightGoalTop = new Vector(600.0, 160.0);
-	private static Vector rightGoalBottom = new Vector(600.0, 320);
+	private static Vector rightGoalTop = new Vector(600.0, 165.0);
+	private static Vector rightGoalBottom = new Vector(603.0, 310);
 	
 	public static final Vector lowerBoundSide = new Vector(36.0,18.0);
 	public static final Vector upperBoundSide = new Vector(658.0,344.0);

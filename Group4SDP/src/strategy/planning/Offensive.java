@@ -19,7 +19,7 @@ import vision.*;
 import strategy.calculations.*;
 public class Offensive extends StrategyInterface implements Runnable{
 	Inteception take = new Inteception();
-	
+	MoveToBall mb = new MoveToBall();
 	public Offensive(WorldState world, Robot us, Robot them, RobotController rc){
 		super(world, us, them, rc);
 	}
@@ -37,8 +37,20 @@ public class Offensive extends StrategyInterface implements Runnable{
 
 			} else {
 				if (world.getPosession() == PossessionType.Us){
-				//	PlainScoring.domination();
-				}
+					PlainScoring killthemALL = new PlainScoring();
+					try {
+						killthemALL.domination(world, us, them, rc);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else
+					try {
+						MoveToBall.approach(world, rc);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				double angle = IsRobotFacingPoint.Turner(us, theirGoal.getX(), theirGoal.getY());
 				System.out.println(Math.abs(angle));
 				if(Math.abs(angle) > 40){
@@ -54,7 +66,8 @@ public class Offensive extends StrategyInterface implements Runnable{
 				}
 
 			}
-		}
+		
 		rc.stop();
 	}
+}
 }
