@@ -32,9 +32,13 @@ public class Defensive extends StrategyInterface implements Runnable {
 	public void run() {
 		double previousTheirBearing = 0;
 		double theirBearing;
-
+		Movement move = new Movement(world, rc);
+		if (world==null)
+			 System.out.println("world null");
+		if (rc==null)
+		 System.out.println("rc null");
 		while (!Strategy.alldie && !shouldidie) {
-			Movement move = new Movement(world, rc);
+		
 			// Defining auxiliary parameters used for calculating
 
 			double angle, ythreshold, destY;
@@ -49,7 +53,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// defend the door
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						move.moveToPoint(ourGoalCenter.getX() + threshold,
+						move.moveToPointAndStop(ourGoalCenter.getX() + threshold,
 								ourGoalCenter.getY());
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -99,7 +103,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// }
 				} else {
 					try {
-						move.moveToPoint(ball.x, ball.y);
+						move.moveToPointAndStop(ball.x, ball.y);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -108,10 +112,10 @@ public class Defensive extends StrategyInterface implements Runnable {
 			} else {
 				ourGoalCenter = PitchInfo.getRightGoalCentreSide();
 				ourGoalTop = PitchInfo.getRightGoalTop();
-				ourGoalBottom = PitchInfo.getLeftGoalBottom();
+				ourGoalBottom = PitchInfo.getRightGoalBottom();
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						move.moveToPoint(ourGoalCenter.getX() - threshold,
+						move.moveToPointAndStop(ourGoalCenter.getX() - threshold,
 								ourGoalCenter.getY());
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -145,7 +149,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 					}*/
 				} else {
 					try {
-						move.moveToPoint(ball.x, ball.y);
+						move.moveToPointAndStop(ball.x, ball.y);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
