@@ -336,7 +336,8 @@ public class Vision implements VideoReceiver {
 			worldState.setYellowY(yellowPlateCentroid.getY());
 			worldState.setBlueOrientation(blueAngle);
 			worldState.setYellowOrientation(yellowAngle);
-			worldState.updateCounter();
+			worldState.update();
+			
 			worldState.setOurRobot();
 			worldState.setTheirRobot();
 			worldState.setBall();

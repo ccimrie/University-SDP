@@ -20,36 +20,57 @@ import vision.WorldState;
 public class WorldState {
 	/** The number of frames used to calculate velocity */
 	private static final int NUM_FRAMES = 3;
-	
+
+	private long counter;
+
 	private int direction; // 0 = right, 1 = left.
 	private int colour; // 0 = yellow, 1 = blue
 	private int pitch; // 0 = main, 1 = side room
-	
-	private int currentFrame = 0;
-	private int[] blueX = new int[NUM_FRAMES];
-	private int[] blueY = new int[NUM_FRAMES];
-	private int[] yellowX = new int[NUM_FRAMES];
-	private int[] yellowY = new int[NUM_FRAMES];
-	private int[] ballX = new int[NUM_FRAMES];
-	private int[] ballY = new int[NUM_FRAMES];
-	private int[] greenX = new int[NUM_FRAMES];
-	private int[] greenY = new int[NUM_FRAMES];
-	
-	private double[] blueOrientation = new double[NUM_FRAMES];
-	private double[] yellowOrientation = new double[NUM_FRAMES];
-	private long counter;
 
-	// Used to filter out invalid bearings
-	// TODO: not used
-	// private Double[] ourBearings = new Double[3];
-	// private Double[] theirBearings = new Double[3];
+	private int greenX;
+	private int greenY;
+
+	private int currentFrame = 0;
+	// Buffers for smoothing positions/angles and calculating velocities
+	private int[] blueXBuf = new int[NUM_FRAMES];
+	private int[] blueYBuf = new int[NUM_FRAMES];
+	private double[] blueOrientBuf = new double[NUM_FRAMES];
+
+	private int[] yellowXBuf = new int[NUM_FRAMES];
+	private int[] yellowYBuf = new int[NUM_FRAMES];
+	private double[] yellowOrientBuf = new double[NUM_FRAMES];
+
+	private int[] ballXBuf = new int[NUM_FRAMES];
+	private int[] ballYBuf = new int[NUM_FRAMES];
+
+	// Smoothed positions/angles
+	private int blueX;
+	private int blueY;
+	private double blueOrient;
+
+	private int yellowX;
+	private int yellowY;
+	private double yellowOrient;
+
+	private int ballX;
+	private int ballY;
+
+	// Velocities
+	private double blueXVel;
+	private double blueYVel;
+
+	private double yellowXVel;
+	private double yellowYVel;
+
+	private double ballXVel;
+	private double ballYVel;
 
 	private boolean weAreBlue = true;
 	private boolean weAreOnLeft = true;
 	private boolean mainPitch = true;
 	private boolean blueHasBall = false;
 	private boolean yellowHasBall = false;
-	
+
 	private PossessionManager pm = new PossessionManager();
 
 	public int frame;
@@ -65,124 +86,214 @@ public class WorldState {
 		this.colour = 0;
 		this.pitch = 0;
 	}
-	
-	public void setGreenX(int greenX) {
-		this.greenX[currentFrame] = greenX;
-	}
-
-	public int getGreenX() {
-		return greenX[currentFrame];
-	}
-	
-	public void setGreenY(int greenY) {
-		this.greenY[currentFrame] = greenY;
-	}
-
-	public int getGreenY() {
-		return greenY[currentFrame];
-	}
 
 	public void setBlueX(int blueX) {
-		this.blueX[currentFrame] = blueX;
+		this.blueXBuf[currentFrame] = blueX;
 	}
 
 	public int getBlueX() {
-		return blueX[currentFrame];
+		return blueX;
 	}
 
-	public int getBlueY() {
-		return blueY[currentFrame];
-
+	public double getBlueXVelocity() {
+		return blueXVel;
 	}
 
 	public void setBlueY(int blueY) {
-		this.blueY[currentFrame] = blueY;
-
+		this.blueYBuf[currentFrame] = blueY;
 	}
 
-	public int getYellowX() {
-		return yellowX[currentFrame];
+	public int getBlueY() {
+		return blueY;
 	}
 
-	public void setYellowX(int yellowX) {
-		this.yellowX = yellowX[currentFrame];
-
-	}
-
-	public int getYellowY() {
-		return yellowY[currentFrame];
-	}
-
-	public void setYellowY(int yellowY) {
-		this.yellowY[currentFrame] = yellowY;
-
-	}
-
-	public int getBallX() {
-		return ballX[currentFrame];
-	}
-
-	public void setBallX(int ballX) {
-		this.ballX[currentFrame] = ballX;
-
-	}
-
-	public int getBallY() {
-		return ballY[currentFrame];
-	}
-
-	public void setBallY(int ballY) {
-		this.ballY[currentFrame] = ballY;
-
-	}
-
-	public double getBlueOrientation() {
-		return blueOrientation[currentFrame];
+	public double getBlueYVelocity() {
+		return blueYVel;
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
-		this.blueOrientation[currentFrame] = blueOrientation;
-
+		this.blueOrientBuf[currentFrame] = blueOrientation;
 	}
 
-	public double getYellowOrientation() {
-		return yellowOrientation[currentFrame];
+	public double getBlueOrientation() {
+		return blueOrient;
+	}
+
+	public void setYellowX(int yellowX) {
+		this.yellowXBuf[currentFrame] = yellowX;
+	}
+
+	public int getYellowX() {
+		return yellowX;
+	}
+
+	public double getYellowXVelocity() {
+		return yellowXVel;
+	}
+
+	public void setYellowY(int yellowY) {
+		this.yellowYBuf[currentFrame] = yellowY;
+	}
+
+	public int getYellowY() {
+		return yellowY;
+	}
+
+	public double getYellowYVelocity() {
+		return yellowYVel;
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
-		this.yellowOrientation[currentFrame] = yellowOrientation;
+		this.yellowOrientBuf[currentFrame] = yellowOrientation;
 	}
 
-	public int getDirection() {
-		return direction;
+	public double getYellowOrientation() {
+		return yellowOrient;
+	}
+
+	public void setGreenX(int greenX) {
+		this.greenX = greenX;
+	}
+
+	public int getGreenX() {
+		return greenX;
+	}
+
+	public void setGreenY(int greenY) {
+		this.greenY = greenY;
+	}
+
+	public int getGreenY() {
+		return greenY;
+	}
+
+	public void setBallX(int ballX) {
+		this.ballXBuf[currentFrame] = ballX;
+	}
+
+	public int getBallX() {
+		return ballX;
+	}
+
+	public double getBallXVelocity() {
+		return ballXVel;
+	}
+
+	public void setBallY(int ballY) {
+		this.ballYBuf[currentFrame] = ballY;
+	}
+
+	public int getBallY() {
+		return ballY;
+	}
+
+	public double getBallYVelocitY() {
+		return ballYVel;
 	}
 
 	public void setDirection(int direction) {
 		this.direction = direction;
 	}
 
-	public int getColour() {
-		return colour;
+	public int getDirection() {
+		return direction;
 	}
 
 	public void setColour(int colour) {
 		this.colour = colour;
 	}
 
-	public int getPitch() {
-		return pitch;
+	public int getColour() {
+		return colour;
 	}
 
 	public void setPitch(int pitch) {
 		this.pitch = pitch;
 	}
 
-	public void updateCounter() {
-		this.counter++;
+	public int getPitch() {
+		return pitch;
 	}
 
 	public long getCounter() {
 		return this.counter;
+	}
+
+	/**
+	 * Triggers calculation of smoothed positions/angles and velocities
+	 */
+	public void update() {
+		++counter;
+		++currentFrame;
+		if (currentFrame >= NUM_FRAMES)
+			currentFrame = 0;
+
+		// Reinitialise all positions/angles/velocities to 0
+		blueX = 0;
+		blueXVel = 0;
+		blueY = 0;
+		blueYVel = 0;
+		blueOrient = 0;
+
+		yellowX = 0;
+		yellowXVel = 0;
+		yellowY = 0;
+		yellowYVel = 0;
+		yellowOrient = 0;
+
+		ballX = 0;
+		ballXVel = 0;
+		ballY = 0;
+		ballYVel = 0;
+
+		// Smooth positions/angles
+		for (int i = 0; i < NUM_FRAMES; ++i) {
+			blueX += blueXBuf[i];
+			blueY += blueYBuf[i];
+			blueOrient += blueOrientBuf[i];
+
+			yellowX += yellowXBuf[i];
+			yellowY += yellowYBuf[i];
+			yellowOrient += yellowOrientBuf[i];
+
+			ballX += ballXBuf[i];
+			ballY += ballYBuf[i];
+		}
+
+		// Calculate velocities
+		for (int i = 0; i < NUM_FRAMES; ++i) {
+			blueXVel += blueXBuf[(currentFrame - i) % NUM_FRAMES]
+					- blueXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+			blueYVel += blueYBuf[(currentFrame - i) % NUM_FRAMES]
+					- blueYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+
+			yellowXVel += yellowXBuf[(currentFrame - i) % NUM_FRAMES]
+					- yellowXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+			yellowYVel += yellowYBuf[(currentFrame - i) % NUM_FRAMES]
+					- yellowYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+
+			ballXVel += ballXBuf[(currentFrame - i) % NUM_FRAMES]
+					- ballXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+			ballYVel += ballYBuf[(currentFrame - i) % NUM_FRAMES]
+					- ballYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+		}
+
+		blueX /= NUM_FRAMES;
+		blueXVel /= NUM_FRAMES;
+		blueY /= NUM_FRAMES;
+		blueYVel /= NUM_FRAMES;
+		blueOrient /= NUM_FRAMES;
+
+		yellowX /= NUM_FRAMES;
+		yellowXVel /= NUM_FRAMES;
+		yellowY /= NUM_FRAMES;
+		yellowYVel /= NUM_FRAMES;
+		yellowOrient /= NUM_FRAMES;
+
+		ballX /= NUM_FRAMES;
+		ballXVel /= NUM_FRAMES;
+		ballY /= NUM_FRAMES;
+		ballYVel /= NUM_FRAMES;
 	}
 
 	// ///////////////////////
@@ -338,44 +449,45 @@ public class WorldState {
 		}
 		return false;
 	}
-	
-	public int whoHasTheBall(){
-		if (blueHasBall){
+
+	public int whoHasTheBall() {
+		if (blueHasBall) {
 			return 1;
 		}
-		if (yellowHasBall){
+		if (yellowHasBall) {
 			return 2;
 		}
 		return -1;
 	}
-	
-	public void updatePossesion(){
+
+	public void updatePossesion() {
 		hasPossession = pm.setPossession(this);
-		if (weAreBlue){
-			if (hasPossession == PossessionType.Us){
+		if (weAreBlue) {
+			if (hasPossession == PossessionType.Us) {
 				blueHasBall = true;
 				yellowHasBall = false;
-			} else if (hasPossession == PossessionType.Them){
+			} else if (hasPossession == PossessionType.Them) {
 				blueHasBall = false;
 				yellowHasBall = true;
-			}else{
+			} else {
 				blueHasBall = false;
 				yellowHasBall = false;
 			}
-		}else {
-			if (hasPossession == PossessionType.Us){
+		} else {
+			if (hasPossession == PossessionType.Us) {
 				blueHasBall = false;
 				yellowHasBall = true;
-			} else if (hasPossession == PossessionType.Them){
+			} else if (hasPossession == PossessionType.Them) {
 				blueHasBall = true;
 				yellowHasBall = false;
-			}else{
+			} else {
 				blueHasBall = false;
 				yellowHasBall = false;
 			}
 		}
 	}
-	public PossessionType getPosession(){
+
+	public PossessionType getPosession() {
 		return hasPossession;
 	}
 }
