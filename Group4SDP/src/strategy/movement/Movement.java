@@ -132,7 +132,7 @@ public class Movement extends Thread {
 		double theta;
 		double xt, yt, xtc, ytc;
 		int i = 0;
-		System.out.println("--------------");
+		// System.out.println("--------------");
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > DIST_TH && i < 50 && die == false) {
 			/*
 			 * We make a vector (xt, yt) pointing from the robot to point,
@@ -146,10 +146,10 @@ public class Movement extends Thread {
 			// Clockwise angle of the robot from the north
 			theta = us.bearing;
 
-			System.out.println("Iteration: " + i);
-			System.out.println("xt: " + xtc);
-			System.out.println("yt: " + ytc);
-			System.out.println("theta: " + Math.toDegrees(theta));
+			// System.out.println("Iteration: " + i);
+			// System.out.println("xt: " + xtc);
+			// System.out.println("yt: " + ytc);
+			// System.out.println("theta: " + Math.toDegrees(theta));
 
 			// Unit vector in camera axis in the direction of the robot
 			xt = Math.sin(theta);
@@ -170,7 +170,7 @@ public class Movement extends Thread {
 			if (dotProductEast < 0)
 				angle = -angle;
 
-			System.out.println(Math.toDegrees(angle));
+			// System.out.println(Math.toDegrees(angle));
 
 			// Calling the generic move function
 			move(angle);
