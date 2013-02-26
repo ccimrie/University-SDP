@@ -49,6 +49,9 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 				System.out.println("State changed to " + currentState.toString());
 				newState = currentState;
 			}
+			
+		Thread def = new Thread(new Defensive(world, us, them, rc), "Defense Thread");
+		def.run();
 
 			// OBSTACLE DETECTION STRATEGY
 			// WE MUST IMPLEMENT THAT OURSELVES
