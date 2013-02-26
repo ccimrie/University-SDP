@@ -187,7 +187,7 @@ public class WorldState {
 		return ballY;
 	}
 
-	public double getBallYVelocitY() {
+	public double getBallYVelocity() {
 		return ballYVel;
 	}
 
@@ -224,9 +224,6 @@ public class WorldState {
 	 */
 	public void update() {
 		++counter;
-		++currentFrame;
-		if (currentFrame >= NUM_FRAMES)
-			currentFrame = 0;
 
 		// Reinitialise all positions/angles/velocities to 0
 		blueX = 0;
@@ -261,22 +258,19 @@ public class WorldState {
 		}
 
 		// Calculate velocities
-		for (int i = 0; i < NUM_FRAMES; ++i) {
-			blueXVel += blueXBuf[(currentFrame - i) % NUM_FRAMES]
-					- blueXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
-			blueYVel += blueYBuf[(currentFrame - i) % NUM_FRAMES]
-					- blueYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+		int prevFrame;
+		// Calculate +ve modulus - % operator doesn't have the desired effect.
+		prevFrame = 2 + currentFrame - NUM_FRAMES;
+		if (prevFrame < 0) prevFrame += NUM_FRAMES;
 
-			yellowXVel += yellowXBuf[(currentFrame - i) % NUM_FRAMES]
-					- yellowXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
-			yellowYVel += yellowYBuf[(currentFrame - i) % NUM_FRAMES]
-					- yellowYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
+		blueXVel += blueXBuf[currentFrame] - blueXBuf[prevFrame];
+		blueYVel += blueYBuf[currentFrame] - blueYBuf[prevFrame];
 
-			ballXVel += ballXBuf[(currentFrame - i) % NUM_FRAMES]
-					- ballXBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
-			ballYVel += ballYBuf[(currentFrame - i) % NUM_FRAMES]
-					- ballYBuf[(currentFrame - (i + 1)) % NUM_FRAMES];
-		}
+		yellowXVel += yellowXBuf[currentFrame] - yellowXBuf[prevFrame];
+		yellowYVel += yellowYBuf[currentFrame] - yellowYBuf[prevFrame];
+
+		ballXVel += ballXBuf[currentFrame] - ballXBuf[prevFrame];
+		ballYVel += ballYBuf[currentFrame] - ballYBuf[prevFrame];
 
 		blueX /= NUM_FRAMES;
 		blueXVel /= NUM_FRAMES;
@@ -294,6 +288,10 @@ public class WorldState {
 		ballXVel /= NUM_FRAMES;
 		ballY /= NUM_FRAMES;
 		ballYVel /= NUM_FRAMES;
+
+		++currentFrame;
+		if (currentFrame >= NUM_FRAMES)
+			currentFrame = 0;
 	}
 
 	// ///////////////////////

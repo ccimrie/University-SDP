@@ -21,10 +21,10 @@ public class Vision implements VideoReceiver {
 	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
-	
-	private Position bluePlateCentroid = new Position (0, 0);
-	private Position yellowPlateCentroid = new Position (0, 0);
-	
+
+	private Position bluePlateCentroid = new Position(0, 0);
+	private Position yellowPlateCentroid = new Position(0, 0);
+
 	private final int YELLOW_T = 0;
 	private final int BLUE_T = 1;
 	private final int BALL = 2;
@@ -267,7 +267,6 @@ public class Vision implements VideoReceiver {
 
 			// Check that we actually have 2 plates before attempting to cluster
 			// them
-			// TODO: sanity check
 			if (sumSqrdError > Kmeans.errortarget) {
 				/** TWO PLATES ON FIELD SCENARIO - RUN KMEANS */
 				double[] angles = differentiateBetweenPlates(frame,
@@ -282,7 +281,7 @@ public class Vision implements VideoReceiver {
 
 				// If the single plate is blue, assign the angle to the blue
 				// plate
-				if (numBluePos > numYellowPos){
+				if (numBluePos > numYellowPos) {
 					blueAngle = angle;
 					bluePlateCentroid = green;
 				}
@@ -292,9 +291,10 @@ public class Vision implements VideoReceiver {
 					yellowPlateCentroid = green;
 				}
 			}
-			
+
 			/** Ball */
-			// If we have only found a few 'Ball' pixels, chances are that the ball
+			// If we have only found a few 'Ball' pixels, chances are that the
+			// ball
 			// has not actually been detected.
 			if (numBallPos > 15) {
 				ballX /= numBallPos;
@@ -307,13 +307,18 @@ public class Vision implements VideoReceiver {
 				int ballrobot = worldState.whoHasTheBall();
 				switch (ballrobot) {
 				case 1: // Blue robot has the ball
-					ball = new Position((int)(blue.getX() + 30*Math.sin(blueAngle)), (int)(blue.getY() - 30*Math.cos(blueAngle)));
+					ball = new Position(
+							(int) (blue.getX() + 30 * Math.sin(blueAngle)),
+							(int) (blue.getY() - 30 * Math.cos(blueAngle)));
 					break;
 				case 2:
-					ball = new Position((int)(yellow.getX() + 30*Math.sin(yellowAngle)), (int)(yellow.getY() - 30*Math.cos(yellowAngle)));
+					ball = new Position(
+							(int) (yellow.getX() + 30 * Math.sin(yellowAngle)),
+							(int) (yellow.getY() - 30 * Math.cos(yellowAngle)));
 					break;
 				case -1:
-					ball = new Position(worldState.getBallX(), worldState.getBallY());
+					ball = new Position(worldState.getBallX(),
+							worldState.getBallY());
 				}
 			}
 
@@ -337,7 +342,7 @@ public class Vision implements VideoReceiver {
 			worldState.setBlueOrientation(blueAngle);
 			worldState.setYellowOrientation(yellowAngle);
 			worldState.update();
-			
+
 			worldState.setOurRobot();
 			worldState.setTheirRobot();
 			worldState.setBall();
@@ -354,13 +359,13 @@ public class Vision implements VideoReceiver {
 
 			if (!anyDebug) {
 				debugGraphics.setColor(Color.red);
-				debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
-				debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
+				debugGraphics.drawLine(0, worldState.getBallY(), 640, worldState.getBallY());
+				debugGraphics.drawLine(worldState.getBallX(), 0, worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			// e.printStackTrace(System.err);
+			System.err.println(e.getClass().toString() + ": " + e.getMessage());
+//			e.printStackTrace(System.err);
 		}
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
@@ -705,7 +710,7 @@ public class Vision implements VideoReceiver {
 				cluster1);
 		double yellowAngle = findPlateAngle(frame, debugOverlay, plate2mean,
 				cluster2);
-		
+
 		bluePlateCentroid = plate1mean;
 		yellowPlateCentroid = plate2mean;
 
