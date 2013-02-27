@@ -23,10 +23,10 @@ public class Everything {
 	}
 
 	public void doAllTheThings() {
-		if (start){
-			start = false;
-			rotate(Math.PI/2);
-		}
+//		if (start){
+//			start = false;
+//			rotate(Math.PI/2);
+//		}
 		while (true) {			
 			try {
 				moveTowardsPoint(worldState.ball.x, worldState.ball.y);

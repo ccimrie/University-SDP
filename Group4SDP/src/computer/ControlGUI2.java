@@ -27,6 +27,7 @@ import strategy.planning.Everything;
 import strategy.planning.MoveToBall;
 import strategy.planning.Offensive;
 import strategy.planning.PenaltyAttack;
+import strategy.planning.PenaltyDefence;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -187,8 +188,8 @@ public class ControlGUI2 extends JFrame {
 		startStopQuitPanel.add(start);
 		startStopQuitPanel.add(stop);
 		startStopQuitPanel.add(quit);
-//		startStopQuitPanel.add(stratStart);
-//		startStopQuitPanel.add(stratStop);
+		startStopQuitPanel.add(stratStart);
+		startStopQuitPanel.add(stratStop);
 		startStopQuitPanel.add(penaltyAtk);
 		startStopQuitPanel.add(penaltyDef);
 
@@ -247,6 +248,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Thread et = new EverythingThread();
 				et.run();
+				
 				//if (mover != null && mover.isAlive())
 				//	mover.die();
 				//mover = new Movement(worldState, robot, 320, 220, 0, 0, 0.0, 4);
@@ -299,12 +301,20 @@ public class ControlGUI2 extends JFrame {
 				}
 			}
 		});
-
+		
 		penaltyAtk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penAtk = new PenaltyAttack(worldState,
 						worldState.ourRobot, worldState.theirRobot, robot);
 				penAtk.run();
+			}
+		});
+		
+		penaltyDef.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PenaltyDefence pendef = new PenaltyDefence(worldState, worldState.ourRobot, worldState.theirRobot, robot);
+				Thread mthread = new Thread(pendef, "pendef");
+				mthread.run();
 			}
 		});
 
