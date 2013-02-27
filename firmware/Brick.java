@@ -280,14 +280,14 @@ public class Brick {
 
 		switch (dir) {
 		case 1:
-			chip.move(1, FORWARDS, 50);
-			chip.move(2, FORWARDS, 50);
+			chip.move(1, FORWARDS, 120);
+			chip.move(2, BACKWARDS, 120);
 			leftMotor.rotate(angle, true);
 			rightMotor.rotate(angle);
 			break;
-		case 2:
-			chip.move(1, BACKWARDS, 50);
-			chip.move(2, BACKWARDS, 50);
+		case 2:			
+			chip.move(1, BACKWARDS, 120);
+			chip.move(2, FORWARDS, 120);
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(-angle);
 			break;
