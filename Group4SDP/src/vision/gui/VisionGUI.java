@@ -377,7 +377,15 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 	@Override
 	public void sendDebugOverlay(BufferedImage debug) {
-		this.debugOverlay = debug;
+		// Use the image passed if debug is enabled
+		if (settingsPanel.isDebugEnabled()) {
+			this.debugOverlay = debug;
+		}
+		// Otherwise discard it and create a new image to work with
+		else {
+			this.debugOverlay = new BufferedImage(debug.getWidth(),
+					debug.getHeight(), debug.getType());
+		}
 		Graphics debugGraphics = debugOverlay.getGraphics();
 		Graphics2D g2d = (Graphics2D) debugGraphics;
 
@@ -424,7 +432,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				debugGraphics.drawRect(a, b, c, d);
 			}
 		}
-
 	}
 
 	@Override
@@ -458,10 +465,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
 						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
 				60);
-		frameGraphics
-				.drawString(
-						"angle: " + df.format(worldState.getBlueOrientation()),
-						260, 60);
+		frameGraphics.drawString(
+				"angle: "
+						+ df.format(Math.toDegrees(worldState
+								.getBlueOrientation())), 260, 60);
 
 		frameGraphics.drawString("Yellow:", 15, 75);
 		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
@@ -471,8 +478,9 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 						+ df.format(worldState.getYellowYVelocity()) + ")",
 				140, 75);
 		frameGraphics.drawString(
-				"angle: " + df.format(worldState.getYellowOrientation()), 260,
-				75);
+				"angle: "
+						+ df.format(Math.toDegrees(worldState
+								.getYellowOrientation())), 260, 75);
 
 		// Draw overall composite to screen
 		Graphics videoGraphics = videoDisplay.getGraphics();
