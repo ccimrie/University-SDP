@@ -24,6 +24,7 @@ import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
+import strategy.planning.Offensive;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
@@ -271,10 +272,16 @@ public class ControlGUI2 extends JFrame {
 
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Strategy.reset();
+				
+				
+				Offensive attacking = new Offensive(worldState, worldState.ourRobot,worldState.theirRobot, robot);
+				new Thread(attacking).start();
+				
+				
+				//Strategy.reset();
 				// Run in a new thread to free up UI while running
-				Thread strat = new Thread(new Strategy(worldState, robot));
-				strat.start();
+				//Thread strat = new Thread(new Strategy(worldState, robot));
+				//strat.start();
 			}
 		});
 

@@ -8,7 +8,7 @@ import strategy.movement.TurnToBall;
 
 public class Possession {
 	
-	private static final int possessionThreshold = 45;
+	private static final int possessionThreshold = 60;
 	
 	public static boolean hasPossession(WorldState world, RobotType type) {
 	
