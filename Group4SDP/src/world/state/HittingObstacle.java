@@ -4,6 +4,7 @@ import java.awt.geom.Line2D.Double;
 
 import geometry.Vector;
 import strategy.calculations.DistanceCalculator;
+import strategy.calculations.GoalInfo;
 import vision.*;
 
 
@@ -28,17 +29,20 @@ public class HittingObstacle {
 	 * 
 	 * 
 	 */
+	PitchConstants pc = new PitchConstants(0);
 	
-	Vector northWestPole = PitchInfo.getLeftGoalTop();
-	Vector southWestPole = PitchInfo.getLeftGoalBottom();
+	GoalInfo goalCord = new GoalInfo(pc);
+	
+	Vector northWestPole = new Vector(goalCord.getLeftGoalTop().getX(),  goalCord.getLeftGoalTop().getY());
+	Vector southWestPole = new Vector (goalCord.getLeftGoalBottom().getX(), goalCord.getLeftGoalBottom().getY()) ;
 	
 	
 	Vector northWestCorner =  new Vector(35, 94);
 	Vector southWestCorner =  new Vector(35, 392);
 	
 	
-	Vector northEastPole = PitchInfo.getRightGoalTop();
-	Vector southEastPole = PitchInfo.getRightGoalBottom();
+	Vector northEastPole = new Vector( goalCord.getRightGoalTop().getX(),  goalCord.getRightGoalTop().getY() );
+	Vector southEastPole = new Vector (goalCord.getRightGoalBottom().getX(), goalCord.getRightGoalBottom().getY()) ;
 	
 	
 	Vector northEastCorner =  new Vector(598, 92);
