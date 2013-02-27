@@ -81,6 +81,7 @@ public class Movement extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		robot.clearBuff();
 	}
 
 	public void die() throws InterruptedException {
