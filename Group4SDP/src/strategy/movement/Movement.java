@@ -45,7 +45,9 @@ public class Movement extends Thread {
 	 * @param methodToUse
 	 *            A method to call: </br>1 - {@link #move(double speedX, double speedY)}, </br> 2 -
 	 *            {@link #move(double angle)},</br> 3 - {@link #moveToPoint(double movetoPointX, double movetoPointY)},
-	 *            </br>4 - {@link #moveToPointAndStop(double movetoPointX, double movetoPointY)},
+	 *            </br>4 - {@link #moveToPointAndStop(double movetoPointX, double movetoPointY)}, </br>5 -
+	 *            {@link #moveTowardsPoint (double movetoPointX, double movetoPointY)}, </br>6 - {@link #rotate (double
+	 *            angle)}
 	 */
 	public Movement(WorldState worldState, RobotController robot, double movetopointx, double movetopointy, double speedx, double speedy, double angle, int methodtouse) {
 		super();
@@ -76,6 +78,12 @@ public class Movement extends Thread {
 			case 4:
 				moveToPointAndStop(movetopointx, movetopointy);
 				break;
+			case 5:
+				moveTowardsPoint(movetopointx, movetopointy);
+				break;
+			case 6:
+				rotate(angle);
+				break;
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -83,9 +91,8 @@ public class Movement extends Thread {
 		}
 	}
 
-	public void die() throws InterruptedException {
+	public void die(){
 		die = true;
-		Thread.sleep(50);
 		robot.stop();
 
 	}
@@ -125,59 +132,19 @@ public class Movement extends Thread {
 	 *            Move to position y units right from top left corner of the video feed
 	 * @throws InterruptedException
 	 *             when Thread.sleep() is interrupted.
-	 * @see #moveToPointAndStop(double, double)
+	 * @see #moveToPointAndStop(double x, double y)
+	 * @see #moveTowardsPoint(double x, double y)
 	 */
 	public void moveToPoint(double x, double y) throws InterruptedException {
 
-		double theta;
-		double xt, yt, xtc, ytc;
 		int i = 0;
-		// System.out.println("--------------");
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > DIST_TH && i < 50 && die == false) {
-			/*
-			 * We make a vector (xt, yt) pointing from the robot to point,
-			 * then use rotational transformation to put it in robots perspective,
-			 * then normalise the speeds to a scale of 0-100.
-			 */
 			// Not to send unnecessary commands
 			Thread.sleep(42);
-			// Vector from robot to point in the camera axis
-			xtc = x - us.x;
-			ytc = y - us.y;
-			// Clockwise angle of the robot from the north
-			theta = us.bearing;
-
-			// System.out.println("Iteration: " + i);
-			// System.out.println("xt: " + xtc);
-			// System.out.println("yt: " + ytc);
-			// System.out.println("theta: " + Math.toDegrees(theta));
-
-			// Unit vector in camera axis in the direction of the robot
-			xt = Math.sin(theta);
-			yt = -Math.cos(theta);
-
-			// Dot product of the two vectors
-			double dotProductForward = xt * xtc + yt * ytc;
-
-			// Turned dot product
-			xt = Math.sin(theta + Math.PI / 2.0);
-			yt = -Math.cos(theta + Math.PI / 2.0);
-			double dotProductEast = xt * xtc + yt * ytc;
-
-			// Finding the angle from dot product
-
-			double angle = Math.acos(dotProductForward / (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt * yt)));
-			// Adjusting for negative values
-			if (dotProductEast < 0)
-				angle = -angle;
-
-			// System.out.println(Math.toDegrees(angle));
-
-			// Calling the generic move function
-			move(angle);
+			moveTowardsPoint(x, y);
 			// If we can't get to the point for some reason, it should cancel after some iterations
 			i++;
-			
+
 		}
 	}
 
@@ -199,6 +166,52 @@ public class Movement extends Thread {
 	}
 
 	/**
+	 * Starts moving to the direction of the point and return immediately.
+	 * 
+	 * @param x
+	 *            Move to position x units down from top left corner of the video feed
+	 * @param y
+	 *            Move to position y units left from top left corner of the video feed
+	 * @see #moveToPoint(double, double)
+	 */
+	public void moveTowardsPoint(double x, double y) {
+		/*
+		 * We make a vector (xt, yt) pointing from the robot to point,
+		 * then use rotational transformation to put it in robots perspective,
+		 * then normalise the speeds to a scale of 0-100.
+		 */
+		double theta;
+		double xt, yt, xtc, ytc;
+		// Vector from robot to point in the camera axis
+		xtc = x - us.x;
+		ytc = y - us.y;
+		// Clockwise angle of the robot from the north
+		theta = us.bearing;
+
+		// Unit vector in camera axis in the direction of the robot
+		xt = Math.sin(theta);
+		yt = -Math.cos(theta);
+
+		// Dot product of the two vectors
+		double dotProductForward = xt * xtc + yt * ytc;
+
+		// Turned dot product
+		xt = Math.sin(theta + Math.PI / 2.0);
+		yt = -Math.cos(theta + Math.PI / 2.0);
+		double dotProductEast = xt * xtc + yt * ytc;
+
+		// Finding the angle from dot product
+
+		double angle = Math.acos(dotProductForward / (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt * yt)));
+		// Adjusting for negative values
+		if (dotProductEast < 0)
+			angle = -angle;
+
+		// Calling the generic move function
+		move(angle);
+	}
+
+	/**
 	 * Move to a point (x,y) while avoiding point (avoidX, avoidY). Should go in an arc by default.
 	 * 
 	 * @param x
@@ -210,8 +223,18 @@ public class Movement extends Thread {
 	 * @param avoidY
 	 *            Point in the X axis avoid
 	 */
+	// TODO: Finish this.
 	public void moveToPointAndAvoid(double x, double y, double avoidX, double avoidY) {
 		if (avoidX <= Math.max(x, us.x)) {}
+	}
+	
+	/**
+	 * Calls robot controller to rotate the robot by an angle
+	 * @param rotationAngle clockwise angle to rotate (in Radians)
+	 */
+	public void rotate(double rotationAngle) {
+		rotationAngle=Math.toDegrees(rotationAngle);
+		robot.rotate((int) rotationAngle);		
 	}
 
 }
