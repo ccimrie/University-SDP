@@ -38,8 +38,8 @@ public class Defensive extends StrategyInterface implements Runnable {
 	public void run() {
 		System.out.println("Defensive strategy activated");
 		// Sanity check
-		if (!Possession.hasPossession(world, RobotType.Them))
-			return;
+		// if (!Possession.hasPossession(world, RobotType.Them))
+		// return;
 
 		// Determine which goal is ours
 		Position target;
@@ -61,9 +61,10 @@ public class Defensive extends StrategyInterface implements Runnable {
 				+ ourGoalCenter.getY() + ")");
 
 		// Move to our goal
-		move = new Movement(world, rc, ourGoalCenter.getX() + threshold,
-				ourGoalCenter.getY(), 0, 0, 0.0, 4);
-		move.start();
+		assert move == null : "Movement not null";
+		move = new Movement(world, rc, target.getX(), target.getY(), 0, 0, 0.0,
+				4);
+		move.run();
 
 		while (!shouldidie && !Strategy.alldie) {
 			System.out.println("Defensive strategy iteration");
@@ -71,15 +72,17 @@ public class Defensive extends StrategyInterface implements Runnable {
 				Thread.sleep(INTERVAL);
 				// If they don't have the ball, defense should not be running,
 				// so wait for the planner to kill the thread
-				if (!Possession.hasPossession(world, RobotType.Them))
-					continue;
+				// if (!Possession.hasPossession(world, RobotType.Them))
+				// continue;
 
 				// Now turn to face the ball (and the other robot
 				// correspondingly)
+				if (move.isAlive())
+					move.die();
 				double angle = TurnToBall.turnAngle(us.bearing,
 						TurnToBall.findBearing(us, world.ball));
 				move = new Movement(world, rc, 0, 0, 0, 0, angle, 6);
-				move.start();
+				move.run();
 
 				// Calculating the ball kicking line
 				// Given their bearing, calculate where exactly in our goal

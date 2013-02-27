@@ -34,4 +34,8 @@ public class Strategy implements Runnable {
 		Thread.sleep(1000); //Wait for all threads to notice this and terminate.
 		robot.stop();
 	}
+	
+	public static void reset() {
+		alldie = false;
+	}
 }

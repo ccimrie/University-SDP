@@ -5,6 +5,7 @@ import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.DistanceToBall;
 import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
+import vision.Position;
 import vision.WorldState;
 import world.state.*;
 import geometry.*;
@@ -18,8 +19,7 @@ public class PlainScoring{
 	public Ball ball;
 	HittingObstacle wall = new HittingObstacle();
 	MoveToPoint mpoint = new MoveToPoint();
-	PitchInfo info = new PitchInfo();
-	geometry.Vector a ;
+	Position a ;
 	public WorldState world;
 	public RobotController rc;
 	public Robot us;
@@ -157,7 +157,7 @@ public class PlainScoring{
 		*/
 		
 		
-		geometry.Vector a = world.getTheirGoal();
+		Position a = world.getTheirGoal();
 		System.out.println(a.getX() + ", " + a.getY());
 		
 		

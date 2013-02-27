@@ -267,6 +267,7 @@ public class ControlGUI2 extends JFrame {
 
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Strategy.reset();
 				// Run in a new thread to free up UI while running
 				Thread strat = new Thread(new Strategy(worldState, robot));
 				strat.start();
@@ -365,14 +366,13 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		// TODO - Should we have timer here as well?
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
 				mover = new Movement(worldState, robot, 0, 0, 0, 0,
-						angle, 6);
+						Math.toRadians(angle), 6);
 
 				mover.start();
 			}
