@@ -12,7 +12,6 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
@@ -21,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -388,7 +388,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		boolean mouseModeGreyCircle = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES;
 		// If the colour selection mode is on (for colour calibration from the
 		// image)
-		if (mouseModeBlueT || mouseModeYellowT || mouseModeGreenPlates || mouseModeGreyCircle) {
+		if (mouseModeBlueT || mouseModeYellowT || mouseModeGreenPlates
+				|| mouseModeGreyCircle) {
 			// Show the colour selector image
 			if (letterAdjustment || yellowPlateAdjustment
 					|| bluePlateAdjustment || greyCircleAdjustment) {
@@ -428,6 +429,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		DecimalFormat df = new DecimalFormat();
+		df.setMaximumFractionDigits(2);
 		Graphics frameGraphics = frame.getGraphics();
 
 		// Draw overlay on top of raw frame
@@ -440,20 +443,36 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		frameGraphics.drawString("FPS: " + fps, 15, 30);
 
 		// Display Ball & Robot Positions
-		int ballX = worldState.getBallX();
-		int ballY = worldState.getBallY();
+		frameGraphics.drawString("Ball:", 15, 45);
+		frameGraphics.drawString("(" + worldState.getBallX() + ", "
+				+ worldState.getBallY() + ")", 60, 45);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getBallXVelocity()) + ", "
+						+ df.format(worldState.getBallYVelocity()) + ")", 140,
+				45);
+
+		frameGraphics.drawString("Blue:", 15, 60);
+		frameGraphics.drawString("(" + worldState.getBlueX() + ", "
+				+ worldState.getBlueY() + ")", 60, 60);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
+						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
+				60);
 		frameGraphics
-				.drawString("Ball: (" + ballX + ", " + ballY + ")", 15, 45);
-		int blueX = worldState.getBlueX();
-		int blueY = worldState.getBlueY();
-		double blueOrient = Math.toDegrees(worldState.getBlueOrientation());
-		frameGraphics.drawString("Blue: (" + blueX + ", " + blueY
-				+ ") Orientation: " + blueOrient, 15, 60);
-		int yellowX = worldState.getYellowX();
-		int yellowY = worldState.getYellowY();
-		double yellowOrient = Math.toDegrees(worldState.getYellowOrientation());
-		frameGraphics.drawString("Yellow: (" + yellowX + ", " + yellowY
-				+ ") Orientation: " + yellowOrient, 15, 75);
+				.drawString(
+						"angle: " + df.format(worldState.getBlueOrientation()),
+						260, 60);
+
+		frameGraphics.drawString("Yellow:", 15, 75);
+		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
+				+ worldState.getYellowY() + ")", 60, 75);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getYellowXVelocity()) + ", "
+						+ df.format(worldState.getYellowYVelocity()) + ")",
+				140, 75);
+		frameGraphics.drawString(
+				"angle: " + df.format(worldState.getYellowOrientation()), 260,
+				75);
 
 		// Draw overall composite to screen
 		Graphics videoGraphics = videoDisplay.getGraphics();
@@ -480,7 +499,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 
 		// Control the selector images using the keyboard
-		if (letterAdjustment || yellowPlateAdjustment || bluePlateAdjustment || greyCircleAdjustment) {
+		if (letterAdjustment || yellowPlateAdjustment || bluePlateAdjustment
+				|| greyCircleAdjustment) {
 			if (adjust.equals("Up")) {
 				mouseY--;
 			} else if (adjust.equals("Down")) {
@@ -517,8 +537,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					extractedColourSettings = getColourRange(frame, object);
 					setColourRange(extractedColourSettings, object);
 					clearArrayOfLists(extractedColourSettings);
-				}else if (greyCircleAdjustment){
-					greyCircleAdjustment = false; 
+				} else if (greyCircleAdjustment) {
+					greyCircleAdjustment = false;
 					extractedColourSettings = getColourRange(frame, object);
 					setColourRange(extractedColourSettings, object);
 					clearArrayOfLists(extractedColourSettings);
@@ -568,21 +588,20 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		} else if (object == PitchConstants.GREEN) {
 			/** PROCESSING EITHER OF THE GREEN PLATES */
 			// Process the top left quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 0+15, 10+15, 0+25,
-					15+25);
+			colourSettings = getColourValues(frame, colourSettings, 0 + 15,
+					10 + 15, 0 + 25, 15 + 25);
 			// Process the top right quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 21+15, 30+15, 0+25,
-					15+25);
+			colourSettings = getColourValues(frame, colourSettings, 21 + 15,
+					30 + 15, 0 + 25, 15 + 25);
 			// Process the bottom left quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 0+15, 10+15, 25+25,
-					50+25);
+			colourSettings = getColourValues(frame, colourSettings, 0 + 15,
+					10 + 15, 25 + 25, 50 + 25);
 			// Process the bottom right quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 22+15, 30+15, 25+25,
-					50+25);
-		}else if (object == PitchConstants.GREY) {
-			//Process the ball
-			colourSettings = getColourValues(frame, colourSettings, 0, 8, 0,
-					8);
+			colourSettings = getColourValues(frame, colourSettings, 22 + 15,
+					30 + 15, 25 + 25, 50 + 25);
+		} else if (object == PitchConstants.GREY) {
+			// Process the ball
+			colourSettings = getColourValues(frame, colourSettings, 0, 8, 0, 8);
 		}
 		return colourSettings;
 	}
@@ -619,7 +638,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				colourSettings[5].add(hsbvals[2]); // VALUE
 
 			}
-		
+
 		rotation = 0;
 		return colourSettings;
 
@@ -715,7 +734,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		settingsPanel.reloadSliderDefaults();
 
-		
 	}
 
 	public void clearArrayOfLists(ArrayList[] arrays) {
