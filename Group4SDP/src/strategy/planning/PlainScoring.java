@@ -18,7 +18,7 @@ public class PlainScoring{
 	public Ball ball;
 	HittingObstacle wall = new HittingObstacle();
 	MoveToPoint mpoint = new MoveToPoint();
-	PitchInfo info = new PitchInfo();
+//	PitchInfo info = new PitchInfo();
 	geometry.Vector a ;
 	public WorldState world;
 	public RobotController rc;
@@ -164,7 +164,7 @@ public class PlainScoring{
 		double angle = (TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY()));
 		double angleDeg = Math.toDegrees(angle);
 		
-		double realAngle = TurnToBall.TurnerGoal(world.getOurRobot(), a.getX(), a.getY());
+		double realAngle = TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY());
 		System.out.println(realAngle);
 		rc.rotate((int)angle);
 	}
