@@ -24,6 +24,7 @@ import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
+import strategy.planning.PenaltyAttack;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -54,6 +55,8 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stop = new JButton("Stop");
 	private final JButton stratStart = new JButton("Strat Start");
 	private final JButton stratStop = new JButton("Strat Stop");
+	private final JButton penaltyAtk = new JButton("Penalty Attack");
+	private final JButton penaltyDef = new JButton("Penalty Defend");
 	// Basic movement
 	private final JButton forward = new JButton("Forward");
 	private final JButton backward = new JButton("Backward");
@@ -78,7 +81,7 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op3field = new JTextField();
 
 	private Movement mover;
-	
+
 	// Strategy used for driving part of milestone 2
 	private static MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
@@ -179,11 +182,13 @@ public class ControlGUI2 extends JFrame {
 		gbc_startStopQuitPanel.gridx = 0;
 		gbc_startStopQuitPanel.gridy = 0;
 		frame.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
-		startStopQuitPanel.add(start);
-		startStopQuitPanel.add(stop);
+		// startStopQuitPanel.add(start);
+		// startStopQuitPanel.add(stop);
 		startStopQuitPanel.add(quit);
 		startStopQuitPanel.add(stratStart);
 		startStopQuitPanel.add(stratStop);
+		startStopQuitPanel.add(penaltyAtk);
+		startStopQuitPanel.add(penaltyDef);
 
 		GridBagConstraints gbc_simpleMoveTestPanel = new GridBagConstraints();
 		gbc_simpleMoveTestPanel.anchor = GridBagConstraints.NORTH;
@@ -240,8 +245,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 320, 220, 0, 0,
-						0.0, 4);
+				mover = new Movement(worldState, robot, 320, 220, 0, 0, 0.0, 4);
 
 				mover.start();
 				// Run in a new thread to free up UI while running
@@ -286,6 +290,14 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
+		penaltyAtk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PenaltyAttack penAtk = new PenaltyAttack(worldState,
+						worldState.ourRobot, worldState.theirRobot, robot);
+				penAtk.run();
+			}
+		});
+
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -299,8 +311,7 @@ public class ControlGUI2 extends JFrame {
 				int op1 = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, op1,
-						0.0, 1);
+				mover = new Movement(worldState, robot, 0, 0, 0, op1, 0.0, 1);
 
 				mover.start();
 			}
@@ -311,8 +322,7 @@ public class ControlGUI2 extends JFrame {
 				int op1 = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, -op1,
-						0.0, 1);
+				mover = new Movement(worldState, robot, 0, 0, 0, -op1, 0.0, 1);
 
 				mover.start();
 			}
@@ -323,8 +333,7 @@ public class ControlGUI2 extends JFrame {
 				int op1 = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, -op1, 0,
-						0.0, 1);
+				mover = new Movement(worldState, robot, 0, 0, -op1, 0, 0.0, 1);
 
 				mover.start();
 			}
@@ -335,8 +344,7 @@ public class ControlGUI2 extends JFrame {
 				int op1 = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, op1, 0,
-						0.0, 1);
+				mover = new Movement(worldState, robot, 0, 0, op1, 0, 0.0, 1);
 
 				mover.start();
 			}
@@ -371,8 +379,8 @@ public class ControlGUI2 extends JFrame {
 				int angle = Integer.parseInt(op1field.getText());
 				if (mover != null && mover.isAlive())
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, 0,
-						Math.toRadians(angle), 6);
+				mover = new Movement(worldState, robot, 0, 0, 0, 0, Math
+						.toRadians(angle), 6);
 
 				mover.start();
 			}

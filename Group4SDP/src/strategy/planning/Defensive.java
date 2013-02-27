@@ -23,10 +23,6 @@ public class Defensive extends StrategyInterface implements Runnable {
 	private final int threshold = 50;
 	private Movement move = null;
 
-	Position ourGoalTop;
-	Position ourGoalCenter;
-	Position ourGoalBottom;
-
 	@Override
 	public void kill() {
 		super.kill();
@@ -42,6 +38,9 @@ public class Defensive extends StrategyInterface implements Runnable {
 		// return;
 
 		// Determine which goal is ours
+		Position ourGoalTop;
+		Position ourGoalCenter;
+		Position ourGoalBottom;
 		Position target;
 		if (world.areWeOnLeft()) {
 			ourGoalCenter = world.goalInfo.getLeftGoalCenter();
