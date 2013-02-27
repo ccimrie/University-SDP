@@ -16,7 +16,7 @@ public class Movement extends Thread {
 	// private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private static int DIST_TH = 10;
+	private static int DIST_TH = 15;
 	private boolean die = false;
 	private double movetopointx = 0;
 	private double movetopointy = 0;
@@ -139,7 +139,8 @@ public class Movement extends Thread {
 			 * then use rotational transformation to put it in robots perspective,
 			 * then normalise the speeds to a scale of 0-100.
 			 */
-
+			// Not to send unnecessary commands
+			Thread.sleep(42);
 			// Vector from robot to point in the camera axis
 			xtc = x - us.x;
 			ytc = y - us.y;
@@ -176,8 +177,7 @@ public class Movement extends Thread {
 			move(angle);
 			// If we can't get to the point for some reason, it should cancel after some iterations
 			i++;
-			// Not to send unnecessary commands
-			Thread.sleep(100);
+			
 		}
 	}
 
