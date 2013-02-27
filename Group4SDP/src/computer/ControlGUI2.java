@@ -23,6 +23,7 @@ import strategy.calculations.GoalInfo;
 import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
+import strategy.planning.Everything;
 import strategy.planning.MoveToBall;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.Strategy;
@@ -182,11 +183,11 @@ public class ControlGUI2 extends JFrame {
 		gbc_startStopQuitPanel.gridx = 0;
 		gbc_startStopQuitPanel.gridy = 0;
 		frame.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
-		// startStopQuitPanel.add(start);
-		// startStopQuitPanel.add(stop);
+		startStopQuitPanel.add(start);
+		startStopQuitPanel.add(stop);
 		startStopQuitPanel.add(quit);
-		startStopQuitPanel.add(stratStart);
-		startStopQuitPanel.add(stratStop);
+//		startStopQuitPanel.add(stratStart);
+//		startStopQuitPanel.add(stratStop);
 		startStopQuitPanel.add(penaltyAtk);
 		startStopQuitPanel.add(penaltyDef);
 
@@ -243,11 +244,13 @@ public class ControlGUI2 extends JFrame {
 
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (mover != null && mover.isAlive())
-					mover.die();
-				mover = new Movement(worldState, robot, 320, 220, 0, 0, 0.0, 4);
+				Thread et = new EverythingThread();
+				et.run();
+				//if (mover != null && mover.isAlive())
+				//	mover.die();
+				//mover = new Movement(worldState, robot, 320, 220, 0, 0, 0.0, 4);
 
-				mover.start();
+				//mover.start();
 				// Run in a new thread to free up UI while running
 				// Movement m = new Movement(worldState, robot);
 				// try {
@@ -438,17 +441,11 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 
-	class MoveToTheBallThread extends Thread {
+	class EverythingThread extends Thread {
 
 		public void run() {
-
-			try {
-				MoveToBall.approach(worldState, robot);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+				Everything eve = new Everything(worldState, robot);
+				eve.doAllTheThings();
 		}
 	}
 
@@ -465,7 +462,20 @@ public class ControlGUI2 extends JFrame {
 
 		}
 	}
+	
+	class  MoveToTheBallThread extends Thread {
 
+		public void run() {
+
+			try {
+				dribbleBall.dribbleBall(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
 	/*
 	 * class Stopping extends TimerTask{
 	 * 
