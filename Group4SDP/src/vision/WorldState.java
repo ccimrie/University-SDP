@@ -19,7 +19,7 @@ import vision.WorldState;
  */
 public class WorldState {
 	/** The number of frames used to calculate velocity */
-	private static final int NUM_FRAMES = 3;
+	private static final int NUM_FRAMES = 5;
 
 	private long counter;
 
@@ -88,6 +88,7 @@ public class WorldState {
 	}
 
 	public void setBlueX(int blueX) {
+		this.blueX = blueX;
 		this.blueXBuf[currentFrame] = blueX;
 	}
 
@@ -100,6 +101,7 @@ public class WorldState {
 	}
 
 	public void setBlueY(int blueY) {
+		this.blueY = blueY;
 		this.blueYBuf[currentFrame] = blueY;
 	}
 
@@ -120,6 +122,7 @@ public class WorldState {
 	}
 
 	public void setYellowX(int yellowX) {
+		this.yellowX = yellowX;
 		this.yellowXBuf[currentFrame] = yellowX;
 	}
 
@@ -132,6 +135,7 @@ public class WorldState {
 	}
 
 	public void setYellowY(int yellowY) {
+		this.yellowY = yellowY;
 		this.yellowYBuf[currentFrame] = yellowY;
 	}
 
@@ -168,6 +172,7 @@ public class WorldState {
 	}
 
 	public void setBallX(int ballX) {
+		this.ballX = ballX;
 		this.ballXBuf[currentFrame] = ballX;
 	}
 
@@ -180,6 +185,7 @@ public class WorldState {
 	}
 
 	public void setBallY(int ballY) {
+		this.ballY = ballY;
 		this.ballYBuf[currentFrame] = ballY;
 	}
 
@@ -220,42 +226,31 @@ public class WorldState {
 	}
 
 	/**
-	 * Triggers calculation of smoothed positions/angles and velocities
+	 * Triggers calculation of smoothed angles and velocities
 	 */
 	public void update() {
 		++counter;
 
 		// Reinitialise all positions/angles/velocities to 0
-		blueX = 0;
 		blueXVel = 0;
-		blueY = 0;
 		blueYVel = 0;
 		blueOrient = 0;
 
-		yellowX = 0;
 		yellowXVel = 0;
-		yellowY = 0;
 		yellowYVel = 0;
 		yellowOrient = 0;
 
-		ballX = 0;
 		ballXVel = 0;
-		ballY = 0;
 		ballYVel = 0;
 
-		// Smooth positions/angles
+		// Smooth angles
 		for (int i = 0; i < NUM_FRAMES; ++i) {
-			blueX += blueXBuf[i];
-			blueY += blueYBuf[i];
 			blueOrient += blueOrientBuf[i];
 
-			yellowX += yellowXBuf[i];
-			yellowY += yellowYBuf[i];
 			yellowOrient += yellowOrientBuf[i];
-
-			ballX += ballXBuf[i];
-			ballY += ballYBuf[i];
 		}
+		blueOrient /= NUM_FRAMES;
+		yellowOrient /= NUM_FRAMES;
 
 		// Calculate velocities
 		int prevFrame;
@@ -272,21 +267,13 @@ public class WorldState {
 		ballXVel += ballXBuf[currentFrame] - ballXBuf[prevFrame];
 		ballYVel += ballYBuf[currentFrame] - ballYBuf[prevFrame];
 
-		blueX /= NUM_FRAMES;
 		blueXVel /= NUM_FRAMES;
-		blueY /= NUM_FRAMES;
 		blueYVel /= NUM_FRAMES;
-		blueOrient /= NUM_FRAMES;
 
-		yellowX /= NUM_FRAMES;
 		yellowXVel /= NUM_FRAMES;
-		yellowY /= NUM_FRAMES;
 		yellowYVel /= NUM_FRAMES;
-		yellowOrient /= NUM_FRAMES;
 
-		ballX /= NUM_FRAMES;
 		ballXVel /= NUM_FRAMES;
-		ballY /= NUM_FRAMES;
 		ballYVel /= NUM_FRAMES;
 
 		++currentFrame;
