@@ -21,6 +21,7 @@ public abstract class StrategyInterface {
 	
 	public void kill(){
 		shouldidie = true;
+		rc.clearBuff();
 	}
 	
 }

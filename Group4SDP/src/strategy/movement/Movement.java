@@ -87,7 +87,7 @@ public class Movement extends Thread {
 		die = true;
 		Thread.sleep(50);
 		robot.stop();
-
+		robot.clearBuff();
 	}
 
 	/**

@@ -88,8 +88,9 @@ public class ControlGUI2 extends JFrame {
 	public static WorldState worldState = new WorldState();
 	public static Vision vision;
 	
-	public static Strategy strat;
-
+	public Thread stratthr;
+	public Strategy strat;
+	
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
 		try {
@@ -278,8 +279,9 @@ public class ControlGUI2 extends JFrame {
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
-				Thread strat = new Thread (new Strategy(worldState, robot));
-				strat.start();
+				strat = new Strategy(worldState, robot);
+				Thread stratthr = new Thread (strat);
+				stratthr.start();
 			}
 		});
 		
@@ -288,6 +290,10 @@ public class ControlGUI2 extends JFrame {
 				// Run in a new thread to free up UI while running
 				try {
 					strat.stop();
+					if (stratthr != null){
+						stratthr.interrupt();
+						stratthr.join();
+					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
