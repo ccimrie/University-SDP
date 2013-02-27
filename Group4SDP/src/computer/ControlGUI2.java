@@ -53,7 +53,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton quit = new JButton("Quit");
 	private final JButton stop = new JButton("Stop");
 	private final JButton stratStart = new JButton("Strat Start");
-	private final JButton stratStop= new JButton("Strat Stop");
+	private final JButton stratStop = new JButton("Strat Stop");
 	// Basic movement
 	private final JButton forward = new JButton("Forward");
 	private final JButton backward = new JButton("Backward");
@@ -77,10 +77,12 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
 
+	private Movement mover;
+	
 	// Strategy used for driving part of milestone 2
 	private static MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
-	
+
 	// Strategy used for driving part of milestone 2
 	private static DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
@@ -110,23 +112,23 @@ public class ControlGUI2 extends JFrame {
 		int compressionQuality = 80;
 
 		try {
-        	VideoStream vStream = new VideoStream(videoDevice, width, height,
-        			channel, videoStandard, compressionQuality);
-        	
-        	DistortionFix distortionFix = new DistortionFix(pitchConstants);
-        	
-            // Create a new Vision object to serve the main vision window
-            Vision vision = new Vision(worldState, pitchConstants);
-            
-            // Create the Control GUI for threshold setting/etc
-            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
-            		vStream, distortionFix);
+			VideoStream vStream = new VideoStream(videoDevice, width, height,
+					channel, videoStandard, compressionQuality);
 
-        	vStream.addReceiver(distortionFix);
-    		distortionFix.addReceiver(gui);
-    		distortionFix.addReceiver(vision);
-            vision.addVisionDebugReceiver(gui);
-            vision.addWorldStateReceiver(gui);
+			DistortionFix distortionFix = new DistortionFix(pitchConstants);
+
+			// Create a new Vision object to serve the main vision window
+			Vision vision = new Vision(worldState, pitchConstants);
+
+			// Create the Control GUI for threshold setting/etc
+			VisionGUI gui = new VisionGUI(width, height, worldState,
+					pitchConstants, vStream, distortionFix);
+
+			vStream.addReceiver(distortionFix);
+			distortionFix.addReceiver(gui);
+			distortionFix.addReceiver(vision);
+			vision.addVisionDebugReceiver(gui);
+			vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -137,7 +139,8 @@ public class ControlGUI2 extends JFrame {
 		gui.action();
 
 		// Sets up the communication
-		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
+				DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
 		while (!comms.isRobotReady()) {
@@ -158,7 +161,7 @@ public class ControlGUI2 extends JFrame {
 
 	public ControlGUI2(WorldState worldState) {
 		this.worldState = worldState;
-		
+
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -189,7 +192,8 @@ public class ControlGUI2 extends JFrame {
 		gbc_simpleMoveTestPanel.gridx = 0;
 		gbc_simpleMoveTestPanel.gridy = 1;
 		// gbc_simpleMoveTestPanel.gridwidth = 2;
-		frame.getContentPane().add(simpleMoveTestPanel, gbc_simpleMoveTestPanel);
+		frame.getContentPane()
+				.add(simpleMoveTestPanel, gbc_simpleMoveTestPanel);
 		simpleMoveTestPanel.add(op1label);
 		simpleMoveTestPanel.add(op1field);
 		simpleMoveTestPanel.add(op2label);
@@ -225,7 +229,8 @@ public class ControlGUI2 extends JFrame {
 		// Center the window on startup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = frame.getPreferredSize();
-		frame.setLocation((dim.width - frameSize.width) / 2, (dim.height - frameSize.height) / 2);
+		frame.setLocation((dim.width - frameSize.width) / 2,
+				(dim.height - frameSize.height) / 2);
 		frame.setResizable(false);
 	}
 
@@ -233,57 +238,41 @@ public class ControlGUI2 extends JFrame {
 
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				Movement move = new Movement(worldState, robot,
-						320,
-						220, 0, 0, 0.0, 4);
-				
-				move.start();
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 320, 220, 0, 0,
+						0.0, 4);
+
+				mover.start();
 				// Run in a new thread to free up UI while running
-				//Movement m = new Movement(worldState, robot);
-				//try {
-					//m.moveToPoint(538, 191);
-				//} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-				//	e1.printStackTrace();
-				//}
-				/*for (int i=90; i<=7200; i+=360){
-					m.move(Math.toRadians(i));
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					robot.stop();
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					m.move(Math.toRadians(i + 180));
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					robot.stop();
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}*/
+				// Movement m = new Movement(worldState, robot);
+				// try {
+				// m.moveToPoint(538, 191);
+				// } catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				// e1.printStackTrace();
+				// }
+				/*
+				 * for (int i=90; i<=7200; i+=360){ m.move(Math.toRadians(i));
+				 * try { Thread.sleep(50); } catch (InterruptedException e1) {
+				 * e1.printStackTrace(); } robot.stop(); try { Thread.sleep(50);
+				 * } catch (InterruptedException e1) { e1.printStackTrace(); }
+				 * m.move(Math.toRadians(i + 180)); try { Thread.sleep(50); }
+				 * catch (InterruptedException e1) { e1.printStackTrace(); }
+				 * robot.stop(); try { Thread.sleep(50); } catch
+				 * (InterruptedException e1) { e1.printStackTrace(); } }
+				 */
 			}
 		});
-		
+
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
-				Thread strat = new Thread (new Strategy(worldState, robot));
+				Thread strat = new Thread(new Strategy(worldState, robot));
 				strat.start();
 			}
 		});
-		
+
 		stratStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
@@ -298,7 +287,7 @@ public class ControlGUI2 extends JFrame {
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				robot.kick();
 			}
 
@@ -307,28 +296,48 @@ public class ControlGUI2 extends JFrame {
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.forward(op1, 0);
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 0, 0, 0, op1,
+						0.0, 1);
+
+				mover.start();
 			}
 		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.backward(op1, 0);
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 0, 0, 0, -op1,
+						0.0, 1);
+
+				mover.start();
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.left(op1, 0);
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 0, 0, -op1, 0,
+						0.0, 1);
+
+				mover.start();
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.right(op1, 0);
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 0, 0, op1, 0,
+						0.0, 1);
+
+				mover.start();
 			}
 		});
 
@@ -339,7 +348,7 @@ public class ControlGUI2 extends JFrame {
 				approachThread.start();
 			}
 		});
-		
+
 		dribble.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -350,6 +359,8 @@ public class ControlGUI2 extends JFrame {
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (mover != null && mover.isAlive())
+					mover.die();
 				robot.stop();
 			}
 		});
@@ -358,7 +369,12 @@ public class ControlGUI2 extends JFrame {
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
-				robot.rotate(angle);
+				if (mover != null && mover.isAlive())
+					mover.die();
+				mover = new Movement(worldState, robot, 0, 0, 0, 0,
+						angle, 6);
+
+				mover.start();
 			}
 		});
 
@@ -427,7 +443,7 @@ public class ControlGUI2 extends JFrame {
 
 		}
 	}
-	
+
 	class DribbleBallThread extends Thread {
 
 		public void run() {
@@ -445,19 +461,9 @@ public class ControlGUI2 extends JFrame {
 	/*
 	 * class Stopping extends TimerTask{
 	 * 
-	 * @Override
-	 * public void run() {
-	 * int[] command = {Commands.STOP, 0, 0, 0};
-	 * try {
-	 * comms.sendToRobot(command);
-	 * }
-	 * catch (IOException e) {
-	 * System.out.println("Could not send command");
-	 * e.printStackTrace();
-	 * }
-	 * //r.stop;
-	 * System.out.println("Stop...");
-	 * }
-	 * }
+	 * @Override public void run() { int[] command = {Commands.STOP, 0, 0, 0};
+	 * try { comms.sendToRobot(command); } catch (IOException e) {
+	 * System.out.println("Could not send command"); e.printStackTrace(); }
+	 * //r.stop; System.out.println("Stop..."); } }
 	 */
 }

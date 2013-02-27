@@ -20,7 +20,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 		super(world, us, them, rc);
 	}
 
-	private final int threshold = 80;
+	private final int threshold = 50;
 	private Movement move = null;
 
 	Position ourGoalTop;
@@ -37,44 +37,55 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 	public void run() {
 		System.out.println("Defensive strategy activated");
+		// Sanity check
+		if (!Possession.hasPossession(world, RobotType.Them))
+			return;
 
 		// Determine which goal is ours
+		Position target;
 		if (world.areWeOnLeft()) {
 			ourGoalCenter = world.goalInfo.getLeftGoalCenter();
 			ourGoalTop = world.goalInfo.getLeftGoalTop();
 			ourGoalBottom = world.goalInfo.getLeftGoalBottom();
+			target = new Position(ourGoalCenter.getX() + threshold,
+					ourGoalCenter.getY());
 		} else {
 			ourGoalCenter = world.goalInfo.getRightGoalCenter();
 			ourGoalTop = world.goalInfo.getRightGoalTop();
 			ourGoalBottom = world.goalInfo.getRightGoalBottom();
+			target = new Position(ourGoalCenter.getX() - threshold,
+					ourGoalCenter.getY());
 		}
 
-		System.out.println("Our goal: (" + (ourGoalCenter.getX() + threshold)
-				+ ", " + ourGoalCenter.getY() + ")");
+		System.out.println("Our goal: (" + target.getX() + ", "
+				+ ourGoalCenter.getY() + ")");
+
+		// Move to our goal
+		move = new Movement(world, rc, ourGoalCenter.getX() + threshold,
+				ourGoalCenter.getY(), 0, 0, 0.0, 4);
+		move.start();
 
 		while (!shouldidie && !Strategy.alldie) {
 			System.out.println("Defensive strategy iteration");
 			try {
+				Thread.sleep(INTERVAL);
 				// If they don't have the ball, defense should not be running,
 				// so wait for the planner to kill the thread
-				if (!Possession.hasPossession(world, RobotType.Them)) {
-					Thread.sleep(INTERVAL);
+				if (!Possession.hasPossession(world, RobotType.Them))
 					continue;
-				}
-
-				// Move to our goal
-				// move = new Movement(world, rc, ourGoalCenter.getX()
-				// + threshold, ourGoalCenter.getY(), 0, 0, 0.0, 3);
-				// move.start();
 
 				// Now turn to face the ball (and the other robot
 				// correspondingly)
-				TurnToBall.Turner(us, world.ball);
+				double angle = TurnToBall.turnAngle(us.bearing,
+						TurnToBall.findBearing(us, world.ball));
+				move = new Movement(world, rc, 0, 0, 0, 0, angle, 6);
+				move.start();
+
 				// Calculating the ball kicking line
 				// Given their bearing, calculate where exactly in our goal
 				// they are aiming
 
-				double theirBearing = them.bearing;
+				// double theirBearing = them.bearing;
 
 				// angle = Math.abs(270 - theirBearing);
 				// ythreshold = (them.x - ourGoalCenter.getX()) *

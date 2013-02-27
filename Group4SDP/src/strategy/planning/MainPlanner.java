@@ -60,7 +60,8 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 			// Otherwise kill old strategy and start new one
 			if (currentState != newState) {
 				currentState = newState;
-				activeStrat.kill();
+				if (strategyThread.isAlive())
+					activeStrat.kill();
 
 				if (currentState == state.StartOfGame) {
 					// TODO change to StartOfGame strategy type, when
@@ -72,8 +73,8 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Defense Thread");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Offensive(world, us, them, rc);
-					strategyThread = new Thread((Offensive) activeStrat,
+					activeStrat = new Defensive(world, us, them, rc);
+					strategyThread = new Thread((Defensive) activeStrat,
 							"Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					// TODO change to EndOfGame strategy type, when implemented
