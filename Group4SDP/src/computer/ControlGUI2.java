@@ -19,11 +19,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import strategy.calculations.GoalInfo;
 import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MoveToBall;
-import strategy.planning.Offensive;
 import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
@@ -85,10 +85,8 @@ public class ControlGUI2 extends JFrame {
 	private static DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
-	public static WorldState worldState = new WorldState();
-	public static Vision vision;
-	
-	public static Strategy strat;
+	private WorldState worldState;
+	private Strategy strat;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -100,6 +98,8 @@ public class ControlGUI2 extends JFrame {
 
 		// Default to main pitch
 		PitchConstants pitchConstants = new PitchConstants(0);
+		GoalInfo goalInfo = new GoalInfo(pitchConstants);
+		WorldState worldState = new WorldState(goalInfo);
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
@@ -132,7 +132,7 @@ public class ControlGUI2 extends JFrame {
 		}
 
 		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2();
+		ControlGUI2 gui = new ControlGUI2(worldState);
 		gui.Launch();
 		gui.action();
 
@@ -156,7 +156,9 @@ public class ControlGUI2 extends JFrame {
 		System.out.println("Robot ready!");
 	}
 
-	public ControlGUI2() {
+	public ControlGUI2(WorldState worldState) {
+		this.worldState = worldState;
+		
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -236,8 +238,7 @@ public class ControlGUI2 extends JFrame {
 						320,
 						220, 0, 0, 0.0, 4);
 				
-				Thread moverthr = new Thread(move, "I'm a mover thread");
-				moverthr.start();
+				move.start();
 				// Run in a new thread to free up UI while running
 				//Movement m = new Movement(worldState, robot);
 				//try {
@@ -287,7 +288,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
 				try {
-					strat.stop();
+					Strategy.stop();
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -336,25 +337,6 @@ public class ControlGUI2 extends JFrame {
 
 				approachThread = new MoveToTheBallThread();
 				approachThread.start();
-
-				/*
-				 * try {
-				 * Class mtb = Class.forName("strategy.planning." + "MoveToBall");
-				 * Strategy s = (Strategy)mtb.newInstance();
-				 * s.stop();
-				 * } catch (ClassNotFoundException e1) {
-				 * e1.printStackTrace();
-				 * System.err.println("Class not found.");
-				 * } catch (InstantiationException e2) {
-				 * e2.printStackTrace();
-				 * System.err.println("Class could not be instantiated.");
-				 * } catch (IllegalAccessException e3) {
-				 * e3.printStackTrace();
-				 * } catch (ClassCastException e4) {
-				 * System.err.println(
-				 * "Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
-				 * }
-				 */
 			}
 		});
 		
@@ -368,13 +350,7 @@ public class ControlGUI2 extends JFrame {
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Stop the drive thread if it's running
-				/* robot.stop(timer); */
 				robot.stop();
-				/*if (approachThread != null)
-					approachThread.stop();
-				if (dribbleThread != null)
-					dribbleThread.stop();*/
 			}
 		});
 
@@ -443,7 +419,7 @@ public class ControlGUI2 extends JFrame {
 		public void run() {
 
 			try {
-				mball.approach(worldState, robot);
+				MoveToBall.approach(worldState, robot);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

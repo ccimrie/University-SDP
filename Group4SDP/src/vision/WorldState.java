@@ -2,8 +2,8 @@ package vision;
 
 import geometry.Vector;
 import strategy.calculations.DistanceCalculator;
+import strategy.calculations.GoalInfo;
 import world.state.Ball;
-import world.state.PitchInfo;
 import world.state.PossessionManager;
 import world.state.PossessionType;
 import world.state.Robot;
@@ -73,6 +73,8 @@ public class WorldState {
 
 	private PossessionManager pm = new PossessionManager();
 
+	public final GoalInfo goalInfo;
+
 	public int frame;
 	public Robot theirRobot = new Robot(RobotType.Them);
 	public Robot ourRobot = new Robot(RobotType.Us);
@@ -80,11 +82,12 @@ public class WorldState {
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
 
-	public WorldState() {
+	public WorldState(GoalInfo goalInfo) {
 		// control properties
 		this.direction = 0;
 		this.colour = 0;
 		this.pitch = 0;
+		this.goalInfo = goalInfo;
 	}
 
 	public void setBlueX(int blueX) {
@@ -256,7 +259,8 @@ public class WorldState {
 		int prevFrame;
 		// Calculate +ve modulus - % operator doesn't have the desired effect.
 		prevFrame = 2 + currentFrame - NUM_FRAMES;
-		if (prevFrame < 0) prevFrame += NUM_FRAMES;
+		if (prevFrame < 0)
+			prevFrame += NUM_FRAMES;
 
 		blueXVel += blueXBuf[currentFrame] - blueXBuf[prevFrame];
 		blueYVel += blueYBuf[currentFrame] - blueYBuf[prevFrame];
@@ -354,57 +358,25 @@ public class WorldState {
 		mainPitch = onMainPitch;
 	}
 
-	static Vector leftGoalCentre;
-	static Vector rightGoalCentre;
-	public static double midPoint;
-
-	public Vector getOurGoal() {
-		if (weAreOnLeft && !mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreSide();
-			return leftGoalCentre;
-		} else if (!weAreOnLeft && !mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreSide();
-			return rightGoalCentre;
-		} else if (weAreOnLeft && mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreMain();
-			return leftGoalCentre;
+	public Position getOurGoal() {
+		if (weAreOnLeft) {
+			return goalInfo.getLeftGoalCenter();
 		} else {
-			rightGoalCentre = PitchInfo.getRightGoalCentreMain();
-			return rightGoalCentre;
+			return goalInfo.getRightGoalCenter();
 		}
 	}
 
-	public Vector getTheirGoal() {
-		if (weAreOnLeft && !mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreSide();
-			return rightGoalCentre;
-		} else if (!weAreOnLeft && !mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreSide();
-			return leftGoalCentre;
-		} else if (weAreOnLeft && mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreMain();
-			return rightGoalCentre;
+	public Position getTheirGoal() {
+		if (weAreOnLeft) {
+			return goalInfo.getLeftGoalCenter();
 		} else {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreMain();
-			return leftGoalCentre;
+			return goalInfo.getRightGoalCenter();
 		}
 	}
 
-	public double getMidPoint() {
-		if (mainPitch) {
-			midPoint = PitchInfo.midPointMain;
-			return midPoint;
-		} else {
-			midPoint = PitchInfo.midPointSide;
-			return midPoint;
-		}
-	}
-
-	public boolean ourHalfLeft() {
-		if (weAreOnLeft)
-			return true;
-		else
-			return false;
+	public int getMidLine() {
+		return (goalInfo.pitchConst.getLeftBuffer() + (640 - goalInfo.pitchConst
+				.getRightBuffer())) / 2;
 	}
 
 	public double distanceBetweenUsAndBall() {
@@ -413,36 +385,30 @@ public class WorldState {
 	}
 
 	public boolean areWeInOurHalf() {
-		if (!((this.ourRobot.x < this.getMidPoint() && this.ourHalfLeft()) || (this.ourRobot.x >= this
-				.getMidPoint() && !this.ourHalfLeft())))
-			return false;
-		else
-			return true;
+		int midLine = getMidLine();
+
+		if (weAreOnLeft) {
+			return this.ourRobot.x < midLine;
+		} else {
+			return this.ourRobot.x > midLine;
+		}
 	}
 
 	public boolean ballIsInGoal() {
-		if (this.areWeOnLeft()) {
-			if (this.ball.x < this.getOurGoal().getX()
-					|| this.ball.x > this.getTheirGoal().getX()) {
-				return true;
-			}
-		} else {
-			if (this.ball.x > this.getOurGoal().getX()
-					|| this.ball.x < this.getTheirGoal().getX()) {
-				return true;
-			}
-		}
-		return false;
+		if (this.ball.x < goalInfo.getLeftGoalCenter().getX()
+				|| this.ball.x > goalInfo.getRightGoalCenter().getX())
+			return true;
+		else
+			return false;
 	}
 
 	public int whoHasTheBall() {
 		if (blueHasBall) {
 			return 1;
-		}
-		if (yellowHasBall) {
+		} else if (yellowHasBall) {
 			return 2;
-		}
-		return -1;
+		} else
+			return -1;
 	}
 
 	public void updatePossesion() {

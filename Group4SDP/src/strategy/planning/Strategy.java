@@ -2,6 +2,7 @@ package strategy.planning;
 
 import world.state.Robot;
 import world.state.RobotController;
+import strategy.calculations.GoalInfo;
 import vision.WorldState;
 
 
@@ -41,6 +42,4 @@ public class Strategy implements Runnable {
 		Thread.sleep(2000); //Wait for all threads to notice this and terminate.
 		robot.stop();
 	}
-
-
 }
