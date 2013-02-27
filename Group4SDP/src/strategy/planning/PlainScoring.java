@@ -37,7 +37,7 @@ public class PlainScoring{
 		double angle = IsRobotFacingPoint.Turner(us, a.getX(), a.getY());
 		double angleT = IsRobotFacingPoint.Turner(us, them.x, them.y);
 	//	double angleDeg = Math.toDegrees(angle);
-		double realangle = TurnToBall.TurnerGoal(world.getOurRobot(), a.getX(), a.getY());
+		double realangle = TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY());
 		double  angleDeg = Math.abs(realangle);
 		
 		
@@ -162,10 +162,10 @@ public class PlainScoring{
 		
 		
 		double angle = (TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY()));
-		double angleDeg = Math.toDegrees(angle);
+
 		
-		double realAngle = TurnToBall.TurnerGoal(world.getOurRobot(), a.getX(), a.getY());
-		System.out.println(realAngle);
+	
+		System.out.println(angle);
 		rc.rotate((int)angle);
 	}
 	
