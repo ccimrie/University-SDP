@@ -38,21 +38,25 @@ public class Offensive extends StrategyInterface implements Runnable {
 
 				PlainScoring killthemALL = new PlainScoring();
 
-				// killthemALL.domination(world, us, them, rc);
-				killthemALL.faceGoal();
-
+				try {
+					killthemALL.domination(world, us, them, rc);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//killthemALL.faceGoal();
+				
 			} else {
 
 				System.out.println("Going to the ball");
 				// Movement mv = new Movement();
 
-				/**
-				 * Movement mover = new Movement(world, rc, world.getBallX(),
-				 * world.getBallY(), 0,0,0.0,3);
-				 * 
-				 * if ( !movthread.isAlive()){ movthread = new Thread(mover,
-				 * "Movement Thread"); movthread.start(); }
-				 **/
+				Movement mover = new Movement(world, rc, world.getBallX(),
+						world.getBallY(), 0,0,0.0,3);
+				 
+				if ( !movthread.isAlive()){ movthread = new Thread(mover,
+				 "Movement Thread"); movthread.start(); }
+				 
 
 			}
 
