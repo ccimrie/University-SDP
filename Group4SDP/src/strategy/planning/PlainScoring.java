@@ -83,9 +83,9 @@ public class PlainScoring{
 				double d = DistanceToBall.Distance(us.x, us.y,goalX, goalY);
 				double newAngle = 0;
 				if (Math.abs(gpb - us.y) < Math.abs(gpt - us.y)){
-					 newAngle = Math.asin(Math.abs((gpb - us.y)/d));
+					 
 				}
-				else  newAngle = - Math.asin(Math.abs((gpt - us.y)/d));
+				else  newAngle = (TurnToBall.AngleTurner(world.getOurRobot(), goalX, gpb));
 				System.out.println( "This angle to test sin navigation! it is " + newAngle);
 				rc.rotate((int) newAngle);
 				rc.kick();

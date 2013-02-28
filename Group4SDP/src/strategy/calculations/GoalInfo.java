@@ -7,7 +7,7 @@ public class GoalInfo {
 	public final int width = 640;
 	public final int height = 480;
 	public final int goalWidth = 15;
-	public final int goalRadius = 75;
+	public final int goalRadius = 60;
 	public final PitchConstants pitchConst;
 	
 	public GoalInfo(final PitchConstants pitchConstants) {
