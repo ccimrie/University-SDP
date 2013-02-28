@@ -11,7 +11,7 @@ import world.state.RobotController;
  * 
  * @author Jakov Smelkin
  */
-public class Movement extends Thread {
+public class Movement implements Runnable {
 
 	// private WorldState worldState;
 	private RobotController robot;

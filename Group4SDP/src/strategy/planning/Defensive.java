@@ -48,17 +48,16 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// defend the door
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						Movement move = new Movement(world, rc,
-								(int) (ourGoalCenter.getX() + threshold),
-								(int) ourGoalCenter.getY(), 0, 0, 0.0, 3);
+						Movement move = new Movement(world, rc);
+						move.setUpMoveToPoint((ourGoalCenter.getX() + threshold),
+								ourGoalCenter.getY());
 						System.out.println("Left: x "
 								+ (int) (ourGoalCenter.getX() + threshold)
 								+ " y " + (int) ourGoalCenter.getY());
 						Thread moverthr = new Thread(move, "I'm a mover thread");
 						moverthr.start();
-						while (moverthr.isAlive()) {
-							Thread.sleep(50);
-						}
+						moverthr.join(); //Complete the command before returning control
+						//to the thread.
 
 						System.out.println("Point reached Left");
 					} catch (InterruptedException e) {
@@ -84,19 +83,16 @@ public class Defensive extends StrategyInterface implements Runnable {
 						} else
 							destY = them.y - ythreshold;
 						try {
-							Movement move = new Movement(world, rc,
-									(int) (ourGoalCenter.getX() + threshold),
-									(int) destY, 0, 0, 0.0, 3);
+							Movement move = new Movement(world, rc);
+							move.setUpMoveToPoint((ourGoalCenter.getX() + threshold),
+									destY);
 							System.out.println("Left: x "
 									+ (int) (ourGoalCenter.getX() + threshold)
 									+ " y " + (int) ourGoalCenter.getY());
 							Thread moverthr = new Thread(move,
 									"I'm a mover thread");
 							moverthr.start();
-
-							while (moverthr.isAlive()) {
-								Thread.sleep(50);
-							}
+							moverthr.join();
 						} catch (InterruptedException e) {
 
 							e.printStackTrace(); }
@@ -122,13 +118,11 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// }
 				} else {
 					try {
-						Movement move = new Movement(world, rc, (int) (ball.x),
-								(int) (ball.y), 0, 0, 0.0, 3);
+						Movement move = new Movement(world, rc);
+						move.setUpMoveToPoint(ball.x,ball.y);
 						Thread moverthr = new Thread(move, "I'm a mover thread");
 						moverthr.start();
-						while (moverthr.isAlive()) {
-							Thread.sleep(50);
-						}
+						moverthr.join();
 						System.out.println("Ball reached");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -144,17 +138,15 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// defend the goal
 				if (Possession.hasPossession(world, RobotType.Them)) {
 					try {
-						Movement move = new Movement(world, rc,
-								(int) (ourGoalCenter.getX() - threshold),
-								(int) ourGoalCenter.getY(), 0, 0, 0.0, 3);
+						Movement move = new Movement(world, rc);
+						move.setUpMoveToPoint((ourGoalCenter.getX() - threshold),
+								ourGoalCenter.getY());
 						System.out.println("Right: x "
 								+ (int) (ourGoalCenter.getX() + threshold)
 								+ " y " + (int) ourGoalCenter.getY());
 						Thread moverthr = new Thread(move, "I'm a mover thread");
 						moverthr.start();
-						while (moverthr.isAlive()) {
-							Thread.sleep(50);
-						}
+						moverthr.join();
 						System.out.println("Point reached Right");
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -177,18 +169,15 @@ public class Defensive extends StrategyInterface implements Runnable {
 						} else
 							destY = them.y - ythreshold;
 						try {
-							Movement move = new Movement(world, rc,
-									(int) (ourGoalCenter.getX() - threshold),
-									(int) destY, 0, 0, 0.0, 3);
+							Movement move = new Movement(world, rc);
+							move.setUpMoveToPoint((ourGoalCenter.getX() - threshold),destY);
 							System.out.println("Right: x "
 									+ (int) (ourGoalCenter.getX() + threshold)
 									+ " y " + (int) ourGoalCenter.getY());
 							Thread moverthr = new Thread(move,
 									"I'm a mover thread");
 							moverthr.start();
-							while (moverthr.isAlive()) {
-								Thread.sleep(50);
-							}
+							moverthr.join();
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -198,8 +187,8 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 				} else {
 					try {
-						Movement move = new Movement(world, rc, (int) (ball.x),
-								(int) (ball.y), 0, 0, 0.0, 3);
+						Movement move = new Movement(world, rc);
+						move.setUpMoveToPoint(ball.x,ball.y);
 						Thread moverthr = new Thread(move, "I'm a mover thread");
 						moverthr.start();
 						while (moverthr.isAlive()) {
