@@ -31,6 +31,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import vision.DistortionFix;
 import vision.PitchConstants;
+import vision.Position;
 import vision.VideoStream;
 import vision.WorldState;
 import vision.interfaces.VideoReceiver;
@@ -481,6 +482,25 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				"angle: "
 						+ df.format(Math.toDegrees(worldState
 								.getYellowOrientation())), 260, 75);
+
+		// Mark goals:
+		Position leftGoal = worldState.goalInfo.getLeftGoalCenter();
+		Position rightGoal = worldState.goalInfo.getRightGoalCenter();
+
+		frameGraphics.setColor(Color.yellow);
+		frameGraphics.drawOval(leftGoal.getX() - 2, leftGoal.getY() - 2, 4, 4);
+		frameGraphics
+				.drawOval(rightGoal.getX() - 2, rightGoal.getY() - 2, 4, 4);
+
+		Position leftGoalTop = worldState.goalInfo.getLeftGoalTop();
+		Position leftGoalBottom = worldState.goalInfo.getLeftGoalBottom();
+		frameGraphics.drawLine(leftGoalTop.getX(), leftGoalTop.getY(),
+				leftGoalBottom.getX(), leftGoalBottom.getY());
+		
+		Position rightGoalTop = worldState.goalInfo.getRightGoalTop();
+		Position rightGoalBottom = worldState.goalInfo.getRightGoalBottom();
+		frameGraphics.drawLine(rightGoalTop.getX(), rightGoalTop.getY(),
+				rightGoalBottom.getX(), rightGoalBottom.getY());
 
 		// Draw overall composite to screen
 		Graphics videoGraphics = videoDisplay.getGraphics();

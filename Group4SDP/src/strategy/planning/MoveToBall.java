@@ -9,7 +9,7 @@ import world.state.RobotController;
 
 public class MoveToBall {
 	
-	private static final int distanceFromBallToStop = 60;
+	private static final int distanceFromBallToStop = 80;
 	
 	public static  void approach(WorldState worldState, RobotController robot) throws InterruptedException {
 		// First we turn to the ball

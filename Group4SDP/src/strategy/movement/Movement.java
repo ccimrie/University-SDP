@@ -6,8 +6,8 @@ import world.state.Robot;
 import world.state.RobotController;
 
 /**
- * A movement class, that provides calculations for
- * different move commands for the robot.
+ * A movement class, that provides calculations for different move commands for
+ * the robot.
  * 
  * @author Jakov Smelkin
  */
@@ -15,7 +15,7 @@ public class Movement implements Runnable {
 
 	// private WorldState worldState;
 	private RobotController robot;
-	private Robot us;	
+	private Robot us;
 	private static int distanceThreshold = 10;
 	private boolean die = false;
 	private double moveToPointX = 0;
@@ -26,16 +26,17 @@ public class Movement implements Runnable {
 	private double speedY = 0;
 	private double angle = 0.0;
 
-	
 	private enum Methods {
 		MOVE, MOVEANGLE, MOVETOPOINT, MOVETOPOINTANDSTOP, MOVETOWARDSPOINT, ROTATE, MOVETOPOINTANDAVAOID
 	};
-	
+
 	/**
-	 * A method to call: </br>{@link #move(double speedX, double speedY)}, </br> {@link #move(double angle)} ,</br>
+	 * A method to call: </br>{@link #move(double speedX, double speedY)}, </br>
+	 * {@link #move(double angle)} ,</br>
 	 * {@link #moveToPoint(double moveToPointX, double moveToPointY)} , </br>
-	 * {@link #moveToPointAndStop(double moveToPointX, double moveToPointY)} , </br>
-	 * {@link #moveTowardsPoint (double moveToPointX, double moveToPointY)} , </br> {@link #rotate (double angle)}
+	 * {@link #moveToPointAndStop(double moveToPointX, double moveToPointY)} ,
+	 * </br> {@link #moveTowardsPoint (double moveToPointX, double moveToPointY)}
+	 * , </br> {@link #rotate (double angle)}
 	 */
 	private Methods methodToUse;
 
@@ -43,9 +44,11 @@ public class Movement implements Runnable {
 	 * Constructor for the movement class.
 	 * 
 	 * @param worldState
-	 *            a world state from the vision, giving us information on robots, ball etc.
+	 *            a world state from the vision, giving us information on
+	 *            robots, ball etc.
 	 * @param robot
-	 *            A {@link world.state.RobotController} class that prepares byte commands to the robot.
+	 *            A {@link world.state.RobotController} class that prepares byte
+	 *            commands to the robot.
 	 */
 	public Movement(WorldState worldState, RobotController robot) {
 		super();
@@ -55,7 +58,8 @@ public class Movement implements Runnable {
 	}
 
 	/**
-	 * Runner for our movement, don't forget to set what you plan to do before running this.
+	 * Runner for our movement, don't forget to set what you plan to do before
+	 * running this.
 	 * 
 	 * @see Thread#run
 	 */
@@ -93,9 +97,9 @@ public class Movement implements Runnable {
 		robot.clearBuff();
 	}
 
-	public void die() throws InterruptedException {
+	public void die() {
+		System.out.println("Killing movement");
 		die = true;
-		Thread.sleep(50);
 		robot.stop();
 		robot.clearBuff();
 	}
@@ -111,10 +115,11 @@ public class Movement implements Runnable {
 	 *            ones).
 	 */
 	public void setUpMove(double speedX, double speedY) {
-		this.speedX=speedX;
-		this.speedY=speedX;
-		methodToUse=Methods.MOVE;		
+		this.speedX = speedX;
+		this.speedY = speedX;
+		methodToUse = Methods.MOVE;
 	}
+
 	private void move(double speedX, double speedY) {
 		robot.move((int) speedX, (int) speedY);
 	}
@@ -127,9 +132,10 @@ public class Movement implements Runnable {
 	 *            Angle, in radians (0 to 2*PI)
 	 */
 	public void setUpMove(double angle) {
-		this.angle=angle;
-		methodToUse=Methods.MOVEANGLE;		
+		this.angle = angle;
+		methodToUse = Methods.MOVEANGLE;
 	}
+
 	private void move(double angle) {
 		double speedX = 100 * Math.sin(angle);
 		double speedY = 100 * Math.cos(angle);
@@ -146,25 +152,28 @@ public class Movement implements Runnable {
 	 * @param y
 	 *            Move to position y units right from top left corner of the
 	 *            video feed
+	 * 
 	 * @see #moveToPointAndStop(double x, double y)
 	 * @see #moveTowardsPoint(double x, double y)
 	 */
-	public void setUpMoveToPoint(double x, double y){
-		this.moveToPointX=x;
-		this.moveToPointY=y;
-		methodToUse=Methods.MOVETOPOINT;
+	public void setUpMoveToPoint(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINT;
 	}
+
 	private void moveToPoint(double x, double y) throws InterruptedException {
 
 		int i = 0;
-		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold && i < 50 && !die) {
+		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
+				&& i < 50 && !die) {
 			// Not to send unnecessary commands
 			Thread.sleep(42);
 			moveTowardsPoint(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
 			i++;
-
 		}
 	}
 
@@ -181,12 +190,15 @@ public class Movement implements Runnable {
 	 *             when Thread.sleep() is interrupted.
 	 * @see #moveToPoint(double, double)
 	 */
-	public void setUpMoveToPointAndStop(double x, double y){
-		this.moveToPointX=x;
-		this.moveToPointY=y;
-		methodToUse=Methods.MOVETOPOINTANDSTOP;
+	public void setUpMoveToPointAndStop(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINTANDSTOP;
 	}
-	private void moveToPointAndStop(double x, double y) throws InterruptedException {
+
+	private void moveToPointAndStop(double x, double y)
+			throws InterruptedException {
 		moveToPoint(x, y);
 		// Stop once we reach the point
 		robot.stop();
@@ -203,11 +215,12 @@ public class Movement implements Runnable {
 	 *            video feed
 	 * @see #moveToPoint(double, double)
 	 */
-	public void setUpMoveTowards(double x, double y){
-		this.moveToPointX=x;
-		this.moveToPointY=y;
-		methodToUse=Methods.MOVETOWARDSPOINT;
+	public void setUpMoveTowards(double x, double y) {
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOWARDSPOINT;
 	}
+
 	private void moveTowardsPoint(double x, double y) {
 		/*
 		 * We make a vector (xt, yt) pointing from the robot to point, then use
@@ -236,7 +249,10 @@ public class Movement implements Runnable {
 
 		// Finding the angle from dot product
 
-		double angle = Math.acos(dotProductForward / (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt * yt)));
+		double angle = Math.acos(dotProductForward
+				/ (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt
+						* yt)));
+
 		// Adjusting for negative values
 		if (dotProductEast < 0)
 			angle = -angle;
@@ -258,14 +274,18 @@ public class Movement implements Runnable {
 	 * @param avoidY
 	 *            Point in the X axis avoid
 	 */
-	public void setUpMoveToPointAndAvoid(double x, double y){
-		this.moveToPointX=x;
-		this.moveToPointY=y;
-		methodToUse=Methods.MOVETOPOINTANDAVAOID;
+	public void setUpMoveToPointAndAvoid(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINTANDAVAOID;
 	}
+
 	// TODO: Finish this.
-	private void moveToPointAndAvoid(double x, double y, double avoidX, double avoidY) {
-		if (avoidX <= Math.max(x, us.x)) {}
+	private void moveToPointAndAvoid(double x, double y, double avoidX,
+			double avoidY) {
+		if (avoidX <= Math.max(x, us.x)) {
+		}
 	}
 
 	/**
@@ -275,9 +295,10 @@ public class Movement implements Runnable {
 	 *            clockwise angle to rotate (in Radians)
 	 */
 	public void setUpRotate(double angle) {
-		this.angle=angle;
-		methodToUse=Methods.ROTATE;		
+		this.angle = angle;
+		methodToUse = Methods.ROTATE;
 	}
+
 	private void rotate(double rotationAngle) {
 		rotationAngle = Math.toDegrees(rotationAngle);
 		robot.rotate((int) rotationAngle);
