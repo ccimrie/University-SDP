@@ -11,22 +11,37 @@ import world.state.RobotController;
  * 
  * @author Jakov Smelkin
  */
-public class Movement extends Thread {
+public class Movement implements Runnable {
 
 	// private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private static int DIST_TH = 10;
+	private static int distanceThreshold = 10;
 	private boolean die = false;
-	private double movetopointx = 0;
-	private double movetopointy = 0;
-	private double speedx = 0;
-	private double speedy = 0;
+	private double moveToPointX = 0;
+	private double moveToPointY = 0;
+	private double avoidX = 0;
+	private double avoidY = 0;
+	private double speedX = 0;
+	private double speedY = 0;
 	private double angle = 0.0;
-	private int methodtouse = 0;
+
+	private enum Methods {
+		MOVE, MOVEANGLE, MOVETOPOINT, MOVETOPOINTANDSTOP, MOVETOWARDSPOINT, ROTATE, MOVETOPOINTANDAVAOID
+	};
 
 	/**
-	 * Constructor for the movement class
+	 * A method to call: </br>{@link #move(double speedX, double speedY)}, </br>
+	 * {@link #move(double angle)} ,</br>
+	 * {@link #moveToPoint(double moveToPointX, double moveToPointY)} , </br>
+	 * {@link #moveToPointAndStop(double moveToPointX, double moveToPointY)} ,
+	 * </br> {@link #moveTowardsPoint (double moveToPointX, double moveToPointY)}
+	 * , </br> {@link #rotate (double angle)}
+	 */
+	private Methods methodToUse;
+
+	/**
+	 * Constructor for the movement class.
 	 * 
 	 * @param worldState
 	 *            a world state from the vision, giving us information on
@@ -34,88 +49,59 @@ public class Movement extends Thread {
 	 * @param robot
 	 *            A {@link world.state.RobotController} class that prepares byte
 	 *            commands to the robot.
-	 * @param movetoPointX
-	 *            Move to position X units down from top left corner of the
-	 *            video feed
-	 * @param movetoPointY
-	 *            Move to position Y units right from top left corner of the
-	 *            video feed
-	 * @param speedX
-	 *            Speed right (for positive values) or left (for negative ones).
-	 * @param speedY
-	 *            Speed forward (for positive values) or backward (for negative
-	 *            ones).
-	 * @param angle
-	 *            Angle, in radians (0 to 2*PI)
-	 * @param methodToUse
-	 *            A method to call: </br>1 -
-	 *            {@link #move(double speedX, double speedY)}, </br> 2 -
-	 *            {@link #move(double angle)},</br> 3 -
-	 *            {@link #moveToPoint(double movetoPointX, double movetoPointY)}
-	 *            , </br>4 -
-	 *            {@link #moveToPointAndStop(double movetoPointX, double movetoPointY)}
-	 *            , </br>5 -
-	 *            {@link #moveTowardsPoint (double movetoPointX, double movetoPointY)}
-	 *            , </br>6 - {@link #rotate (double angle)}
 	 */
-	public Movement(WorldState worldState, RobotController robot,
-			double movetopointx, double movetopointy, double speedx,
-			double speedy, double angle, int methodtouse) {
+	public Movement(WorldState worldState, RobotController robot) {
 		super();
 		// this.worldState = worldState;
 		this.robot = robot;
 		us = worldState.ourRobot;
-		this.movetopointx = movetopointx;
-		this.movetopointy = movetopointy;
-		this.speedx = speedx;
-		this.speedy = speedy;
-		this.angle = angle;
-		this.methodtouse = methodtouse;
-
 	}
 
+	/**
+	 * Runner for our movement, don't forget to set what you plan to do before
+	 * running this.
+	 * 
+	 * @see Thread#run
+	 */
 	public void run() {
 		try {
-			switch (methodtouse) {
-			case 1:
-				System.out
-						.println("Moving at (" + speedx + ", " + speedy + ")");
-				move(speedx, speedy);
+			switch (methodToUse) {
+			case MOVE:
+				move(speedX, speedY);
 				break;
-			case 2:
-				System.out.println("Moving at " + angle + " degrees");
+			case MOVEANGLE:
 				move(angle);
 				break;
-			case 3:
-				System.out.println("Moving to (" + movetopointx + ", "
-						+ movetopointy + ")");
-				moveToPoint(movetopointx, movetopointy);
+			case MOVETOPOINT:
+				moveToPoint(moveToPointX, moveToPointY);
 				break;
-			case 4:
-				System.out.println("Moving to (" + movetopointx + ", "
-						+ movetopointy + ") and stopping");
-				moveToPointAndStop(movetopointx, movetopointy);
+			case MOVETOPOINTANDSTOP:
+				moveToPointAndStop(moveToPointX, moveToPointY);
 				break;
-			case 5:
-				System.out.println("Moving towards (" + movetopointx + ", "
-						+ movetopointy + ")");
-				moveTowardsPoint(movetopointx, movetopointy);
+			case MOVETOWARDSPOINT:
+				moveTowardsPoint(moveToPointX, moveToPointY);
 				break;
-			case 6:
-				System.out.println("Rotating by " + angle + " degrees");
+			case MOVETOPOINTANDAVAOID:
+				moveToPointAndAvoid(moveToPointX, moveToPointY, avoidX, avoidY);
+				break;
+			case ROTATE:
 				rotate(angle);
 				break;
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			System.out.println("Try setting up with one of the setUp methods.");
 		}
+		robot.clearBuff();
 	}
 
 	public void die() {
 		System.out.println("Killing movement");
 		die = true;
 		robot.stop();
+		robot.clearBuff();
 	}
 
 	/**
@@ -128,7 +114,13 @@ public class Movement extends Thread {
 	 *            Speed forward (for positive values) or backward (for negative
 	 *            ones).
 	 */
-	public void move(double speedX, double speedY) {
+	public void setUpMove(double speedX, double speedY) {
+		this.speedX = speedX;
+		this.speedY = speedX;
+		methodToUse = Methods.MOVE;
+	}
+
+	private void move(double speedX, double speedY) {
 		robot.move((int) speedX, (int) speedY);
 	}
 
@@ -139,7 +131,12 @@ public class Movement extends Thread {
 	 * @param angle
 	 *            Angle, in radians (0 to 2*PI)
 	 */
-	public void move(double angle) {
+	public void setUpMove(double angle) {
+		this.angle = angle;
+		methodToUse = Methods.MOVEANGLE;
+	}
+
+	private void move(double angle) {
 		double speedX = 100 * Math.sin(angle);
 		double speedY = 100 * Math.cos(angle);
 		move(speedX, speedY);
@@ -155,15 +152,21 @@ public class Movement extends Thread {
 	 * @param y
 	 *            Move to position y units right from top left corner of the
 	 *            video feed
-	 * @throws InterruptedException
-	 *             when Thread.sleep() is interrupted.
+	 * 
 	 * @see #moveToPointAndStop(double x, double y)
 	 * @see #moveTowardsPoint(double x, double y)
 	 */
-	public void moveToPoint(double x, double y) throws InterruptedException {
+	public void setUpMoveToPoint(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINT;
+	}
+
+	private void moveToPoint(double x, double y) throws InterruptedException {
 
 		int i = 0;
-		while (DistanceCalculator.Distance(us.x, us.y, x, y) > DIST_TH
+		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
 				&& i < 50 && !die) {
 			// Not to send unnecessary commands
 			Thread.sleep(42);
@@ -171,7 +174,6 @@ public class Movement extends Thread {
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
 			i++;
-
 		}
 	}
 
@@ -188,7 +190,14 @@ public class Movement extends Thread {
 	 *             when Thread.sleep() is interrupted.
 	 * @see #moveToPoint(double, double)
 	 */
-	public void moveToPointAndStop(double x, double y)
+	public void setUpMoveToPointAndStop(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINTANDSTOP;
+	}
+
+	private void moveToPointAndStop(double x, double y)
 			throws InterruptedException {
 		moveToPoint(x, y);
 		// Stop once we reach the point
@@ -206,7 +215,13 @@ public class Movement extends Thread {
 	 *            video feed
 	 * @see #moveToPoint(double, double)
 	 */
-	public void moveTowardsPoint(double x, double y) {
+	public void setUpMoveTowards(double x, double y) {
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOWARDSPOINT;
+	}
+
+	private void moveTowardsPoint(double x, double y) {
 		/*
 		 * We make a vector (xt, yt) pointing from the robot to point, then use
 		 * rotational transformation to put it in robots perspective, then
@@ -237,6 +252,7 @@ public class Movement extends Thread {
 		double angle = Math.acos(dotProductForward
 				/ (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt
 						* yt)));
+
 		// Adjusting for negative values
 		if (dotProductEast < 0)
 			angle = -angle;
@@ -258,8 +274,15 @@ public class Movement extends Thread {
 	 * @param avoidY
 	 *            Point in the X axis avoid
 	 */
+	public void setUpMoveToPointAndAvoid(double x, double y) {
+		die = false;
+		this.moveToPointX = x;
+		this.moveToPointY = y;
+		methodToUse = Methods.MOVETOPOINTANDAVAOID;
+	}
+
 	// TODO: Finish this.
-	public void moveToPointAndAvoid(double x, double y, double avoidX,
+	private void moveToPointAndAvoid(double x, double y, double avoidX,
 			double avoidY) {
 		if (avoidX <= Math.max(x, us.x)) {
 		}
@@ -271,7 +294,12 @@ public class Movement extends Thread {
 	 * @param rotationAngle
 	 *            clockwise angle to rotate (in Radians)
 	 */
-	public void rotate(double rotationAngle) {
+	public void setUpRotate(double angle) {
+		this.angle = angle;
+		methodToUse = Methods.ROTATE;
+	}
+
+	private void rotate(double rotationAngle) {
 		rotationAngle = Math.toDegrees(rotationAngle);
 		robot.rotate((int) rotationAngle);
 	}

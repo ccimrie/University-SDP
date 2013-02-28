@@ -42,6 +42,7 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 
+// TODO: clean up unused stuff
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
 	// GUI elements
@@ -72,9 +73,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton move = new JButton("Move");
 	private final JButton moveToBall = new JButton("MoveToBall");
 	private final JButton dribble = new JButton("Dribble");
-	// Communication variables
-	public static BluetoothCommunication comms;
-	private static RobotController robot;
+
 	// OPcode fields
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
@@ -82,11 +81,13 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-
-	private Movement mover;
+	
+	// Communication variables
+	public static BluetoothCommunication comms;
+	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 2
-	private static MoveToBall mball = new MoveToBall();
+	private MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
 
 	// Strategy used for driving part of milestone 2
@@ -94,7 +95,12 @@ public class ControlGUI2 extends JFrame {
 	private DribbleBallThread dribbleThread;
 
 	private WorldState worldState;
+
+	private Thread stratThread;
 	private Strategy strat;
+	
+	private Thread moverThread;
+	private Movement mover;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -110,7 +116,7 @@ public class ControlGUI2 extends JFrame {
 		WorldState worldState = new WorldState(goalInfo);
 
 		// Default values for the main vision window
-		String videoDevice = "/dev/video0";
+		/*String videoDevice = "/dev/video0";
 		int width = 640;
 		int height = 480;
 		int channel = 0;
@@ -137,7 +143,7 @@ public class ControlGUI2 extends JFrame {
 			vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2(worldState);
@@ -145,7 +151,7 @@ public class ControlGUI2 extends JFrame {
 		gui.action();
 
 		// Sets up the communication
-		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
+		/*comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
 				DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
@@ -162,7 +168,7 @@ public class ControlGUI2 extends JFrame {
 
 		// Sets up robot
 		robot = new RobotController(RobotType.Us);
-		System.out.println("Robot ready!");
+		System.out.println("Robot ready!");*/
 	}
 
 	public ControlGUI2(WorldState worldState) {
@@ -246,14 +252,16 @@ public class ControlGUI2 extends JFrame {
 
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: fix this - at the very least should use .start()
 				Thread et = new EverythingThread();
 				et.run();
-				
-				//if (mover != null && mover.isAlive())
-				//	mover.die();
-				//mover = new Movement(worldState, robot, 320, 220, 0, 0, 0.0, 4);
 
-				//mover.start();
+				Movement move = new Movement(worldState, robot);
+				move.setUpMove(100, 100);
+
+				Thread moverthr = new Thread(move, "I'm a mover thread");
+				moverthr.start();
+
 				// Run in a new thread to free up UI while running
 				// Movement m = new Movement(worldState, robot);
 				// try {
@@ -277,31 +285,35 @@ public class ControlGUI2 extends JFrame {
 
 		stratStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				Offensive attacking = new Offensive(worldState, worldState.ourRobot,worldState.theirRobot, robot);
-				new Thread(attacking).start();
-				
-				
-				//Strategy.reset();
 				// Run in a new thread to free up UI while running
-				//Thread strat = new Thread(new Strategy(worldState, robot));
-				//strat.start();
+				// TODO: remove - this should be in the plannner
+				// Offensive attacking = new Offensive(worldState,
+				// worldState.ourRobot,worldState.theirRobot, robot);
+				// new Thread(attacking).start();
+
+				// Strategy.reset();
+
+				strat = new Strategy(worldState, robot);
+				Thread stratthr = new Thread(strat);
+				stratthr.start();
 			}
 		});
 
 		stratStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Run in a new thread to free up UI while running
 				try {
 					Strategy.stop();
+					if (stratThread != null) {
+						stratThread.interrupt();
+						stratThread.join();
+					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
-		
+
 		penaltyAtk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penAtk = new PenaltyAttack(worldState,
@@ -309,64 +321,94 @@ public class ControlGUI2 extends JFrame {
 				penAtk.run();
 			}
 		});
-		
+
 		penaltyDef.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyDefence pendef = new PenaltyDefence(worldState, worldState.ourRobot, worldState.theirRobot, robot);
-				Thread mthread = new Thread(pendef, "pendef");
-				mthread.run();
+				PenaltyDefence penDef = new PenaltyDefence(worldState,
+						worldState.ourRobot, worldState.theirRobot, robot);
+				penDef.run();
 			}
 		});
 
 		kick.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				robot.kick();
 			}
-
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				if (mover != null && mover.isAlive())
-					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, op1, 0.0, 1);
 
-				mover.start();
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(0, op1);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				if (mover != null && mover.isAlive())
-					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, -op1, 0.0, 1);
 
-				mover.start();
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(0, -op1);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				if (mover != null && mover.isAlive())
-					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, -op1, 0, 0.0, 1);
 
-				mover.start();
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(-op1, 0);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				if (mover != null && mover.isAlive())
+				
+				if (moverThread != null && moverThread.isAlive()) {
 					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, op1, 0, 0.0, 1);
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
 
-				mover.start();
+				mover.setUpMove(op1, 0);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
@@ -388,8 +430,14 @@ public class ControlGUI2 extends JFrame {
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (mover != null && mover.isAlive())
+				if (moverThread != null && moverThread.isAlive()) {
 					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
 				robot.stop();
 			}
 		});
@@ -397,12 +445,19 @@ public class ControlGUI2 extends JFrame {
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
-				if (mover != null && mover.isAlive())
-					mover.die();
-				mover = new Movement(worldState, robot, 0, 0, 0, 0, Math
-						.toRadians(angle), 6);
 
-				mover.start();
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+				
+				mover.setUpMove(angle);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
@@ -461,8 +516,8 @@ public class ControlGUI2 extends JFrame {
 	class EverythingThread extends Thread {
 
 		public void run() {
-				Everything eve = new Everything(worldState, robot);
-				eve.doAllTheThings();
+			Everything eve = new Everything(worldState, robot);
+			eve.doAllTheThings();
 		}
 	}
 
@@ -479,8 +534,8 @@ public class ControlGUI2 extends JFrame {
 
 		}
 	}
-	
-	class  MoveToTheBallThread extends Thread {
+
+	class MoveToTheBallThread extends Thread {
 
 		public void run() {
 

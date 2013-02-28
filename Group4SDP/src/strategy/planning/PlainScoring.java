@@ -12,9 +12,8 @@ import geometry.*;
 import java.math.*;
 import strategy.*;
 
+// TODO: update to new movement class
 public class PlainScoring{
-	
-	
 	
 	public Ball ball;
 	HittingObstacle wall = new HittingObstacle();
@@ -162,10 +161,9 @@ public class PlainScoring{
 		
 		
 		double angle = (TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY()));
-
-		
 	
 		System.out.println(angle);
+		
 		rc.rotate((int)angle);
 	}
 	
