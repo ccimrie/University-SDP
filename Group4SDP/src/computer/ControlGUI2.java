@@ -233,9 +233,8 @@ public class ControlGUI2 extends JFrame {
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				Movement move = new Movement(worldState, robot,
-						50,
-						50, 0, 0, 0.0, 4);
+				Movement move = new Movement(worldState, robot);
+				move.setUpMove(100, 100);
 				
 				Thread moverthr = new Thread(move, "I'm a mover thread");
 				moverthr.start();
