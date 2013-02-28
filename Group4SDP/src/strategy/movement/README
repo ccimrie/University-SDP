@@ -2,22 +2,20 @@ HOW TO USE THE MOVER:
 
 The way to use a mover is the following:
 First initialize a mover object with the following signature:
-public Movement(WorldState worldState, RobotController robot,
-			int movetopointx, int movetopointy,
-			int speedx, int speedy, double angle, int methodtouse)
+public Movement(WorldState worldState, RobotController robot)
 
-the int methodtouse points out which of the three (or possibly more in the future
-methods you want to call. The values are the following:
+After initializing movement you should set up the parameters you want
 
-//1 move (x, y speed)
-//2 for move (angle)
-//3 for move2point 
+Movement move = new Movement(world,robot);
+move.setUpMoveToPoint(130, 450);
 
-You only need fill in the parameters you need to use (like in the case below
-we wante to use move2point so we filled only movetopointx and movetopointy.
-the rest are set to zero).
+For now there are seven different methods you can call. Look at the file
+for more details.
 
-Movement mover = new Movement(world, robot, 150, 450, 0,0,0.0,3);
+After you set up the parameters you should initialize a thread and start it.
+
+Doing a setup* method will not start movement. The only thing that would start
+movement would be the thread.start(), which is explained below.
 
 Afterwards intialize a new Thread and start it:
 
@@ -28,6 +26,9 @@ Thus you start your desired move method. To check if it's finished do the folloi
 
 movthread.isAlive()
 If this returns true, it means that the move method has not yet finished.
+
+If you want to wait for move to finish do a 
+movthread.join()
 
 if you want to prematurely kill the thread do: 
 
