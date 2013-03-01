@@ -382,6 +382,24 @@ public class PitchConstants {
 	}
 
 	/**
+	 * Gets the width of the pitch
+	 * 
+	 * @return the width of the pitch in pixels
+	 */
+	public int getPitchWidth() {
+		return (640 - rightBuffer - leftBuffer);
+	}
+
+	/**
+	 * Gets the height of the pitch
+	 * 
+	 * @return the height of the pitch in pixels
+	 */
+	public int getPitchHeight() {
+		return (480 - bottomBuffer - topBuffer);
+	}
+
+	/**
 	 * Gets the top buffer for the pitch
 	 * 
 	 * @return the distance from the top of the pitch to the top of the image
@@ -600,7 +618,7 @@ public class PitchConstants {
 		try {
 			scannerDim = new Scanner(new File(fileName + "Dimensions"));
 			assert (scannerDim != null);
-	
+
 			// Pitch Dimensions
 			this.topBuffer = scannerDim.nextInt();
 			this.bottomBuffer = scannerDim.nextInt();

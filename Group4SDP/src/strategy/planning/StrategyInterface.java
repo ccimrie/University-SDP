@@ -21,6 +21,13 @@ public abstract class StrategyInterface {
 	
 	public void kill(){
 		shouldidie = true;
+		try { //Sleep for a bit, because we want movement to die.
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		rc.clearBuff();
 	}
 	
 }

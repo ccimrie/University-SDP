@@ -5,7 +5,7 @@ import vision.Cluster;
 
 public class Kmeans {
 
-	public static final double errortarget = 170.0;
+	public static final double errortarget = 200.0;
 
 	public static Cluster doKmeans(ArrayList<Position> points, Position mean1,
 			Position mean2) {
@@ -55,7 +55,7 @@ public class Kmeans {
 			double mean2dist = getDistance(p, mean2);
 
 			// Add the points to the appropriate clusters.
-			if (mean1dist > mean2dist)
+			if (mean1dist < mean2dist)
 				mean1members.add(p);
 			else
 				mean2members.add(p);

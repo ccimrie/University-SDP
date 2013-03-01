@@ -84,11 +84,12 @@ public class RobotController extends Robot {
 		int confirmation = 0;
 		try {
 			confirmation = comms.sendToRobot(command);
+			System.out.println("Confirmation for move " + confirmation);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
-		System.out.println("Moving forward...");
+		System.out.println("Moving");
 		return confirmation;
 	}
 	
@@ -144,6 +145,29 @@ public class RobotController extends Robot {
 		return confirmation;
 	}
 	
+	/**
+	 * 
+	 * @param x component of point to travel to
+	 * @param y	component of point to travel to
+	 * @param angle of rotation at the point (x, y)
+	 * @return confirmation of signal
+	 */
+	public int rotateMove(int speedX, int speedY, int angle){		
+		int[] command = {Commands.ROTATEMOVE, speedX, speedY, angle};
+		int confirmation = 0;
+		try {
+			confirmation = comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Moving at speed (" + speedX + ", " + speedY + ") while rotating at an angle: " + angle);
+		return confirmation;		
+	}
+	
+	public void clearBuff(){
+		comms.clearBuff();
+	}
 	//TODO Add anglemove method
 	
 	/*
