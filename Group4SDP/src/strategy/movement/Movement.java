@@ -136,6 +136,14 @@ public class Movement extends Thread {
 		die = true;
 		this.notify();
 	}
+	
+	/**
+	 * Triggers an interrupt in movement
+	 */
+	public synchronized void interruptMove() {
+		System.out.println("Interrupting movement");
+		interruptMove = true;
+	}
 
 	/**
 	 * A general move function as seen from the position of the robot.</br>

@@ -64,8 +64,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// Move to our goal
 				// synchronized is needed to call mover.wait(), any movement
 				// commands should also be inside a synchronized block if wait
-				// is
-				// called, otherwise weird things will happen
+				// is called, otherwise weird things will happen
 				synchronized (mover) {
 					mover.moveTo(ourGoalDefendPosition.getX(),
 							ourGoalDefendPosition.getY());
