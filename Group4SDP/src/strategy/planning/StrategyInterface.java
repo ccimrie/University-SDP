@@ -1,5 +1,6 @@
 package strategy.planning;
 
+import strategy.movement.Movement;
 import vision.WorldState;
 import world.state.Robot;
 import world.state.RobotController;
@@ -9,14 +10,12 @@ public abstract class StrategyInterface {
 	
 	WorldState world;
 	RobotController rc;
-	Robot us;
-	Robot them;
+	Movement mover;
 	
-	public StrategyInterface(WorldState world, Robot us, Robot them, RobotController rc){
+	public StrategyInterface(WorldState world, RobotController rc, Movement mover){
 		this.world = world;
 		this.rc = rc;
-		this.us = us;
-		this.them = them;
+		this.mover = mover;
 	}
 	
 	public void kill(){

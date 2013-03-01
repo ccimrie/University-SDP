@@ -1,40 +1,38 @@
 package strategy.planning;
 
-import world.state.Robot;
-import world.state.RobotController;
-import strategy.calculations.GoalInfo;
+import strategy.movement.Movement;
 import vision.WorldState;
-
+import world.state.RobotController;
 
 public class Strategy implements Runnable {
-	public static Robot us;
-	public static Robot them;
-	public static RobotController robot;
-	public static WorldState world;
+	public WorldState world;
+	public RobotController robot;
+	public Movement mover;
 	public static boolean alldie = false;
-	
-	public Strategy(WorldState world, RobotController robot){
-		Strategy.world = world;
-		Strategy.us = world.ourRobot;
-		Strategy.them = world.theirRobot;
-		Strategy.robot = robot;
+
+	public Strategy(WorldState world, RobotController robot, Movement mover) {
+		this.world = world;
+		this.robot = robot;
+		this.mover = mover;
 	}
 
 	public void run() {
-		// Add this instance as an observer to the world to be notified of frame updates
+		// Add this instance as an observer to the world to be notified of frame
+		// updates
 		System.out.println("[Strategy] Are we blue? " + world.areWeBlue());
-		System.out.println("[Strategy] Are we on the left side? " + world.areWeOnLeft());
-		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
-		Thread plan = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
+		System.out.println("[Strategy] Are we on the left side? "
+				+ world.areWeOnLeft());
+		System.out.println("[Strategy] Are we on the main pitch? "
+				+ world.isMainPitch());
+		Thread plan = new Thread(new MainPlanner(world, robot, mover),
+				"Planning Thread");
 		plan.start();
 	}
 
-	public static void stop() throws InterruptedException{
+	public static void stop() {
 		alldie = true;
-		Thread.sleep(1000); //Wait for all threads to notice this and terminate.
-		robot.stop();
 	}
-	
+
 	public static void reset() {
 		alldie = false;
 	}
