@@ -2,6 +2,7 @@ package strategy.planning;
 
 import world.state.Robot;
 import world.state.RobotController;
+import strategy.calculations.GoalInfo;
 import vision.WorldState;
 
 
@@ -26,21 +27,15 @@ public class Strategy implements Runnable {
 		System.out.println("[Strategy] Are we on the main pitch? " + world.isMainPitch());
 		Thread plan = new Thread(new MainPlanner(world, us, them, robot), "Planning Thread");
 		plan.start();
-		while (true) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static void stop() throws InterruptedException{
 		alldie = true;
-		Thread.sleep(2000); //Wait for all threads to notice this and terminate.
+		Thread.sleep(1000); //Wait for all threads to notice this and terminate.
 		robot.stop();
 	}
-
-
+	
+	public static void reset() {
+		alldie = false;
+	}
 }

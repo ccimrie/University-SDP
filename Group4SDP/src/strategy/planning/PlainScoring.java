@@ -5,21 +5,20 @@ import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.DistanceToBall;
 import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
+import vision.Position;
 import vision.WorldState;
 import world.state.*;
 import geometry.*;
 import java.math.*;
 import strategy.*;
 
+// TODO: update to new movement class
 public class PlainScoring{
-	
-	
 	
 	public Ball ball;
 	HittingObstacle wall = new HittingObstacle();
 	MoveToPoint mpoint = new MoveToPoint();
-//	PitchInfo info = new PitchInfo();
-	geometry.Vector a ;
+	Position a ;
 	public WorldState world;
 	public RobotController rc;
 	public Robot us;
@@ -37,7 +36,7 @@ public class PlainScoring{
 		double angle = IsRobotFacingPoint.Turner(us, a.getX(), a.getY());
 		double angleT = IsRobotFacingPoint.Turner(us, them.x, them.y);
 	//	double angleDeg = Math.toDegrees(angle);
-		double realangle = TurnToBall.TurnerGoal(world.getOurRobot(), a.getX(), a.getY());
+		double realangle = TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY());
 		double  angleDeg = Math.abs(realangle);
 		
 		
@@ -83,10 +82,10 @@ public class PlainScoring{
 				double d = DistanceToBall.Distance(us.x, us.y,goalX, goalY);
 				double newAngle = 0;
 				if (Math.abs(gpb - us.y) < Math.abs(gpt - us.y)){
-					 newAngle = Math.asin(Math.abs((gpb - us.y)/d));
+					 
 				}
-				else  newAngle = - Math.asin(Math.abs((gpt - us.y)/d));
-				
+				else  newAngle = (TurnToBall.AngleTurner(world.getOurRobot(), goalX, gpb));
+				System.out.println( "This angle to test sin navigation! it is " + newAngle);
 				rc.rotate((int) newAngle);
 				rc.kick();
 			
@@ -157,15 +156,14 @@ public class PlainScoring{
 		*/
 		
 		
-		geometry.Vector a = world.getTheirGoal();
+		Position a = world.getTheirGoal();
 		System.out.println(a.getX() + ", " + a.getY());
 		
 		
 		double angle = (TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY()));
-		double angleDeg = Math.toDegrees(angle);
+	
+		System.out.println(angle);
 		
-		double realAngle = TurnToBall.AngleTurner(world.getOurRobot(), a.getX(), a.getY());
-		System.out.println(realAngle);
 		rc.rotate((int)angle);
 	}
 	

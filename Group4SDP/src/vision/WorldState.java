@@ -2,8 +2,8 @@ package vision;
 
 import geometry.Vector;
 import strategy.calculations.DistanceCalculator;
+import strategy.calculations.GoalInfo;
 import world.state.Ball;
-import world.state.PitchInfo;
 import world.state.PossessionManager;
 import world.state.PossessionType;
 import world.state.Robot;
@@ -19,7 +19,7 @@ import vision.WorldState;
  */
 public class WorldState {
 	/** The number of frames used to calculate velocity */
-	private static final int NUM_FRAMES = 3;
+	private static final int NUM_FRAMES = 5;
 
 	private long counter;
 
@@ -73,6 +73,8 @@ public class WorldState {
 
 	private PossessionManager pm = new PossessionManager();
 
+	public final GoalInfo goalInfo;
+
 	public int frame;
 	public Robot theirRobot = new Robot(RobotType.Them);
 	public Robot ourRobot = new Robot(RobotType.Us);
@@ -80,14 +82,16 @@ public class WorldState {
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
 
-	public WorldState() {
+	public WorldState(GoalInfo goalInfo) {
 		// control properties
 		this.direction = 0;
 		this.colour = 0;
 		this.pitch = 0;
+		this.goalInfo = goalInfo;
 	}
 
 	public void setBlueX(int blueX) {
+		this.blueX = blueX;
 		this.blueXBuf[currentFrame] = blueX;
 	}
 
@@ -100,6 +104,7 @@ public class WorldState {
 	}
 
 	public void setBlueY(int blueY) {
+		this.blueY = blueY;
 		this.blueYBuf[currentFrame] = blueY;
 	}
 
@@ -120,6 +125,7 @@ public class WorldState {
 	}
 
 	public void setYellowX(int yellowX) {
+		this.yellowX = yellowX;
 		this.yellowXBuf[currentFrame] = yellowX;
 	}
 
@@ -132,6 +138,7 @@ public class WorldState {
 	}
 
 	public void setYellowY(int yellowY) {
+		this.yellowY = yellowY;
 		this.yellowYBuf[currentFrame] = yellowY;
 	}
 
@@ -168,6 +175,7 @@ public class WorldState {
 	}
 
 	public void setBallX(int ballX) {
+		this.ballX = ballX;
 		this.ballXBuf[currentFrame] = ballX;
 	}
 
@@ -180,6 +188,7 @@ public class WorldState {
 	}
 
 	public void setBallY(int ballY) {
+		this.ballY = ballY;
 		this.ballYBuf[currentFrame] = ballY;
 	}
 
@@ -220,48 +229,38 @@ public class WorldState {
 	}
 
 	/**
-	 * Triggers calculation of smoothed positions/angles and velocities
+	 * Triggers calculation of smoothed angles and velocities
 	 */
 	public void update() {
 		++counter;
 
 		// Reinitialise all positions/angles/velocities to 0
-		blueX = 0;
 		blueXVel = 0;
-		blueY = 0;
 		blueYVel = 0;
 		blueOrient = 0;
 
-		yellowX = 0;
 		yellowXVel = 0;
-		yellowY = 0;
 		yellowYVel = 0;
 		yellowOrient = 0;
 
-		ballX = 0;
 		ballXVel = 0;
-		ballY = 0;
 		ballYVel = 0;
 
-		// Smooth positions/angles
+		// Smooth angles
 		for (int i = 0; i < NUM_FRAMES; ++i) {
-			blueX += blueXBuf[i];
-			blueY += blueYBuf[i];
 			blueOrient += blueOrientBuf[i];
 
-			yellowX += yellowXBuf[i];
-			yellowY += yellowYBuf[i];
 			yellowOrient += yellowOrientBuf[i];
-
-			ballX += ballXBuf[i];
-			ballY += ballYBuf[i];
 		}
+		blueOrient /= NUM_FRAMES;
+		yellowOrient /= NUM_FRAMES;
 
 		// Calculate velocities
 		int prevFrame;
 		// Calculate +ve modulus - % operator doesn't have the desired effect.
 		prevFrame = 2 + currentFrame - NUM_FRAMES;
-		if (prevFrame < 0) prevFrame += NUM_FRAMES;
+		if (prevFrame < 0)
+			prevFrame += NUM_FRAMES;
 
 		blueXVel += blueXBuf[currentFrame] - blueXBuf[prevFrame];
 		blueYVel += blueYBuf[currentFrame] - blueYBuf[prevFrame];
@@ -272,21 +271,13 @@ public class WorldState {
 		ballXVel += ballXBuf[currentFrame] - ballXBuf[prevFrame];
 		ballYVel += ballYBuf[currentFrame] - ballYBuf[prevFrame];
 
-		blueX /= NUM_FRAMES;
 		blueXVel /= NUM_FRAMES;
-		blueY /= NUM_FRAMES;
 		blueYVel /= NUM_FRAMES;
-		blueOrient /= NUM_FRAMES;
 
-		yellowX /= NUM_FRAMES;
 		yellowXVel /= NUM_FRAMES;
-		yellowY /= NUM_FRAMES;
 		yellowYVel /= NUM_FRAMES;
-		yellowOrient /= NUM_FRAMES;
 
-		ballX /= NUM_FRAMES;
 		ballXVel /= NUM_FRAMES;
-		ballY /= NUM_FRAMES;
 		ballYVel /= NUM_FRAMES;
 
 		++currentFrame;
@@ -367,57 +358,25 @@ public class WorldState {
 		mainPitch = onMainPitch;
 	}
 
-	static Vector leftGoalCentre;
-	static Vector rightGoalCentre;
-	public static double midPoint;
-
-	public Vector getOurGoal() {
-		if (weAreOnLeft && !mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreSide();
-			return leftGoalCentre;
-		} else if (!weAreOnLeft && !mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreSide();
-			return rightGoalCentre;
-		} else if (weAreOnLeft && mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreMain();
-			return leftGoalCentre;
+	public Position getOurGoal() {
+		if (weAreOnLeft) {
+			return goalInfo.getLeftGoalCenter();
 		} else {
-			rightGoalCentre = PitchInfo.getRightGoalCentreMain();
-			return rightGoalCentre;
+			return goalInfo.getRightGoalCenter();
 		}
 	}
 
-	public Vector getTheirGoal() {
-		if (weAreOnLeft && !mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreSide();
-			return rightGoalCentre;
-		} else if (!weAreOnLeft && !mainPitch) {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreSide();
-			return leftGoalCentre;
-		} else if (weAreOnLeft && mainPitch) {
-			rightGoalCentre = PitchInfo.getRightGoalCentreMain();
-			return rightGoalCentre;
+	public Position getTheirGoal() {
+		if (weAreOnLeft) {
+			return goalInfo.getLeftGoalCenter();
 		} else {
-			leftGoalCentre = PitchInfo.getLeftGoalCentreMain();
-			return leftGoalCentre;
+			return goalInfo.getRightGoalCenter();
 		}
 	}
 
-	public double getMidPoint() {
-		if (mainPitch) {
-			midPoint = PitchInfo.midPointMain;
-			return midPoint;
-		} else {
-			midPoint = PitchInfo.midPointSide;
-			return midPoint;
-		}
-	}
-
-	public boolean ourHalfLeft() {
-		if (weAreOnLeft)
-			return true;
-		else
-			return false;
+	public int getMidLine() {
+		return (goalInfo.pitchConst.getLeftBuffer() + (640 - goalInfo.pitchConst
+				.getRightBuffer())) / 2;
 	}
 
 	public double distanceBetweenUsAndBall() {
@@ -426,36 +385,30 @@ public class WorldState {
 	}
 
 	public boolean areWeInOurHalf() {
-		if (!((this.ourRobot.x < this.getMidPoint() && this.ourHalfLeft()) || (this.ourRobot.x >= this
-				.getMidPoint() && !this.ourHalfLeft())))
-			return false;
-		else
-			return true;
+		int midLine = getMidLine();
+
+		if (weAreOnLeft) {
+			return this.ourRobot.x < midLine;
+		} else {
+			return this.ourRobot.x > midLine;
+		}
 	}
 
 	public boolean ballIsInGoal() {
-		if (this.areWeOnLeft()) {
-			if (this.ball.x < this.getOurGoal().getX()
-					|| this.ball.x > this.getTheirGoal().getX()) {
-				return true;
-			}
-		} else {
-			if (this.ball.x > this.getOurGoal().getX()
-					|| this.ball.x < this.getTheirGoal().getX()) {
-				return true;
-			}
-		}
-		return false;
+		if (this.ball.x < goalInfo.getLeftGoalCenter().getX()
+				|| this.ball.x > goalInfo.getRightGoalCenter().getX())
+			return true;
+		else
+			return false;
 	}
 
 	public int whoHasTheBall() {
 		if (blueHasBall) {
 			return 1;
-		}
-		if (yellowHasBall) {
+		} else if (yellowHasBall) {
 			return 2;
-		}
-		return -1;
+		} else
+			return -1;
 	}
 
 	public void updatePossesion() {
