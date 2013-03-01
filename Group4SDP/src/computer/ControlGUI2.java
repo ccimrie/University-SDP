@@ -22,8 +22,6 @@ import javax.swing.UIManager;
 import strategy.calculations.GoalInfo;
 import strategy.movement.Movement;
 import strategy.planning.Commands;
-import strategy.planning.DribbleBall5;
-import strategy.planning.MoveToBall;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
@@ -274,7 +272,7 @@ public class ControlGUI2 extends JFrame {
 				// strategies
 				Strategy.reset();
 
-				strat = new Strategy(worldState, robot, mover);
+				strat = new Strategy(worldState, mover);
 				Thread stratthr = new Thread(strat);
 				stratthr.start();
 			}
@@ -298,8 +296,7 @@ public class ControlGUI2 extends JFrame {
 
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, robot,
-						mover);
+				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
 				penaltyAtk.run();
 			}
 		});
@@ -307,7 +304,7 @@ public class ControlGUI2 extends JFrame {
 		penaltyDefButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyDefense penaltyDef = new PenaltyDefense(worldState,
-						robot, mover);
+						mover);
 				penaltyDef.run();
 			}
 		});
@@ -397,13 +394,13 @@ public class ControlGUI2 extends JFrame {
 				mover.moveToAndStop(op1, op2);
 			}
 		});
-		
+
 		rotateAndMoveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
 				int op2 = Integer.parseInt(op2field.getText());
 				int op3 = Integer.parseInt(op3field.getText());
-				
+
 				robot.rotateMove(op1, op2, op3);
 			}
 		});

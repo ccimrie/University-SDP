@@ -24,8 +24,8 @@ import strategy.calculations.*;
 public class Offensive extends StrategyInterface implements Runnable {
 	Inteception take = new Inteception();
 
-	public Offensive(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public Offensive(WorldState world, Movement mover) {
+		super(world, mover);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class Offensive extends StrategyInterface implements Runnable {
 			PlainScoring killthemALL = new PlainScoring();
 
 			try {
-				killthemALL.domination(world, rc, mover);
+				killthemALL.domination(world, mover);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

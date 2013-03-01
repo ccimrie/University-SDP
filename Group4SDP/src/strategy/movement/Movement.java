@@ -27,7 +27,7 @@ public class Movement extends Thread {
 	private double speedY = 0;
 	private double angle = 0.0;
 
-	private enum MovementMode {
+	private enum Mode {
 		IDLE, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING, STOP
 	};
 
@@ -39,7 +39,7 @@ public class Movement extends Thread {
 	 * </br> {@link #doMoveTowards (double moveToPointX, double moveToPointY)} ,
 	 * </br> {@link #doRotate (double angle)}
 	 */
-	private MovementMode methodToUse = MovementMode.IDLE;
+	private Mode mode = Mode.IDLE;
 
 	/**
 	 * Constructor for the movement class.
@@ -62,12 +62,12 @@ public class Movement extends Thread {
 	 * Runner for our movement, don't forget to set what you plan to do before
 	 * running this.
 	 * 
-	 * @see Thread#run
+	 * @see Thread#run()
 	 */
 	public synchronized void run() {
 		try {
 			while (!die) {
-				switch (methodToUse) {
+				switch (mode) {
 				case IDLE:
 					System.out.println("Mover is idle");
 					break;
@@ -84,7 +84,8 @@ public class Movement extends Thread {
 				case MOVE_TO_POINT_STOP:
 					System.out.println("Moving to point (" + moveToPointX
 							+ ", " + moveToPointY + ") and stopping");
-					doMoveToAndStop(moveToPointX, moveToPointY);
+					doMoveTo(moveToPointX, moveToPointY);
+					robot.stop();
 					break;
 				case MOVE_TOWARDS_POINT:
 					System.out.println("Moving towards point (" + moveToPointX
@@ -110,7 +111,7 @@ public class Movement extends Thread {
 					System.out.println("DERP! Unknown movement mode specified");
 					assert (false);
 				}
-				methodToUse = MovementMode.IDLE;
+				mode = Mode.IDLE;
 				// Signal movement operation has completed.
 				this.notify();
 				// Wait for next movement operation
@@ -124,7 +125,7 @@ public class Movement extends Thread {
 			e.printStackTrace();
 		}
 		robot.clearBuff();
-		// Signal robot is stopped and safe to disconnect
+		// Signal that robot is stopped and safe to disconnect
 		this.notify();
 	}
 
@@ -136,7 +137,7 @@ public class Movement extends Thread {
 		die = true;
 		this.notify();
 	}
-	
+
 	/**
 	 * Triggers an interrupt in movement
 	 */
@@ -158,7 +159,7 @@ public class Movement extends Thread {
 	public synchronized void move(double speedX, double speedY) {
 		this.speedX = speedX;
 		this.speedY = speedY;
-		methodToUse = MovementMode.MOVE_VECTOR;
+		mode = Mode.MOVE_VECTOR;
 		this.notify();
 	}
 
@@ -183,7 +184,7 @@ public class Movement extends Thread {
 	public synchronized void move(double angle) {
 		speedX = 100 * Math.sin(angle);
 		speedY = 100 * Math.cos(angle);
-		methodToUse = MovementMode.MOVE_VECTOR;
+		mode = Mode.MOVE_VECTOR;
 		this.notify();
 	}
 
@@ -216,7 +217,7 @@ public class Movement extends Thread {
 	public synchronized void moveTo(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = MovementMode.MOVE_TO_POINT;
+		mode = Mode.MOVE_TO_POINT;
 		interruptMove = true;
 		this.notify();
 	}
@@ -239,7 +240,8 @@ public class Movement extends Thread {
 			Thread.sleep(42);
 			System.out.println("Our position: (" + us.x + ", " + us.y + ")");
 			System.out.println("Moving towards: (" + x + ", " + y + ")");
-			System.out.println("Distance: " + DistanceCalculator.Distance(us.x, us.y, x, y));
+			System.out.println("Distance: "
+					+ DistanceCalculator.Distance(us.x, us.y, x, y));
 			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
@@ -262,23 +264,9 @@ public class Movement extends Thread {
 	public synchronized void moveToAndStop(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = MovementMode.MOVE_TO_POINT_STOP;
+		mode = Mode.MOVE_TO_POINT_STOP;
 		interruptMove = true;
 		this.notify();
-	}
-
-	/**
-	 * Internal method to execute a call to moveToAndStop(x, y)
-	 * 
-	 * @param x
-	 * @param y
-	 * @see #moveToAndStop(double x, double y)
-	 */
-	private void doMoveToAndStop(double x, double y)
-			throws InterruptedException {
-		doMoveTo(x, y);
-		// Stop once we reach the point
-		robot.stop();
 	}
 
 	/**
@@ -295,7 +283,7 @@ public class Movement extends Thread {
 	public synchronized void moveTowards(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = MovementMode.MOVE_TOWARDS_POINT;
+		mode = Mode.MOVE_TOWARDS_POINT;
 		this.notify();
 	}
 
@@ -366,7 +354,7 @@ public class Movement extends Thread {
 		this.avoidX = avoidX;
 		this.avoidY = avoidY;
 
-		methodToUse = MovementMode.MOVE_TO_POINT_AVOIDING;
+		mode = Mode.MOVE_TO_POINT_AVOIDING;
 		this.notify();
 	}
 
@@ -395,7 +383,7 @@ public class Movement extends Thread {
 	 */
 	public synchronized void rotate(double angle) {
 		this.angle = angle;
-		methodToUse = MovementMode.ROTATE;
+		mode = Mode.ROTATE;
 		this.notify();
 	}
 
@@ -408,7 +396,7 @@ public class Movement extends Thread {
 	 * Stops the robot
 	 */
 	public synchronized void stopRobot() {
-		methodToUse = MovementMode.STOP;
+		mode = Mode.STOP;
 		this.notify();
 	}
 

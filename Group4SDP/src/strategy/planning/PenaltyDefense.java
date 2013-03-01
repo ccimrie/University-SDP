@@ -7,8 +7,8 @@ import vision.WorldState;
 import world.state.RobotController;
 
 public class PenaltyDefense extends StrategyInterface implements Runnable {
-	public PenaltyDefense(WorldState worldState, RobotController robot, Movement mover) {
-		super(worldState, robot, mover);
+	public PenaltyDefense(WorldState worldState, Movement mover) {
+		super(worldState, mover);
 	}
 
 	/*

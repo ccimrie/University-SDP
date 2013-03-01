@@ -9,12 +9,10 @@ public abstract class StrategyInterface {
 	public static boolean shouldidie = false;
 	
 	WorldState world;
-	RobotController rc;
 	Movement mover;
 	
-	public StrategyInterface(WorldState world, RobotController rc, Movement mover){
+	public StrategyInterface(WorldState world, Movement mover){
 		this.world = world;
-		this.rc = rc;
 		this.mover = mover;
 	}
 	

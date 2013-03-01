@@ -5,7 +5,6 @@ import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
 import vision.Position;
 import vision.WorldState;
-import world.state.RobotController;
 import world.state.RobotType;
 
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
@@ -13,8 +12,8 @@ import world.state.RobotType;
 
 public class Defensive extends StrategyInterface implements Runnable {
 
-	public Defensive(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public Defensive(WorldState world, Movement mover) {
+		super(world, mover);
 	}
 
 	private final int threshold = 50;
@@ -83,8 +82,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 					TurnToBall.Turner(world.ourRobot, world.ball);
 					// Calculating the ball kicking line
 					// Given their bearing, calculate where exactly in our goal
-					// they
-					// are aiming
+					// they are aiming
 
 					theirBearing = world.theirRobot.bearing;
 

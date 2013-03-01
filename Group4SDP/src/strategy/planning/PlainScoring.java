@@ -21,15 +21,13 @@ public class PlainScoring {
 	Position theirGoal;
 
 	public WorldState world;
-	public RobotController rc;
 	public Movement mover;
 
-	public void domination(WorldState world, RobotController rc, Movement mover)
+	public void domination(WorldState world, Movement mover)
 			throws InterruptedException {
 		this.ball = world.ball;
 		this.theirGoal = world.getTheirGoal();
 		this.world = world;
-		this.rc = rc;
 		this.mover = mover;
 
 		System.out.println("Domination is started");
@@ -124,9 +122,8 @@ public class PlainScoring {
 					t += 1;
 
 				}
-				rc.stop();
+				mover.stopRobot();
 				return;
-
 			}
 		}
 		if (wall.inCorner(world)

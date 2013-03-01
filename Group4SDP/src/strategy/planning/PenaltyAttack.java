@@ -10,8 +10,8 @@ import world.state.Robot;
 import world.state.RobotController;
 
 public class PenaltyAttack extends StrategyInterface implements Runnable {
-	public PenaltyAttack(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public PenaltyAttack(WorldState world, Movement mover) {
+		super(world, mover);
 	}
 
 	@Override
