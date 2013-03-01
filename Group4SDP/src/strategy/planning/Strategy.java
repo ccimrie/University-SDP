@@ -1,15 +1,16 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import communication.BluetoothRobot;
+
+import world.state.WorldState;
 
 public class Strategy implements Runnable {
 	public WorldState world;
-	public Movement mover;
+	public RobotMover mover;
 	public static boolean alldie = false;
 
-	public Strategy(WorldState world, Movement mover) {
+	public Strategy(WorldState world, RobotMover mover) {
 		this.world = world;
 		this.mover = mover;
 	}

@@ -1,12 +1,13 @@
 package strategy.movement;
 
 //import strategy.calculations.AngleBetweenTwoVectors;
+import communication.BluetoothRobot;
+
 import geometry.Vector;
 import world.state.PitchInfo;
 import world.state.Robot;
-import vision.WorldState;
+import world.state.WorldState;
 
-import world.state.RobotController;
 
 public class FollowVector {
 	
@@ -21,7 +22,7 @@ public class FollowVector {
 		return Math.signum(angle)*();
 	}
 	*/
-	public static void followVector(WorldState world, RobotController rc, double dx, double dy)
+	public static void followVector(WorldState world, BluetoothRobot rc, double dx, double dy)
 	{
 		
 		/*if(isRotating) {
@@ -79,7 +80,7 @@ public class FollowVector {
 			
 	} 
 	
-	public static void followVectorNoRotate(WorldState world, RobotController rc, double dx, double dy, double distance)
+	public static void followVectorNoRotate(WorldState world, BluetoothRobot rc, double dx, double dy, double distance)
 	{
 		//rc.setDefaultRotateSpeed(0.05);
     	//rc.setDefaultTravelSpeed(0.05);
@@ -129,7 +130,7 @@ public class FollowVector {
 		*/
 	} 
 	
-	public static void arcToPoint(WorldState world, RobotController rc, Vector rawTarget)
+	public static void arcToPoint(WorldState world, BluetoothRobot rc, Vector rawTarget)
 	{
 		Vector lowBound = normalise(PitchInfo.safeLowerBoundSide);
 		Vector upperBound = normalise(PitchInfo.safeUpperBoundSide);

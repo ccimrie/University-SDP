@@ -2,9 +2,10 @@ package strategy.movement;
 
 import java.util.ArrayList;
 
-import vision.WorldState;
+import communication.BluetoothRobot;
 
-import world.state.RobotController;
+import world.state.WorldState;
+
 import geometry.Vector;
 
 public class GoToPoint {
@@ -61,7 +62,7 @@ public class GoToPoint {
 		return false;
 	}
 	
-	public static void goToPoint(WorldState world, RobotController rc, Vector point, AvoidanceStrategy mode)
+	public static void goToPoint(WorldState world, BluetoothRobot rc, Vector point, AvoidanceStrategy mode)
 	{
 		double x = point.getX();
 		double y = point.getY();

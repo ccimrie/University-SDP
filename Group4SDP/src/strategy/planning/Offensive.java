@@ -1,5 +1,8 @@
 package strategy.planning;
 
+import movement.RobotMover;
+import communication.BluetoothRobot;
+
 import world.state.*;
 import balle.strategy.Interception;
 import geometry.Vector;
@@ -9,12 +12,10 @@ import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.AvoidanceStrategy;
 import strategy.movement.GoToPoint;
 import strategy.movement.Inteception;
-import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
 import world.state.PossessionType;
 import world.state.Robot;
-import world.state.RobotController;
-import vision.WorldState;
+import world.state.WorldState;
 
 import strategy.planning.*;
 import world.state.*;
@@ -24,7 +25,7 @@ import strategy.calculations.*;
 public class Offensive extends StrategyInterface implements Runnable {
 	Inteception take = new Inteception();
 
-	public Offensive(WorldState world, Movement mover) {
+	public Offensive(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
 

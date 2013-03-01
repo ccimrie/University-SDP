@@ -1,20 +1,21 @@
 package strategy.planning;
 
+import communication.BluetoothRobot;
+
 import strategy.calculations.DistanceCalculator;
-import vision.WorldState;
 import world.state.PossessionType;
 import world.state.Robot;
-import world.state.RobotController;
+import world.state.WorldState;
 
 public class Everything {
 
 	private WorldState worldState;
-	private RobotController robot;
+	private BluetoothRobot robot;
 	private Robot us;
 	private static int DIST_TH = 10;
 	private boolean start;
 
-	public Everything(WorldState worldState, RobotController robot) {
+	public Everything(WorldState worldState, BluetoothRobot robot) {
 		super();
 		this.robot = robot;
 		this.worldState = worldState;

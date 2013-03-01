@@ -1,15 +1,11 @@
-package vision;
+package world.state;
 
 import geometry.Vector;
 import strategy.calculations.DistanceCalculator;
 import strategy.calculations.GoalInfo;
-import world.state.Ball;
-import world.state.PossessionManager;
-import world.state.PossessionType;
-import world.state.Robot;
-import world.state.RobotType;
+import world.state.WorldState;
 
-import vision.WorldState;
+import vision.Position;
 
 /**
  * A class storing the world state from vision, used by strategy

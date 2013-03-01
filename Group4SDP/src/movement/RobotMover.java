@@ -1,9 +1,10 @@
-package strategy.movement;
+package movement;
 
 import strategy.calculations.DistanceCalculator;
-import vision.WorldState;
 import world.state.Robot;
-import world.state.RobotController;
+import world.state.WorldState;
+
+import communication.RobotController;
 
 /**
  * A movement class, that provides calculations for different move commands for
@@ -11,7 +12,7 @@ import world.state.RobotController;
  * 
  * @author Jakov Smelkin
  */
-public class Movement extends Thread {
+public class RobotMover extends Thread {
 
 	// private WorldState worldState;
 	private RobotController robot;
@@ -46,12 +47,11 @@ public class Movement extends Thread {
 	 * 
 	 * @param worldState
 	 *            a world state from the vision, giving us information on
-	 *            robots, ball etc.
+	 *            robots, ball etc.		
 	 * @param robot
-	 *            A {@link world.state.RobotController} class that prepares byte
-	 *            commands to the robot.
+	 *            A low-level controller for the robot
 	 */
-	public Movement(WorldState worldState, RobotController robot) {
+	public RobotMover(WorldState worldState, RobotController robot) {
 		super();
 		// this.worldState = worldState;
 		this.robot = robot;

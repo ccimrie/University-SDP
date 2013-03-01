@@ -6,14 +6,14 @@ import strategy.movement.AvoidanceStrategy;
 import simulator.FollowVector;
 
 import comms.control.ServerInterface;
+import communication.BluetoothRobot;
 import geometry.Vector;
 import strategy.movement.DistanceToBall;
 
 
-import vision.WorldState;
 import world.state.Ball;
 import world.state.Robot;
-import world.state.RobotController;
+import world.state.WorldState;
 
 public class gotoball {
 	

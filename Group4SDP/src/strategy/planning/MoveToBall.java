@@ -1,17 +1,18 @@
 package strategy.planning;
 
+import communication.BluetoothRobot;
+
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
-import vision.WorldState;
 import world.state.Ball;
 import world.state.Robot;
-import world.state.RobotController;
+import world.state.WorldState;
 
 public class MoveToBall {
 	
 	private static final int distanceFromBallToStop = 80;
 	
-	public static  void approach(WorldState worldState, RobotController robot) throws InterruptedException {
+	public static  void approach(WorldState worldState, BluetoothRobot robot) throws InterruptedException {
 		// First we turn to the ball
 		//this.vision = vis;
 		//WorldState t = new WorldState();

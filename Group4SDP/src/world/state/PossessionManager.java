@@ -1,7 +1,6 @@
 package world.state;
 
 import strategy.calculations.Possession;
-import vision.WorldState;
 
 public class PossessionManager {
 	

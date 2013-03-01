@@ -1,12 +1,13 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import communication.BluetoothRobot;
+
+import world.state.WorldState;
 
 public class PenaltyDefence extends StrategyInterface implements Runnable {
 
-	public PenaltyDefence(WorldState world, RobotController rc, Movement mover) {
+	public PenaltyDefence(WorldState world, BluetoothRobot rc, RobotMover mover) {
 		super(world, rc, mover);
 	}
 
