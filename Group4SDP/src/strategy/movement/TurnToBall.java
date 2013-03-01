@@ -3,125 +3,70 @@
  */
 
 package strategy.movement;
+
 import world.state.Ball;
 import world.state.Robot;
-//import comms.control.Server;
 
 public class TurnToBall {
 
-    /*public static void main(String[] args) {
-        double angle = findBearing(80, 20, 100, 10);
-        System.out.println("Bearing to ball is: " + angle + " degrees.");
-        double turnAngle = turnAngle(240, angle);
-        System.out.println("Amount to turn is: " + turnAngle + " degrees.");
-    }*/
+	/*
+	 * findBearing takes 2 coordinates (the ball and our robot) and calculates
+	 * the bearing of the ball relative to the robot (using the robot as the
+	 * origin and "north" as being up on the camera feed)
+	 */
 
-    /*findBearing takes 2 coordinates (the ball and our robot) and calculates the bearing
-      * of the ball relative to the robot (using the robot as the origin and "north"
-      * as being up on the camera feed)
-     */
+	public static double findBearing(Robot us, Ball ball) {
+		return findPointBearing(us, ball.x, ball.y);
+	}
 
-    public static double findBearing(Robot us, Ball ball) {
-    	
-    	double ballBearing = 0;
+	/*
+	 * turnAngle takes the ballBearing (the output from findBearing) and
+	 * botBearing (the angle the robot is facing from north, which will be
+	 * supplied from vision) and calculates the difference between these and
+	 * selects the smallest turn to take. Clockwise turns are a positive angle
+	 * and anti-clockwise are negative.
+	 */
 
-        //checks if the ball is in line horizontally with the ball
+	public static double turnAngle(double botBearing, double toBallBearing) {
+		botBearing = Math.toDegrees(botBearing);
+		double turnAngle = toBallBearing - botBearing;
+		if (turnAngle > 180.0)
+			turnAngle -= 360.0;
+		return turnAngle;
+	}
 
-//        if (us.x == ball.x) {
-//            if (us.y > ball.y) {
-//                ballBearing = Math.toDegrees(Math.PI);
-//            } else {
-//                ballBearing = 0;
-//            }
-//            return ballBearing;
-//
-//            //checks if the ball is in line vertically with the ball
-//
-//        } else if (us.y == ball.y) {
-//            if (us.x > ball.x) {
-//                ballBearing = Math.toDegrees(Math.PI * 1.5);
-//            } else {
-//                ballBearing = Math.toDegrees(Math.PI / 2);
-//            }
-//            return ballBearing;
-//
-//        } else {
+	public static double Turner(Robot us, Ball ball) {
+		double ballBearing = findBearing(us, ball);
+		double angle = turnAngle(us.bearing, ballBearing);
+		return angle;
+	}
 
-            //calculates the angle depending on which quadrant around the robot the ball is in
-        	double xDiff = ball.x - us.x;
-        	double yDiff = ball.y - us.y;
-        	
-            if (xDiff > 0) {
-            	if(yDiff > 0){
-            		ballBearing = 90 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            	else {
-            		ballBearing = 90 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            }
-            else {
-            	if(yDiff > 0){
-            		ballBearing = 270 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            	else {
-            		ballBearing = 270 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            }
-        //}
-            return ballBearing;
-    }
+	public static double findPointBearing(Robot us, double x, double y) {
+		// calculates the bearing of a point (x,y) relative to the robot (using
+		// the robot as the origin and "north"
+		// as being up on the camera feed)
+		// calculates the angle depending on which side of the robot the ball is
+		// on
+		double bearing = 0;
+		double xDiff = x - us.x;
+		double yDiff = y - us.y;
 
-    /*turnAngle takes the ballBearing (the output from findBearing) and botBearing
-      * (the angle the robot is facing from north, which will be supplied from vision)
-      * and calculates the difference between these and selects the smallest turn to take.
-      * Clockwise turns are a positive angle and anti-clockwise are negative.
-     */
+		// Use the dot product formula to determine the angle between the vector
+		// (0, -1) (up to the camera) and the vector (xDiff, yDiff)
+		bearing = Math.acos(-yDiff / Math.sqrt(xDiff * xDiff + yDiff * yDiff));
 
-    public static double turnAngle(double botBearing, double toBallBearing) {
-    	
-    	botBearing = Math.toDegrees(botBearing);
-        double turnAngle = toBallBearing - botBearing;
-        if (turnAngle > 180.0) turnAngle = -360.0 + turnAngle;
-        return turnAngle;
-    }
+		// Correct for the case when the angle calculated above is the
+		// counterclockwise bearing instead of clockwise
+		if (xDiff < 0)
+			bearing = 2.0 * Math.PI - bearing;
 
-    public static double Turner(Robot us, Ball ball) {
-    	double ballBearing = findBearing(us, ball);
-        double angle = turnAngle(us.bearing, ballBearing);
-        return angle;
-    }
-public static double findPointBearing(Robot us, double x, double y) {
-    //calculates the bearing of a point (x,y) relative to the robot (using the robot as the origin and "north"
-    // as being up on the camera feed)	
-    	double pointBearing = 0;
+		return Math.toDegrees(bearing);
+	}
 
-            //calculates the angle depending on which quadrant around the robot the point is in
-        	double xDiff = x - us.x;
-        	double yDiff = y - us.y;
-        	
-            if (xDiff > 0) {
-            	if(yDiff > 0){
-            		pointBearing = 90 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            	else {
-            		pointBearing = 90 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            }
-            else {
-            	if(yDiff > 0){
-            		pointBearing = 270 - Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            	else {
-            		pointBearing = 270 + Math.toDegrees(Math.atan2(Math.abs(yDiff), Math.abs(xDiff)));
-            	}
-            }
-        
-            return pointBearing;
-    }
-//This method calculates the angle between the robot and a point (x,y)
-public static double AngleTurner(Robot us, double x, double y) {
-	double pointBearing = findPointBearing(us, x, y);
-    double angle = turnAngle(us.bearing, pointBearing);
-    return angle;
-}
+	// This method calculates the angle between the robot and a point (x,y)
+	public static double AngleTurner(Robot us, double x, double y) {
+		double pointBearing = findPointBearing(us, x, y);
+		double angle = turnAngle(us.bearing, pointBearing);
+		return angle;
+	}
 }

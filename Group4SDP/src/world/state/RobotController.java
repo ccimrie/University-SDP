@@ -84,11 +84,12 @@ public class RobotController extends Robot {
 		int confirmation = 0;
 		try {
 			confirmation = comms.sendToRobot(command);
+			System.out.println("Confirmation for move " + confirmation);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
-		System.out.println("Moving forward...");
+		System.out.println("Moving");
 		return confirmation;
 	}
 	
@@ -164,6 +165,9 @@ public class RobotController extends Robot {
 		return confirmation;		
 	}
 	
+	public void clearBuff(){
+		comms.clearBuff();
+	}
 	//TODO Add anglemove method
 	
 	/*

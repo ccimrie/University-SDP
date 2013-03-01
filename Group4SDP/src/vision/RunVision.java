@@ -2,6 +2,7 @@ package vision;
 
 import javax.swing.UIManager;
 
+import strategy.calculations.GoalInfo;
 import vision.gui.VisionGUI;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
@@ -25,10 +26,10 @@ public class RunVision {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		WorldState worldState = new WorldState();
-
 		// Default to main pitch
 		PitchConstants pitchConstants = new PitchConstants(0);
+		GoalInfo goalInfo = new GoalInfo(pitchConstants);
+		WorldState worldState = new WorldState(goalInfo);
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";

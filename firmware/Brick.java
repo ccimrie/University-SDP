@@ -45,8 +45,9 @@ public class Brick {
 	private final static int BACKMOTOR = 2;
 
 	// Renaming motors for easier recognition and change implementation.
-	private static NXTRegulatedMotor leftMotor = Motor.C;
-	private static NXTRegulatedMotor rightMotor = Motor.B;
+	private static NXTRegulatedMotor kicker = Motor.A;
+	private static NXTRegulatedMotor leftMotor = Motor.B;
+	private static NXTRegulatedMotor rightMotor = Motor.C;
 
 	public static void main(String[] args) throws Exception {
 
@@ -88,7 +89,7 @@ public class Brick {
 				LCD.drawString("Forward!", 0, 2);
 				LCD.refresh();
 				move(0, option1);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case BACKWARDS:
@@ -96,7 +97,7 @@ public class Brick {
 				LCD.drawString("Backward!", 0, 2);
 				LCD.refresh();
 				move(0, -option1);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case LEFT:
@@ -104,7 +105,7 @@ public class Brick {
 				LCD.drawString("Left!", 0, 2);
 				LCD.refresh();
 				move(-option1, 0);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case RIGHT:
@@ -112,7 +113,7 @@ public class Brick {
 				LCD.drawString("Right!", 0, 2);
 				LCD.refresh();
 				move(option1, 0);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case STOP:
@@ -120,7 +121,7 @@ public class Brick {
 				LCD.drawString("Stopping!", 0, 2);
 				LCD.refresh();
 				stop();
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case ROTATE:
@@ -129,7 +130,7 @@ public class Brick {
 				LCD.refresh();
 				// The angle is calculated by having option2*10 + option3
 				rotate(option1, option2 * 10 + option3);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case KICK:
@@ -137,7 +138,7 @@ public class Brick {
 				LCD.drawString("Kicking!", 0, 2);
 				LCD.refresh();
 				kick();
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case MOVE:
@@ -145,15 +146,15 @@ public class Brick {
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
 				move(option1, option2);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
-				
+
 			case ROTATEMOVE:
 				LCD.clear();
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
 				rotateMove(option1, option2, option3);
-				replytopc(opcode,os);
+				replytopc(opcode, os);
 				break;
 
 			case TEST:
@@ -180,18 +181,23 @@ public class Brick {
 		connection.close();
 		LCD.clear();
 	}
-	/**Replies to pc that we have received a package and finished its
+
+	/**
+	 * Replies to pc that we have received a package and finished its
 	 * execution
-	 * @param opcode the opcode we received.
-	 * @param os - the Output stream for the brick.
-	 * @throws IOException 
-	 */	
-	public static void replytopc(int opcode, OutputStream os) throws IOException{
-		byte [] reply = {111, (byte)opcode, 0,0};
+	 * 
+	 * @param opcode
+	 *            the opcode we received.
+	 * @param os
+	 *            - the Output stream for the brick.
+	 * @throws IOException
+	 */
+	public static void replytopc(int opcode, OutputStream os) throws IOException {
+		byte[] reply = { 111, (byte) opcode, 0, 0 };
 		os.write(reply);
 		os.flush();
 	}
-	
+
 	/**
 	 * Move in a direction relative to the robot
 	 * 
@@ -205,9 +211,14 @@ public class Brick {
 	private static void move(int x, int y) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
+		// Correction for low speeds to combat friction
+		if (Math.abs(y) <= 5)
+			y = 0;
+		if (Math.abs(x) <= 5)
+			x = 0;
 		y = y * 7;
 		// Multiplying by 2, since byte only allows upto 127,
-		// gets values upto 100, transforms 
+		// gets values upto 100, transforms
 		x = (int) Math.floor(x * 2.55);
 		if (y > 0) {
 			leftMotor.setSpeed(y);
@@ -223,7 +234,7 @@ public class Brick {
 			leftMotor.flt();
 			rightMotor.flt();
 		}
-	
+
 		if (x > 0) {
 			chip.move(FRONTMOTOR, FORWARDS, x);
 			chip.move(BACKMOTOR, FORWARDS, x);
@@ -236,6 +247,7 @@ public class Brick {
 			chip.stop();
 		}
 	}
+
 	/**
 	 * Stops all motors, makes them float afterwards.
 	 * 
@@ -250,6 +262,7 @@ public class Brick {
 		leftMotor.flt(true);
 		rightMotor.flt(true);
 	}
+
 	/**
 	 * Rotate at a direction
 	 * 
@@ -267,16 +280,16 @@ public class Brick {
 
 		switch (dir) {
 		case 1:
-			chip.move(1, FORWARDS, 50);
-			chip.move(2, FORWARDS, 50);
+			chip.move(1, FORWARDS, 120);
+			chip.move(2, BACKWARDS, 120);
 			leftMotor.rotate(angle, true);
-			rightMotor.rotate(angle, true);
+			rightMotor.rotate(angle);
 			break;
-		case 2:
-			chip.move(1, BACKWARDS, 50);
-			chip.move(2, BACKWARDS, 50);
+		case 2:			
+			chip.move(1, BACKWARDS, 120);
+			chip.move(2, FORWARDS, 120);
 			leftMotor.rotate(-angle, true);
-			rightMotor.rotate(-angle, true);
+			rightMotor.rotate(-angle);
 			break;
 		}
 		chip.stop();
@@ -288,11 +301,8 @@ public class Brick {
 	 * Wheel diameter: 64mm, Radius: 32mm
 	 * Wheel distance from centre: 61mm
 	 * Motor speeds:
-	 * 28 = 502;
-	 * 200 = 580;
 	 * 2*pi*32=201.1~201mm;
 	 * 360/201~=1.79
-	 * (580-502) / (200-28)=0.45;
 	 * setSpeed is in deg/s
 	 * w is clockwise
 	 * 
@@ -313,17 +323,17 @@ public class Brick {
 		int vl = (int) Math.rint((vty + Math.toRadians(w) * r) * 1.79);
 		// Right wheel
 		int vr = (int) Math.rint((vty - Math.toRadians(w) * r) * 1.79);
-	
+
 		if (vf > 0)
 			chip.move(1, 2, vf);
 		else
 			chip.move(1, 1, vf);
-	
+
 		if (vb > 0)
 			chip.move(2, 1, vf);
 		else
 			chip.move(2, 2, vf);
-	
+
 		leftMotor.flt();
 		leftMotor.setSpeed(Math.abs(vl));
 		rightMotor.flt();
@@ -336,13 +346,19 @@ public class Brick {
 			rightMotor.forward();
 		else
 			rightMotor.backward();
-	
+
 	}
+
 	/**
 	 * A simple kick. Brings back the kicker to initial position after the kick.
-	 * @throws InterruptedException 
+	 * 
+	 * @throws InterruptedException
 	 */
 	private static void kick() throws InterruptedException {
-		chip.kick(); 
+		kicker.setSpeed(900);
+		kicker.rotateTo(-60);
+		kicker.setSpeed(250);
+		kicker.rotateTo(0);
+		kicker.flt();
 	}
 }

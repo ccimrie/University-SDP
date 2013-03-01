@@ -19,10 +19,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import strategy.calculations.GoalInfo;
 import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
+import strategy.planning.Everything;
 import strategy.planning.MoveToBall;
+import strategy.planning.Offensive;
+import strategy.planning.PenaltyAttack;
+import strategy.planning.PenaltyDefence;
+import strategy.planning.Strategy;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -36,6 +42,7 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 import communication.BluetoothCommunication;
 import communication.DeviceInfo;
 
+// TODO: clean up unused stuff
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
 	// GUI elements
@@ -50,6 +57,10 @@ public class ControlGUI2 extends JFrame {
 	private final JButton start = new JButton("Start");
 	private final JButton quit = new JButton("Quit");
 	private final JButton stop = new JButton("Stop");
+	private final JButton stratStart = new JButton("Strat Start");
+	private final JButton stratStop = new JButton("Strat Stop");
+	private final JButton penaltyAtk = new JButton("Penalty Attack");
+	private final JButton penaltyDef = new JButton("Penalty Defend");
 	// Basic movement
 	private final JButton forward = new JButton("Forward");
 	private final JButton backward = new JButton("Backward");
@@ -62,9 +73,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton move = new JButton("Move");
 	private final JButton moveToBall = new JButton("MoveToBall");
 	private final JButton dribble = new JButton("Dribble");
-	// Communication variables
-	public static BluetoothCommunication comms;
-	private static RobotController robot;
+
 	// OPcode fields
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
@@ -72,17 +81,26 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
+	
+	// Communication variables
+	public static BluetoothCommunication comms;
+	private static RobotController robot;
 
 	// Strategy used for driving part of milestone 2
-	private static MoveToBall mball = new MoveToBall();
+	private MoveToBall mball = new MoveToBall();
 	private MoveToTheBallThread approachThread;
-	
+
 	// Strategy used for driving part of milestone 2
 	private static DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
-	public static WorldState worldState = new WorldState();
-	public static Vision vision;
+	private WorldState worldState;
+
+	private Thread stratThread;
+	private Strategy strat;
+	
+	private Thread moverThread;
+	private Movement mover;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -94,9 +112,11 @@ public class ControlGUI2 extends JFrame {
 
 		// Default to main pitch
 		PitchConstants pitchConstants = new PitchConstants(0);
+		GoalInfo goalInfo = new GoalInfo(pitchConstants);
+		WorldState worldState = new WorldState(goalInfo);
 
 		// Default values for the main vision window
-		String videoDevice = "/dev/video0";
+		/*String videoDevice = "/dev/video0";
 		int width = 640;
 		int height = 480;
 		int channel = 0;
@@ -104,34 +124,35 @@ public class ControlGUI2 extends JFrame {
 		int compressionQuality = 80;
 
 		try {
-        	VideoStream vStream = new VideoStream(videoDevice, width, height,
-        			channel, videoStandard, compressionQuality);
-        	
-        	DistortionFix distortionFix = new DistortionFix(pitchConstants);
-        	
-            // Create a new Vision object to serve the main vision window
-            Vision vision = new Vision(worldState, pitchConstants);
-            
-            // Create the Control GUI for threshold setting/etc
-            VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants,
-            		vStream, distortionFix);
+			VideoStream vStream = new VideoStream(videoDevice, width, height,
+					channel, videoStandard, compressionQuality);
 
-        	vStream.addReceiver(distortionFix);
-    		distortionFix.addReceiver(gui);
-    		distortionFix.addReceiver(vision);
-            vision.addVisionDebugReceiver(gui);
-            vision.addWorldStateReceiver(gui);
+			DistortionFix distortionFix = new DistortionFix(pitchConstants);
+
+			// Create a new Vision object to serve the main vision window
+			Vision vision = new Vision(worldState, pitchConstants);
+
+			// Create the Control GUI for threshold setting/etc
+			VisionGUI gui = new VisionGUI(width, height, worldState,
+					pitchConstants, vStream, distortionFix);
+
+			vStream.addReceiver(distortionFix);
+			distortionFix.addReceiver(gui);
+			distortionFix.addReceiver(vision);
+			vision.addVisionDebugReceiver(gui);
+			vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2();
+		ControlGUI2 gui = new ControlGUI2(worldState);
 		gui.Launch();
 		gui.action();
 
 		// Sets up the communication
-		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+		/*comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
+				DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
 		while (!comms.isRobotReady()) {
@@ -147,10 +168,12 @@ public class ControlGUI2 extends JFrame {
 
 		// Sets up robot
 		robot = new RobotController(RobotType.Us);
-		System.out.println("Robot ready!");
+		System.out.println("Robot ready!");*/
 	}
 
-	public ControlGUI2() {
+	public ControlGUI2(WorldState worldState) {
+		this.worldState = worldState;
+
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -171,6 +194,10 @@ public class ControlGUI2 extends JFrame {
 		startStopQuitPanel.add(start);
 		startStopQuitPanel.add(stop);
 		startStopQuitPanel.add(quit);
+		startStopQuitPanel.add(stratStart);
+		startStopQuitPanel.add(stratStop);
+		startStopQuitPanel.add(penaltyAtk);
+		startStopQuitPanel.add(penaltyDef);
 
 		GridBagConstraints gbc_simpleMoveTestPanel = new GridBagConstraints();
 		gbc_simpleMoveTestPanel.anchor = GridBagConstraints.NORTH;
@@ -179,7 +206,8 @@ public class ControlGUI2 extends JFrame {
 		gbc_simpleMoveTestPanel.gridx = 0;
 		gbc_simpleMoveTestPanel.gridy = 1;
 		// gbc_simpleMoveTestPanel.gridwidth = 2;
-		frame.getContentPane().add(simpleMoveTestPanel, gbc_simpleMoveTestPanel);
+		frame.getContentPane()
+				.add(simpleMoveTestPanel, gbc_simpleMoveTestPanel);
 		simpleMoveTestPanel.add(op1label);
 		simpleMoveTestPanel.add(op1field);
 		simpleMoveTestPanel.add(op2label);
@@ -215,7 +243,8 @@ public class ControlGUI2 extends JFrame {
 		// Center the window on startup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = frame.getPreferredSize();
-		frame.setLocation((dim.width - frameSize.width) / 2, (dim.height - frameSize.height) / 2);
+		frame.setLocation((dim.width - frameSize.width) / 2,
+				(dim.height - frameSize.height) / 2);
 		frame.setResizable(false);
 	}
 
@@ -223,40 +252,81 @@ public class ControlGUI2 extends JFrame {
 
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: fix this - at the very least should use .start()
+				Thread et = new EverythingThread();
+				et.run();
+
+				Movement move = new Movement(worldState, robot);
+				move.setUpMove(100, 100);
+
+				Thread moverthr = new Thread(move, "I'm a mover thread");
+				moverthr.start();
+
 				// Run in a new thread to free up UI while running
-				Movement m = new Movement(worldState, robot);
+				// Movement m = new Movement(worldState, robot);
+				// try {
+				// m.moveToPoint(538, 191);
+				// } catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				// e1.printStackTrace();
+				// }
+				/*
+				 * for (int i=90; i<=7200; i+=360){ m.move(Math.toRadians(i));
+				 * try { Thread.sleep(50); } catch (InterruptedException e1) {
+				 * e1.printStackTrace(); } robot.stop(); try { Thread.sleep(50);
+				 * } catch (InterruptedException e1) { e1.printStackTrace(); }
+				 * m.move(Math.toRadians(i + 180)); try { Thread.sleep(50); }
+				 * catch (InterruptedException e1) { e1.printStackTrace(); }
+				 * robot.stop(); try { Thread.sleep(50); } catch
+				 * (InterruptedException e1) { e1.printStackTrace(); } }
+				 */
+			}
+		});
+
+		stratStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Run in a new thread to free up UI while running
+				// TODO: remove - this should be in the plannner
+				// Offensive attacking = new Offensive(worldState,
+				// worldState.ourRobot,worldState.theirRobot, robot);
+				// new Thread(attacking).start();
+
+				// Strategy.reset();
+
+				strat = new Strategy(worldState, robot);
+				Thread stratthr = new Thread(strat);
+				stratthr.start();
+			}
+		});
+
+		stratStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				try {
-					m.moveToPoint(300, 300);
+					Strategy.stop();
+					if (stratThread != null) {
+						stratThread.interrupt();
+						stratThread.join();
+					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				/*for (int i=90; i<=7200; i+=360){
-					m.move(Math.toRadians(i));
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					robot.stop();
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					m.move(Math.toRadians(i + 180));
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					robot.stop();
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}*/
+			}
+		});
+
+		penaltyAtk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PenaltyAttack penAtk = new PenaltyAttack(worldState,
+						worldState.ourRobot, worldState.theirRobot, robot);
+				penAtk.run();
+			}
+		});
+
+		penaltyDef.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PenaltyDefence penDef = new PenaltyDefence(worldState,
+						worldState.ourRobot, worldState.theirRobot, robot);
+				penDef.run();
 			}
 		});
 
@@ -264,34 +334,81 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				robot.kick();
 			}
-
 		});
 
 		forward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.forward(op1, 0);
+
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(0, op1);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		backward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.backward(op1, 0);
+
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(0, -op1);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		left.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.left(op1, 0);
+
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(-op1, 0);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				robot.right(op1, 0);
+				
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				mover.setUpMove(op1, 0);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
@@ -300,28 +417,9 @@ public class ControlGUI2 extends JFrame {
 
 				approachThread = new MoveToTheBallThread();
 				approachThread.start();
-
-				/*
-				 * try {
-				 * Class mtb = Class.forName("strategy.planning." + "MoveToBall");
-				 * Strategy s = (Strategy)mtb.newInstance();
-				 * s.stop();
-				 * } catch (ClassNotFoundException e1) {
-				 * e1.printStackTrace();
-				 * System.err.println("Class not found.");
-				 * } catch (InstantiationException e2) {
-				 * e2.printStackTrace();
-				 * System.err.println("Class could not be instantiated.");
-				 * } catch (IllegalAccessException e3) {
-				 * e3.printStackTrace();
-				 * } catch (ClassCastException e4) {
-				 * System.err.println(
-				 * "Class is not an extension of abstract class Strategy.\nAdd \"extends Strategy\" to declaration?");
-				 * }
-				 */
 			}
 		});
-		
+
 		dribble.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -332,21 +430,34 @@ public class ControlGUI2 extends JFrame {
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Stop the drive thread if it's running
-				/* robot.stop(timer); */
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
 				robot.stop();
-				/*if (approachThread != null)
-					approachThread.stop();
-				if (dribbleThread != null)
-					dribbleThread.stop();*/
 			}
 		});
 
-		// TODO - Should we have timer here as well?
 		rotate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
-				robot.rotate(angle);
+
+				if (moverThread != null && moverThread.isAlive()) {
+					mover.die();
+					try {
+						moverThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+				
+				mover.setUpMove(angle);
+				moverThread = new Thread(mover, "Move Thread");
+				moverThread.start();
 			}
 		});
 
@@ -402,20 +513,14 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 
-	class MoveToTheBallThread extends Thread {
+	class EverythingThread extends Thread {
 
 		public void run() {
-
-			try {
-				mball.approach(worldState, robot);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			Everything eve = new Everything(worldState, robot);
+			eve.doAllTheThings();
 		}
 	}
-	
+
 	class DribbleBallThread extends Thread {
 
 		public void run() {
@@ -430,22 +535,25 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 
+	class MoveToTheBallThread extends Thread {
+
+		public void run() {
+
+			try {
+				dribbleBall.dribbleBall(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
 	/*
 	 * class Stopping extends TimerTask{
 	 * 
-	 * @Override
-	 * public void run() {
-	 * int[] command = {Commands.STOP, 0, 0, 0};
-	 * try {
-	 * comms.sendToRobot(command);
-	 * }
-	 * catch (IOException e) {
-	 * System.out.println("Could not send command");
-	 * e.printStackTrace();
-	 * }
-	 * //r.stop;
-	 * System.out.println("Stop...");
-	 * }
-	 * }
+	 * @Override public void run() { int[] command = {Commands.STOP, 0, 0, 0};
+	 * try { comms.sendToRobot(command); } catch (IOException e) {
+	 * System.out.println("Could not send command"); e.printStackTrace(); }
+	 * //r.stop; System.out.println("Stop..."); } }
 	 */
 }

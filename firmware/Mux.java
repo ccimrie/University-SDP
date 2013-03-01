@@ -16,8 +16,6 @@ public class Mux extends I2CSensor {
 	private static final int STOPTIME = 40;
 	private I2CMotor backMotor;
 	private I2CMotor frontMotor;
-	private I2CMotor kickerLeftMotor;
-	private I2CMotor kickerRightMotor;
 
 	@SuppressWarnings("deprecation")
 	public Mux(I2CPort port) {
@@ -26,10 +24,8 @@ public class Mux extends I2CSensor {
 		// setAddress() function is deprecated. Perhaps investigate into the future for
 		// something better but for now it is enough.
 		setAddress(0xB4);
-		frontMotor = new I2CMotor(0x01, 0x02, FLOAT, 0);
-		backMotor = new I2CMotor(0x03, 0x04, FLOAT, 0);
-		kickerRightMotor = new I2CMotor(0x05, 0x06, FLOAT, 0);
-		kickerLeftMotor = new I2CMotor(0x07, 0x08, FLOAT, 0);
+		backMotor = new I2CMotor(0x01, 0x02, FLOAT, 0);
+		frontMotor = new I2CMotor(0x03, 0x04, FLOAT, 0);
 	}
 
 	// Spins a specific motor
@@ -44,18 +40,6 @@ public class Mux extends I2CSensor {
 			backMotor.move(direction, speed);
 			break;
 		}
-	}
-	
-	public void kick() throws InterruptedException{
-		kickerRightMotor.move(BACKWARDS, 255);
-		kickerLeftMotor.move(BACKWARDS, 255);
-		Thread.sleep(100);
-		kickerRightMotor.move(FORWARDS, 150);
-		kickerLeftMotor.move(FORWARDS, 150);
-		Thread.sleep(50);
-		kickerRightMotor.move(FLOAT, 0);
-		kickerLeftMotor.move(FLOAT, 0);
-		
 	}
 
 	// Stops both motors

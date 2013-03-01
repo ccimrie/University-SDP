@@ -1,0 +1,41 @@
+HOW TO USE THE MOVER:
+
+The way to use a mover is the following:
+First initialize a mover object with the following signature:
+public Movement(WorldState worldState, RobotController robot)
+
+After initializing movement you should set up the parameters you want
+
+Movement move = new Movement(world,robot);
+move.setUpMoveToPoint(130, 450);
+
+For now there are seven different methods you can call. Look at the file
+for more details.
+
+After you set up the parameters you should initialize a thread and start it.
+
+Doing a setup* method will not start movement. The only thing that would start
+movement would be the thread.start(), which is explained below.
+
+Afterwards intialize a new Thread and start it:
+
+Thread movthread = new Thread(mover, "Movement Thread");
+movthread.start();
+
+Thus you start your desired move method. To check if it's finished do the folloing:
+
+movthread.isAlive()
+If this returns true, it means that the move method has not yet finished.
+
+If you want to wait for move to finish do a 
+movthread.join()
+
+if you want to prematurely kill the thread do: 
+
+if (movthread.isAlive()){
+	mover.die();
+}
+
+this will kill the current movement command.
+
+Nick
