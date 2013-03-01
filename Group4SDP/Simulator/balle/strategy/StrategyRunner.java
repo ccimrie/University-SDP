@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import balle.controller.Controller;
+import balle.main.Controller;
 import balle.main.SimpleWorldGUI;
 import balle.main.drawable.Drawable;
 import balle.world.AbstractWorld;

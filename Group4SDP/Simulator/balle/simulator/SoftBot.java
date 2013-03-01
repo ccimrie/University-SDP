@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 import org.jbox2d.dynamics.Body;
 
-import balle.controller.Controller;
-import balle.controller.ControllerListener;
+import balle.main.Controller;
+import balle.main.ControllerListener;
 import balle.misc.Globals;
 import balle.strategy.bezierNav.ControllerHistoryElement;
 
-public class SoftBot implements Controller {
+public class SoftBot extends Controller {
 
 	private boolean kick = false;
 

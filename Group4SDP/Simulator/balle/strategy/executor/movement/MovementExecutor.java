@@ -1,6 +1,6 @@
 package balle.strategy.executor.movement;
 
-import balle.controller.Controller;
+import balle.main.Controller;
 import balle.strategy.executor.Executor;
 import balle.world.Snapshot;
 import balle.world.objects.FieldObject;

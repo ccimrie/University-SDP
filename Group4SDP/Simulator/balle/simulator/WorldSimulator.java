@@ -47,9 +47,9 @@ public class WorldSimulator {
 	private boolean noisy;
 
 	private long visionDelay = Globals.SIMULATED_VISON_DELAY;
-	private long simulatorTimestamp;
+	//private long simulatorTimestamp;
 
-    private static final Logger LOG = Logger.getLogger(WorldSimulator.class);
+    //private static final Logger LOG = Logger.getLogger(WorldSimulator.class);
 
 	// Increases sizes, but keeps real-world SCALE; jbox2d acts unrealistically
 	// at a small SCALE

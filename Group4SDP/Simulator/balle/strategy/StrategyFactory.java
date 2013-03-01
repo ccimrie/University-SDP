@@ -42,7 +42,7 @@ public class StrategyFactory {
         runnableStrategyParameterNames = new HashMap<String, String[]>();
         // Reflections reflections = new Reflections("balle.strategy");
         Reflections reflections = new Reflections(new ConfigurationBuilder().setUrls(
-                ClasspathHelper.forPackage("balle.strategy")).setScanners(
+                ClasspathHelper.forPackage("")).setScanners(
                 new MethodAnnotationsScanner()));
         Set<Method> annotatedMethods = reflections.getMethodsAnnotatedWith(FactoryMethod.class);
         for (Method m : annotatedMethods)

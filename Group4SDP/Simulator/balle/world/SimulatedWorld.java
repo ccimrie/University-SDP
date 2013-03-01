@@ -2,7 +2,7 @@ package balle.world;
 
 import java.util.ArrayList;
 
-import balle.controller.ControllerListener;
+import balle.main.ControllerListener;
 import balle.simulator.SnapshotPredictor;
 import balle.strategy.bezierNav.ControllerHistoryElement;
 import balle.world.objects.Pitch;

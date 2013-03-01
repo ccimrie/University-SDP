@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-import balle.controller.Controller;
+import balle.main.Controller;
 import balle.strategy.planner.AbstractPlanner;
 import balle.world.Snapshot;
 
@@ -55,8 +55,8 @@ public class UserInputStrategy extends AbstractPlanner {
     // }
     // }
 
-    @Override
     // TODO Change to rely on and react to JPanel thing
+    @Override
     public void onStep(Controller controller, Snapshot snapshot) {
 		this.controller = controller;
         controller.setWheelSpeeds(Math.round(leftWheelPower),
@@ -203,4 +203,10 @@ public class UserInputStrategy extends AbstractPlanner {
 
         }
     }
+
+	@Override
+	public void stop(Controller controller) {
+		// TODO Auto-generated method stub
+		
+	}
 }

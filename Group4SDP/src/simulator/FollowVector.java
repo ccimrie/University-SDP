@@ -2,7 +2,6 @@ package simulator;
 
 //import strategy.calculations.AngleBetweenTwoVectors;
 import geometry.Vector;
-import world.state.PitchInfo;
 import world.state.Robot;
 import simulator.WorldInterface;
 

@@ -10,11 +10,8 @@ import joptsimple.OptionSet;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.PropertyConfigurator;
 
-import balle.controller.Controller;
-import balle.controller.DummyController;
-import balle.logging.StrategyLogAppender;
 import balle.memory.ConfigFile;
 import balle.misc.Globals;
 import balle.simulator.Simulator;
@@ -79,9 +76,6 @@ public class Runner {
 		}
 		// Make sure to log strategy logs to the GUI as well
 		Logger strategyLogger = Logger.getLogger("balle.strategy");
-		Appender strategyAppender = new StrategyLogAppender(strategyLogPane);
-		strategyLogger.addAppender(strategyAppender);
-
 	}
 
 	public static void main(String[] args) {
@@ -190,7 +184,6 @@ public class Runner {
 			boolean useDummyController, StrategyLogPane strategyLog) {
 
         SimulatedWorld world;
-		//SocketVisionReader visionInput;
 		Controller controllerA;
 
 		// Initialise world
@@ -214,7 +207,7 @@ public class Runner {
 		// SimpleWorldGUI start!
 
         //Set controller to DummyController and wait for controller to be ready
-		controllerA = new DummyController();
+		controllerA = new Controller();
 
 		while (!controllerA.isReady()) {
 			continue;

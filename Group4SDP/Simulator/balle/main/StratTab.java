@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import balle.controller.Controller;
+import balle.main.Controller;
 import balle.memory.ConfigFile;
 import balle.misc.Globals;
 import balle.simulator.Simulator;
