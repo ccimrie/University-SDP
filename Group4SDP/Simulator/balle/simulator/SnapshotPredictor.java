@@ -7,7 +7,7 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
-import balle.strategy.bezierNav.ControllerHistoryElement;
+import balle.strategy.ControllerHistoryElement;
 import balle.world.AngularVelocity;
 import balle.world.Coord;
 import balle.world.Orientation;

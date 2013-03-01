@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import balle.main.ControllerListener;
 import balle.simulator.SnapshotPredictor;
-import balle.strategy.bezierNav.ControllerHistoryElement;
+import balle.strategy.ControllerHistoryElement;
 import balle.world.objects.Pitch;
 
 /**

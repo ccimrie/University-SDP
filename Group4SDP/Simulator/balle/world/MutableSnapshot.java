@@ -3,7 +3,7 @@ package balle.world;
 import java.util.ArrayList;
 import java.util.List;
 
-import balle.strategy.bezierNav.ControllerHistoryElement;
+import balle.strategy.ControllerHistoryElement;
 import balle.world.objects.Ball;
 import balle.world.objects.Goal;
 import balle.world.objects.Pitch;

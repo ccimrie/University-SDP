@@ -7,7 +7,7 @@ import org.jbox2d.dynamics.Body;
 import balle.main.Controller;
 import balle.main.ControllerListener;
 import balle.misc.Globals;
-import balle.strategy.bezierNav.ControllerHistoryElement;
+import balle.strategy.ControllerHistoryElement;
 
 public class SoftBot extends Controller {
 
