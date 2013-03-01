@@ -23,55 +23,43 @@ import strategy.calculations.*;
 
 public class Offensive extends StrategyInterface implements Runnable {
 	Inteception take = new Inteception();
-	MoveToBall mb = new MoveToBall();
-	Thread movthread;
 
-	public Offensive(WorldState world, Robot us, Robot them, RobotController rc) {
-		super(world, us, them, rc);
-
+	public Offensive(WorldState world, Movement mover) {
+		super(world, mover);
 	}
 
+	@Override
 	public void run() {
 
 		while (!shouldidie && !Strategy.alldie) {
 
 			System.out.println("Going to the ball");
-			Everything eve = new Everything(world, rc);
-			
 
-//			while (DistanceCalculator.Distance(us.x, us.y, world.getBallX(), world.getBallX()) > 80) {			
-//				eve.moveTowardsPoint(world.getBallX(), world.getBallY());
-//				try {
-//					Thread.sleep(42);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//			
-//			double angle = TurnToBall.Turner(us, world.ball);
-//			System.out.println(angle);
-//			rc.rotate((int) angle);
-			
-			try {
-				MoveToBall.approach(world, rc);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			synchronized (mover) {
+				mover.moveToAndStop(world.ball.x, world.ball.y);
+				try {
+					mover.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-			
+
 			PlainScoring killthemALL = new PlainScoring();
 
 			try {
-				killthemALL.domination(world, us, them, rc);
+				killthemALL.domination(world, mover);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			rc.stop();
-
+			synchronized (mover) {
+				mover.stopRobot();
+				try {
+					mover.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-
-		rc.stop();
+		mover.stopRobot();
 	}
 }

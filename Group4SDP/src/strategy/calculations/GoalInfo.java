@@ -78,5 +78,39 @@ public class GoalInfo {
 		Position result = getRightGoalCenter();
 		result.setY(result.getY() + goalRadius);
 		return result;
+	}public Position getBotRightCorner() {
+		Position result = new Position(604, 400);
+		
+		return result;
+	}
+	public Position getTopLeftCorner() {
+		Position result = new Position(35, 92);
+		
+		return result;
+	}
+	public Position getTopRightCorner() {
+		Position result = new Position(601, 84);
+		
+		return result;
+	}
+	public Position getBotLeftCorner() {
+		Position result = new Position(35, 392);
+		
+		return result;
+	}
+	public Position getLeftPenalty() {
+		Position result = new Position(116, 238);
+		
+		return result;
+	}
+	public Position getRightPenalty() {
+		Position result = new Position(345, 238);
+		
+		return result;
+	}
+	public Position getMid() {
+		Position result = new Position(324, 238);
+		
+		return result;
 	}
 }

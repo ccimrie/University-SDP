@@ -1,13 +1,13 @@
 package strategy.planning;
 
+import strategy.movement.Movement;
 import vision.WorldState;
-import world.state.Robot;
 import world.state.RobotController;
 
 public class SimpleStrat extends StrategyInterface implements Runnable {
 
-	public SimpleStrat(WorldState world, Robot us, Robot them, RobotController rc) {
-		super(world, us, them, rc);
+	public SimpleStrat(WorldState world, Movement mover) {
+		super(world, mover);
 	}
 
 	@Override
