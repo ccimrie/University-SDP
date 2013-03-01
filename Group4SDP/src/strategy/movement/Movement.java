@@ -16,7 +16,7 @@ public class Movement extends Thread {
 	// private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private static int distanceThreshold = 10;
+	private static int distanceThreshold = 20;
 	private boolean interruptMove = false;
 	private boolean die = false;
 	private double moveToPointX = 0;
@@ -28,7 +28,7 @@ public class Movement extends Thread {
 	private double angle = 0.0;
 
 	private enum MovementMode {
-		IDLE, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING, STOP
+		IDLE, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING, STOP
 	};
 
 	/**
@@ -75,12 +75,6 @@ public class Movement extends Thread {
 					System.out.println("Moving at speed (" + speedX + ", "
 							+ speedY + ")");
 					doMove(speedX, speedY);
-					break;
-				case MOVE_ANGLE:
-					System.out.println("Moving at angle " + angle
-							+ " radians (" + Math.toDegrees(angle)
-							+ " degrees)");
-					doMove(angle);
 					break;
 				case MOVE_TO_POINT:
 					System.out.println("Moving to point (" + moveToPointX
@@ -130,6 +124,8 @@ public class Movement extends Thread {
 			e.printStackTrace();
 		}
 		robot.clearBuff();
+		// Signal robot is stopped and safe to disconnect
+		this.notify();
 	}
 
 	/**
@@ -153,7 +149,7 @@ public class Movement extends Thread {
 	 */
 	public synchronized void move(double speedX, double speedY) {
 		this.speedX = speedX;
-		this.speedY = speedX;
+		this.speedY = speedY;
 		methodToUse = MovementMode.MOVE_VECTOR;
 		this.notify();
 	}
@@ -177,8 +173,9 @@ public class Movement extends Thread {
 	 *            Angle, in radians (0 to 2*PI)
 	 */
 	public synchronized void move(double angle) {
-		this.angle = angle;
-		methodToUse = MovementMode.MOVE_ANGLE;
+		speedX = 100 * Math.sin(angle);
+		speedY = 100 * Math.cos(angle);
+		methodToUse = MovementMode.MOVE_VECTOR;
 		this.notify();
 	}
 
@@ -189,8 +186,8 @@ public class Movement extends Thread {
 	 * @see #move(double angle)
 	 */
 	private void doMove(double angle) {
-		double speedX = 100 * Math.sin(angle);
-		double speedY = 100 * Math.cos(angle);
+		speedX = 100 * Math.sin(angle);
+		speedY = 100 * Math.cos(angle);
 		doMove(speedX, speedY);
 	}
 
@@ -225,18 +222,21 @@ public class Movement extends Thread {
 	 */
 	private void doMoveTo(double x, double y) throws InterruptedException {
 		int i = 0;
+		interruptMove = false;
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
 				&& i < 50 && !interruptMove) {
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
 			Thread.sleep(42);
+			System.out.println("Our position: (" + us.x + ", " + us.y + ")");
+			System.out.println("Moving towards: (" + x + ", " + y + ")");
+			System.out.println("Distance: " + DistanceCalculator.Distance(us.x, us.y, x, y));
 			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
 			i++;
 		}
-		interruptMove = false;
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class Movement extends Thread {
 		// Turned dot product
 		xt = Math.sin(theta + Math.PI / 2.0);
 		yt = -Math.cos(theta + Math.PI / 2.0);
-		double dotProductEast = xt * xtc + yt * ytc;
+		double dotProductRight = xt * xtc + yt * ytc;
 
 		// Finding the angle from dot product
 
@@ -331,7 +331,7 @@ public class Movement extends Thread {
 						* yt)));
 
 		// Adjusting for negative values
-		if (dotProductEast < 0)
+		if (dotProductRight < 0)
 			angle = -angle;
 
 		// Calling the generic move function
