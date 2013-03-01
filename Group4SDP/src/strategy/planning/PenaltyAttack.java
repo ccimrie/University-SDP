@@ -10,18 +10,8 @@ import world.state.Robot;
 import world.state.RobotController;
 
 public class PenaltyAttack extends StrategyInterface implements Runnable {
-	private Movement move;
-
-	public PenaltyAttack(WorldState world, Robot us, Robot them,
-			RobotController rc) {
-		super(world, us, them, rc);
-	}
-
-	@Override
-	public void kill() {
-		super.kill();
-		if (move != null && move.isAlive())
-			move.die();
+	public PenaltyAttack(WorldState world, RobotController rc, Movement mover) {
+		super(world, rc, mover);
 	}
 
 	@Override
@@ -31,8 +21,8 @@ public class PenaltyAttack extends StrategyInterface implements Runnable {
 		boolean aimAbove = false;
 		// If their robot is off to one side of the goal, aim for the side
 		// they're not on
-		if (Math.abs(them.y - target.getY()) > 5) {
-			aimAbove = them.y > target.getY();
+		if (Math.abs(world.theirRobot.y - target.getY()) > 5) {
+			aimAbove = world.theirRobot.y > target.getY();
 		}
 		// Otherwise pick a side at random
 		else {
@@ -43,13 +33,17 @@ public class PenaltyAttack extends StrategyInterface implements Runnable {
 			targetAim = world.areWeOnLeft() ? -18 : 18;
 		else
 			targetAim = world.areWeOnLeft() ? 18 : -18;
-		
+
 		System.out.println("Turn angle: " + targetAim);
 
-		move = new Movement(world, rc, 0, 0, 0, 0,
-				Math.toRadians(targetAim), 6);
-		move.run();
-
-		rc.kick();
+		synchronized (mover) {
+			mover.rotate(Math.toRadians(targetAim));
+			try {
+				mover.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			mover.kick();
+		}
 	}
 }

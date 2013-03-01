@@ -25,7 +25,6 @@ import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
 import strategy.planning.Everything;
 import strategy.planning.MoveToBall;
-import strategy.planning.Offensive;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefence;
 import strategy.planning.Strategy;
@@ -81,7 +80,7 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-	
+
 	// Communication variables
 	public static BluetoothCommunication comms;
 	private static RobotController robot;
@@ -98,8 +97,7 @@ public class ControlGUI2 extends JFrame {
 
 	private Thread stratThread;
 	private Strategy strat;
-	
-	private Thread moverThread;
+
 	private Movement mover;
 
 	public static void main(String[] args) throws IOException {
@@ -116,7 +114,7 @@ public class ControlGUI2 extends JFrame {
 		WorldState worldState = new WorldState(goalInfo);
 
 		// Default values for the main vision window
-		/*String videoDevice = "/dev/video0";
+		String videoDevice = "/dev/video0";
 		int width = 640;
 		int height = 480;
 		int channel = 0;
@@ -143,15 +141,10 @@ public class ControlGUI2 extends JFrame {
 			vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
-
-		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2(worldState);
-		gui.Launch();
-		gui.action();
+		}
 
 		// Sets up the communication
-		/*comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
+		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
 				DeviceInfo.NXT_MAC_ADDRESS);
 		comms.openBluetoothConnection();
 
@@ -166,13 +159,21 @@ public class ControlGUI2 extends JFrame {
 		}
 		;
 
+		System.out.println("Robot ready!");
+
 		// Sets up robot
 		robot = new RobotController(RobotType.Us);
-		System.out.println("Robot ready!");*/
+
+		// Sets up the GUI
+		ControlGUI2 gui = new ControlGUI2(worldState);
+		gui.launch();
+		gui.action();
 	}
 
 	public ControlGUI2(WorldState worldState) {
 		this.worldState = worldState;
+		this.mover = new Movement(worldState, robot);
+		this.mover.start();
 
 		op1field.setColumns(6);
 		op2field.setColumns(6);
@@ -257,7 +258,7 @@ public class ControlGUI2 extends JFrame {
 				et.run();
 
 				Movement move = new Movement(worldState, robot);
-				move.setUpMove(100, 100);
+				move.move(100, 100);
 
 				Thread moverthr = new Thread(move, "I'm a mover thread");
 				moverthr.start();
@@ -304,6 +305,7 @@ public class ControlGUI2 extends JFrame {
 				try {
 					Strategy.stop();
 					if (stratThread != null) {
+						// TODO: very unsafe!
 						stratThread.interrupt();
 						stratThread.join();
 					}
@@ -316,16 +318,16 @@ public class ControlGUI2 extends JFrame {
 
 		penaltyAtk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyAttack penAtk = new PenaltyAttack(worldState,
-						worldState.ourRobot, worldState.theirRobot, robot);
+				PenaltyAttack penAtk = new PenaltyAttack(worldState, robot,
+						mover);
 				penAtk.run();
 			}
 		});
 
 		penaltyDef.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyDefence penDef = new PenaltyDefence(worldState,
-						worldState.ourRobot, worldState.theirRobot, robot);
+				PenaltyDefence penDef = new PenaltyDefence(worldState, robot,
+						mover);
 				penDef.run();
 			}
 		});
@@ -340,18 +342,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
 
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-
-				mover.setUpMove(0, op1);
-				moverThread = new Thread(mover, "Move Thread");
-				moverThread.start();
+				mover.move(0, op1);
 			}
 		});
 
@@ -359,18 +350,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
 
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-
-				mover.setUpMove(0, -op1);
-				moverThread = new Thread(mover, "Move Thread");
-				moverThread.start();
+				mover.move(0, -op1);
 			}
 		});
 
@@ -378,37 +358,15 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
 
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-
-				mover.setUpMove(-op1, 0);
-				moverThread = new Thread(mover, "Move Thread");
-				moverThread.start();
+				mover.move(-op1, 0);
 			}
 		});
 
 		right.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-				
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
 
-				mover.setUpMove(op1, 0);
-				moverThread = new Thread(mover, "Move Thread");
-				moverThread.start();
+				mover.move(op1, 0);
 			}
 		});
 
@@ -430,15 +388,7 @@ public class ControlGUI2 extends JFrame {
 
 		stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-				robot.stop();
+				mover.stopRobot();
 			}
 		});
 
@@ -446,18 +396,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
 
-				if (moverThread != null && moverThread.isAlive()) {
-					mover.die();
-					try {
-						moverThread.join();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-				
-				mover.setUpMove(angle);
-				moverThread = new Thread(mover, "Move Thread");
-				moverThread.start();
+				mover.move(angle);
 			}
 		});
 
@@ -485,6 +424,7 @@ public class ControlGUI2 extends JFrame {
 					System.out.println("Could not send QUIT command to robot");
 					// e1.printStackTrace();
 				} finally {
+					mover.kill();
 					System.out.println("Quitting the GUI");
 					System.exit(0);
 				}
@@ -492,7 +432,7 @@ public class ControlGUI2 extends JFrame {
 		});
 	}
 
-	public void Launch() {
+	public void launch() {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
@@ -507,6 +447,7 @@ public class ControlGUI2 extends JFrame {
 				System.out.println("Could not send command");
 				// e1.printStackTrace();
 			} finally {
+				mover.kill();
 				System.out.println("Quit...");
 				System.exit(0);
 			}

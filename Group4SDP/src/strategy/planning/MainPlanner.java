@@ -1,8 +1,7 @@
 package strategy.planning;
 
-import strategy.calculations.GoalInfo;
+import strategy.movement.Movement;
 import vision.WorldState;
-import world.state.Robot;
 import world.state.RobotController;
 
 public class MainPlanner extends StrategyInterface implements Runnable {
@@ -18,9 +17,8 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 	state currentState = state.StartOfGame;
 	state newState = currentState;
 
-	public MainPlanner(WorldState world, Robot us, Robot them,
-			RobotController rc) {
-		super(world, us, them, rc);
+	public MainPlanner(WorldState world, RobotController rc, Movement mover) {
+		super(world, rc, mover);
 	}
 
 	@Override
@@ -28,7 +26,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 	public void run() {
 		StrategyInterface activeStrat;
 		Thread strategyThread;
-		activeStrat = new Defensive(world, us, them, rc);
+		activeStrat = new Defensive(world, rc, mover);
 		strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
 		strategyThread.start();
 
@@ -43,7 +41,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 				ourRobot = 1;
 			else
 				ourRobot = 2;
-			
+
 			if (world.ballIsInGoal())
 				newState = state.EndOfGame;
 			else if (world.whoHasTheBall() == -1) {
@@ -66,20 +64,22 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 				if (currentState == state.StartOfGame) {
 					// TODO change to StartOfGame strategy type, when
 					// implemented
-					activeStrat = new Defensive(world, us, them, rc);
-					strategyThread = new Thread((Defensive) activeStrat, "Start Thread");
+					activeStrat = new Defensive(world, rc, mover);
+					strategyThread = new Thread((Defensive) activeStrat,
+							"Start Thread");
 				} else if (currentState == state.Defensive) {
-					activeStrat = new Defensive(world, us, them, rc);
+					activeStrat = new Defensive(world, rc, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Defense Thread");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Defensive(world, us, them, rc);
+					activeStrat = new Defensive(world, rc, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					// TODO change to EndOfGame strategy type, when implemented
-					activeStrat = new Defensive(world, us, them, rc);
-					strategyThread = new Thread((Defensive) activeStrat, "End Thread");
+					activeStrat = new Defensive(world, rc, mover);
+					strategyThread = new Thread((Defensive) activeStrat,
+							"End Thread");
 				}
 				strategyThread.start();
 			}
