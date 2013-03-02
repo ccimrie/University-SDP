@@ -1,4 +1,4 @@
-package simulator;
+package simulatorold;
 
 import geometry.Vector;
 import strategy.movement.AvoidanceStrategy;
@@ -12,7 +12,7 @@ import strategy.movement.GoToPoint;
 
 import world.state.Ball;
 import world.state.Robot;
-import simulator.gotoball;
+import simulatorold.gotoball;
 
 import comms.control.ServerInterface;
 

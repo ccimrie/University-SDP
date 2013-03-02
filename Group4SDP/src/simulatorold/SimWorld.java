@@ -1,9 +1,9 @@
-package simulator;
+package simulatorold;
 
 import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotType;
-import simulator.WorldInterface;
+import simulatorold.WorldInterface;
 
 public class SimWorld implements WorldInterface {
 	public Robot ourRobot, theirRobot;

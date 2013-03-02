@@ -1,4 +1,4 @@
-package simulator;
+package simulatorold;
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.MathUtils;
@@ -11,9 +11,9 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
-import static simulator.RoboFootball.pitchL;
-import static simulator.RoboFootball.pitchW;
-import static simulator.RoboFootball.scale;
+import static simulatorold.RoboFootball.pitchL;
+import static simulatorold.RoboFootball.pitchW;
+import static simulatorold.RoboFootball.scale;
 
 public class SimulatorRobot {
 

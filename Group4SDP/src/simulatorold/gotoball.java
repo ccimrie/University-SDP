@@ -1,9 +1,9 @@
-package simulator;
+package simulatorold;
 
 import java.util.ArrayList;
 
 import strategy.movement.AvoidanceStrategy;
-import simulator.FollowVector;
+import simulatorold.FollowVector;
 
 import comms.control.ServerInterface;
 import communication.BluetoothRobot;

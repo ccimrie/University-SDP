@@ -2,7 +2,7 @@
  * Copyright (c) 2012. University of Edinburgh
  */
 
-package simulator;
+package simulatorold;
 
 import world.state.Ball;
 import world.state.Robot;

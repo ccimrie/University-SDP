@@ -1,4 +1,4 @@
-package simulator;
+package simulatorold;
 
 import strategy.movement.AvoidanceStrategy;
 import strategy.movement.DistanceToBall;
@@ -6,7 +6,7 @@ import strategy.movement.GoToPoint;
 import strategy.movement.TurnToBall;
 import world.state.Ball;
 import world.state.Robot;
-import simulator.gotoball;
+import simulatorold.gotoball;
 
 public class SimStrategy extends Thread{
 	
