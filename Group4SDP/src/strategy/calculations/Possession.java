@@ -3,7 +3,7 @@ package strategy.calculations;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotType;
-import vision.WorldState;
+import world.state.WorldState;
 import strategy.movement.TurnToBall;
 
 public class Possession {

@@ -1,9 +1,10 @@
 package strategy.planning;
 
-import vision.WorldState;
-import world.state.RobotController;
+import communication.BluetoothRobot;
+
 import world.state.Ball;
 import world.state.Robot;
+import world.state.WorldState;
 import strategy.movement.TurnToBall;
 
 public class DribbleBall5 {
@@ -13,7 +14,7 @@ public class DribbleBall5 {
 	private static double dribbleDistance = 200;
 	private MoveToPoint moveToPoint = new MoveToPoint();
 
-	public void dribbleBall(WorldState worldState, RobotController robot)
+	public void dribbleBall(WorldState worldState, BluetoothRobot robot)
 			throws InterruptedException {
 		// Get robot and ball from world
 		worldState.setOurRobot();

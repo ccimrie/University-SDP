@@ -19,8 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import movement.RobotMover;
+
 import strategy.calculations.GoalInfo;
-import strategy.movement.Movement;
 import strategy.planning.Commands;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
@@ -29,13 +30,13 @@ import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
 import vision.Vision;
-import vision.WorldState;
 import vision.gui.VisionGUI;
-import world.state.RobotController;
 import world.state.RobotType;
+import world.state.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
 import communication.BluetoothCommunication;
+import communication.BluetoothRobot;
 import communication.DeviceInfo;
 
 // TODO: clean up unused stuff
@@ -83,7 +84,7 @@ public class ControlGUI2 extends JFrame {
 
 	// Communication variables
 	public static BluetoothCommunication comms;
-	private static RobotController robot;
+	private static BluetoothRobot robot;
 
 	// TODO: remove
 	// Strategy used for driving part of milestone 2
@@ -99,7 +100,7 @@ public class ControlGUI2 extends JFrame {
 	private Thread stratThread;
 	private Strategy strat;
 
-	private Movement mover;
+	private RobotMover mover;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -162,7 +163,7 @@ public class ControlGUI2 extends JFrame {
 		System.out.println("Robot ready!");
 
 		// Sets up robot
-		robot = new RobotController(RobotType.Us);
+		robot = new BluetoothRobot(RobotType.Us);
 
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2(worldState);
@@ -172,7 +173,7 @@ public class ControlGUI2 extends JFrame {
 
 	public ControlGUI2(WorldState worldState) {
 		this.worldState = worldState;
-		this.mover = new Movement(worldState, robot);
+		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
 
 		op1field.setColumns(6);

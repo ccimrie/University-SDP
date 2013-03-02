@@ -1,14 +1,14 @@
-package strategy.movement;
+package simulatorold;
 
 import java.util.ArrayList;
 
-import communication.BluetoothRobot;
+import strategy.movement.AvoidanceStrategy;
+import simulatorold.FollowVector;
 
-import world.state.WorldState;
-
+import comms.control.ServerInterface;
 import geometry.Vector;
 
-public class GoToPoint {
+public class GoToPointSim {
 	
 	private static double usX, usY, themX, themY, ballX, ballY, destX, destY;
 	private static double dxUsNode, dyUsNode, dxUsDest, dyUsDest, dxDestNode, dyDestNode,
@@ -62,10 +62,11 @@ public class GoToPoint {
 		return false;
 	}
 	
-	public static void goToPoint(WorldState world, BluetoothRobot rc, Vector point, AvoidanceStrategy mode)
+	public static void goToPoint(SimWorld world, SimServer
+			rc, double x, double y, AvoidanceStrategy mode)
 	{
-		double x = point.getX();
-		double y = point.getY();
+		
+	
 		//mode: 0-defensive 1-retrieval 2-offensive
 		usX = world.getOurRobot().x;
 		usY = world.getOurRobot().y;

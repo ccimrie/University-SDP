@@ -3,13 +3,13 @@ package strategy.planning;
 import balle.strategy.pFStrategy.Vector;
 import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.DistanceToBall;
-import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
 import vision.Position;
-import vision.WorldState;
 import world.state.*;
 import geometry.*;
 import java.math.*;
+
+import movement.RobotMover;
 import strategy.*;
 
 // TODO: convert to a proper strategy-like class.........
@@ -21,9 +21,9 @@ public class PlainScoring {
 	Position theirGoal;
 
 	public WorldState world;
-	public Movement mover;
+	public RobotMover mover;
 
-	public void domination(WorldState world, Movement mover)
+	public void domination(WorldState world, RobotMover mover)
 			throws InterruptedException {
 		this.ball = world.ball;
 		this.theirGoal = world.getTheirGoal();

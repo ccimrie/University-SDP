@@ -1,5 +1,7 @@
 package strategy.movement;
 
+import communication.BluetoothRobot;
+
 import strategy.planning.*;
 import world.state.*;
 import vision.*;
@@ -15,7 +17,7 @@ public class Inteception  {
 	PossessionType pt;
 	MoveToPoint m = new MoveToPoint();
 	MoveToBall  mb = new MoveToBall();
-	public void tackle (WorldState world, RobotController rc) throws InterruptedException{
+	public void tackle (WorldState world, BluetoothRobot rc) throws InterruptedException{
 	
 		this.world = world;
 		// This is a tackle method that we shall split in 3 cases :

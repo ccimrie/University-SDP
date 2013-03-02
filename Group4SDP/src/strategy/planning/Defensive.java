@@ -1,18 +1,18 @@
 package strategy.planning;
 
+import movement.RobotMover;
 import strategy.calculations.Possession;
-import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
 import vision.Position;
-import vision.WorldState;
 import world.state.RobotType;
+import world.state.WorldState;
 
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
 //the pitch.
 
 public class Defensive extends StrategyInterface implements Runnable {
 
-	public Defensive(WorldState world, Movement mover) {
+	public Defensive(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
 

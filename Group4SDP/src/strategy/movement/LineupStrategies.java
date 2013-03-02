@@ -3,7 +3,7 @@ package strategy.movement;
 import java.awt.geom.Point2D;
 
 import world.state.PitchInfo;
-import vision.WorldState;
+import world.state.WorldState;
 
 public class LineupStrategies {
 		
