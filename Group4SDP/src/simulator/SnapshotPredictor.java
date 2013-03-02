@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
+import simulator.WorldSimulator.Robot;
 
 
 public class SnapshotPredictor extends WorldSimulator {
@@ -159,16 +160,16 @@ public class SnapshotPredictor extends WorldSimulator {
         return new Coord(v.x, v.y, estimatedFrames);
     }
 
-    private balle.world.objects.Robot getRobotFromBody(Robot robot,
-            SoftBot softbot, balle.world.objects.Robot initRobot)
+    private Robot getRobotFromBody(Robot robot,
+            SoftBot softbot, Robot initRobot)
     {
 
         if ((robot == null) || (softbot.getBody() == null)
                 || initRobot.getPosition() == null)
-            return new balle.world.objects.Robot(null, null, null, null);
+            return new Robot(null, null, null, null);
         else {
             Body body = robot.getBody();
-            return new balle.world.objects.Robot(v2C(body.getPosition(),
+            return new Robot(v2C(body.getPosition(),
                     initRobot.getPosition().getEstimatedFrames()).div(
                     SCALE), Velocity.fromVec2(body.getLinearVelocity(), SCALE),
                     new AngularVelocity(body.getAngularVelocity(), 1000),
@@ -185,9 +186,9 @@ public class SnapshotPredictor extends WorldSimulator {
         Body ballBody = ball;
         
         // Assume we are blue and opponent is yellow again
-        balle.world.objects.Robot ourRobot = getRobotFromBody(blue,
+        Robot ourRobot = getRobotFromBody(blue,
 				getBlueSoft(), initSnapshot.getBalle());
-        balle.world.objects.Robot opponent = getRobotFromBody(yellow,
+        Robot opponent = getRobotFromBody(yellow,
 				getYellowSoft(), initSnapshot.getOpponent());
       
 		Ball initBall = initSnapshot.getBall();

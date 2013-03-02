@@ -79,8 +79,8 @@ public class Runner {
             else {
                 System.out
                         .println("Invalid colour provided, try one of the following:");
-                System.out.println("javac balle.main.Runner -c blue");
-                System.out.println("javac balle.main.Runner -c yellow");
+                System.out.println("javac simulator.Runner -c blue");
+                System.out.println("javac simulator.Runner -c yellow");
                 print_usage();
                 System.exit(-1);
                 balleIsBlue = false; // This is just to fool Eclipse about
@@ -97,8 +97,8 @@ public class Runner {
 				&& !options.has("simulator")) {
 			System.out
 					.println("Invalid pitch provided, try one of the following:");
-			System.out.println("javac balle.main.Runner -p 0");
-			System.out.println("javac balle.main.Runner -p 1");
+			System.out.println("javac simulator.Runner -p 0");
+			System.out.println("javac simulator.Runner -p 1");
 			print_usage();
 			System.exit(-1);
 

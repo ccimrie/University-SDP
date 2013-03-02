@@ -2,6 +2,7 @@ package simulator;
 
 import java.util.ArrayList;
 import java.util.List;
+import simulator.WorldSimulator.Robot;
 
 
 public class MutableSnapshot {
