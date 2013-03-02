@@ -153,8 +153,10 @@ public class Brick {
 				LCD.clear();
 				LCD.drawString("Moving at an angle!", 0, 2);
 				LCD.refresh();
-				rotateMove(option1, option2, option3);
-				replytopc(opcode, os);
+				
+				moveAndRotate();
+				//rotateMove(option1, option2, option3);
+				replytopc(opcode,os);
 				break;
 
 			case TEST:
@@ -347,6 +349,27 @@ public class Brick {
 		else
 			rightMotor.backward();
 
+	}
+	
+	private static void moveAndRotate() throws InterruptedException{
+		leftMotor.setAcceleration(2000);
+		rightMotor.setAcceleration(2000);
+		leftMotor.setSpeed(600);
+		rightMotor.setSpeed(600);
+		leftMotor.forward();
+		rightMotor.backward();
+		Thread.sleep(1000);
+		leftMotor.setSpeed(400);
+		rightMotor.setSpeed(100);
+		chip.move(2, BACKWARDS, 300);
+		chip.move(1, BACKWARDS, 100);
+		leftMotor.forward();
+		rightMotor.forward();
+		Thread.sleep(500);
+		leftMotor.flt();
+		rightMotor.flt();
+		chip.move(2, BACKWARDS, 600);
+		chip.move(1, FORWARDS, 600);
 	}
 
 	/**

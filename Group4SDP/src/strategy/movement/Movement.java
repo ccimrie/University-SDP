@@ -11,12 +11,13 @@ import world.state.RobotController;
  * 
  * @author Jakov Smelkin
  */
-public class Movement implements Runnable {
+public class Movement extends Thread {
 
 	// private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private static int distanceThreshold = 10;
+	private static int distanceThreshold = 20;
+	private boolean interruptMove = false;
 	private boolean die = false;
 	private double moveToPointX = 0;
 	private double moveToPointY = 0;
@@ -26,19 +27,19 @@ public class Movement implements Runnable {
 	private double speedY = 0;
 	private double angle = 0.0;
 
-	private enum Methods {
-		MOVE, MOVEANGLE, MOVETOPOINT, MOVETOPOINTANDSTOP, MOVETOWARDSPOINT, ROTATE, MOVETOPOINTANDAVAOID
+	private enum Mode {
+		IDLE, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING, STOP
 	};
 
 	/**
-	 * A method to call: </br>{@link #move(double speedX, double speedY)}, </br>
-	 * {@link #move(double angle)} ,</br>
-	 * {@link #moveToPoint(double moveToPointX, double moveToPointY)} , </br>
-	 * {@link #moveToPointAndStop(double moveToPointX, double moveToPointY)} ,
-	 * </br> {@link #moveTowardsPoint (double moveToPointX, double moveToPointY)}
-	 * , </br> {@link #rotate (double angle)}
+	 * A method to call: </br>{@link #doMove(double speedX, double speedY)},
+	 * </br> {@link #doMove(double angle)} ,</br>
+	 * {@link #doMoveTo(double moveToPointX, double moveToPointY)} , </br>
+	 * {@link #doMoveToAndStop(double moveToPointX, double moveToPointY)} ,
+	 * </br> {@link #doMoveTowards (double moveToPointX, double moveToPointY)} ,
+	 * </br> {@link #doRotate (double angle)}
 	 */
-	private Methods methodToUse;
+	private Mode mode = Mode.IDLE;
 
 	/**
 	 * Constructor for the movement class.
@@ -61,47 +62,88 @@ public class Movement implements Runnable {
 	 * Runner for our movement, don't forget to set what you plan to do before
 	 * running this.
 	 * 
-	 * @see Thread#run
+	 * @see Thread#run()
 	 */
-	public void run() {
+	public synchronized void run() {
 		try {
-			switch (methodToUse) {
-			case MOVE:
-				move(speedX, speedY);
-				break;
-			case MOVEANGLE:
-				move(angle);
-				break;
-			case MOVETOPOINT:
-				moveToPoint(moveToPointX, moveToPointY);
-				break;
-			case MOVETOPOINTANDSTOP:
-				moveToPointAndStop(moveToPointX, moveToPointY);
-				break;
-			case MOVETOWARDSPOINT:
-				moveTowardsPoint(moveToPointX, moveToPointY);
-				break;
-			case MOVETOPOINTANDAVAOID:
-				moveToPointAndAvoid(moveToPointX, moveToPointY, avoidX, avoidY);
-				break;
-			case ROTATE:
-				rotate(angle);
-				break;
+			while (!die) {
+				switch (mode) {
+				case IDLE:
+					System.out.println("Mover is idle");
+					break;
+				case MOVE_VECTOR:
+					System.out.println("Moving at speed (" + speedX + ", "
+							+ speedY + ")");
+					doMove(speedX, speedY);
+					break;
+				case MOVE_TO_POINT:
+					System.out.println("Moving to point (" + moveToPointX
+							+ ", " + moveToPointY + ")");
+					doMoveTo(moveToPointX, moveToPointY);
+					break;
+				case MOVE_TO_POINT_STOP:
+					System.out.println("Moving to point (" + moveToPointX
+							+ ", " + moveToPointY + ") and stopping");
+					doMoveTo(moveToPointX, moveToPointY);
+					robot.stop();
+					break;
+				case MOVE_TOWARDS_POINT:
+					System.out.println("Moving towards point (" + moveToPointX
+							+ ", " + moveToPointY + ")");
+					doMoveTowards(moveToPointX, moveToPointY);
+					break;
+				case MOVE_TO_POINT_AVOIDING:
+					System.out.println("Moving to point (" + moveToPointX
+							+ ", " + moveToPointY + ") avoiding (" + avoidX
+							+ ", " + avoidY + ")");
+					doMoveToAvoiding(moveToPointX, moveToPointY, avoidX, avoidY);
+					break;
+				case ROTATE:
+					System.out.println("Rotating by " + angle + " radians ("
+							+ Math.toDegrees(angle) + " degrees)");
+					doRotate(angle);
+					break;
+				case STOP:
+					System.out.println("Stopping robot");
+					robot.stop();
+					break;
+				default:
+					System.out.println("DERP! Unknown movement mode specified");
+					assert (false);
+				}
+				mode = Mode.IDLE;
+				// Signal movement operation has completed.
+				this.notify();
+				// Wait for next movement operation
+				this.wait();
 			}
+			// Stop the robot when the movement thread has been told to exit
+			robot.stop();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			System.out.println("Try setting up with one of the setUp methods.");
 		}
 		robot.clearBuff();
+		// Signal that robot is stopped and safe to disconnect
+		this.notify();
 	}
 
-	public void die() {
+	/**
+	 * Tells the move thread to stop executing
+	 */
+	public synchronized void kill() {
 		System.out.println("Killing movement");
 		die = true;
-		robot.stop();
-		robot.clearBuff();
+		this.notify();
+	}
+
+	/**
+	 * Triggers an interrupt in movement
+	 */
+	public synchronized void interruptMove() {
+		System.out.println("Interrupting movement");
+		interruptMove = true;
 	}
 
 	/**
@@ -114,13 +156,21 @@ public class Movement implements Runnable {
 	 *            Speed forward (for positive values) or backward (for negative
 	 *            ones).
 	 */
-	public void setUpMove(double speedX, double speedY) {
+	public synchronized void move(double speedX, double speedY) {
 		this.speedX = speedX;
-		this.speedY = speedX;
-		methodToUse = Methods.MOVE;
+		this.speedY = speedY;
+		mode = Mode.MOVE_VECTOR;
+		this.notify();
 	}
 
-	private void move(double speedX, double speedY) {
+	/**
+	 * Internal method to execute a call to move(speedX, speedY)
+	 * 
+	 * @param speedX
+	 * @param speedY
+	 * @see #move(double speedX, double speedY)
+	 */
+	private void doMove(double speedX, double speedY) {
 		robot.move((int) speedX, (int) speedY);
 	}
 
@@ -131,15 +181,23 @@ public class Movement implements Runnable {
 	 * @param angle
 	 *            Angle, in radians (0 to 2*PI)
 	 */
-	public void setUpMove(double angle) {
-		this.angle = angle;
-		methodToUse = Methods.MOVEANGLE;
+	public synchronized void move(double angle) {
+		speedX = 100 * Math.sin(angle);
+		speedY = 100 * Math.cos(angle);
+		mode = Mode.MOVE_VECTOR;
+		this.notify();
 	}
 
-	private void move(double angle) {
-		double speedX = 100 * Math.sin(angle);
-		double speedY = 100 * Math.cos(angle);
-		move(speedX, speedY);
+	/**
+	 * Internal method to execute a call to move(angle)
+	 * 
+	 * @param angle
+	 * @see #move(double angle)
+	 */
+	private void doMove(double angle) {
+		speedX = 100 * Math.sin(angle);
+		speedY = 100 * Math.cos(angle);
+		doMove(speedX, speedY);
 	}
 
 	/**
@@ -153,24 +211,38 @@ public class Movement implements Runnable {
 	 *            Move to position y units right from top left corner of the
 	 *            video feed
 	 * 
-	 * @see #moveToPointAndStop(double x, double y)
-	 * @see #moveTowardsPoint(double x, double y)
+	 * @see #moveToAndStop(double x, double y)
+	 * @see #moveTowards(double x, double y)
 	 */
-	public void setUpMoveToPoint(double x, double y) {
-		die = false;
+	public synchronized void moveTo(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = Methods.MOVETOPOINT;
+		mode = Mode.MOVE_TO_POINT;
+		interruptMove = true;
+		this.notify();
 	}
 
-	private void moveToPoint(double x, double y) throws InterruptedException {
-
+	/**
+	 * Internal method to execute a call to moveTo(x, y)
+	 * 
+	 * @param x
+	 * @param y
+	 * @see #moveTo(double x, double y)
+	 */
+	private void doMoveTo(double x, double y) throws InterruptedException {
 		int i = 0;
+		interruptMove = false;
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
-				&& i < 50 && !die) {
+				&& i < 50 && !interruptMove) {
 			// Not to send unnecessary commands
+			// 42 because it's The Answer to the Ultimate Question of Life, the
+			// Universe, and Everything
 			Thread.sleep(42);
-			moveTowardsPoint(x, y);
+			System.out.println("Our position: (" + us.x + ", " + us.y + ")");
+			System.out.println("Moving towards: (" + x + ", " + y + ")");
+			System.out.println("Distance: "
+					+ DistanceCalculator.Distance(us.x, us.y, x, y));
+			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
 			i++;
@@ -184,24 +256,17 @@ public class Movement implements Runnable {
 	 *            Move to position x units down from top left corner of the
 	 *            video feed
 	 * @param y
-	 *            Move to position y units left from top left corner of the
+	 *            Move to position y units right from top left corner of the
 	 *            video feed
-	 * @throws InterruptedException
-	 *             when Thread.sleep() is interrupted.
-	 * @see #moveToPoint(double, double)
+	 * 
+	 * @see #moveTo(double, double)
 	 */
-	public void setUpMoveToPointAndStop(double x, double y) {
-		die = false;
+	public synchronized void moveToAndStop(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = Methods.MOVETOPOINTANDSTOP;
-	}
-
-	private void moveToPointAndStop(double x, double y)
-			throws InterruptedException {
-		moveToPoint(x, y);
-		// Stop once we reach the point
-		robot.stop();
+		mode = Mode.MOVE_TO_POINT_STOP;
+		interruptMove = true;
+		this.notify();
 	}
 
 	/**
@@ -211,17 +276,25 @@ public class Movement implements Runnable {
 	 *            Move to position x units down from top left corner of the
 	 *            video feed
 	 * @param y
-	 *            Move to position y units left from top left corner of the
+	 *            Move to position y units right from top left corner of the
 	 *            video feed
-	 * @see #moveToPoint(double, double)
+	 * @see #moveTo(double, double)
 	 */
-	public void setUpMoveTowards(double x, double y) {
+	public synchronized void moveTowards(double x, double y) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = Methods.MOVETOWARDSPOINT;
+		mode = Mode.MOVE_TOWARDS_POINT;
+		this.notify();
 	}
 
-	private void moveTowardsPoint(double x, double y) {
+	/**
+	 * Internal method to execute a call to moveTowards(x, y)
+	 * 
+	 * @param x
+	 * @param y
+	 * @see #moveTowards(double x, double y)
+	 */
+	private void doMoveTowards(double x, double y) {
 		/*
 		 * We make a vector (xt, yt) pointing from the robot to point, then use
 		 * rotational transformation to put it in robots perspective, then
@@ -245,7 +318,7 @@ public class Movement implements Runnable {
 		// Turned dot product
 		xt = Math.sin(theta + Math.PI / 2.0);
 		yt = -Math.cos(theta + Math.PI / 2.0);
-		double dotProductEast = xt * xtc + yt * ytc;
+		double dotProductRight = xt * xtc + yt * ytc;
 
 		// Finding the angle from dot product
 
@@ -254,11 +327,11 @@ public class Movement implements Runnable {
 						* yt)));
 
 		// Adjusting for negative values
-		if (dotProductEast < 0)
+		if (dotProductRight < 0)
 			angle = -angle;
 
 		// Calling the generic move function
-		move(angle);
+		doMove(angle);
 	}
 
 	/**
@@ -270,38 +343,67 @@ public class Movement implements Runnable {
 	 * @param y
 	 *            Point in the Y axis to move to
 	 * @param avoidX
-	 *            Point in the X axis avoid
+	 *            Point in the X axis to avoid
 	 * @param avoidY
-	 *            Point in the X axis avoid
+	 *            Point in the Y axis to avoid
 	 */
-	public void setUpMoveToPointAndAvoid(double x, double y) {
-		die = false;
+	public synchronized void moveToAvoiding(double x, double y, double avoidX,
+			double avoidY) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		methodToUse = Methods.MOVETOPOINTANDAVAOID;
+		this.avoidX = avoidX;
+		this.avoidY = avoidY;
+
+		mode = Mode.MOVE_TO_POINT_AVOIDING;
+		this.notify();
 	}
 
 	// TODO: Finish this.
-	private void moveToPointAndAvoid(double x, double y, double avoidX,
+	/**
+	 * Internal method to execute a call to moveTowards(x, y)
+	 * 
+	 * @param x
+	 * @param y
+	 * @param avoidX
+	 * @param avoidY
+	 * 
+	 * @see #moveToAvoiding(double x, double y, double avoidX, double avoidY)
+	 */
+	private void doMoveToAvoiding(double x, double y, double avoidX,
 			double avoidY) {
 		if (avoidX <= Math.max(x, us.x)) {
 		}
 	}
 
 	/**
-	 * Calls robot controller to rotate the robot by an angle
+	 * Calls robot controller to rotate the robot by an angle <br/>
 	 * 
 	 * @param rotationAngle
 	 *            clockwise angle to rotate (in Radians)
 	 */
-	public void setUpRotate(double angle) {
+	public synchronized void rotate(double angle) {
 		this.angle = angle;
-		methodToUse = Methods.ROTATE;
+		mode = Mode.ROTATE;
+		this.notify();
 	}
 
-	private void rotate(double rotationAngle) {
+	private void doRotate(double rotationAngle) {
 		rotationAngle = Math.toDegrees(rotationAngle);
 		robot.rotate((int) rotationAngle);
 	}
 
+	/**
+	 * Stops the robot
+	 */
+	public synchronized void stopRobot() {
+		mode = Mode.STOP;
+		this.notify();
+	}
+
+	/**
+	 * Makes the robot kick
+	 */
+	public synchronized void kick() {
+		robot.kick();
+	}
 }
