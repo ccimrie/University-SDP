@@ -1,14 +1,12 @@
 package strategy.planning;
 
 import movement.RobotMover;
-import communication.BluetoothRobot;
-
 import world.state.WorldState;
 
 public class PenaltyDefence extends StrategyInterface implements Runnable {
 
-	public PenaltyDefence(WorldState world, BluetoothRobot rc, RobotMover mover) {
-		super(world, rc, mover);
+	public PenaltyDefence(WorldState world, RobotMover mover) {
+		super(world, mover);
 	}
 
 	public void run() {
