@@ -1,18 +1,15 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class Strategy implements Runnable {
 	public WorldState world;
-	public RobotController robot;
-	public Movement mover;
+	public RobotMover mover;
 	public static boolean alldie = false;
 
-	public Strategy(WorldState world, RobotController robot, Movement mover) {
+	public Strategy(WorldState world, RobotMover mover) {
 		this.world = world;
-		this.robot = robot;
 		this.mover = mover;
 	}
 
@@ -24,7 +21,7 @@ public class Strategy implements Runnable {
 				+ world.areWeOnLeft());
 		System.out.println("[Strategy] Are we on the main pitch? "
 				+ world.isMainPitch());
-		Thread plan = new Thread(new MainPlanner(world, robot, mover),
+		Thread plan = new Thread(new MainPlanner(world, mover),
 				"Planning Thread");
 		plan.start();
 	}

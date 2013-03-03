@@ -1,6 +1,6 @@
 package vision.interfaces;
 
-import vision.WorldState;
+import world.state.WorldState;
 
 /**
  * An interface for classes which receive the world state from vision

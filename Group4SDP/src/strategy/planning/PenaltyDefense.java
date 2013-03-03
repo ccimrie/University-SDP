@@ -2,13 +2,12 @@ package strategy.planning;
 
 import java.util.Random;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class PenaltyDefense extends StrategyInterface implements Runnable {
-	public PenaltyDefense(WorldState worldState, RobotController robot, Movement mover) {
-		super(worldState, robot, mover);
+	public PenaltyDefense(WorldState worldState, RobotMover mover) {
+		super(worldState, mover);
 	}
 
 	/*

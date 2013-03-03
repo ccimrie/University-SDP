@@ -8,6 +8,7 @@ import vision.Kmeans;
 import vision.interfaces.VideoReceiver;
 import vision.interfaces.VisionDebugReceiver;
 import vision.interfaces.WorldStateReceiver;
+import world.state.WorldState;
 
 /**
  * The main class for showing the video feed and processing the video data.

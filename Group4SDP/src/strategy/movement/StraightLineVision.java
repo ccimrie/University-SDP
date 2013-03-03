@@ -3,7 +3,7 @@ package strategy.movement;
 import vision.PitchConstants;
 import vision.ThresholdsState;
 import vision.Vision;
-import vision.WorldState;
+import world.state.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
 /**

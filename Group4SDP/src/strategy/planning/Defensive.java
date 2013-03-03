@@ -1,20 +1,19 @@
 package strategy.planning;
 
+import movement.RobotMover;
 import strategy.calculations.Possession;
-import strategy.movement.Movement;
 import strategy.movement.TurnToBall;
 import vision.Position;
-import vision.WorldState;
-import world.state.RobotController;
 import world.state.RobotType;
+import world.state.WorldState;
 
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
 //the pitch.
 
 public class Defensive extends StrategyInterface implements Runnable {
 
-	public Defensive(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public Defensive(WorldState world, RobotMover mover) {
+		super(world, mover);
 	}
 
 	private final int threshold = 50;
@@ -64,8 +63,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 				// Move to our goal
 				// synchronized is needed to call mover.wait(), any movement
 				// commands should also be inside a synchronized block if wait
-				// is
-				// called, otherwise weird things will happen
+				// is called, otherwise weird things will happen
 				synchronized (mover) {
 					mover.moveTo(ourGoalDefendPosition.getX(),
 							ourGoalDefendPosition.getY());
@@ -84,8 +82,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 					TurnToBall.Turner(world.ourRobot, world.ball);
 					// Calculating the ball kicking line
 					// Given their bearing, calculate where exactly in our goal
-					// they
-					// are aiming
+					// they are aiming
 
 					theirBearing = world.theirRobot.bearing;
 

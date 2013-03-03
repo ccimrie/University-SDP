@@ -1,13 +1,12 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class PenaltyDefence extends StrategyInterface implements Runnable {
 
-	public PenaltyDefence(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public PenaltyDefence(WorldState world, RobotMover mover) {
+		super(world, mover);
 	}
 
 	public void run() {

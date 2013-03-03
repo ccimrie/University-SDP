@@ -270,6 +270,8 @@ class CameraSettingsPanel extends JPanel {
 			boolean chromaAGC = reader.nextBoolean();
 			chromaAGCCheckBox.setSelected(chromaAGC);
 			vStream.setChromaAGC(chromaAGC);
+			
+			reader.close();
 		} catch (Exception e) {
 			System.err.println("Cannot load camera settings file " + fileName);
 			System.err.println(e.getMessage());

@@ -1,8 +1,7 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class MainPlanner extends StrategyInterface implements Runnable {
 
@@ -17,8 +16,8 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 	state currentState = state.StartOfGame;
 	state newState = currentState;
 
-	public MainPlanner(WorldState world, RobotController rc, Movement mover) {
-		super(world, rc, mover);
+	public MainPlanner(WorldState world, RobotMover mover) {
+		super(world, mover);
 	}
 
 	@Override
@@ -26,7 +25,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 	public void run() {
 		StrategyInterface activeStrat;
 		Thread strategyThread;
-		activeStrat = new Defensive(world, rc, mover);
+		activeStrat = new Defensive(world, mover);
 		strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
 		strategyThread.start();
 
@@ -64,20 +63,20 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 				if (currentState == state.StartOfGame) {
 					// TODO change to StartOfGame strategy type, when
 					// implemented
-					activeStrat = new Defensive(world, rc, mover);
+					activeStrat = new Defensive(world, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Start Thread");
 				} else if (currentState == state.Defensive) {
-					activeStrat = new Defensive(world, rc, mover);
+					activeStrat = new Defensive(world, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Defense Thread");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Defensive(world, rc, mover);
+					activeStrat = new Defensive(world, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					// TODO change to EndOfGame strategy type, when implemented
-					activeStrat = new Defensive(world, rc, mover);
+					activeStrat = new Defensive(world, mover);
 					strategyThread = new Thread((Defensive) activeStrat,
 							"End Thread");
 				}

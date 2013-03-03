@@ -1,6 +1,6 @@
 package strategy.movement.AStar;
 
-import vision.WorldState;
+import world.state.WorldState;
 
 /**
  * @author Jakov Smelkin
