@@ -40,7 +40,8 @@ public class RobotMover extends Thread {
 
 	/**
 	 * A method to call: </br>{@link #doMove(double speedX, double speedY)},
-	 * </br> {@link #doMove(double angle)} ,</br> {@link #doMoveTo(double moveToPointX, double moveToPointY)} , </br>
+	 * </br> {@link #doMove(double angle)} ,</br>
+	 * {@link #doMoveTo(double moveToPointX, double moveToPointY)} , </br>
 	 * {@link #doMoveToAndStop(double moveToPointX, double moveToPointY)} ,
 	 * </br> {@link #doMoveTowards (double moveToPointX, double moveToPointY)} ,
 	 * </br> {@link #doRotate (double angle)}
@@ -72,6 +73,8 @@ public class RobotMover extends Thread {
 	public synchronized void run() {
 		try {
 			while (!die) {
+				// Clear the movement interrupt flag for the new movement
+				interruptMove = false;
 				switch (mode) {
 				case IDLE:
 					System.out.println("Mover is idle");
@@ -81,11 +84,13 @@ public class RobotMover extends Thread {
 					robot.stop();
 					break;
 				case MOVE_VECTOR:
-					System.out.println("Moving at speed (" + speedX + ", " + speedY + ")");
+					System.out.println("Moving at speed (" + speedX + ", "
+							+ speedY + ")");
 					doMove(speedX, speedY);
 					break;
 				case MOVE_TO_POINT:
-					System.out.println("Moving to point (" + moveToPointX + ", " + moveToPointY + ")");
+					System.out.println("Moving to point (" + moveToPointX
+							+ ", " + moveToPointY + ")");
 					doMoveTo(moveToPointX, moveToPointY);
 					break;
 				case MOVE_TO_POINT_STOP:
@@ -95,15 +100,18 @@ public class RobotMover extends Thread {
 					robot.stop();
 					break;
 				case MOVE_TOWARDS_POINT:
-					System.out.println("Moving towards point (" + moveToPointX + ", " + moveToPointY + ")");
+					System.out.println("Moving towards point (" + moveToPointX
+							+ ", " + moveToPointY + ")");
 					doMoveTowards(moveToPointX, moveToPointY);
 					break;
 				case MOVE_TO_POINT_ASTAR:
-					System.out.println("Moving to point (" + moveToPointX + ", " + moveToPointY + ") using A*");
+					System.out.println("Moving to point (" + moveToPointX
+							+ ", " + moveToPointY + ") using A*");
 					doMoveToAStar(moveToPointX, moveToPointY);
 					break;
 				case ROTATE:
-					System.out.println("Rotating by " + angle + " radians (" + Math.toDegrees(angle) + " degrees)");
+					System.out.println("Rotating by " + angle + " radians ("
+							+ Math.toDegrees(angle) + " degrees)");
 					doRotate(angle);
 					break;
 				default:
@@ -134,6 +142,7 @@ public class RobotMover extends Thread {
 	public synchronized void kill() {
 		System.out.println("Killing movement");
 		die = true;
+		interruptMove = true;
 		this.notify();
 	}
 
@@ -249,8 +258,8 @@ public class RobotMover extends Thread {
 	 */
 	private void doMoveTo(double x, double y) {
 		int i = 0;
-		interruptMove = false;
-		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold && i < 50 && !interruptMove) {
+		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
+				&& i < 50 && !interruptMove) {
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
@@ -296,8 +305,9 @@ public class RobotMover extends Thread {
 	 * @param x
 	 *            Move to position x units down from top left corner of the
 	 *            video feed
-	 * @param ymode = Mode.MOVE_TOWARDS_POINT;
-		
+	 * @param ymode
+	 *            = Mode.MOVE_TOWARDS_POINT;
+	 * 
 	 *            Move to position y units right from top left corner of the
 	 *            video feed
 	 * @see #moveTo(double, double)
@@ -345,7 +355,9 @@ public class RobotMover extends Thread {
 
 		// Finding the angle from dot product
 
-		double angle = Math.acos(dotProductForward / (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt * yt)));
+		double angle = Math.acos(dotProductForward
+				/ (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt
+						* yt)));
 
 		// Adjusting for negative values
 		if (dotProductRight < 0)
@@ -388,42 +400,45 @@ public class RobotMover extends Thread {
 		System.out.println("Height: " + map.getHeightInTiles());
 		System.out.println("Width: " + map.getWidthInTiles());
 
-		System.out.println("Height: " + worldState.goalInfo.pitchConst.getPitchHeight() + "px");
-		;
-		System.out.println("Width: " + worldState.goalInfo.pitchConst.getPitchWidth() + "px");
+		System.out.println("Height: "
+				+ worldState.goalInfo.pitchConst.getPitchHeight() + "px");
+
+		System.out.println("Width: "
+				+ worldState.goalInfo.pitchConst.getPitchWidth() + "px");
+
 		PathFinder finder = new AStarPathFinder(map, 100, true);
 		int selectedx = map.reduceRound(us.y);
 		int selectedy = map.reduceRound(us.x);
 		int goToX = map.reduceRound(y);
 		int goToY = map.reduceRound(x);
-		Path path = finder.findPath(new UnitMover(map.getUnit(selectedx, selectedy)), selectedx, selectedy, goToX, goToY);
+		Path path = finder.findPath(
+				new UnitMover(map.getUnit(selectedx, selectedy)), selectedx,
+				selectedy, goToX, goToY);
 		if (path != null) {
 			int l = path.getLength();
 			int i = 0;
-			interruptMove = false;
 			while (i < l && !interruptMove) {
-				//map.terrain[path.getX(i)][path.getY(i)] = 7;
+				// map.terrain[path.getX(i)][path.getY(i)] = 7;
 				distanceThreshold = 30;
-				doMoveTo(path.getY(i)*map.REDUCTION, path.getX(i)*map.REDUCTION);
-				
-				/*try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}*/
+				doMoveTo(path.getY(i) * map.REDUCTION, path.getX(i)
+						* map.REDUCTION);
+
+				/*
+				 * try { Thread.sleep(100); } catch (InterruptedException e) {
+				 * e.printStackTrace(); }
+				 */
 				i++;
 			}
 			distanceThreshold = 20;
 		}
 		robot.stop();
-		/*for (int i = 0; i < map.getHeightInTiles(); i++) {
-			String brr = "";
-			for (int j = 0; j < map.getWidthInTiles(); j++) {
-				brr += " " + map.getTerrain(i, j);
-			}
-			System.out.println(brr);
-
-		}*/
+		/*
+		 * for (int i = 0; i < map.getHeightInTiles(); i++) { String brr = "";
+		 * for (int j = 0; j < map.getWidthInTiles(); j++) { brr += " " +
+		 * map.getTerrain(i, j); } System.out.println(brr);
+		 * 
+		 * }
+		 */
 
 	}
 
