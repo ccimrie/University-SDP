@@ -28,8 +28,10 @@ public class RobotMover extends Thread {
 	private double speedY = 0;
 	private double angle = 0.0;
 
+	private int waitingThreads = 0;
+
 	private enum Mode {
-		IDLE, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING, STOP
+		IDLE, STOP, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_AVOIDING
 	};
 
 	/**
@@ -47,7 +49,7 @@ public class RobotMover extends Thread {
 	 * 
 	 * @param worldState
 	 *            a world state from the vision, giving us information on
-	 *            robots, ball etc.		
+	 *            robots, ball etc.
 	 * @param robot
 	 *            A low-level controller for the robot
 	 */
@@ -70,6 +72,10 @@ public class RobotMover extends Thread {
 				switch (mode) {
 				case IDLE:
 					System.out.println("Mover is idle");
+					break;
+				case STOP:
+					System.out.println("Stopping robot");
+					robot.stop();
 					break;
 				case MOVE_VECTOR:
 					System.out.println("Moving at speed (" + speedX + ", "
@@ -102,10 +108,6 @@ public class RobotMover extends Thread {
 					System.out.println("Rotating by " + angle + " radians ("
 							+ Math.toDegrees(angle) + " degrees)");
 					doRotate(angle);
-					break;
-				case STOP:
-					System.out.println("Stopping robot");
-					robot.stop();
 					break;
 				default:
 					System.out.println("DERP! Unknown movement mode specified");
@@ -144,6 +146,23 @@ public class RobotMover extends Thread {
 	public synchronized void interruptMove() {
 		System.out.println("Interrupting movement");
 		interruptMove = true;
+	}
+
+	/**
+	 * TODO: possibly add check to see if movement worked Waits for the movement
+	 * to complete before returning
+	 */
+	public synchronized void waitForCompletion() throws InterruptedException {
+		if (waitingThreads != 0) {
+			System.out
+					.println("Thread "
+							+ Thread.currentThread().getName()
+							+ " tried to wait for movement completion while another thread is already waiting.");
+			return;
+		}
+		++waitingThreads;
+		this.wait();
+		--waitingThreads;
 	}
 
 	/**

@@ -55,7 +55,6 @@ public class ControlGUI2 extends JFrame {
 	private final JButton quitButton = new JButton("Quit");
 	private final JButton stopButton = new JButton("Stop");
 	private final JButton stratStartButton = new JButton("Strat Start");
-	private final JButton stratStopButton = new JButton("Strat Stop");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
 	// Basic movement
@@ -197,7 +196,6 @@ public class ControlGUI2 extends JFrame {
 		startStopQuitPanel.add(stopButton);
 		startStopQuitPanel.add(quitButton);
 		startStopQuitPanel.add(stratStartButton);
-		startStopQuitPanel.add(stratStopButton);
 		startStopQuitPanel.add(penaltyAtkButton);
 		startStopQuitPanel.add(penaltyDefButton);
 
@@ -261,6 +259,22 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
+		stopButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Strategy.stop();
+					if (stratThread != null) {
+						// TODO: very unsafe!
+						stratThread.interrupt();
+						stratThread.join();
+					}
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				mover.stopRobot();
+			}
+		});
+
 		stratStartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Run in a new thread to free up UI while running
@@ -278,23 +292,7 @@ public class ControlGUI2 extends JFrame {
 				stratthr.start();
 			}
 		});
-
-		stratStopButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					Strategy.stop();
-					if (stratThread != null) {
-						// TODO: very unsafe!
-						stratThread.interrupt();
-						stratThread.join();
-					}
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-
+		
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
@@ -347,14 +345,7 @@ public class ControlGUI2 extends JFrame {
 				mover.move(op1, 0);
 			}
 		});
-
-		// moveToBallButton.addActionListener(new ActionListener() {
-		// public void actionPerformed(ActionEvent e) {
-		//
-		// approachThread = new MoveToTheBallThread();
-		// approachThread.start();
-		// }
-		// });
+		
 		//
 		// dribbleButton.addActionListener(new ActionListener() {
 		// public void actionPerformed(ActionEvent e) {
@@ -363,12 +354,6 @@ public class ControlGUI2 extends JFrame {
 		// dribbleThread.start();
 		// }
 		// });
-
-		stopButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mover.stopRobot();
-			}
-		});
 
 		rotateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -455,20 +440,6 @@ public class ControlGUI2 extends JFrame {
 
 	// TODO: remove
 	// class DribbleBallThread extends Thread {
-	//
-	// public void run() {
-	//
-	// try {
-	// dribbleBall.dribbleBall(worldState, robot);
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//
-	// }
-	// }
-
-	// class MoveToTheBallThread extends Thread {
 	//
 	// public void run() {
 	//
