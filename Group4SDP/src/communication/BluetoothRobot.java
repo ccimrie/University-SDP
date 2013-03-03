@@ -8,14 +8,34 @@ import world.state.RobotType;
 
 public class BluetoothRobot extends Robot implements RobotController {
 
-	private BluetoothCommunication comms = computer.ControlGUI2.comms;
+	private BluetoothCommunication comms;
 
-	public BluetoothRobot(RobotType type) {
+	public BluetoothRobot(RobotType type, BluetoothCommunication comms) {
 		super(type);
+		this.comms = comms;
 	}
 
 	@Override
-	public void quit() {
+	public void connect() {
+		try {
+			comms.openBluetoothConnection();
+		} catch (IOException e) {
+			System.err.println();
+		}
+	}
+
+	@Override
+	public boolean isConnected() {
+		return comms.isConnected();
+	}
+	
+	@Override
+	public boolean isReady() {
+		return comms.isRobotReady();
+	}
+
+	@Override
+	public void disconnect() {
 		int[] command = { Commands.QUIT, 0, 0, 0 };
 		try {
 			comms.sendToRobotSimple(command);
@@ -23,6 +43,7 @@ public class BluetoothRobot extends Robot implements RobotController {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
+		comms.closeBluetoothConnection();
 		System.out.println("Quit...");
 		System.exit(0);
 	}
@@ -62,8 +83,6 @@ public class BluetoothRobot extends Robot implements RobotController {
 		if (input < 0 && input > -180) {
 			input = -input;
 			dir = 1;
-		} else if (input <-180 && input >-360){
-			input+=360;
 		}
 
 		int op1 = input % 10;
