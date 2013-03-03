@@ -3,12 +3,7 @@ package strategy.planning;
 import java.util.Random;
 
 import movement.RobotMover;
-
-import communication.BluetoothRobot;
-
-import strategy.movement.TurnToBall;
 import vision.Position;
-import world.state.Robot;
 import world.state.WorldState;
 
 public class PenaltyAttack extends StrategyInterface implements Runnable {

@@ -1,20 +1,8 @@
 package simulatorold;
 
-import geometry.Vector;
-import strategy.movement.AvoidanceStrategy;
-import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
 import world.state.Ball;
 import world.state.Robot;
-import strategy.movement.AvoidanceStrategy;
-import strategy.movement.DistanceToBall;
-import strategy.movement.GoToPoint;
-
-import world.state.Ball;
-import world.state.Robot;
-import simulatorold.gotoball;
-
-import comms.control.ServerInterface;
 
 public class dummy_rotate {
 	private static final int distanceFromBallToStop = 60;

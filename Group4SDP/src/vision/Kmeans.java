@@ -13,8 +13,8 @@ public class Kmeans {
 		Cluster iteration = null;
 		// We set the initial errors to some number that's not going to
 		// interfere with our condition.
-		double error1new = 200.0;
-		double error2new = 200.0;
+//		double error1new = 200.0;
+//		double error2new = 200.0;
 		Position mean1old = mean1;
 		Position mean2old = mean2;
 		Position mean1new = new Position(0, 0);
@@ -30,8 +30,8 @@ public class Kmeans {
 			mean1new = iteration.getMean(0);
 			mean2new = iteration.getMean(1);
 
-			error1new = sumSquaredError(iteration.getCluster(0), mean1new);
-			error2new = sumSquaredError(iteration.getCluster(1), mean2new);
+//			error1new = sumSquaredError(iteration.getCluster(0), mean1new);
+//			error2new = sumSquaredError(iteration.getCluster(1), mean2new);
 			mean1old = mean1new;
 			mean2old = mean2new;
 			++iterations;

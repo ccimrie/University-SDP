@@ -624,6 +624,8 @@ public class PitchConstants {
 			this.bottomBuffer = scannerDim.nextInt();
 			this.leftBuffer = scannerDim.nextInt();
 			this.rightBuffer = scannerDim.nextInt();
+			
+			scannerDim.close();
 		} catch (Exception e) {
 			System.err.println("Cannot load pitch dimensions file " + fileName
 					+ "Dimensions:");
@@ -662,6 +664,8 @@ public class PitchConstants {
 			this.valueLower[i] = scanner.nextFloat();
 			this.valueUpper[i] = scanner.nextFloat();
 		}
+		
+		scanner.close();
 	}
 
 	/**

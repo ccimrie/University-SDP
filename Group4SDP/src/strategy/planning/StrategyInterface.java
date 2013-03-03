@@ -1,9 +1,6 @@
 package strategy.planning;
 
 import movement.RobotMover;
-import communication.BluetoothRobot;
-
-import world.state.Robot;
 import world.state.WorldState;
 
 public abstract class StrategyInterface {
