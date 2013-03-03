@@ -160,6 +160,7 @@ public class RobotMover extends Thread {
 		this.speedX = speedX;
 		this.speedY = speedY;
 		mode = Mode.MOVE_VECTOR;
+		interruptMove = true;
 		this.notify();
 	}
 
@@ -185,6 +186,7 @@ public class RobotMover extends Thread {
 		speedX = 100 * Math.sin(angle);
 		speedY = 100 * Math.cos(angle);
 		mode = Mode.MOVE_VECTOR;
+		interruptMove = true;
 		this.notify();
 	}
 
@@ -284,6 +286,7 @@ public class RobotMover extends Thread {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TOWARDS_POINT;
+		interruptMove = true;
 		this.notify();
 	}
 
@@ -353,6 +356,7 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		this.avoidX = avoidX;
 		this.avoidY = avoidY;
+		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_AVOIDING;
 		this.notify();
@@ -384,6 +388,7 @@ public class RobotMover extends Thread {
 	public synchronized void rotate(double angle) {
 		this.angle = angle;
 		mode = Mode.ROTATE;
+		interruptMove = true;
 		this.notify();
 	}
 
@@ -397,6 +402,7 @@ public class RobotMover extends Thread {
 	 */
 	public synchronized void stopRobot() {
 		mode = Mode.STOP;
+		interruptMove = true;
 		this.notify();
 	}
 
