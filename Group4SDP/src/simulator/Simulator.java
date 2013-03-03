@@ -1,4 +1,4 @@
-package simulatorold;
+package simulator;
 
 import java.util.ArrayList;
 
