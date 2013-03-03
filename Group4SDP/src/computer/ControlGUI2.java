@@ -38,6 +38,7 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 import communication.BluetoothCommunication;
 import communication.BluetoothRobot;
 import communication.DeviceInfo;
+import communication.RobotController;
 
 // TODO: clean up unused stuff
 @SuppressWarnings("serial")
@@ -79,18 +80,14 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
 
-	// Communication variables
-	public static BluetoothCommunication comms;
-	private static BluetoothRobot robot;
-
 	// TODO: remove
 	// Strategy used for driving part of milestone 2
 	// private MoveToBall mball = new MoveToBall();
 	// private MoveToTheBallThread approachThread;
 
 	// Strategy used for driving part of milestone 2
-	
-	private static DribbleBall5 dribbleBall = new DribbleBall5();
+
+	private DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
 	private WorldState worldState;
@@ -98,7 +95,8 @@ public class ControlGUI2 extends JFrame {
 	private Thread stratThread;
 	private Strategy strat;
 
-	private RobotMover mover;
+	private final RobotController robot;
+	private final RobotMover mover;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -144,11 +142,14 @@ public class ControlGUI2 extends JFrame {
 		}
 
 		// Sets up the communication
-		comms = new BluetoothCommunication(DeviceInfo.NXT_NAME,
-				DeviceInfo.NXT_MAC_ADDRESS);
-		comms.openBluetoothConnection();
+		BluetoothCommunication comms = new BluetoothCommunication(
+				DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+		// Sets up robot
+		BluetoothRobot robot = new BluetoothRobot(RobotType.Us, comms);
+		
+		robot.connect();
 
-		while (!comms.isRobotReady()) {
+		while (!robot.isConnected()) {
 			// Reduce CPU cost
 			try {
 				Thread.sleep(10);
@@ -160,21 +161,20 @@ public class ControlGUI2 extends JFrame {
 
 		System.out.println("Robot ready!");
 
-		// Sets up robot
-		robot = new BluetoothRobot(RobotType.Us);
 
 		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2(worldState);
+		ControlGUI2 gui = new ControlGUI2(worldState, robot);
 		gui.setVisible(true);
 	}
 
-	public ControlGUI2(final WorldState worldState) {
+	public ControlGUI2(final WorldState worldState, final RobotController robot) {
 		this.worldState = worldState;
+		this.robot = robot;
 		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
 
 		this.setTitle("Group 4 control GUI");
-		
+
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -254,8 +254,8 @@ public class ControlGUI2 extends JFrame {
 				try {
 					Strategy.stop();
 					// TODO: this does precisely nothing (hence strategy doesn't
-					// immediately stop when this button is clicked) - the
-					// strategy thread always terminates almost immediately.
+					// always immediately stop when this button is clicked) -
+					// the strategy thread always terminates almost immediately.
 					// Possibly make strategy call MainPlanner.run() instead of
 					// creating it in a new thread?
 					if (stratThread != null) {
@@ -265,22 +265,18 @@ public class ControlGUI2 extends JFrame {
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
+				// Stop the robot.
 				mover.stopRobot();
 			}
 		});
 
 		stratStartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Run in a new thread to free up UI while running
-				// TODO: remove - this should be in the plannner
-				// Offensive attacking = new Offensive(worldState,
-				// worldState.ourRobot,worldState.theirRobot, robot);
-				// new Thread(attacking).start();
-
 				// Allow restart of strategies after previously killing all
 				// strategies
 				Strategy.reset();
 
+				// Run in a new thread to free up UI while running
 				strat = new Strategy(worldState, mover);
 				Thread stratthr = new Thread(strat);
 				stratthr.start();
@@ -340,14 +336,12 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		
-		 dribbleButton.addActionListener(new ActionListener() {
-		 public void actionPerformed(ActionEvent e) {
-		
-		 dribbleThread = new DribbleBallThread();
-		 dribbleThread.start();
-		 }
-		 });
+		dribbleButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dribbleThread = new DribbleBallThread();
+				dribbleThread.start();
+			}
+		});
 
 		rotateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -388,24 +382,16 @@ public class ControlGUI2 extends JFrame {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Kill the mover and wait for it to stop completely
-				synchronized (mover) {
-					try {
-						mover.kill();
-						mover.wait();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-				int[] command = { Commands.QUIT, 0, 0, 0 };
+				mover.kill();
 				try {
-					comms.sendToRobot(command);
-				} catch (IOException e1) {
-					System.out.println("Could not send QUIT command to robot");
-					// e1.printStackTrace();
-				} finally {
-					System.out.println("Quitting the GUI");
-					System.exit(0);
+					mover.waitForCompletion();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
 				}
+				robot.disconnect();
+
+				System.out.println("Quitting the GUI");
+				System.exit(0);
 			}
 		});
 
@@ -415,39 +401,32 @@ public class ControlGUI2 extends JFrame {
 		this.setLocation((dim.width - frameSize.width) / 2,
 				(dim.height - frameSize.height) / 2);
 		this.setResizable(false);
-		
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 	}
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
-			int[] command = { Commands.QUIT, 0, 0, 0 };
+			mover.kill();
 			try {
-				comms.sendToRobotSimple(command);
-			} catch (IOException e1) {
-				System.out.println("Could not send command");
-				// e1.printStackTrace();
-			} finally {
-				mover.kill();
-				System.out.println("Quit...");
-				System.exit(0);
+				mover.waitForCompletion();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
 			}
+			robot.disconnect();
+			System.out.println("Quit...");
 		}
 	}
 
-	
-	 class DribbleBallThread extends Thread {
-	
-	 public void run() {
-	
-	 try {
-	 dribbleBall.dribbleBall(worldState, robot);
-	 } catch (InterruptedException e) {
-	 // TODO Auto-generated catch block
-	 e.printStackTrace();
-	 }
-	
-	 }
-	 }
+	class DribbleBallThread extends Thread {
+		public void run() {
+			try {
+				dribbleBall.dribbleBall(worldState, robot);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }

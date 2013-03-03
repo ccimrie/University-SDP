@@ -7,11 +7,27 @@ package communication;
  * @author Alex Adams (s1046358)
  */
 public interface RobotController {
+	/**
+	 * Attempts to connect to the robot
+	 * 
+	 * @throws Exception if connection failed
+	 */
+	public void connect() throws Exception;
 
+	/**
+	 * Tests if the robot is connected
+	 */
+	public boolean isConnected();
+	
+	/**
+	 * Tests if the robot is ready to receive commands
+	 */
+	public boolean isReady();
+	
 	/**
 	 * Tells the robot to shut down
 	 */
-	public void quit();
+	public void disconnect();
 
 	/**
 	 * Tells the robot to stop
