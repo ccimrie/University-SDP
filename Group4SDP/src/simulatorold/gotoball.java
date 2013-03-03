@@ -1,19 +1,8 @@
 package simulatorold;
 
-import java.util.ArrayList;
-
-import strategy.movement.AvoidanceStrategy;
-import simulatorold.FollowVector;
-
-import comms.control.ServerInterface;
-import communication.BluetoothRobot;
-import geometry.Vector;
 import strategy.movement.DistanceToBall;
-
-
 import world.state.Ball;
 import world.state.Robot;
-import world.state.WorldState;
 
 public class gotoball {
 	
