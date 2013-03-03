@@ -7,13 +7,11 @@ import world.state.RobotType;
 public class SimulatorRobot extends Robot implements RobotController {
 	
 	private boolean connected = false;
-	private final int simIndex;
 	private final Simulator sim;
 	
-	public SimulatorRobot(RobotType type, final int simIndex, final Simulator simulator) {
+	public SimulatorRobot(RobotType type, final Simulator simulator) {
 		super(type);
 		sim = simulator;
-		this.simIndex = simIndex;
 	}
 
 	@Override
@@ -28,7 +26,7 @@ public class SimulatorRobot extends Robot implements RobotController {
 	
 	@Override
 	public boolean isReady() {
-		// TODO: add a delay between connected and ready becoming true
+		// TODO: add a small delay between connected and ready becoming true
 		return connected;
 	}
 
@@ -39,7 +37,13 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	@Override
 	public int stop() {
-		int wheelCount = sim.getRobotWheelCount();
+		// Assumes 4 wheels
+		assert (sim.getRobotWheelCount() == 4) : "DERP! robot wheel count is not 4";
+		
+		sim.setRobotWheelSpeed(Simulator.LEFT_WHEEL, 0);
+		sim.setRobotWheelSpeed(Simulator.RIGHT_WHEEL, 0);
+		sim.setRobotWheelSpeed(Simulator.FRONT_WHEEL, 0);
+		sim.setRobotWheelSpeed(Simulator.BACK_WHEEL, 0);
 		
 		return 0;
 	}
@@ -52,7 +56,13 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	@Override
 	public int move(int speedX, int speedY) {
-		// TODO Auto-generated method stub
+		// Assumes 4 wheels
+		assert (sim.getRobotWheelCount() == 4) : "DERP! robot wheel count is not 4";
+		
+		sim.setRobotWheelSpeed(Simulator.LEFT_WHEEL, speedY);
+		sim.setRobotWheelSpeed(Simulator.RIGHT_WHEEL, speedY);
+		sim.setRobotWheelSpeed(Simulator.FRONT_WHEEL, speedX);
+		sim.setRobotWheelSpeed(Simulator.BACK_WHEEL, speedX);
 		return 0;
 	}
 
@@ -64,13 +74,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	@Override
 	public int rotateMove(int speedX, int speedY, int rotSpeed) {
-		// TODO Auto-generated method stub
+		// TODO implement to mimic Brick.java implementation for the real robot
 		return 0;
 	}
 
 	@Override
 	public void clearBuff() {
-		// TODO Auto-generated method stub
-
+		// Not required for simulated robot
 	}
 }
