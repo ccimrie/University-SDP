@@ -16,15 +16,13 @@ public class Defensive extends StrategyInterface implements Runnable {
 		super(world, mover);
 	}
 
-	private final int threshold = 50;
+	private final int threshold = 30;
 
 	public void run() {
-		System.out.println("Defensive strategy activated");
-		// Sanity check
-		// if (!Possession.hasPossession(world, RobotType.Them))
-		// return;
 
-		// Determine which goal is ours
+		System.out.println("Defensive strategy activated");
+
+		/** Determine which goal is ours and set the goal constants */
 		Position ourGoalTop;
 		Position ourGoalCenter;
 		Position ourGoalBottom;
@@ -35,12 +33,14 @@ public class Defensive extends StrategyInterface implements Runnable {
 			ourGoalBottom = world.goalInfo.getLeftGoalBottom();
 			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
 					+ threshold, ourGoalCenter.getY());
+			System.out.println("We are on the left");
 		} else {
 			ourGoalCenter = world.goalInfo.getRightGoalCenter();
 			ourGoalTop = world.goalInfo.getRightGoalTop();
 			ourGoalBottom = world.goalInfo.getRightGoalBottom();
 			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
 					- threshold, ourGoalCenter.getY());
+			System.out.println("We are on the right");
 		}
 
 		// Defining auxiliary parameters used for calculating
@@ -50,24 +50,21 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 		try {
 
-			// TODO: if they don't have possession, this strategy shouldn't even
-			// be running!!!
-			// In case they have possession of the ball, our robot goes to
-			// defend the goal
+			// TODO: Main planner has to handle this -In case they have
+			// possession of the ball, our robot goes to defend the goal
 			if (Possession.hasPossession(world, RobotType.Them)) {
-
+				System.out.println("They have the posession");
 				System.out.println("Left: x "
-						+ (int) (ourGoalCenter.getX() + threshold) + " y "
-						+ (int) ourGoalCenter.getY());
+						+ (int) (ourGoalDefendPosition.getX()) + " y "
+						+ (int) ourGoalDefendPosition.getY());
 
 				// Move to our goal
-				// synchronized is needed to call mover.wait(), any movement
+				// Synchronized is needed to call mover.wait(), any movement
 				// commands should also be inside a synchronized block if wait
 				// is called, otherwise weird things will happen
 				synchronized (mover) {
-					mover.moveTo(ourGoalDefendPosition.getX(),
+					mover.moveToAndStop(ourGoalDefendPosition.getX(),
 							ourGoalDefendPosition.getY());
-
 					// Complete the command before returning control to the
 					// thread.
 					mover.wait();
@@ -75,35 +72,71 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 				System.out.println("Point reached");
 
-				// Now turn to face the ball (and the other robot
-				// correspondingly)
-
 				while (!Strategy.alldie && !shouldidie) {
-					TurnToBall.Turner(world.ourRobot, world.ball);
-					// Calculating the ball kicking line
-					// Given their bearing, calculate where exactly in our goal
-					// they are aiming
 
-					theirBearing = world.theirRobot.bearing;
+					/**
+					 * Now turn to face the ball (and the other robot
+					 * correspondingly)
+					 */
+					angle = TurnToBall.Turner(world.ourRobot, world.ball);
+					if (Math.abs(angle) > 15) {
+						System.out.println("Should turn now");
+						synchronized (mover) {
+							mover.rotate(Math.toRadians(angle));
+							mover.wait();
+						}
+					}
 
-					if (Math.abs(previousTheirBearing - theirBearing) < 15) {
-						// TODO: fix the angle to account for both sides of the
-						// pitch - we don't need (massive) separate cases
-						// either! something in the if (world.areWeOnLeft())
-						// above will do
-						angle = Math.abs(270 - theirBearing);
-						ythreshold = (world.theirRobot.x - ourGoalCenter.getX())
-								* Math.tan(angle);
+					/**
+					 * Given their bearing, calculate where exactly in our goal
+					 * they are aiming.
+					 */
+
+					theirBearing = Math.toDegrees(world.theirRobot.bearing);
+
+					// First check if it the initial run, then check if the
+					// angle has changed due to fluctuation and if it has
+					// stabilised
+					if ((previousTheirBearing == 0)
+							|| ((Math.abs(previousTheirBearing - theirBearing) > 5) && (Math
+									.abs(previousTheirBearing - theirBearing) < 15))) {
+						if (world.areWeOnLeft()) {
+							angle = Math.abs(270 - theirBearing);
+							double tan = Math.tan(Math.toRadians(angle));
+							ythreshold = (world.theirRobot.x - ourGoalCenter
+									.getX()) * tan;
+							ythreshold -= Math.abs(world.theirRobot.y
+									- world.ourRobot.y);
+						} else {
+							angle = Math.abs(90 - theirBearing);
+							ythreshold = (ourGoalCenter.getX() - world.theirRobot.x)
+									* Math.tan(Math.toRadians(angle));
+							ythreshold -= Math.abs(world.theirRobot.y
+									- world.ourRobot.y);
+						}
 
 						// Upper half of the field
-						if (world.theirRobot.y < ourGoalCenter.getY()) {
-							destY = world.theirRobot.y + ythreshold;
-						} else
-							destY = world.theirRobot.y - ythreshold;
+						if (world.theirRobot.y < ourGoalCenter.getY())
+							destY = world.ourRobot.y + ythreshold;
+						else
+							// Lower half of the field
+							destY = world.ourRobot.y - ythreshold;
 
+						// Move to the right place on the Y axis
 						synchronized (mover) {
-							mover.moveTo(ourGoalDefendPosition.getX(), destY);
+							mover.moveToAndStop(ourGoalDefendPosition.getX(),
+									destY);
 							mover.wait();
+						}
+						// Turn to face the ball
+						angle = TurnToBall.Turner(world.ourRobot, world.ball);
+
+						if (Math.abs(angle) > 15) {
+							System.out.println("Should turn now");
+							synchronized (mover) {
+								mover.rotate(Math.toRadians(angle));
+								mover.wait();
+							}
 						}
 						previousTheirBearing = theirBearing;
 
@@ -127,8 +160,12 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// }
 				}
 			} else {
+				// TODO: The Main planner should handle this
+				System.out.println("The other team does not have posession.");
+				System.out.println("Hence, we're moving to the ball. X: "
+						+ world.ball.x + " Y: " + world.ball.y);
 				synchronized (mover) {
-					mover.moveTo(world.ball.x, world.ball.y);
+					mover.moveToAndStop(world.ball.x, world.ball.y);
 					mover.wait();
 				}
 				System.out.println("Ball reached");
