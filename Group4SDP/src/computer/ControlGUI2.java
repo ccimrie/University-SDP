@@ -20,9 +20,9 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import movement.RobotMover;
-
 import strategy.calculations.GoalInfo;
 import strategy.planning.Commands;
+import strategy.planning.DribbleBall5;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
@@ -69,7 +69,7 @@ public class ControlGUI2 extends JFrame {
 	private final JButton rotateAndMoveButton = new JButton("Rotate & Move");
 	// TODO: remove
 	// private final JButton moveToBallButton = new JButton("MoveToBall");
-	// private final JButton dribbleButton = new JButton("Dribble");
+	private final JButton dribbleButton = new JButton("Dribble");
 
 	// OPcode fields
 	private final JLabel op1label = new JLabel("Option 1: ");
@@ -89,8 +89,9 @@ public class ControlGUI2 extends JFrame {
 	// private MoveToTheBallThread approachThread;
 
 	// Strategy used for driving part of milestone 2
-	// private static DribbleBall5 dribbleBall = new DribbleBall5();
-	// private DribbleBallThread dribbleThread;
+	
+	private static DribbleBall5 dribbleBall = new DribbleBall5();
+	private DribbleBallThread dribbleThread;
 
 	private WorldState worldState;
 
@@ -237,7 +238,7 @@ public class ControlGUI2 extends JFrame {
 		complexMovePanel.add(rotateAndMoveButton);
 
 		// TODO: remove
-		// complexMovePanel.add(dribbleButton);
+		complexMovePanel.add(dribbleButton);
 
 		this.addWindowListener(new ListenCloseWdw());
 
@@ -339,20 +340,20 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		//
-		// dribbleButton.addActionListener(new ActionListener() {
-		// public void actionPerformed(ActionEvent e) {
-		//
-		// dribbleThread = new DribbleBallThread();
-		// dribbleThread.start();
-		// }
-		// });
+		
+		 dribbleButton.addActionListener(new ActionListener() {
+		 public void actionPerformed(ActionEvent e) {
+		
+		 dribbleThread = new DribbleBallThread();
+		 dribbleThread.start();
+		 }
+		 });
 
 		rotateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
 
-				mover.move(angle);
+				mover.rotate(Math.toRadians(angle));
 			}
 		});
 
@@ -435,18 +436,18 @@ public class ControlGUI2 extends JFrame {
 		}
 	}
 
-	// TODO: remove
-	// class DribbleBallThread extends Thread {
-	//
-	// public void run() {
-	//
-	// try {
-	// dribbleBall.dribbleBall(worldState, robot);
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//
-	// }
-	// }
+	
+	 class DribbleBallThread extends Thread {
+	
+	 public void run() {
+	
+	 try {
+	 dribbleBall.dribbleBall(worldState, robot);
+	 } catch (InterruptedException e) {
+	 // TODO Auto-generated catch block
+	 e.printStackTrace();
+	 }
+	
+	 }
+	 }
 }
