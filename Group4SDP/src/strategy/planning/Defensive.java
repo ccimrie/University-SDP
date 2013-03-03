@@ -78,7 +78,8 @@ public class Defensive extends StrategyInterface implements Runnable {
 					 * Now turn to face the ball (and the other robot
 					 * correspondingly)
 					 */
-					angle = TurnToBall.Turner(world.ourRobot, world.ball);
+					angle = TurnToBall.turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y);
+					
 					if (Math.abs(angle) > 15) {
 						System.out.println("Should turn now");
 						synchronized (mover) {
@@ -129,7 +130,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 							mover.wait();
 						}
 						// Turn to face the ball
-						angle = TurnToBall.Turner(world.ourRobot, world.ball);
+						angle = TurnToBall.turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y);
 
 						if (Math.abs(angle) > 15) {
 							System.out.println("Should turn now");
