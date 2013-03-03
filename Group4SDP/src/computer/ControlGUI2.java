@@ -44,8 +44,6 @@ import communication.DeviceInfo;
 public class ControlGUI2 extends JFrame {
 	// GUI elements
 
-	private final JFrame frame = new JFrame("Group 4 control GUI");
-
 	private final JPanel startStopQuitPanel = new JPanel();
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();
@@ -166,15 +164,16 @@ public class ControlGUI2 extends JFrame {
 
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2(worldState);
-		gui.launch();
-		gui.action();
+		gui.setVisible(true);
 	}
 
-	public ControlGUI2(WorldState worldState) {
+	public ControlGUI2(final WorldState worldState) {
 		this.worldState = worldState;
 		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
 
+		this.setTitle("Group 4 control GUI");
+		
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -183,7 +182,7 @@ public class ControlGUI2 extends JFrame {
 		op3field.setText("0");
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		frame.getContentPane().setLayout(gridBagLayout);
+		this.getContentPane().setLayout(gridBagLayout);
 
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
 		gbc_startStopQuitPanel.anchor = GridBagConstraints.NORTH;
@@ -191,7 +190,7 @@ public class ControlGUI2 extends JFrame {
 		gbc_startStopQuitPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_startStopQuitPanel.gridx = 0;
 		gbc_startStopQuitPanel.gridy = 0;
-		frame.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
+		this.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
 		startStopQuitPanel.add(startButton);
 		startStopQuitPanel.add(stopButton);
 		startStopQuitPanel.add(quitButton);
@@ -206,7 +205,7 @@ public class ControlGUI2 extends JFrame {
 		gbc_simpleMoveTestPanel.gridx = 0;
 		gbc_simpleMoveTestPanel.gridy = 1;
 		// gbc_simpleMoveTestPanel.gridwidth = 2;
-		frame.getContentPane().add(optionsPanel, gbc_simpleMoveTestPanel);
+		this.getContentPane().add(optionsPanel, gbc_simpleMoveTestPanel);
 		optionsPanel.add(op1label);
 		optionsPanel.add(op1field);
 		optionsPanel.add(op2label);
@@ -219,7 +218,7 @@ public class ControlGUI2 extends JFrame {
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 2;
-		frame.getContentPane().add(simpleMovePanel, gbc_panel);
+		this.getContentPane().add(simpleMovePanel, gbc_panel);
 		simpleMovePanel.add(forwardButton);
 		simpleMovePanel.add(backwardButton);
 		simpleMovePanel.add(leftButton);
@@ -231,27 +230,16 @@ public class ControlGUI2 extends JFrame {
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_1.gridx = 0;
 		gbc_panel_1.gridy = 3;
-		frame.getContentPane().add(complexMovePanel, gbc_panel_1);
+		this.getContentPane().add(complexMovePanel, gbc_panel_1);
 		complexMovePanel.add(rotateButton);
 		complexMovePanel.add(moveButton);
 		complexMovePanel.add(moveToButton);
 		complexMovePanel.add(rotateAndMoveButton);
 
 		// TODO: remove
-		// complexMovePanel.add(moveToBallButton);
 		// complexMovePanel.add(dribbleButton);
 
-		frame.addWindowListener(new ListenCloseWdw());
-
-		// Center the window on startup
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension frameSize = frame.getPreferredSize();
-		frame.setLocation((dim.width - frameSize.width) / 2,
-				(dim.height - frameSize.height) / 2);
-		frame.setResizable(false);
-	}
-
-	public void action() {
+		this.addWindowListener(new ListenCloseWdw());
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -261,10 +249,15 @@ public class ControlGUI2 extends JFrame {
 
 		stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Stop strategy if it's running
 				try {
 					Strategy.stop();
+					// TODO: this does precisely nothing (hence strategy doesn't
+					// immediately stop when this button is clicked) - the
+					// strategy thread always terminates almost immediately.
+					// Possibly make strategy call MainPlanner.run() instead of
+					// creating it in a new thread?
 					if (stratThread != null) {
-						// TODO: very unsafe!
 						stratThread.interrupt();
 						stratThread.join();
 					}
@@ -292,7 +285,7 @@ public class ControlGUI2 extends JFrame {
 				stratthr.start();
 			}
 		});
-		
+
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
@@ -345,7 +338,7 @@ public class ControlGUI2 extends JFrame {
 				mover.move(op1, 0);
 			}
 		});
-		
+
 		//
 		// dribbleButton.addActionListener(new ActionListener() {
 		// public void actionPerformed(ActionEvent e) {
@@ -414,12 +407,16 @@ public class ControlGUI2 extends JFrame {
 				}
 			}
 		});
-	}
 
-	public void launch() {
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
+		// Center the window on startup
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = this.getPreferredSize();
+		this.setLocation((dim.width - frameSize.width) / 2,
+				(dim.height - frameSize.height) / 2);
+		this.setResizable(false);
+		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.pack();
 	}
 
 	public class ListenCloseWdw extends WindowAdapter {
