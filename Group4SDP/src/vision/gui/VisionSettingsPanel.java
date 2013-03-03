@@ -20,7 +20,8 @@ import javax.swing.event.ChangeListener;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
-import vision.WorldState;
+import world.state.WorldState;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.SwingConstants;

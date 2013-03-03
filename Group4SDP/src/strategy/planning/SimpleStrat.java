@@ -1,12 +1,11 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class SimpleStrat extends StrategyInterface implements Runnable {
 
-	public SimpleStrat(WorldState world, Movement mover) {
+	public SimpleStrat(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
 

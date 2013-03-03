@@ -3,7 +3,6 @@
  */
 
 package strategy.movement;
-import vision.WorldState;
 import world.state.*;
 
 //calculates distance between two points

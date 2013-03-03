@@ -1,13 +1,14 @@
 package strategy.planning;
 
+import communication.BluetoothRobot;
+
 import strategy.movement.DistanceToBall;
-import vision.WorldState;
 import world.state.Robot;
-import world.state.RobotController;
+import world.state.WorldState;
 
 public class RotateMove {
 
-	public void rotateMove(WorldState worldState, RobotController robot,
+	public void rotateMove(WorldState worldState, BluetoothRobot robot,
 			double moveToX, double moveToY) throws InterruptedException {
 
 		worldState.setOurRobot();

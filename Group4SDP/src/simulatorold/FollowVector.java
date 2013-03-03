@@ -1,13 +1,12 @@
-package strategy.movement;
+package simulatorold;
 
 //import strategy.calculations.AngleBetweenTwoVectors;
-import communication.BluetoothRobot;
-
 import geometry.Vector;
 import world.state.PitchInfo;
 import world.state.Robot;
-import world.state.WorldState;
+import simulatorold.WorldInterface;
 
+import comms.control.ServerInterface;
 
 public class FollowVector {
 	
@@ -22,16 +21,16 @@ public class FollowVector {
 		return Math.signum(angle)*();
 	}
 	*/
-	public static void followVector(WorldState world, BluetoothRobot rc, double dx, double dy)
+	public static void followVector(SimWorld world, SimServer rc, double dx, double dy)
 	{
 		
-		/*if(isRotating) {
+		if(isRotating) {
 			if (rc.isMoving()) {
 				return;
 			} else {
 	            isRotating = false;
 			}
-		}*/
+		}
 		//rc.setDefaultRotateSpeed(0.05);
     	//rc.setDefaultTravelSpeed(0.05);
 		
@@ -61,10 +60,10 @@ public class FollowVector {
 		*/
 		
 		if(angleDifference > Math.PI/4) {
-	            rc.rotate((int)((angleDifference / Math.PI) * 180));
+	            rc.rotate((angleDifference / Math.PI) * 180);
 	            isRotating = true;
 	            return;
-		}/*
+		}
 		else if(angleDifference > 0.1)
 	            rc.arcForward(-0.5);
 	    else if((angleDifference < -Math.PI/4)) {
@@ -76,11 +75,11 @@ public class FollowVector {
 	            rc.arcForward(0.5);
 	    else
 	            rc.forward();
-	*/
+	
 			
 	} 
 	
-	public static void followVectorNoRotate(WorldState world, BluetoothRobot rc, double dx, double dy, double distance)
+	public static void followVectorNoRotate(WorldInterface world, ServerInterface rc, double dx, double dy, double distance)
 	{
 		//rc.setDefaultRotateSpeed(0.05);
     	//rc.setDefaultTravelSpeed(0.05);
@@ -111,7 +110,7 @@ public class FollowVector {
 		
 		if(radius > 0.5)
 			radius = 0.5;
-		/*
+		
 		if(angleDifference > 0.15)
 		{
 			rc.arcForward(-radius);
@@ -127,10 +126,10 @@ public class FollowVector {
 		else
 			rc.forward();
 		
-		*/
+		
 	} 
 	
-	public static void arcToPoint(WorldState world, BluetoothRobot rc, Vector rawTarget)
+	public static void arcToPoint(WorldInterface world, ServerInterface rc, Vector rawTarget)
 	{
 		Vector lowBound = normalise(PitchInfo.safeLowerBoundSide);
 		Vector upperBound = normalise(PitchInfo.safeUpperBoundSide);
@@ -155,7 +154,7 @@ public class FollowVector {
 
 		double turnAngle = Vector.angleBetweenPoints(robotPos, target) - world.getOurRobot().bearing;
 		double arcRadius = Math.min(intersectionDist, robotPos.distance(target)) / (2 * Math.sin(turnAngle));
-		//rc.arcForward(arcRadius);
+		rc.arcForward(arcRadius);
 	}
 	
 	private static Vector normalise(Vector v) {

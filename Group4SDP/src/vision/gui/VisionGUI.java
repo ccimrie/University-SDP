@@ -33,10 +33,10 @@ import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.Position;
 import vision.VideoStream;
-import vision.WorldState;
 import vision.interfaces.VideoReceiver;
 import vision.interfaces.VisionDebugReceiver;
 import vision.interfaces.WorldStateReceiver;
+import world.state.WorldState;
 
 @SuppressWarnings("serial")
 public class VisionGUI extends JFrame implements VideoReceiver,

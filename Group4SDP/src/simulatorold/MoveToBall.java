@@ -1,4 +1,4 @@
-package strategy.planning;
+package simulatorold;
 
 import communication.BluetoothRobot;
 
@@ -10,9 +10,9 @@ import world.state.WorldState;
 
 public class MoveToBall {
 	
-	private static final int distanceFromBallToStop = 80;
+	private static final int distanceFromBallToStop = 60;
 	
-	public static  void approach(WorldState worldState, BluetoothRobot robot) throws InterruptedException {
+	public void approach(WorldState worldState, BluetoothRobot robot) throws InterruptedException {
 		// First we turn to the ball
 		//this.vision = vis;
 		//WorldState t = new WorldState();

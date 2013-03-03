@@ -1,8 +1,7 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public class MainPlanner extends StrategyInterface implements Runnable {
 
@@ -17,7 +16,7 @@ public class MainPlanner extends StrategyInterface implements Runnable {
 	state currentState = state.StartOfGame;
 	state newState = currentState;
 
-	public MainPlanner(WorldState world, Movement mover) {
+	public MainPlanner(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
 

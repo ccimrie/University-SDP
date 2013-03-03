@@ -1,17 +1,15 @@
 package strategy.planning;
 
-import strategy.movement.Movement;
-import vision.WorldState;
-import world.state.Robot;
-import world.state.RobotController;
+import movement.RobotMover;
+import world.state.WorldState;
 
 public abstract class StrategyInterface {
 	public static boolean shouldidie = false;
 	
 	WorldState world;
-	Movement mover;
+	RobotMover mover;
 	
-	public StrategyInterface(WorldState world, Movement mover){
+	public StrategyInterface(WorldState world, RobotMover mover){
 		this.world = world;
 		this.mover = mover;
 	}
