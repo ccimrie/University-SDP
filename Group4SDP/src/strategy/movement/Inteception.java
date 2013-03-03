@@ -1,11 +1,14 @@
 package strategy.movement;
 
-import communication.BluetoothRobot;
+import strategy.calculations.Prediction;
+import strategy.planning.MoveToBall;
+import strategy.planning.MoveToPoint;
+import world.state.PossessionType;
+import world.state.Robot;
+import world.state.RobotType;
+import world.state.WorldState;
 
-import strategy.planning.*;
-import world.state.*;
-import vision.*;
-import strategy.calculations.*;
+import communication.BluetoothRobot;
 
 
 public class Inteception  {
