@@ -57,7 +57,8 @@ public class ReducedMap implements TileBasedMap {
 		if (themy >= HEIGHT - 1)
 			themy -= 4;
 
-		fillArea(themx - 2, themy - 2, 5, 5, BLOCKED);
+		fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
+		//Fill ball just for display
 		fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
 		// Walls
 		int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());

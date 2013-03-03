@@ -244,7 +244,8 @@ public class ControlGUI2 extends JFrame {
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.move(100, 100);
+				//mover.move(100, 100);
+				mover.moveToAStar(worldState.ball.x, worldState.ball.y);
 			}
 		});
 

@@ -296,7 +296,8 @@ public class RobotMover extends Thread {
 	 * @param x
 	 *            Move to position x units down from top left corner of the
 	 *            video feed
-	 * @param y
+	 * @param ymode = Mode.MOVE_TOWARDS_POINT;
+		
 	 *            Move to position y units right from top left corner of the
 	 *            video feed
 	 * @see #moveTo(double, double)
@@ -399,16 +400,20 @@ public class RobotMover extends Thread {
 		if (path != null) {
 			int l = path.getLength();
 			int i = 0;
+			interruptMove = false;
 			while (i < l && !interruptMove) {
 				//map.terrain[path.getX(i)][path.getY(i)] = 7;
-				doMoveTowards(path.getY(i)*map.REDUCTION, path.getX(i)*map.REDUCTION);
-				try {
-					Thread.sleep(42);
+				distanceThreshold = 30;
+				doMoveTo(path.getY(i)*map.REDUCTION, path.getX(i)*map.REDUCTION);
+				
+				/*try {
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
+				}*/
 				i++;
 			}
+			distanceThreshold = 20;
 		}
 		robot.stop();
 		/*for (int i = 0; i < map.getHeightInTiles(); i++) {
