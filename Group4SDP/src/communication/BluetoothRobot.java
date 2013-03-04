@@ -6,8 +6,13 @@ import strategy.planning.Commands;
 import world.state.Robot;
 import world.state.RobotType;
 
+/**
+ * A class to control the robot via bluetooth
+ */
 public class BluetoothRobot extends Robot implements RobotController {
-
+	/**
+	 * A bi-directional stream connected to the robot by bluetooth
+	 */
 	private BluetoothCommunication comms;
 
 	public BluetoothRobot(RobotType type, BluetoothCommunication comms) {
