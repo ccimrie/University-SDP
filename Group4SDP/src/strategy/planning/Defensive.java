@@ -10,7 +10,7 @@ import world.state.WorldState;
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
 //the pitch.
 
-public class Defensive extends StrategyInterface implements Runnable {
+public class Defensive extends StrategyInterface {
 
 	public Defensive(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -18,6 +18,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 	private final int threshold = 50;
 
+	@Override
 	public void run() {
 		System.out.println("Defensive strategy activated");
 		// Sanity check

@@ -1,44 +1,72 @@
 package strategy.planning;
 
-import java.util.Random;
-
 import movement.RobotMover;
 import world.state.WorldState;
 
-public class PenaltyDefense extends StrategyInterface implements Runnable {
-	public PenaltyDefense(WorldState worldState, RobotMover mover) {
-		super(worldState, mover);
+public class PenaltyDefense extends StrategyInterface {
+
+	public PenaltyDefense(WorldState world, RobotMover mover) {
+		super(world, mover);
 	}
 
-	/*
-	 * This class exists to randomly pick which part of the goal to defend in
-	 * the event of a penalty. Since we don't know the penalty strategy our
-	 * opponent will employ, it seems as good a method as any.
-	 */
 	@Override
 	public void run() {
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+
+		double theirOriginal = Math.toDegrees(world.theirRobot.bearing);
+
+		int counter = 0;
+
+		System.out.println(Math.toDegrees(world.theirRobot.bearing) + " "
+				+ theirOriginal);
+
+		if (Math.toDegrees(world.theirRobot.bearing) > theirOriginal + 5
+				&& counter > -1) {
+			System.out.println("go backwards");
+			mover.move(0, -100);
+			try {
+				Thread.sleep(600);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mover.stopRobot();
+
+			theirOriginal = Math.toDegrees(world.theirRobot.bearing);
+			counter--;
+			try {
+				Thread.sleep(600);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return;
 		}
 
-		Random generator = new Random();
-		int randomInt = generator.nextInt(3);
-		if (randomInt == 0) {
-			// forward();
-		} else if (randomInt == 1) {
-			// backward();
-		} else {
-			// stop();
-		}
+		if (Math.toDegrees(world.theirRobot.bearing) < theirOriginal - 5
+				&& counter < 1) {
+			System.out.println("going forwards");
 
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			mover.move(0, 100);
+			try {
+				Thread.sleep(600);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			mover.stopRobot();
+
+			theirOriginal = Math.toDegrees(world.theirRobot.bearing);
+			counter++;
+			try {
+				Thread.sleep(600);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return;
 		}
+		System.out.println(counter);
+
 	}
+
 }

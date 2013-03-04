@@ -3,7 +3,7 @@ package strategy.planning;
 import movement.RobotMover;
 import world.state.WorldState;
 
-public abstract class StrategyInterface {
+public abstract class StrategyInterface implements Runnable {
 	public static boolean shouldidie = false;
 	
 	WorldState world;

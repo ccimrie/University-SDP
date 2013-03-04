@@ -21,11 +21,12 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
-import strategy.planning.Commands;
 import strategy.planning.DribbleBall5;
+import strategy.planning.MainPlanner;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
+import strategy.planning.StrategyInterface;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -40,7 +41,6 @@ import communication.BluetoothRobot;
 import communication.DeviceInfo;
 import communication.RobotController;
 
-// TODO: clean up unused stuff
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
 	// GUI elements
@@ -92,8 +92,8 @@ public class ControlGUI2 extends JFrame {
 
 	private WorldState worldState;
 
-	private Thread stratThread;
-	private Strategy strat;
+	private Thread strategyThread;
+	private StrategyInterface strategy;
 
 	private final RobotController robot;
 	private final RobotMover mover;
@@ -146,7 +146,7 @@ public class ControlGUI2 extends JFrame {
 				DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		// Sets up robot
 		BluetoothRobot robot = new BluetoothRobot(RobotType.Us, comms);
-		
+
 		robot.connect();
 
 		while (!robot.isConnected()) {
@@ -160,7 +160,6 @@ public class ControlGUI2 extends JFrame {
 		}
 
 		System.out.println("Robot ready!");
-
 
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2(worldState, robot);
@@ -251,23 +250,14 @@ public class ControlGUI2 extends JFrame {
 		stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Stop strategy if it's running
-				try {
+				if (strategyThread != null && strategyThread.isAlive()) {
 					Strategy.stop();
-					// TODO: this does precisely nothing (hence strategy doesn't
-					// always immediately stop when this button is clicked) -
-					// the strategy thread always terminates almost immediately.
-					// Possibly make strategy call MainPlanner.run() instead of
-					// creating it in a new thread?
-					if (stratThread != null) {
-						stratThread.interrupt();
-						stratThread.join();
-					}
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+					strategy.kill();
 				}
 				// Stop the robot.
 				mover.stopRobot();
 			}
+			// Run the strategy from here.
 		});
 
 		stratStartButton.addActionListener(new ActionListener() {
@@ -277,9 +267,9 @@ public class ControlGUI2 extends JFrame {
 				Strategy.reset();
 
 				// Run in a new thread to free up UI while running
-				strat = new Strategy(worldState, mover);
-				Thread stratthr = new Thread(strat);
-				stratthr.start();
+				strategy = new MainPlanner(worldState, mover);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 

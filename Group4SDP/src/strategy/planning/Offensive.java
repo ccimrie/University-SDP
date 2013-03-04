@@ -4,7 +4,7 @@ import movement.RobotMover;
 import strategy.movement.Inteception;
 import world.state.WorldState;
 
-public class Offensive extends StrategyInterface implements Runnable {
+public class Offensive extends StrategyInterface {
 	Inteception take = new Inteception();
 
 	public Offensive(WorldState world, RobotMover mover) {

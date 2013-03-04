@@ -6,7 +6,7 @@ import movement.RobotMover;
 import vision.Position;
 import world.state.WorldState;
 
-public class PenaltyAttack extends StrategyInterface implements Runnable {
+public class PenaltyAttack extends StrategyInterface {
 	public PenaltyAttack(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
