@@ -73,8 +73,8 @@ public class WorldState {
 	public final GoalInfo goalInfo;
 
 	public int frame;
-	public Robot them = new Robot(RobotType.Them);
-	public Robot us = new Robot(RobotType.Us);
+	public Robot theirRobot = new Robot(RobotType.Them);
+	public Robot ourRobot = new Robot(RobotType.Us);
 	public Ball ball = new Ball();
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
@@ -284,11 +284,11 @@ public class WorldState {
 
 	// ///////////////////////
 	public Robot getOurRobot() {
-		return this.us;
+		return this.ourRobot;
 	}
 
 	public Robot getTheirRobot() {
-		return this.them;
+		return this.theirRobot;
 	}
 
 	public Ball getBall() {
@@ -298,15 +298,15 @@ public class WorldState {
 	// //////////////////////////
 	public void setOurRobot() {
 		if (areWeBlue()) {
-			this.us.x = blueX;
-			this.us.y = blueY;
-			this.us.setPosition(new Vector(us.x, us.y));
-			this.us.bearing = getBlueOrientation();
+			this.ourRobot.x = blueX;
+			this.ourRobot.y = blueY;
+			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
+			this.ourRobot.bearing = getBlueOrientation();
 		} else {
-			this.us.x = yellowX;
-			this.us.y = yellowY;
-			this.us.setPosition(new Vector(us.x, us.y));
-			this.us.bearing = getYellowOrientation();
+			this.ourRobot.x = yellowX;
+			this.ourRobot.y = yellowY;
+			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
+			this.ourRobot.bearing = getYellowOrientation();
 		}
 	}
 
@@ -314,15 +314,15 @@ public class WorldState {
 		if (areWeBlue()) {
 			// If we are blue, the other robot is yellow.
 			// Please correct me if I am wrong, the code is obscure...
-			this.them.x = yellowX;
-			this.them.y = yellowY;
-			this.them.setPosition(new Vector(them.x, them.y));
-			this.them.bearing = getYellowOrientation();
+			this.theirRobot.x = yellowX;
+			this.theirRobot.y = yellowY;
+			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
+			this.theirRobot.bearing = getYellowOrientation();
 		} else {
-			this.them.x = blueX;
-			this.them.y = blueY;
-			this.them.setPosition(new Vector(them.x, them.y));
-			this.them.bearing = getBlueOrientation();
+			this.theirRobot.x = blueX;
+			this.theirRobot.y = blueY;
+			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
+			this.theirRobot.bearing = getBlueOrientation();
 		}
 	}
 
@@ -377,7 +377,7 @@ public class WorldState {
 	}
 
 	public double distanceBetweenUsAndBall() {
-		return DistanceCalculator.Distance(this.us.x, this.us.y,
+		return DistanceCalculator.Distance(this.ourRobot.x, this.ourRobot.y,
 				this.ball.x, this.ball.y);
 	}
 
@@ -385,9 +385,9 @@ public class WorldState {
 		int midLine = getMidLine();
 
 		if (weAreOnLeft) {
-			return this.us.x < midLine;
+			return this.ourRobot.x < midLine;
 		} else {
-			return this.us.x > midLine;
+			return this.ourRobot.x > midLine;
 		}
 	}
 
@@ -486,66 +486,66 @@ public class WorldState {
 	public double distanceToBall() {
 
 		
-        return DistanceCalculator.Distance(us.x,us.y,this.ball.x,this.ball.y);
+        return DistanceCalculator.Distance(ourRobot.x,ourRobot.y,this.ball.x,this.ball.y);
 
     }
 	public double distanceToRobot() {
 
 		
-        return DistanceCalculator.Distance(us.x,us.y,them.x, them.y);
+        return DistanceCalculator.Distance(ourRobot.x,ourRobot.y,theirRobot.x, theirRobot.y);
 
     }
 	public double distanceUsToTheirgoal(){
-		return DistanceCalculator.Distance(us.x,us.y,world.getTheirGoal().getX(), world.getTheirGoal().getY());
+		return DistanceCalculator.Distance(ourRobot.x,ourRobot.y,world.getTheirGoal().getX(), world.getTheirGoal().getY());
 	}
 	public double distanceThemToTheirgoal(){
-		return DistanceCalculator.Distance(them.x,them.y,world.getTheirGoal().getX(), world.getTheirGoal().getY());
+		return DistanceCalculator.Distance(theirRobot.x,theirRobot.y,world.getTheirGoal().getX(), world.getTheirGoal().getY());
 	}
 	public double distanceUsToOurgoal(){
-		return DistanceCalculator.Distance(us.x,us.y,world.getOurGoal().getX(), world.getOurGoal().getY());
+		return DistanceCalculator.Distance(ourRobot.x,ourRobot.y,world.getOurGoal().getX(), world.getOurGoal().getY());
 	}
 	public double distanceThemToOurgoal(){
-		return DistanceCalculator.Distance(them.x,them.y,world.getOurGoal().getX(), world.getOurGoal().getY());
+		return DistanceCalculator.Distance(theirRobot.x,theirRobot.y,world.getOurGoal().getX(), world.getOurGoal().getY());
 	}
 	public double angleToEnemy(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getTheirRobot().x, world.getTheirRobot().y);
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getTheirRobot().x, world.getTheirRobot().y);
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToBall(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.ball.x, world.ball.y);
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.ball.x, world.ball.y);
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToTheirGoal(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getTheirGoal().getX(), world.getTheirGoal().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getTheirGoal().getX(), world.getTheirGoal().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToOurGoal(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getOurGoal().getX(), world.getOurGoal().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getOurGoal().getX(), world.getOurGoal().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 
 	public double angleToTheirGoalTop(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getTheirGoalTop().getX(), world.getTheirGoalTop().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getTheirGoalTop().getX(), world.getTheirGoalTop().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToTheirGoalBot(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getTheirGoalBot().getX(), world.getTheirGoalBot().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getTheirGoalBot().getX(), world.getTheirGoalBot().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToOurGoalTop(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getOurGoalTop().getX(), world.getOurGoalTop().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getOurGoalTop().getX(), world.getOurGoalTop().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToOurGoalBot(){
-		double pointBearing = AngleCalculator.findPointBearing(us, world.getOurGoalTop().getX(), world.getOurGoalBot().getY());
-		double angle = AngleCalculator.turnAngle(us.bearing, pointBearing);
+		double pointBearing = AngleCalculator.findPointBearing(ourRobot, world.getOurGoalTop().getX(), world.getOurGoalBot().getY());
+		double angle = AngleCalculator.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	
