@@ -10,11 +10,6 @@ import world.state.Robot;
 
 public class AngleCalculator {
 	private static WorldState world;
-	public static Robot us = world.getOurRobot();
-	public static Robot them = world.getTheirRobot();
-	public AngleCalculator(){
-		
-	}
 	public AngleCalculator(WorldState world){
 		this.world = world;
 	}
@@ -24,7 +19,7 @@ public class AngleCalculator {
 	 * origin and "north" as being up on the camera feed)
 	 */
 
-	public static double findBearing(Robot us, Ball ball) {
+	public double findBearing(Robot us, Ball ball) {
 		return findPointBearing(us, ball.x, ball.y);
 	}
 
@@ -36,7 +31,7 @@ public class AngleCalculator {
 	 * and anti-clockwise are negative.
 	 */
 
-	public static double turnAngle(double botBearing, double toBallBearing) {
+	public double turnAngle(double botBearing, double toBallBearing) {
 		botBearing = Math.toDegrees(botBearing);
 		double turnAngle = toBallBearing - botBearing;
 		if (turnAngle > 180.0)
@@ -44,13 +39,13 @@ public class AngleCalculator {
 		return turnAngle;
 	}
 
-	public static double Turner(Robot us, Ball ball) {
+	public double Turner(Robot us, Ball ball) {
 		double ballBearing = findBearing(us, ball);
 		double angle = turnAngle(us.bearing, ballBearing);
 		return angle;
 	}
 
-	public static double findPointBearing(Robot us, double x, double y) {
+	public double findPointBearing(Robot us, double x, double y) {
 		// calculates the bearing of a point (x,y) relative to the robot (using
 		// the robot as the origin and "north"
 		// as being up on the camera feed)
@@ -73,19 +68,19 @@ public class AngleCalculator {
 	}
 
 	// This method calculates the angle between the robot and a point (x,y)
-	public static double AngleTurner(Robot us, double x, double y) {
+	public double AngleTurner(Robot us, double x, double y) {
 		double pointBearing = findPointBearing(us, x, y);
 		double angle = turnAngle(us.bearing, pointBearing);
 		return angle;
 	}
-	public static double AngleTurner(double x, double y) {
-		double pointBearing = findPointBearing(us, x, y);
-		double angle = turnAngle(us.bearing, pointBearing);
+	public double AngleTurner(double x, double y) {
+		double pointBearing = findPointBearing(world.ourRobot, x, y);
+		double angle = turnAngle(world.ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	public double angleToEnemy(){
-		double pointBearing = findPointBearing(us, world.getTheirRobot().x, world.getTheirRobot().y);
-		double angle = turnAngle(us.bearing, pointBearing);
+		double pointBearing = findPointBearing(world.ourRobot, world.getTheirRobot().x, world.getTheirRobot().y);
+		double angle = turnAngle(world.ourRobot.bearing, pointBearing);
 		return angle;
 	}
 	
