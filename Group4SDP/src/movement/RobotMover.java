@@ -27,10 +27,12 @@ public class RobotMover extends Thread {
 	private boolean die = false;
 	private double moveToPointX = 0;
 	private double moveToPointY = 0;
+	private boolean avoidball = false;
 
 	private double speedX = 0;
 	private double speedY = 0;
 	private double angle = 0.0;
+	
 
 	private int waitingThreads = 0;
 
@@ -107,7 +109,7 @@ public class RobotMover extends Thread {
 				case MOVE_TO_POINT_ASTAR:
 					System.out.println("Moving to point (" + moveToPointX
 							+ ", " + moveToPointY + ") using A*");
-					doMoveToAStar(moveToPointX, moveToPointY);
+					doMoveToAStar(moveToPointX, moveToPointY, avoidball);
 					break;
 				case ROTATE:
 					System.out.println("Rotating by " + angle + " radians ("
@@ -368,17 +370,21 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Move to a point (x,y) while avoiding point (avoidX, avoidY). Should go in
-	 * an arc by default.
+	 * Move to a point (x,y) while avoiding point enemy robot and optionally the ball.
+	 * Should go in an arc by default.
 	 * 
 	 * @param x
-	 *            Point in the X axis to move to
+	 *            Point in the X axis to move to.
 	 * @param y
-	 *            Point in the Y axis to move to
+	 *            Point in the Y axis to move to.
+	 *            
+	 * @param avoidball
+	 * 			  Should A* avoid the ball.
 	 */
-	public synchronized void moveToAStar(double x, double y) {
+	public synchronized void moveToAStar(double x, double y, boolean avoidball) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
+		this.avoidball = avoidball;
 		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_ASTAR;
@@ -395,8 +401,8 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see #moveToAStar(double x, double y)
 	 */
-	private void doMoveToAStar(double x, double y) {
-		ReducedMap map = new ReducedMap(worldState);
+	private void doMoveToAStar(double x, double y, boolean avoidball) {
+		ReducedMap map = new ReducedMap(worldState, avoidball);
 		System.out.println("Height: " + map.getHeightInTiles());
 		System.out.println("Width: " + map.getWidthInTiles());
 

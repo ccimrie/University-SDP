@@ -28,17 +28,20 @@ public class ReducedMap implements TileBasedMap {
 	private int[][] units;
 	/** Indicator if a given tile has been visited during the search */
 	private boolean[][] visited;
+	
+	public boolean avoidball = false;
 
 	/**
 	 * Create a new test map with some default configuration
 	 */
-	public ReducedMap(WorldState world) {
+	public ReducedMap(WorldState world, boolean avoidball) {
 		this.world = world;
 		HEIGHT = reduceRound(480);
 		WIDTH = reduceRound(640);
 		terrain = new int[HEIGHT][WIDTH];
 		units = new int[HEIGHT][WIDTH];
 		visited = new boolean[HEIGHT][WIDTH];
+		this.avoidball = avoidball;
 
 		// Enemy robot
 
@@ -59,7 +62,11 @@ public class ReducedMap implements TileBasedMap {
 
 		fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
 		//Fill ball just for display
-		fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
+		if (avoidball){
+			fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BLOCKED);
+		}else{
+			fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
+		}
 		// Walls
 		int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());
 		fillArea(0, 0, HEIGHT, temp, BLOCKED);
