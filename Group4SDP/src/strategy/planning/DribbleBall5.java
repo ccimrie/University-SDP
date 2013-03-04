@@ -29,7 +29,7 @@ public class DribbleBall5 {
 		int goaly = targetgoal.getY();
 		
 		synchronized (mover) {
-		mover.moveToAStar(ball.x - 70, ball.y, true);
+		mover.moveToAStar(ball.x - 150, ball.y, true);
 		mover.wait();
 		}
 		
@@ -63,7 +63,7 @@ public class DribbleBall5 {
 	
 		//Rotate to face the middle of the right goal
 		double adjustAngle = TurnToBall.AngleTurner(us, 600, 241);
-		robot.rotate((int)(adjustAngle));
+		mover.rotate(Math.toRadians(adjustAngle));
 		System.out.println("Angle for rotation " + adjustAngle);
 
 		robot.move(0, 80);
