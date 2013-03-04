@@ -28,14 +28,18 @@ public class DribbleBall5 {
 
 		if (die)
 			return;
-		mover.moveToAStar(ball.x - 150, ball.y, true);
+		mover.moveToAStar(ball.x - 70, ball.y, true);
 		mover.waitForCompletion();
+		if (die)
+			return;
 
+		Thread.sleep(50);
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 		System.out.println("Angle for rotation " + angle);
 		int attempt = 0;
+		System.out.printf("Angle is, %d\n", (int)angle);
 		while (Math.abs(angle) > 15 && attempt < 10) {
-			if ((Math.abs(angle) > 15) && (Math.abs(angle) < 50)) {
+			if ((Math.abs(angle) > 0) && (Math.abs(angle) < 50)) {
 				System.out.println("Code block reached");
 				mover.rotate(Math.toRadians(angle / 2));
 				mover.waitForCompletion();
@@ -44,14 +48,22 @@ public class DribbleBall5 {
 				mover.rotate(Math.toRadians(angle));
 				mover.waitForCompletion();
 			}
+			Thread.sleep(50);
 			++attempt;
 			angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 			if (die)
 				return;
 		}
+		
 		// Move to the ball before stoping
-		mover.moveToAndStop(ball.x - 20, ball.y);
+		mover.move(0,80);
 		mover.waitForCompletion();
+		if (die)
+			return;
+		Thread.sleep(50);
+		mover.stopRobot();
+		mover.waitForCompletion();
+		
 		System.out.println("Reached position behind the ball!");
 		/*
 		 * if(us.y < 241){ double adjustAngle = TurnToBall.AngleTurner(us, 600,
@@ -76,15 +88,8 @@ public class DribbleBall5 {
 			return;
 		mover.move(0, 80);
 		mover.waitForCompletion();
+		Thread.sleep(90);
 
-		// TODO: should stop when near the enemy goal, not when we've moved 30
-		// pixels?
-		double stopX = us.x + 30;
-		while (us.x < stopX) {
-			Thread.sleep(50);
-			if (die)
-				return;
-		}
 		mover.kick();
 		if (die)
 			return;
