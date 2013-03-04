@@ -33,14 +33,12 @@ public class PenaltyAttack extends StrategyInterface {
 
 		System.out.println("Turn angle: " + targetAim);
 
-		synchronized (mover) {
-			mover.rotate(Math.toRadians(targetAim));
-			try {
-				mover.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			mover.kick();
+		mover.rotate(Math.toRadians(targetAim));
+		try {
+			mover.waitForCompletion();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+		mover.kick();
 	}
 }

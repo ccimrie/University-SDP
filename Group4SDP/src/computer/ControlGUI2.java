@@ -412,7 +412,7 @@ public class ControlGUI2 extends JFrame {
 	class DribbleBallThread extends Thread {
 		public void run() {
 			try {
-				dribbleBall.dribbleBall(worldState, robot, mover);
+				dribbleBall.dribbleBall(worldState, mover);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

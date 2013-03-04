@@ -11,7 +11,6 @@ public class PenaltyDefense extends StrategyInterface {
 
 	@Override
 	public void run() {
-
 		double theirOriginal = Math.toDegrees(world.theirRobot.bearing);
 
 		int counter = 0;
@@ -66,7 +65,5 @@ public class PenaltyDefense extends StrategyInterface {
 			return;
 		}
 		System.out.println(counter);
-
 	}
-
 }

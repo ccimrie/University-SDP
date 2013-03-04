@@ -62,17 +62,9 @@ public class Defensive extends StrategyInterface {
 						+ (int) ourGoalCenter.getY());
 
 				// Move to our goal
-				// synchronized is needed to call mover.wait(), any movement
-				// commands should also be inside a synchronized block if wait
-				// is called, otherwise weird things will happen
-				synchronized (mover) {
-					mover.moveTo(ourGoalDefendPosition.getX(),
-							ourGoalDefendPosition.getY());
-
-					// Complete the command before returning control to the
-					// thread.
-					mover.wait();
-				}
+				mover.moveTo(ourGoalDefendPosition.getX(),
+						ourGoalDefendPosition.getY());
+				mover.waitForCompletion();
 
 				System.out.println("Point reached");
 
@@ -102,10 +94,8 @@ public class Defensive extends StrategyInterface {
 						} else
 							destY = world.theirRobot.y - ythreshold;
 
-						synchronized (mover) {
-							mover.moveTo(ourGoalDefendPosition.getX(), destY);
-							mover.wait();
-						}
+						mover.moveTo(ourGoalDefendPosition.getX(), destY);
+						mover.waitForCompletion();
 						previousTheirBearing = theirBearing;
 
 						// The kick line of the attacking robot is calculated,
@@ -128,10 +118,8 @@ public class Defensive extends StrategyInterface {
 					// }
 				}
 			} else {
-				synchronized (mover) {
-					mover.moveTo(world.ball.x, world.ball.y);
-					mover.wait();
-				}
+				mover.moveTo(world.ball.x, world.ball.y);
+				mover.waitForCompletion();
 				System.out.println("Ball reached");
 			}
 

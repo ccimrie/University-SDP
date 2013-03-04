@@ -27,12 +27,11 @@ public class RobotMover extends Thread {
 	private boolean die = false;
 	private double moveToPointX = 0;
 	private double moveToPointY = 0;
-	private boolean avoidball = false;
+	private boolean avoidBall = false;
 
 	private double speedX = 0;
 	private double speedY = 0;
 	private double angle = 0.0;
-	
 
 	private int waitingThreads = 0;
 
@@ -109,7 +108,7 @@ public class RobotMover extends Thread {
 				case MOVE_TO_POINT_ASTAR:
 					System.out.println("Moving to point (" + moveToPointX
 							+ ", " + moveToPointY + ") using A*");
-					doMoveToAStar(moveToPointX, moveToPointY, avoidball);
+					doMoveToAStar(moveToPointX, moveToPointY, avoidBall);
 					break;
 				case ROTATE:
 					System.out.println("Rotating by " + angle + " radians ("
@@ -157,8 +156,7 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * TODO: possibly add check to see if movement worked Waits for the movement
-	 * to complete before returning
+	 * Waits for the movement to complete before returning
 	 */
 	public synchronized void waitForCompletion() throws InterruptedException {
 		if (waitingThreads != 0) {
@@ -175,7 +173,8 @@ public class RobotMover extends Thread {
 
 	/**
 	 * A general move function as seen from the position of the robot.</br>
-	 * Speeds take values between -100 and 100.</br>
+	 * Speeds take values between -100 and 100.</br> NOTE: this method will
+	 * complete almost immediately
 	 * 
 	 * @param speedX
 	 *            Speed right (for positive values) or left (for negative ones).
@@ -204,7 +203,8 @@ public class RobotMover extends Thread {
 
 	/**
 	 * A general move function where you specify a clockwise angle from the
-	 * front of the robot to move at.
+	 * front of the robot to move at.<br/>
+	 * NOTE: this method will complete almost immediately
 	 * 
 	 * @param angle
 	 *            Angle, in radians (0 to 2*PI)
@@ -242,6 +242,7 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see #moveToAndStop(double x, double y)
 	 * @see #moveTowards(double x, double y)
+	 * @see #waitForCompletion()
 	 */
 	public synchronized void moveTo(double x, double y) {
 		this.moveToPointX = x;
@@ -292,6 +293,7 @@ public class RobotMover extends Thread {
 	 *            video feed
 	 * 
 	 * @see #moveTo(double, double)
+	 * @see #waitForCompletion()
 	 */
 	public synchronized void moveToAndStop(double x, double y) {
 		this.moveToPointX = x;
@@ -302,7 +304,8 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Starts moving to the direction of the point and return immediately.
+	 * Starts moving to the direction of the point<br/>
+	 * NOTE: this method will complete almost immediately
 	 * 
 	 * @param x
 	 *            Move to position x units down from top left corner of the
@@ -370,21 +373,22 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Move to a point (x,y) while avoiding point enemy robot and optionally the ball.
-	 * Should go in an arc by default.
+	 * Move to a point (x,y) while avoiding point enemy robot and optionally the
+	 * ball. Should go in an arc by default.
 	 * 
 	 * @param x
 	 *            Point in the X axis to move to.
 	 * @param y
 	 *            Point in the Y axis to move to.
-	 *            
-	 * @param avoidball
-	 * 			  Should A* avoid the ball.
+	 * 
+	 * @param avoidBall
+	 *            Should A* avoid the ball.
+	 * @see #waitForCompletion()
 	 */
-	public synchronized void moveToAStar(double x, double y, boolean avoidball) {
+	public synchronized void moveToAStar(double x, double y, boolean avoidBall) {
 		this.moveToPointX = x;
 		this.moveToPointY = y;
-		this.avoidball = avoidball;
+		this.avoidBall = avoidBall;
 		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_ASTAR;
@@ -451,19 +455,26 @@ public class RobotMover extends Thread {
 	/**
 	 * Calls robot controller to rotate the robot by an angle <br/>
 	 * 
-	 * @param rotationAngle
+	 * @param angleRad
 	 *            clockwise angle to rotate (in Radians)
+	 * @see #waitForCompletion()
 	 */
-	public synchronized void rotate(double angle) {
-		this.angle = angle;
+	public synchronized void rotate(double angleRad) {
+		this.angle = angleRad;
 		mode = Mode.ROTATE;
 		interruptMove = true;
 		this.notify();
 	}
 
-	private void doRotate(double rotationAngle) {
-		rotationAngle = Math.toDegrees(rotationAngle);
-		robot.rotate((int) rotationAngle);
+	/**
+	 * Internal method to execute a call to rotate(angle)
+	 * 
+	 * @param angleRad
+	 *            clockwise angle to rotate (in Radians)
+	 */
+	private void doRotate(double angleRad) {
+		angleRad = Math.toDegrees(angleRad);
+		robot.rotate((int) angleRad);
 	}
 
 	/**
