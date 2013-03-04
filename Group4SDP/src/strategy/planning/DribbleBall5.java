@@ -8,6 +8,7 @@ import world.state.Robot;
 import world.state.WorldState;
 
 public class DribbleBall5 {
+	public static boolean die = false;
 
 	private static final double xthreshold = 70;
 	private static final double ythreshold = 70;
@@ -25,10 +26,13 @@ public class DribbleBall5 {
 		int goalx = targetgoal.getX();
 		int goaly = targetgoal.getY();
 
+		if (die)
+			return;
 		mover.moveToAStar(ball.x - 150, ball.y, true);
 		mover.waitForCompletion();
 
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
+		System.out.println("Angle for rotation " + angle);
 		int attempt = 0;
 		while (Math.abs(angle) > 15 && attempt < 10) {
 			if ((Math.abs(angle) > 15) && (Math.abs(angle) < 50)) {
@@ -42,12 +46,12 @@ public class DribbleBall5 {
 			}
 			++attempt;
 			angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
+			if (die)
+				return;
 		}
-		synchronized (mover) {
-			// Move to the ball before stoping
-			mover.moveToAndStop(ball.x - 20, ball.y);
-			mover.waitForCompletion();
-		}
+		// Move to the ball before stoping
+		mover.moveToAndStop(ball.x - 20, ball.y);
+		mover.waitForCompletion();
 		System.out.println("Reached position behind the ball!");
 		/*
 		 * if(us.y < 241){ double adjustAngle = TurnToBall.AngleTurner(us, 600,
@@ -61,20 +65,30 @@ public class DribbleBall5 {
 		 */
 
 		// Rotate to face the middle of the right goal
+		if (die)
+			return;
 		double adjustAngle = TurnToBall.AngleTurner(us, 600, 241);
+		System.out.println("Angle for rotation " + adjustAngle);
 		mover.rotate(Math.toRadians(adjustAngle));
 		mover.waitForCompletion();
-		System.out.println("Angle for rotation " + adjustAngle);
 
+		if (die)
+			return;
 		mover.move(0, 80);
+		mover.waitForCompletion();
 
 		// TODO: should stop when near the enemy goal, not when we've moved 30
 		// pixels?
 		double stopX = us.x + 30;
 		while (us.x < stopX) {
 			Thread.sleep(50);
+			if (die)
+				return;
 		}
 		mover.kick();
+		if (die)
+			return;
 		mover.stopRobot();
+		mover.waitForCompletion();
 	}
 }

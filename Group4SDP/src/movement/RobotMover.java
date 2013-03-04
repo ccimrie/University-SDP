@@ -24,7 +24,7 @@ public class RobotMover extends Thread {
 	private Robot us;
 	private static int distanceThreshold = 20;
 	private boolean interruptMove = false;
-	private boolean runningMovement = false;
+	private boolean running = false;
 	private boolean die = false;
 	private double moveToPointX = 0;
 	private double moveToPointY = 0;
@@ -75,9 +75,11 @@ public class RobotMover extends Thread {
 	public synchronized void run() {
 		try {
 			while (!die) {
+				// Wait for next movement operation
+				this.wait();
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
-				runningMovement = true;
+				running = true;
 				switch (mode) {
 				case IDLE:
 					System.out.println("Mover is idle");
@@ -121,12 +123,10 @@ public class RobotMover extends Thread {
 					System.out.println("DERP! Unknown movement mode specified");
 					assert (false);
 				}
-				runningMovement = false;
+				running = false;
 				mode = Mode.IDLE;
 				// Signal movement operation has completed.
 				this.notify();
-				// Wait for next movement operation
-				this.wait();
 			}
 			// Stop the robot when the movement thread has been told to exit
 			robot.stop();
@@ -164,7 +164,7 @@ public class RobotMover extends Thread {
 	 * @return true if the mover is doing something, false otherwise
 	 */
 	public synchronized boolean isRunning() {
-		return runningMovement;
+		return running;
 	}
 
 	/**

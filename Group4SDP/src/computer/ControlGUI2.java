@@ -249,6 +249,16 @@ public class ControlGUI2 extends JFrame {
 
 		stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Stop the dribble thread if it's running
+				if (dribbleThread != null && dribbleThread.isAlive()) {
+					DribbleBall5.die = true;
+					try {
+						mover.interruptMove();
+						dribbleThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
 				// Stop strategy if it's running
 				if (strategyThread != null && strategyThread.isAlive()) {
 					Strategy.stop();
@@ -328,8 +338,12 @@ public class ControlGUI2 extends JFrame {
 
 		dribbleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dribbleThread = new DribbleBallThread();
-				dribbleThread.start();
+				if (dribbleThread == null || !dribbleThread.isAlive()) {
+					dribbleThread = new DribbleBallThread();
+					dribbleThread.start();
+				} else {
+					System.out.println("Dribble is already active!");
+				}
 			}
 		});
 
@@ -412,6 +426,7 @@ public class ControlGUI2 extends JFrame {
 	class DribbleBallThread extends Thread {
 		public void run() {
 			try {
+				DribbleBall5.die = false;
 				dribbleBall.dribbleBall(worldState, mover);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
