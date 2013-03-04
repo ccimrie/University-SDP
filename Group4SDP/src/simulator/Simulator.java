@@ -1,7 +1,5 @@
 package simulator;
 
-import org.jbox2d.dynamics.Body;
-
 import world.state.WorldState;
 
 public class Simulator {
@@ -24,26 +22,61 @@ public class Simulator {
 	 */
 	public static final int BACK_WHEEL = 3;
 
-	
 	public Simulator(final WorldState worldState) {
 		this.worldState = worldState;
 	}
 
+	/**
+	 * Sets the number of wheels for a robot
+	 * 
+	 * @param count
+	 *            The number of wheels the robot should have
+	 */
 	public void setRobotWheelCount(int count) {
 		// TODO: implement
 	}
 
+	/**
+	 * Gets the number of wheels for a robot
+	 * 
+	 * @return The number of wheels the robot has
+	 */
 	public int getRobotWheelCount() {
 		// TODO: implement
 		return 0;
 	}
 
+	/**
+	 * Sets the angular velocity for one wheel on the robot
+	 * 
+	 * @param wheel
+	 *            An index to determine which wheel to set the speed for
+	 * @param speed
+	 *            The speed in degrees per second to set the wheel to
+	 */
 	public void setRobotWheelSpeed(int wheel, int speed) {
 		// TODO: implement
 	}
 
-	public int getRobotWheelSpeed() {
+	/**
+	 * Gets the angular velocity for one wheel on the robot
+	 * 
+	 * @param wheel
+	 *            An index to determine which wheel to get the speed for
+	 * @return The speed in degrees per second the wheel is set to
+	 */
+	public int getRobotWheelSpeed(int wheel) {
 		// TODO: implement
 		return 0;
+	}
+
+	/**
+	 * Simulates a rotation by the specified angle before returning
+	 * 
+	 * @param angRad
+	 *            The angle to rotate by, in radians
+	 */
+	public void doRotate(double angRad) {
+
 	}
 }
