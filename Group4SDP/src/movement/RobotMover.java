@@ -237,8 +237,8 @@ public class RobotMover extends Thread {
 	 * @see #move(double angle)
 	 */
 	private void doMove(double angle) {
-		speedX = 100 * Math.sin(angle);
-		speedY = 100 * Math.cos(angle);
+		speedX = 70 * Math.sin(angle);
+		speedY = 70 * Math.cos(angle);
 		doMove(speedX, speedY);
 	}
 
@@ -456,7 +456,7 @@ public class RobotMover extends Thread {
 				 * e.printStackTrace(); }
 				 */
 				i++;
-				robot.stop();
+				//robot.stop();
 			}
 			distanceThreshold = 20;
 		}

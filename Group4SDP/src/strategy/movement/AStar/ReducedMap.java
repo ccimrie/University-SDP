@@ -6,7 +6,6 @@ import world.state.WorldState;
  * @author Jakov Smelkin
  */
 public class ReducedMap implements TileBasedMap {
-	WorldState world;
 	/** The map width in tiles */
 	public final int WIDTH;
 	/** The map height in tiles */
@@ -28,56 +27,57 @@ public class ReducedMap implements TileBasedMap {
 	private int[][] units;
 	/** Indicator if a given tile has been visited during the search */
 	private boolean[][] visited;
-	
+
 	public boolean avoidball = false;
 
 	/**
 	 * Create a new test map with some default configuration
 	 */
 	public ReducedMap(WorldState world, boolean avoidball) {
-		this.world = world;
-		HEIGHT = reduceRound(480);
-		WIDTH = reduceRound(640);
-		terrain = new int[HEIGHT][WIDTH];
-		units = new int[HEIGHT][WIDTH];
-		visited = new boolean[HEIGHT][WIDTH];
-		this.avoidball = avoidball;
+		synchronized (world) {
+			HEIGHT = reduceRound(480);
+			WIDTH = reduceRound(640);
+			terrain = new int[HEIGHT][WIDTH];
+			units = new int[HEIGHT][WIDTH];
+			visited = new boolean[HEIGHT][WIDTH];
+			this.avoidball = avoidball;
 
-		// Enemy robot
+			// Enemy robot
 
-		int themx = reduceRound(world.theirRobot.y);
-		int themy = reduceRound(world.theirRobot.x);
-		System.out.println(world.theirRobot.x);
-		System.out.println(world.theirRobot.y);
-		System.out.println(themx);
-		System.out.println(themy);
-		if (themx <= 2)
-			themx += 4;
-		if (themy <= 2)
-			themy += 4;
-		if (themx >= WIDTH - 1)
-			themx -= 4;
-		if (themy >= HEIGHT - 1)
-			themy -= 4;
+			int themx = reduceRound(world.theirRobot.y);
+			int themy = reduceRound(world.theirRobot.x);
+			System.out.println(world.theirRobot.x);
+			System.out.println(world.theirRobot.y);
+			System.out.println(themx);
+			System.out.println(themy);
+			if (themx <= 2)
+				themx += 4;
+			if (themy <= 2)
+				themy += 4;
+			if (themx >= WIDTH - 1)
+				themx -= 4;
+			if (themy >= HEIGHT - 1)
+				themy -= 4;
 
-		fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
-		//Fill ball just for display
-		if (avoidball){
-			fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BLOCKED);
-		}else{
-			fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
+			fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
+			// Fill ball just for display
+			if (avoidball) {
+				fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BLOCKED);
+			} else {
+				fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
+			}
+			// Walls
+			int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());
+			fillArea(0, 0, HEIGHT, temp, BLOCKED);
+			temp = reduceRound(world.goalInfo.pitchConst.getTopBuffer());
+			fillArea(0, 0, temp, WIDTH, BLOCKED);
+			temp = reduceRound(world.goalInfo.pitchConst.getRightBuffer());
+			fillArea(0, WIDTH - temp, HEIGHT, temp, BLOCKED);
+			temp = reduceRound(world.goalInfo.pitchConst.getBottomBuffer());
+			fillArea(HEIGHT - temp, 0, temp, WIDTH, BLOCKED);
+
+			units[reduceRound(world.ourRobot.y)][reduceRound(world.ourRobot.x)] = US;
 		}
-		// Walls
-		int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());
-		fillArea(0, 0, HEIGHT, temp, BLOCKED);
-		temp = reduceRound(world.goalInfo.pitchConst.getTopBuffer());
-		fillArea(0, 0, temp, WIDTH, BLOCKED);
-		temp = reduceRound(world.goalInfo.pitchConst.getRightBuffer());
-		fillArea(0, WIDTH - temp, HEIGHT, temp, BLOCKED);
-		temp = reduceRound(world.goalInfo.pitchConst.getBottomBuffer());
-		fillArea(HEIGHT - temp, 0, temp, WIDTH, BLOCKED);
-
-		units[reduceRound(world.ourRobot.y)][reduceRound(world.ourRobot.x)] = US;
 	}
 
 	public int reduceRound(double n) {
@@ -186,22 +186,16 @@ public class ReducedMap implements TileBasedMap {
 	 */
 	public float getCost(int sx, int sy, int tx, int ty) {
 		int coef;
-		if(blocked(sx-1, sy)||
-		blocked(sx-1, sy-1)||
-		blocked(sx, sy-1)||
-		blocked(sx+1, sy-1)||
-		blocked(sx+1, sy)||
-		blocked(sx+1, sy+1)||
-		blocked(sx, sy+1)||
-		blocked(sx-1, sy+1)){
-			coef=3;
+		if (blocked(sx - 1, sy) || blocked(sx - 1, sy - 1) || blocked(sx, sy - 1) || blocked(sx + 1, sy - 1) || blocked(sx + 1, sy) || blocked(sx + 1, sy + 1) || blocked(sx, sy + 1)
+				|| blocked(sx - 1, sy + 1)) {
+			coef = 3;
 		} else {
-			coef=1;
+			coef = 1;
 		}
 		if (sx == tx || sy == ty)
-			return 10*coef;
+			return 10 * coef;
 		else
-			return 14*coef;
+			return 14 * coef;
 	}
 
 	/**
