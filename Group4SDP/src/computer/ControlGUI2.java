@@ -49,8 +49,8 @@ public class ControlGUI2 extends JFrame {
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();
 	private final JPanel complexMovePanel = new JPanel();
-	private final JPanel panel_2 = new JPanel(); // moo
-	private final JPanel panel_3 = new JPanel(); // moo
+	private final JPanel moveTargetPanel = new JPanel();
+	private final JPanel moveTargetOptionsPanel = new JPanel();
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -58,8 +58,8 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
-	private final JButton avoid1 = new JButton("Move while avoiding all obstacles"); // moo
-	private final JButton avoid2 = new JButton("Move while avoiding just opponent"); // moo
+	private final JButton moveNoCollTarget = new JButton("Move while avoiding all obstacles");
+	private final JButton moveNoCollOppTarget = new JButton("Move while avoiding just opponent");
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
@@ -80,14 +80,13 @@ public class ControlGUI2 extends JFrame {
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
-	private final JLabel op4label = new JLabel("Move to (x label): "); //moo
-	private final JLabel op5label = new JLabel("Move to (y label): "); // moo
+	private final JLabel op4label = new JLabel("Move to (x label): ");
+	private final JLabel op5label = new JLabel("Move to (y label): ");
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-	public static final JTextField op4field = new JTextField(); // moo
-	public static final JTextField op5field = new JTextField(); // moo
-
+	public static final JTextField op4field = new JTextField();
+	public static final JTextField op5field = new JTextField();
 	// TODO: remove
 	// Strategy used for driving part of milestone 2
 	// private MoveToBall mball = new MoveToBall();
@@ -246,29 +245,29 @@ public class ControlGUI2 extends JFrame {
 		complexMovePanel.add(moveToButton);
 		complexMovePanel.add(rotateAndMoveButton);
 		
-		GridBagConstraints gbc_panel_2 = new GridBagConstraints(); // moo
-		gbc_panel_2.insets = new Insets(0, 0, 5, 0); // moo
-		gbc_panel_2.fill = GridBagConstraints.BOTH; // moo
-		gbc_panel_2.gridx = 0; // moo
-		gbc_panel_2.gridy = 4; // moo
-		this.getContentPane().add(panel_2, gbc_panel_2); // moo
-		panel_2.add(avoid1); // moo
-		panel_2.add(avoid2); // moo
+		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_2.fill = GridBagConstraints.BOTH;
+		gbc_panel_2.gridx = 0;
+		gbc_panel_2.gridy = 4;
+		this.getContentPane().add(moveTargetPanel, gbc_panel_2);
+		moveTargetPanel.add(moveNoCollTarget);
+		moveTargetPanel.add(moveNoCollOppTarget);
 		
-		GridBagConstraints gbc_panel_3 = new GridBagConstraints(); // moo
-		gbc_panel_3.insets = new Insets(0, 0, 5, 0); // moo
-		gbc_panel_3.fill = GridBagConstraints.BOTH; // moo
-		gbc_panel_3.gridx = 0; // moo
-		gbc_panel_3.gridy = 5; // moo
-		this.getContentPane().add(panel_3, gbc_panel_3); // moo
-		op4field.setColumns(6); // moo
-		op5field.setColumns(6); // moo
-		op4field.setText("" + 100); // moo
-		op5field.setText("" + 100); // moo
-		panel_3.add(op4label); // moo
-		panel_3.add(op4field); // moo
-		panel_3.add(op5label); // moo
-		panel_3.add(op5field); // moo
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_3.fill = GridBagConstraints.BOTH;
+		gbc_panel_3.gridx = 0;
+		gbc_panel_3.gridy = 5;
+		this.getContentPane().add(moveTargetOptionsPanel, gbc_panel_3);
+		op4field.setColumns(6);
+		op5field.setColumns(6);
+		op4field.setText("" + 100);
+		op5field.setText("" + 100);
+		moveTargetOptionsPanel.add(op4label);
+		moveTargetOptionsPanel.add(op4field);
+		moveTargetOptionsPanel.add(op5label);
+		moveTargetOptionsPanel.add(op5field);
 
 		// TODO: remove
 		complexMovePanel.add(dribbleButton);
@@ -434,17 +433,17 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 		
-		// moo
-		avoid1.addActionListener(new ActionListener() {
+		moveNoCollTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), false);
 			}
 		});
 				
-		avoid2.addActionListener(new ActionListener() {
+		moveNoCollOppTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), true);
 			}
 		});
-		// moo
 
 		// Center the window on startup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
