@@ -26,8 +26,8 @@ public class SimDisplayRobot {
 	
 
 	public SimDisplayRobot(boolean isOurRobo, World world) {
-		float scale = 0;
-		Updateworld.scale = scale;
+		float scale = 20.0f;;
+		//Updateworld.scale = scale;
 		// create robot's body
 		PolygonShape roboShape = new PolygonShape();
 		roboShape.setAsBox(0.09f * scale, 0.09f * scale);

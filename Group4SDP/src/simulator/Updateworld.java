@@ -13,6 +13,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.testbed.framework.TestbedSettings;
 import org.jbox2d.testbed.framework.TestbedTest;
 import world.state.*; 
+import vision.*;
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.MathUtils;
@@ -24,6 +25,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
+import strategy.calculations.*;
 /**
  * 
  * This class will serve the purpose of updating the worldState
@@ -43,24 +45,27 @@ public class Updateworld extends TestbedTest {
 
     boolean firstTime = true;
     boolean simulatorMode = false;
-    public SimDisplayRobot ourownRobot, theEnemyRobot;
-
+    public SimDisplayRobot ourRobotSim, theirRobotSim;
+    boolean argDeserialized = true;
     
-   
+    public Body ballSim;
 
-    WorldState worldstate;
-    
+    WorldState worldState;
    
-		Robot ourRobot = new Robot(RobotType.Us);
-		Robot theirRobot = new Robot(RobotType.Them);
-		Ball ball = new Ball();
+    PitchConstants pc = new PitchConstants(40);
+    
+    GoalInfo gt = new GoalInfo(pc);
+    WorldState theRealWorld= new WorldState(gt);
+	Robot ourRobot = new Robot(RobotType.Us);
+	Robot theirRobot = new Robot(RobotType.Them);
+	
+	Ball ball = new Ball();
 	
  
 
     Body pitch;   
 
- //   public Body ball;
-//    public SimulatorRobot ourRobo, enemyRobo;
+
 
     public boolean isSaveLoadEnabled() {
         return true;
@@ -110,7 +115,10 @@ public class Updateworld extends TestbedTest {
                 new Vec2(pitchL * scale + 0.06f * scale, pitchW * scale / 2 - goalW * scale / 2));
         this.pitch.createFixture(shape, 0.0f);
     }
-
+    public WorldState getTheRealWorld(){
+    	
+    	return theRealWorld;
+    }
     public void createBall() {
         CircleShape ballshape = new CircleShape();
         ballshape.m_radius = 0.025f * scale;
@@ -126,7 +134,8 @@ public class Updateworld extends TestbedTest {
         ballbd.linearDamping = 0.5f;
         ballbd.bullet = true;
         ballbd.position.set(pitchL * scale / 2, pitchW * scale / 2);
-
+        this.ballSim = getWorld().createBody(ballbd);
+        this.ballSim.createFixture(fdb);
 
     }
 
@@ -138,21 +147,43 @@ public class Updateworld extends TestbedTest {
         
         
         float timestep = 1.0f/getModel().getCalculatedFps();
+       
         
        // ourownRobot, 
-     
+        theRealWorld.setBallX( (int)(Math.round((ballSim.getWorldCenter().x/scale))));
+        theRealWorld.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+       /** 
+
+
+        Thread thread1 = new Thread () {
+        	public void run () {
+                worldstate.setBallX( (int)(Math.round((ballSim.getWorldCenter().x/scale))));
+                worldstate.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+        		}
+        			};
+
        
-        ourRobot.x =  ourownRobot.robot.getWorldCenter().x/scale;
-		ourRobot.y = ourownRobot.robot.getWorldCenter().y/scale;
-		ourRobot.bearing = ourownRobot.robot.getAngle() + Math.PI/2.0f;
+       thread1.start();
+       
+       */
+         /**
+          * 
+          *The part that need some tweaking.
+          * 
+          *Bach 
+          */
+    /**    
+        ourRobot.x =  ourRobotSim.robot.getWorldCenter().x/scale;
+		ourRobot.y = ourRobotSim.robot.getWorldCenter().y/scale;
+		ourRobot.bearing = ourRobotSim.robot.getAngle() + Math.PI/2.0f;
 		
-		theirRobot.x = theEnemyRobot.robot.getWorldCenter().x/scale;
-		theirRobot.y = theEnemyRobot.robot.getWorldCenter().y/scale;
-		theirRobot.bearing = theEnemyRobot.robot.getAngle() + Math.PI/2.0f;
+		theirRobot.x = theirRobotSim.robot.getWorldCenter().x/scale;
+		theirRobot.y = theirRobotSim.robot.getWorldCenter().y/scale;
+		theirRobot.bearing = theirRobotSim.robot.getAngle() + Math.PI/2.0f;
 		
-		//ball.x = ball.getWorldCenter().x/scale,X;
-		//ball.y = ball.getWorldCenter().y/scale);
-        
+	ball.x = ballSim.getWorldCenter().x/scale;
+	ball.y = ballSim.getWorldCenter().y/scale;
+        */
         
        
 
@@ -164,13 +195,28 @@ public class Updateworld extends TestbedTest {
 	@Override
 	public String getTestName() {
 		// TODO Auto-generated method stub
-		return null;
+		 return "Synergy Team simulator";
 	}
 
 
 	@Override
-	public void initTest(boolean arg0) {
-		// TODO Auto-generated method stub
+	public void initTest(boolean argDeserialized) {
+        if (this.firstTime) {
+            setCamera(new Vec2(pitchL * scale / 2, pitchW * scale / 2), 0.5f * scale);
+            this.firstTime = false;
+        }
+        if (argDeserialized) {
+            return;
+        }
+        {
+            initialisePitch();
+            createBall();
+           
+            this.ourRobotSim = new SimDisplayRobot(true, getWorld());
+            this.theirRobotSim = new SimDisplayRobot(false, getWorld());
+            
+          //  this.world = new SimWorld();
+        }
 		
 	}
 
