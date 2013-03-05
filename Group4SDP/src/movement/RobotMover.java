@@ -130,8 +130,11 @@ public class RobotMover extends Thread {
 				running = false;
 				mode = Mode.IDLE;
 				// Tell all waiting threads to wake up
-				while (!threadNotifiers.isEmpty())
-					threadNotifiers.pop().notify();
+				Object notifier;
+				while (!threadNotifiers.isEmpty()) {
+					notifier = threadNotifiers.pop();
+					notifier.notify();
+				}
 			}
 			// Stop the robot when the movement thread has been told to exit
 			robot.stop();
@@ -180,7 +183,9 @@ public class RobotMover extends Thread {
 	public synchronized void waitForCompletion() throws InterruptedException {
 		Object notifier = new Object();
 		threadNotifiers.push(notifier);
-		notifier.wait();
+		synchronized (notifier) {
+			notifier.wait();
+		}
 	}
 
 	/**
