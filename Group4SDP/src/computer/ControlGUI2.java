@@ -243,7 +243,7 @@ public class ControlGUI2 extends JFrame {
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//mover.move(100, 100);
+				// mover.move(100, 100);
 				mover.moveToAStar(worldState.ball.x, worldState.ball.y, false);
 			}
 		});
@@ -255,7 +255,7 @@ public class ControlGUI2 extends JFrame {
 					DribbleBall5.die = true;
 					try {
 						mover.interruptMove();
-						mover.notifyAll();
+
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
