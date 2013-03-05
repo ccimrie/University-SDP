@@ -1,6 +1,6 @@
 package movement;
 
-import java.util.ArrayDeque;
+import java.util.concurrent.Semaphore;
 
 import strategy.calculations.DistanceCalculator;
 import strategy.movement.AStar.AStarPathFinder;
@@ -37,9 +37,9 @@ public class RobotMover extends Thread {
 	private double speedY = 0;
 	private double angle = 0.0;
 
-	private ArrayDeque<Object> threadNotifiers = new ArrayDeque<Object>();
-	private Object killNotifier = new Object();
-	private Object notifier = new Object();
+	private Semaphore jobSem = new Semaphore(0, true);
+	private Semaphore killSem = new Semaphore(0, true);
+	private Semaphore waitSem = new Semaphore(0, true);
 
 	private enum Mode {
 		IDLE, STOP, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_ASTAR
@@ -77,15 +77,11 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see Thread#run()
 	 */
-	public synchronized void run() {
+	public void run() {
 		try {
 			while (!die) {
 				// Wait for next movement operation
-				System.out.println("Mover thread waiting for a new job");
-				synchronized (notifier) {
-					notifier.wait();
-				}
-				System.out.println("Mover thread notified of a new job");
+				jobSem.acquire();
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
 				running = true;
@@ -134,14 +130,11 @@ public class RobotMover extends Thread {
 				}
 				running = false;
 				mode = Mode.IDLE;
-				System.out.println("Mover thread completed job, notifying waiting threads");
-				// Tell all waiting threads to wake up
-				while (!threadNotifiers.isEmpty()) {
-					Object threadNotifier = threadNotifiers.pop();
-					System.out.println("Mover thread notifying a waiting thread...");
-					threadNotifier.notify();
-				}
-				System.out.println("Mover thread completed notifying");
+
+				// Only wake up the waiting thread if there's a waiting thread
+				// to wake up
+				if (waitSem.hasQueuedThreads())
+					waitSem.release();
 			}
 			// Stop the robot when the movement thread has been told to exit
 			robot.stop();
@@ -151,10 +144,8 @@ public class RobotMover extends Thread {
 			e.printStackTrace();
 		}
 		robot.clearBuff();
-		System.out.println("Mover thread notifying killer thread");
 		// Signal that robot is stopped and safe to disconnect
-		killNotifier.notify();
-		System.out.println("Mover thread notified killer thread");
+		killSem.release();
 	}
 
 	/**
@@ -162,26 +153,20 @@ public class RobotMover extends Thread {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public synchronized void kill() throws InterruptedException {
+	public void kill() throws InterruptedException {
 		System.out.println("Thread called mover.kill(): "
 				+ Thread.currentThread().getName());
 		die = true;
 		interruptMove = true;
-		System.out.println("mover.kill(): notifying mover thread");
-		notifier.notify();
-		System.out.println("mover.kill(): waiting for mover thread to terminate");
-		synchronized (killNotifier) {
-			killNotifier.wait();
-		}
-		System.out.println("mover.kill(): mover thread finished terminating");
-		System.out.println("Thread exiting mover.kill(): "
-				+ Thread.currentThread().getName());
+		jobSem.release();
+		// Wait for the thread to die
+		killSem.acquire();
 	}
 
 	/**
 	 * Triggers an interrupt in movement
 	 */
-	public synchronized void interruptMove() {
+	public void interruptMove() {
 		System.out.println("Interrupting movement");
 		interruptMove = true;
 	}
@@ -191,23 +176,15 @@ public class RobotMover extends Thread {
 	 * 
 	 * @return true if the mover is doing something, false otherwise
 	 */
-	public synchronized boolean isRunning() {
+	public boolean isRunning() {
 		return running;
 	}
 
 	/**
 	 * Waits for the movement to complete before returning
 	 */
-	public synchronized void waitForCompletion() throws InterruptedException {
-		System.out.println("Thread called mover.waitForCompletion(): "
-				+ Thread.currentThread().getName());
-		Object threadNotifier = new Object();
-		threadNotifiers.push(threadNotifier);
-		synchronized (threadNotifier) {
-			threadNotifier.wait();
-		}
-		System.out.println("Thread exiting mover.waitForCompletion(): "
-				+ Thread.currentThread().getName());
+	public void waitForCompletion() throws InterruptedException {
+		waitSem.acquire();
 	}
 
 	/**
@@ -226,7 +203,7 @@ public class RobotMover extends Thread {
 		this.speedY = speedY;
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -253,7 +230,7 @@ public class RobotMover extends Thread {
 		speedY = 70 * Math.cos(angle);
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -288,7 +265,7 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -339,7 +316,7 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT_STOP;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -361,7 +338,7 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TOWARDS_POINT;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -431,7 +408,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_ASTAR;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -520,7 +497,7 @@ public class RobotMover extends Thread {
 		this.angle = angleRad;
 		mode = Mode.ROTATE;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
@@ -540,7 +517,7 @@ public class RobotMover extends Thread {
 	public synchronized void stopRobot() {
 		mode = Mode.STOP;
 		interruptMove = true;
-		notifier.notify();
+		jobSem.release();
 	}
 
 	/**
