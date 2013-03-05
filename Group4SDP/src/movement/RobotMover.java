@@ -157,7 +157,9 @@ public class RobotMover extends Thread {
 		die = true;
 		interruptMove = true;
 		this.notify();
-		killNotifier.wait();
+		synchronized (killNotifier) {
+			killNotifier.wait();
+		}
 	}
 
 	/**
