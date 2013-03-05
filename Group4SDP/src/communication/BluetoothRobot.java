@@ -88,6 +88,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 		if (input < 0 && input > -180) {
 			input = -input;
 			dir = 1;
+		} else if (input <-180 && input >-360){
+			input+=360;
 		}
 
 		int op1 = input % 10;
