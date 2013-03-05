@@ -39,6 +39,7 @@ public class RobotMover extends Thread {
 
 	private ArrayDeque<Object> threadNotifiers = new ArrayDeque<Object>();
 	private Object killNotifier = new Object();
+	private Object notifier = new Object();
 
 	private enum Mode {
 		IDLE, STOP, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_ASTAR
@@ -80,7 +81,9 @@ public class RobotMover extends Thread {
 		try {
 			while (!die) {
 				// Wait for next movement operation
-				this.wait();
+				synchronized (notifier) {
+					notifier.wait();
+				}
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
 				running = true;
@@ -117,6 +120,8 @@ public class RobotMover extends Thread {
 					System.out.println("Moving to point (" + moveToPointX
 							+ ", " + moveToPointY + ") using A*");
 					doMoveToAStar(moveToPointX, moveToPointY, avoidBall);
+					System.out
+							.println("Mover thread completed doMoveToAStar()");
 					break;
 				case ROTATE:
 					System.out.println("Rotating by " + angle + " radians ("
@@ -130,10 +135,12 @@ public class RobotMover extends Thread {
 				running = false;
 				mode = Mode.IDLE;
 				// Tell all waiting threads to wake up
-				Object notifier;
+				Object threadNotifier;
 				while (!threadNotifiers.isEmpty()) {
-					notifier = threadNotifiers.pop();
-					notifier.notify();
+					threadNotifier = threadNotifiers.pop();
+					synchronized (threadNotifier) {
+						threadNotifier.notify();
+					}
 				}
 			}
 			// Stop the robot when the movement thread has been told to exit
@@ -145,21 +152,29 @@ public class RobotMover extends Thread {
 		}
 		robot.clearBuff();
 		// Signal that robot is stopped and safe to disconnect
-		killNotifier.notify();
+		synchronized (killNotifier) {
+			killNotifier.notify();
+		}
 	}
 
 	/**
 	 * Tells the move thread to stop executing
-	 * @throws InterruptedException 
+	 * 
+	 * @throws InterruptedException
 	 */
 	public synchronized void kill() throws InterruptedException {
-		System.out.println("Killing movement");
+		System.out.println("Thread called mover.kill(): "
+				+ Thread.currentThread().getName());
 		die = true;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 		synchronized (killNotifier) {
 			killNotifier.wait();
 		}
+		System.out.println("Thread exiting mover.kill(): "
+				+ Thread.currentThread().getName());
 	}
 
 	/**
@@ -183,11 +198,15 @@ public class RobotMover extends Thread {
 	 * Waits for the movement to complete before returning
 	 */
 	public synchronized void waitForCompletion() throws InterruptedException {
+		System.out.println("Thread called mover.waitForCompletion(): "
+				+ Thread.currentThread().getName());
 		Object notifier = new Object();
 		threadNotifiers.push(notifier);
 		synchronized (notifier) {
 			notifier.wait();
 		}
+		System.out.println("Thread exiting mover.waitForCompletion(): "
+				+ Thread.currentThread().getName());
 	}
 
 	/**
@@ -206,7 +225,9 @@ public class RobotMover extends Thread {
 		this.speedY = speedY;
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -233,7 +254,9 @@ public class RobotMover extends Thread {
 		speedY = 100 * Math.cos(angle);
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -268,7 +291,9 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -319,7 +344,9 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT_STOP;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -341,7 +368,9 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TOWARDS_POINT;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -411,7 +440,9 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_ASTAR;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -482,7 +513,9 @@ public class RobotMover extends Thread {
 		this.angle = angleRad;
 		mode = Mode.ROTATE;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
@@ -502,7 +535,9 @@ public class RobotMover extends Thread {
 	public synchronized void stopRobot() {
 		mode = Mode.STOP;
 		interruptMove = true;
-		this.notify();
+		synchronized (notifier) {
+			notifier.notify();
+		}
 	}
 
 	/**
