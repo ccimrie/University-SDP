@@ -387,9 +387,8 @@ public class ControlGUI2 extends JFrame {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Kill the mover and wait for it to stop completely
-				mover.kill();
 				try {
-					mover.waitForCompletion();
+					mover.kill();
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
@@ -413,9 +412,8 @@ public class ControlGUI2 extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
-			mover.kill();
 			try {
-				mover.waitForCompletion();
+				mover.kill();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}

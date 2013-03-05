@@ -1,5 +1,7 @@
 package movement;
 
+import java.util.ArrayDeque;
+
 import strategy.calculations.DistanceCalculator;
 import strategy.movement.AStar.AStarPathFinder;
 import strategy.movement.AStar.Path;
@@ -15,7 +17,8 @@ import communication.RobotController;
  * A movement class, that provides calculations for different move commands for
  * the robot.
  * 
- * @author Jakov Smelkin
+ * @author Jakov Smelkin - movement
+ * @author Alex Adams (s1046358) - threading
  */
 public class RobotMover extends Thread {
 
@@ -34,7 +37,8 @@ public class RobotMover extends Thread {
 	private double speedY = 0;
 	private double angle = 0.0;
 
-	private int waitingThreads = 0;
+	private ArrayDeque<Object> threadNotifiers = new ArrayDeque<Object>();
+	private Object killNotifier = new Object();
 
 	private enum Mode {
 		IDLE, STOP, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_ASTAR
@@ -125,8 +129,9 @@ public class RobotMover extends Thread {
 				}
 				running = false;
 				mode = Mode.IDLE;
-				// Signal movement operation has completed.
-				this.notify();
+				// Tell all waiting threads to wake up
+				while (!threadNotifiers.isEmpty())
+					threadNotifiers.pop().notify();
 			}
 			// Stop the robot when the movement thread has been told to exit
 			robot.stop();
@@ -137,17 +142,19 @@ public class RobotMover extends Thread {
 		}
 		robot.clearBuff();
 		// Signal that robot is stopped and safe to disconnect
-		this.notify();
+		killNotifier.notify();
 	}
 
 	/**
 	 * Tells the move thread to stop executing
+	 * @throws InterruptedException 
 	 */
-	public synchronized void kill() {
+	public synchronized void kill() throws InterruptedException {
 		System.out.println("Killing movement");
 		die = true;
 		interruptMove = true;
 		this.notify();
+		killNotifier.wait();
 	}
 
 	/**
@@ -171,16 +178,9 @@ public class RobotMover extends Thread {
 	 * Waits for the movement to complete before returning
 	 */
 	public synchronized void waitForCompletion() throws InterruptedException {
-		if (waitingThreads != 0) {
-			System.out
-					.println("Thread "
-							+ Thread.currentThread().getName()
-							+ " tried to wait for movement completion while another thread is already waiting.");
-			return;
-		}
-		++waitingThreads;
-		this.wait();
-		--waitingThreads;
+		Object notifier = new Object();
+		threadNotifiers.push(notifier);
+		notifier.wait();
 	}
 
 	/**
