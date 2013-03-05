@@ -21,19 +21,31 @@ public class DribbleBall5 {
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
 		Ball ball = worldState.ball;
+		
 		// Find which goal we need to be shooting.
 		Position targetgoal = worldState.getOurGoal();
 		int goalx = targetgoal.getX();
 		int goaly = targetgoal.getY();
-
-		if (die)
-			return;
-		mover.moveToAStar(ball.x - 70, ball.y, true);
-		mover.waitForCompletion();
-		if (die)
-			return;
-
-		Thread.sleep(50);
+		
+		//Determine a different position behind the ball depending on which door we are shooting in
+		if (worldState.areWeOnLeft()){		
+			if (die)
+				return;
+			mover.moveToAStar(ball.x - 70, ball.y, true);
+			mover.waitForCompletion();
+			if (die)
+				return;
+			Thread.sleep(50);
+		}
+		else {
+			if (die)
+				return;
+			mover.moveToAStar(ball.x + 70, ball.y, true);
+			mover.waitForCompletion();
+			if (die)
+				return;
+			Thread.sleep(50);
+		}
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 		System.out.println("Angle for rotation " + angle);
 		int attempt = 0;
@@ -79,7 +91,15 @@ public class DribbleBall5 {
 		// Rotate to face the middle of the right goal
 		if (die)
 			return;
-		double adjustAngle = TurnToBall.AngleTurner(us, 600, 241);
+		
+		double adjustAngle;
+		if (worldState.areWeOnLeft()){
+			adjustAngle = TurnToBall.AngleTurner(us, 600, 241);
+		}
+		else{
+			adjustAngle = TurnToBall.AngleTurner(us, 32, 250);
+		}
+		
 		System.out.println("Angle for rotation " + adjustAngle);
 		mover.rotate(Math.toRadians(adjustAngle));
 		mover.waitForCompletion();
@@ -95,5 +115,6 @@ public class DribbleBall5 {
 			return;
 		mover.stopRobot();
 		mover.waitForCompletion();
+	
 	}
 }
