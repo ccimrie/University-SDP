@@ -32,7 +32,19 @@ public class DribbleBall5 {
 			if (die)
 				return;
 			mover.moveToAStar(ball.x - 70, ball.y, true);
-			mover.waitForCompletion();
+			while(true){
+				double diffx;
+				double diffy;
+				diffx = ball.x - 70 - us.x;
+				diffy = ball.y - us.y;
+				System.out.printf("Waiting for movement to finish, current diff is x %d, y %d\n", 
+						(int)diffx, (int)diffy);
+				if (Math.abs(diffx) < 40 && (Math.abs(diffy) <40)){
+					break;
+				}
+				Thread.sleep(50);
+			}
+			//mover.waitForCompletion();
 			if (die)
 				return;
 			Thread.sleep(50);
@@ -41,7 +53,18 @@ public class DribbleBall5 {
 			if (die)
 				return;
 			mover.moveToAStar(ball.x + 70, ball.y, true);
-			mover.waitForCompletion();
+			while(true){
+				double diffx;
+				double diffy;
+				diffx = ball.x - 70 - us.x;
+				diffy = ball.y - us.y;
+				System.out.printf("Waiting for movement to finish, current diff is x %d, y %d\n", 
+						(int)diffx, (int)diffy);
+				if (Math.abs(diffx) < 40 && (Math.abs(diffy) <40)){
+					break;
+				}
+				Thread.sleep(50);
+			}
 			if (die)
 				return;
 			Thread.sleep(50);
