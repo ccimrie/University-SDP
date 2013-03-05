@@ -80,8 +80,8 @@ public class ControlGUI2 extends JFrame {
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
-	private final JLabel op4label = new JLabel("Move to (x label): ");
-	private final JLabel op5label = new JLabel("Move to (y label): ");
+	private final static JLabel op4label = new JLabel("Move to (x label): ");
+	private final static JLabel op5label = new JLabel("Move to (y label): ");
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
