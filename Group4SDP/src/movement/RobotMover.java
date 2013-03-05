@@ -81,9 +81,11 @@ public class RobotMover extends Thread {
 		try {
 			while (!die) {
 				// Wait for next movement operation
+				System.out.println("Mover thread waiting for a new job");
 				synchronized (notifier) {
 					notifier.wait();
 				}
+				System.out.println("Mover thread notified of a new job");
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
 				running = true;
@@ -120,8 +122,6 @@ public class RobotMover extends Thread {
 					System.out.println("Moving to point (" + moveToPointX
 							+ ", " + moveToPointY + ") using A*");
 					doMoveToAStar(moveToPointX, moveToPointY, avoidBall);
-					System.out
-							.println("Mover thread completed doMoveToAStar()");
 					break;
 				case ROTATE:
 					System.out.println("Rotating by " + angle + " radians ("
@@ -134,12 +134,14 @@ public class RobotMover extends Thread {
 				}
 				running = false;
 				mode = Mode.IDLE;
+				System.out.println("Mover thread completed job, notifying waiting threads");
 				// Tell all waiting threads to wake up
-				Object threadNotifier;
 				while (!threadNotifiers.isEmpty()) {
-					threadNotifier = threadNotifiers.pop();
+					Object threadNotifier = threadNotifiers.pop();
+					System.out.println("Mover thread notifying a waiting thread...");
 					threadNotifier.notify();
 				}
+				System.out.println("Mover thread completed notifying");
 			}
 			// Stop the robot when the movement thread has been told to exit
 			robot.stop();
@@ -149,8 +151,10 @@ public class RobotMover extends Thread {
 			e.printStackTrace();
 		}
 		robot.clearBuff();
+		System.out.println("Mover thread notifying killer thread");
 		// Signal that robot is stopped and safe to disconnect
 		killNotifier.notify();
+		System.out.println("Mover thread notified killer thread");
 	}
 
 	/**
@@ -163,10 +167,13 @@ public class RobotMover extends Thread {
 				+ Thread.currentThread().getName());
 		die = true;
 		interruptMove = true;
+		System.out.println("mover.kill(): notifying mover thread");
 		notifier.notify();
+		System.out.println("mover.kill(): waiting for mover thread to terminate");
 		synchronized (killNotifier) {
 			killNotifier.wait();
 		}
+		System.out.println("mover.kill(): mover thread finished terminating");
 		System.out.println("Thread exiting mover.kill(): "
 				+ Thread.currentThread().getName());
 	}
