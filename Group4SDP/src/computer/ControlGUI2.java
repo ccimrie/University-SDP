@@ -49,6 +49,8 @@ public class ControlGUI2 extends JFrame {
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();
 	private final JPanel complexMovePanel = new JPanel();
+	private final JPanel panel_2 = new JPanel(); // moo
+	private final JPanel panel_3 = new JPanel(); // moo
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -56,6 +58,8 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
+	private final JButton avoid1 = new JButton("Move while avoiding all obstacles"); // moo
+	private final JButton avoid2 = new JButton("Move while avoiding just opponent"); // moo
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
@@ -76,9 +80,13 @@ public class ControlGUI2 extends JFrame {
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
+	private final JLabel op4label = new JLabel("Move to (x label): "); //moo
+	private final JLabel op5label = new JLabel("Move to (y label): "); // moo
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
+	public static final JTextField op4field = new JTextField(); // moo
+	public static final JTextField op5field = new JTextField(); // moo
 
 	// TODO: remove
 	// Strategy used for driving part of milestone 2
@@ -147,6 +155,10 @@ public class ControlGUI2 extends JFrame {
 		// Sets up robot
 		BluetoothRobot robot = new BluetoothRobot(RobotType.Us, comms);
 
+		// Sets up the GUI
+		ControlGUI2 gui = new ControlGUI2(worldState, robot);
+		gui.setVisible(true);
+				
 		robot.connect();
 
 		while (!robot.isConnected()) {
@@ -161,9 +173,7 @@ public class ControlGUI2 extends JFrame {
 
 		System.out.println("Robot ready!");
 
-		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2(worldState, robot);
-		gui.setVisible(true);
+		
 	}
 
 	public ControlGUI2(final WorldState worldState, final RobotController robot) {
@@ -235,6 +245,30 @@ public class ControlGUI2 extends JFrame {
 		complexMovePanel.add(moveButton);
 		complexMovePanel.add(moveToButton);
 		complexMovePanel.add(rotateAndMoveButton);
+		
+		GridBagConstraints gbc_panel_2 = new GridBagConstraints(); // moo
+		gbc_panel_2.insets = new Insets(0, 0, 5, 0); // moo
+		gbc_panel_2.fill = GridBagConstraints.BOTH; // moo
+		gbc_panel_2.gridx = 0; // moo
+		gbc_panel_2.gridy = 4; // moo
+		this.getContentPane().add(panel_2, gbc_panel_2); // moo
+		panel_2.add(avoid1); // moo
+		panel_2.add(avoid2); // moo
+		
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints(); // moo
+		gbc_panel_3.insets = new Insets(0, 0, 5, 0); // moo
+		gbc_panel_3.fill = GridBagConstraints.BOTH; // moo
+		gbc_panel_3.gridx = 0; // moo
+		gbc_panel_3.gridy = 5; // moo
+		this.getContentPane().add(panel_3, gbc_panel_3); // moo
+		op4field.setColumns(6); // moo
+		op5field.setColumns(6); // moo
+		op4field.setText("" + 100); // moo
+		op5field.setText("" + 100); // moo
+		panel_3.add(op4label); // moo
+		panel_3.add(op4field); // moo
+		panel_3.add(op5label); // moo
+		panel_3.add(op5field); // moo
 
 		// TODO: remove
 		complexMovePanel.add(dribbleButton);
@@ -399,6 +433,18 @@ public class ControlGUI2 extends JFrame {
 				System.exit(0);
 			}
 		});
+		
+		// moo
+		avoid1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+				
+		avoid2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		// moo
 
 		// Center the window on startup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
