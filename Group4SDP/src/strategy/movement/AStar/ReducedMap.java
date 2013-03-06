@@ -29,11 +29,12 @@ public class ReducedMap implements TileBasedMap {
 	private boolean[][] visited;
 
 	public boolean avoidball = false;
+	public boolean avoidenemy = true;
 
 	/**
 	 * Create a new test map with some default configuration
 	 */
-	public ReducedMap(WorldState world, boolean avoidball) {
+	public ReducedMap(WorldState world, boolean avoidball, boolean avoidenemy) {
 		synchronized (world) {
 			HEIGHT = reduceRound(480);
 			WIDTH = reduceRound(640);
@@ -41,7 +42,7 @@ public class ReducedMap implements TileBasedMap {
 			units = new int[HEIGHT][WIDTH];
 			visited = new boolean[HEIGHT][WIDTH];
 			this.avoidball = avoidball;
-
+			this.avoidenemy = avoidball;
 			// Enemy robot
 
 			int themx = reduceRound(world.theirRobot.y);
@@ -58,13 +59,24 @@ public class ReducedMap implements TileBasedMap {
 				themx -= 4;
 			if (themy >= HEIGHT - 1)
 				themy -= 4;
-
-			fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
+			if (avoidenemy) {
+				fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
+			}						
 			// Fill ball just for display
+			int ballx = reduceRound(world.ball.y);
+			int bally = reduceRound(world.ball.x);
+			if (ballx <= 1)
+				ballx += 2;
+			if (bally <= 1)
+				bally += 2;
+			if (ballx >= WIDTH - 1)
+				ballx -= 2;
+			if (bally >= HEIGHT - 1)
+				bally -= 2;
 			if (avoidball) {
-				fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BLOCKED);
+				fillArea(ballx - 2, bally - 2, 4, 4, BLOCKED);
 			} else {
-				fillArea(reduceRound(world.ball.y) - 2, reduceRound(world.ball.x) - 2, 4, 4, BALL);
+				fillArea(ballx - 2, bally - 2, 4, 4, BALL);
 			}
 			// Walls
 			int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());
