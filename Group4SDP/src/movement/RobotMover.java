@@ -42,7 +42,7 @@ public class RobotMover extends Thread {
 	private Semaphore waitSem = new Semaphore(0, true);
 
 	private enum Mode {
-		IDLE, STOP, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_ASTAR
+		IDLE, STOP, KICK, MOVE_VECTOR, MOVE_TO_POINT, MOVE_TO_POINT_STOP, MOVE_TOWARDS_POINT, ROTATE, MOVE_TO_POINT_ASTAR
 	};
 
 	/**
@@ -92,6 +92,10 @@ public class RobotMover extends Thread {
 				case STOP:
 					System.out.println("Stopping robot");
 					robot.stop();
+					break;
+				case KICK:
+					System.out.println("Kicking!");
+					robot.kick();
 					break;
 				case MOVE_VECTOR:
 					System.out.println("Moving at speed (" + speedX + ", "
@@ -145,7 +149,9 @@ public class RobotMover extends Thread {
 		}
 		robot.clearBuff();
 		// Signal that robot is stopped and safe to disconnect
-		killSem.release();
+		// Only if there is actually a thread waiting
+		if (killSem.hasQueuedThreads())
+			killSem.release();
 	}
 
 	/**
@@ -203,7 +209,10 @@ public class RobotMover extends Thread {
 		this.speedY = speedY;
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -230,7 +239,10 @@ public class RobotMover extends Thread {
 		speedY = 70 * Math.cos(angle);
 		mode = Mode.MOVE_VECTOR;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -265,7 +277,10 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -316,7 +331,10 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TO_POINT_STOP;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -338,7 +356,10 @@ public class RobotMover extends Thread {
 		this.moveToPointY = y;
 		mode = Mode.MOVE_TOWARDS_POINT;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -408,7 +429,10 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 
 		mode = Mode.MOVE_TO_POINT_ASTAR;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -497,7 +521,10 @@ public class RobotMover extends Thread {
 		this.angle = angleRad;
 		mode = Mode.ROTATE;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
@@ -513,17 +540,29 @@ public class RobotMover extends Thread {
 
 	/**
 	 * Stops the robot
+	 * 
+	 * @see #waitForCompletion()
 	 */
 	public synchronized void stopRobot() {
 		mode = Mode.STOP;
 		interruptMove = true;
-		jobSem.release();
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 
 	/**
 	 * Makes the robot kick
+	 * 
+	 * @see #waitForCompletion()
 	 */
 	public synchronized void kick() {
-		robot.kick();
+		mode = Mode.KICK;
+		interruptMove = true;
+		// Let the mover know it has a new job, only if it's waiting for a new
+		// job
+		if (jobSem.hasQueuedThreads())
+			jobSem.release();
 	}
 }
