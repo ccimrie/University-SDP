@@ -327,8 +327,8 @@ public class Vision implements VideoReceiver {
 
 			ball = DistortionFix.barrelCorrect(ball);
 			green = DistortionFix.barrelCorrect(green);
-			blue = DistortionFix.barrelCorrect(blue);
-			yellow = DistortionFix.barrelCorrect(yellow);
+			blue = DistortionFix.barrelCorrect(bluePlateCentroid);
+			yellow = DistortionFix.barrelCorrect(yellowPlateCentroid);
 
 			/** Worldstate settings */
 			// TODO: Sort out all of the world state settings.
@@ -336,10 +336,10 @@ public class Vision implements VideoReceiver {
 			worldState.setBallY(ball.getY());
 			worldState.setGreenX(green.getX());
 			worldState.setGreenY(green.getY());
-			worldState.setBlueX(bluePlateCentroid.getX());
-			worldState.setBlueY(bluePlateCentroid.getY());
-			worldState.setYellowX(yellowPlateCentroid.getX());
-			worldState.setYellowY(yellowPlateCentroid.getY());
+			worldState.setBlueX(blue.getX());
+			worldState.setBlueY(blue.getY());
+			worldState.setYellowX(yellow.getX());
+			worldState.setYellowY(yellow.getY());
 			worldState.setBlueOrientation(blueAngle);
 			worldState.setYellowOrientation(yellowAngle);
 			worldState.update();
