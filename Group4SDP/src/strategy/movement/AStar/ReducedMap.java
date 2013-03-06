@@ -55,10 +55,14 @@ public class ReducedMap implements TileBasedMap {
 				themx += 4;
 			if (themy <= 2)
 				themy += 4;
-			if (themx >= WIDTH - 1)
+			if (themx == WIDTH-1)
 				themx -= 4;
-			if (themy >= HEIGHT - 1)
+			if (themy == HEIGHT-1)
 				themy -= 4;
+			if (themx >= WIDTH)
+				themx -= 5;
+			if (themy >= HEIGHT)
+				themy -= 5;
 			if (avoidenemy) {
 				fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
 			}						
@@ -87,7 +91,6 @@ public class ReducedMap implements TileBasedMap {
 			fillArea(0, WIDTH - temp, HEIGHT, temp, BLOCKED);
 			temp = reduceRound(world.goalInfo.pitchConst.getBottomBuffer());
 			fillArea(HEIGHT - temp, 0, temp, WIDTH, BLOCKED);
-
 			units[reduceRound(world.ourRobot.y)][reduceRound(world.ourRobot.x)] = US;
 		}
 	}
