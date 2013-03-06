@@ -60,9 +60,9 @@ public class ControlGUI2 extends JFrame {
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
 	private final JButton moveNoCollTarget = new JButton(
-			"Move while avoiding all obstacles");
-	private final JButton moveNoCollOppTarget = new JButton(
 			"Move while avoiding just opponent");
+	private final JButton moveNoCollOppTarget = new JButton(
+			"Move while avoiding all obstacles");
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
