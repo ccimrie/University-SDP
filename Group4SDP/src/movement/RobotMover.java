@@ -137,7 +137,7 @@ public class RobotMover extends Thread {
 
 				// Only wake up the waiting thread if there's a waiting thread
 				// to wake up
-				if (waitSem.hasQueuedThreads())
+				while (waitSem.hasQueuedThreads())
 					waitSem.release();
 			}
 			// Stop the robot when the movement thread has been told to exit
@@ -150,7 +150,7 @@ public class RobotMover extends Thread {
 		robot.clearBuff();
 		// Signal that robot is stopped and safe to disconnect
 		// Only if there is actually a thread waiting
-		if (killSem.hasQueuedThreads())
+		while (killSem.hasQueuedThreads())
 			killSem.release();
 	}
 
@@ -211,7 +211,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -241,7 +241,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -279,7 +279,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -333,7 +333,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -358,7 +358,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -431,7 +431,7 @@ public class RobotMover extends Thread {
 		mode = Mode.MOVE_TO_POINT_ASTAR;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -523,7 +523,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -548,7 +548,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 
@@ -562,7 +562,7 @@ public class RobotMover extends Thread {
 		interruptMove = true;
 		// Let the mover know it has a new job, only if it's waiting for a new
 		// job
-		if (jobSem.hasQueuedThreads())
+		while (jobSem.hasQueuedThreads())
 			jobSem.release();
 	}
 }
