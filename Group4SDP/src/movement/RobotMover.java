@@ -138,23 +138,28 @@ public class RobotMover extends Thread {
 		// safeSleep requires some initial use to prevent lag spikes on the
 		// first few runs - Thread.sleep has similar problems but less
 		// noticeable
+		System.out.println("Mover: safeSleep initial clearing started");
 		try {
 			for (int i = 0; i < 3; ++i)
 				safeSleep(10);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Mover: safeSleep initial clearing finished");
 		try {
 			while (!die) {
 				// Temporarily block queue changes while retrieving the next job
-				queueSem.acquire();
+				System.out.println("Acquiring jobSem");
 				// Wait for next movement operation
 				jobSem.acquire();
+				System.out.println("Mover: Got a job");
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
 				// Set the running flag to true for busy-waiting
 				running = true;
 
+				System.out.println("Acquiring queueSem");
+				queueSem.acquire();
 				if (!moveQueue.isEmpty() && !die) {
 					MoverConfig movement = moveQueue.poll();
 					// Queue will not change from here on, so release the
@@ -167,76 +172,86 @@ public class RobotMover extends Thread {
 						continue;
 					}
 
-					switch (movement.mode) {
-					case STOP:
-						System.out.println("Stopping robot");
-						robot.stop();
-						break;
-					case KICK:
-						System.out.println("Kicking!");
-						robot.kick();
-						break;
-					case DELAY:
-						System.out.println("Waiting for "
-								+ movement.milliseconds + " milliseconds");
-						safeSleep(movement.milliseconds);
-						break;
-					case MOVE_VECTOR:
-						System.out.println("Moving at speed (" + movement.x
-								+ ", " + movement.y + ")");
-						doMove(movement.x, movement.y);
-						break;
-					case MOVE_ANGLE:
-						System.out.println("Moving at angle " + movement.angle
-								+ " radians (" + Math.toDegrees(movement.angle)
-								+ " degrees)");
-						doMove(movement.angle);
-						break;
-					case MOVE_TO:
-						System.out.println("Moving to point (" + movement.x
-								+ ", " + movement.y + ")");
-						doMoveTo(movement.x, movement.y);
-						break;
-					case MOVE_TO_STOP:
-						System.out.println("Moving to point (" + movement.x
-								+ ", " + movement.y + ") and stopping");
-						doMoveTo(movement.x, movement.y);
-						robot.stop();
-						break;
-					case MOVE_TOWARDS:
-						System.out.println("Moving towards point ("
-								+ movement.x + ", " + movement.y + ")");
-						doMoveTowards(movement.x, movement.y);
-						break;
-					case MOVE_TO_ASTAR:
-						System.out.println("Moving to point (" + movement.x
-								+ ", " + movement.y + ") using A*");
-						doMoveToAStar(movement.x, movement.y,
-								movement.avoidBall);
-						break;
-					case ROTATE:
-						System.out.println("Rotating by " + movement.angle
-								+ " radians (" + Math.toDegrees(movement.angle)
-								+ " degrees)");
-						doRotate(movement.angle);
-						break;
-					default:
-						System.out
-								.println("DERP! Unknown movement mode specified");
-						assert (false);
+					try {
+						System.out.println("Mover: Job received: "
+								+ movement.mode.toString());
+						switch (movement.mode) {
+						case STOP:
+							System.out.println("Stopping robot");
+							robot.stop();
+							break;
+						case KICK:
+							System.out.println("Kicking!");
+							robot.kick();
+							break;
+						case DELAY:
+							System.out.println("Waiting for "
+									+ movement.milliseconds + " milliseconds");
+							safeSleep(movement.milliseconds);
+							break;
+						case MOVE_VECTOR:
+							System.out.println("Moving at speed (" + movement.x
+									+ ", " + movement.y + ")");
+							doMove(movement.x, movement.y);
+							break;
+						case MOVE_ANGLE:
+							System.out.println("Moving at angle "
+									+ movement.angle + " radians ("
+									+ Math.toDegrees(movement.angle)
+									+ " degrees)");
+							doMove(movement.angle);
+							break;
+						case MOVE_TO:
+							System.out.println("Moving to point (" + movement.x
+									+ ", " + movement.y + ")");
+							doMoveTo(movement.x, movement.y);
+							break;
+						case MOVE_TO_STOP:
+							System.out.println("Moving to point (" + movement.x
+									+ ", " + movement.y + ") and stopping");
+							doMoveTo(movement.x, movement.y);
+							robot.stop();
+							break;
+						case MOVE_TOWARDS:
+							System.out.println("Moving towards point ("
+									+ movement.x + ", " + movement.y + ")");
+							doMoveTowards(movement.x, movement.y);
+							break;
+						case MOVE_TO_ASTAR:
+							System.out.println("Moving to point (" + movement.x
+									+ ", " + movement.y + ") using A*");
+							doMoveToAStar(movement.x, movement.y,
+									movement.avoidBall);
+							break;
+						case ROTATE:
+							System.out.println("Rotating by " + movement.angle
+									+ " radians ("
+									+ Math.toDegrees(movement.angle)
+									+ " degrees)");
+							doRotate(movement.angle);
+							break;
+						default:
+							System.out
+									.println("DERP! Unknown movement mode specified");
+							assert (false);
+						}
+					} catch (Exception e) {
+						System.out.println("Error occurred executing job: ");
+						e.printStackTrace();
+						resetQueue();
 					}
 				} else {
 					queueSem.release();
 				}
 
+				System.out.println("Mover: job completed");
 				// If we just did the last move in the queue, wake up the
 				// waiting threads
 				if (moveQueue.isEmpty()) {
 					// Only wake up the waiting threads if there are waiting
 					// threads to wake up
-					System.out.println("Waking up waiters");
-					while (waitSem.hasQueuedThreads())
-						waitSem.release();
+					System.out.println("Waking up waiter");
+					waitSem.release();
 					running = false;
 				}
 			}
@@ -248,8 +263,6 @@ public class RobotMover extends Thread {
 		robot.clearBuff();
 		// Signal that robot is stopped and safe to disconnect
 		// Only if there is actually any threads waiting
-		while (killSem.hasQueuedThreads())
-			killSem.release();
 	}
 
 	/**
@@ -261,8 +274,6 @@ public class RobotMover extends Thread {
 	public void kill() throws InterruptedException {
 		die = true;
 		resetQueue();
-		// Wait for the thread to die
-		killSem.acquire();
 	}
 
 	/**

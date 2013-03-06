@@ -21,6 +21,7 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
+import strategy.movement.TurnToBall;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MainPlanner;
 import strategy.planning.PenaltyAttack;
@@ -58,8 +59,10 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
-	private final JButton moveNoCollTarget = new JButton("Move while avoiding all obstacles");
-	private final JButton moveNoCollOppTarget = new JButton("Move while avoiding just opponent");
+	private final JButton moveNoCollTarget = new JButton(
+			"Move while avoiding all obstacles");
+	private final JButton moveNoCollOppTarget = new JButton(
+			"Move while avoiding just opponent");
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
@@ -157,7 +160,7 @@ public class ControlGUI2 extends JFrame {
 		// Sets up the GUI
 		ControlGUI2 gui = new ControlGUI2(worldState, robot);
 		gui.setVisible(true);
-				
+
 		robot.connect();
 
 		while (!robot.isConnected()) {
@@ -172,7 +175,6 @@ public class ControlGUI2 extends JFrame {
 
 		System.out.println("Robot ready!");
 
-		
 	}
 
 	public ControlGUI2(final WorldState worldState, final RobotController robot) {
@@ -244,7 +246,7 @@ public class ControlGUI2 extends JFrame {
 		complexMovePanel.add(moveButton);
 		complexMovePanel.add(moveToButton);
 		complexMovePanel.add(rotateAndMoveButton);
-		
+
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
@@ -253,7 +255,7 @@ public class ControlGUI2 extends JFrame {
 		this.getContentPane().add(moveTargetPanel, gbc_panel_2);
 		moveTargetPanel.add(moveNoCollTarget);
 		moveTargetPanel.add(moveNoCollOppTarget);
-		
+
 		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
 		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_3.fill = GridBagConstraints.BOTH;
@@ -276,8 +278,13 @@ public class ControlGUI2 extends JFrame {
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//mover.move(100, 100);
-				mover.moveToAStar(worldState.ball.x, worldState.ball.y, false);
+				// mover.move(100, 100);
+				// mover.moveToAStar(worldState.ball.x, worldState.ball.y,
+				// false);
+
+				double angle = TurnToBall.AngleTurner(worldState.ourRobot,
+						worldState.ball.x, worldState.ball.y);
+				System.out.println("Angle is " + (int) angle);
 			}
 		});
 
@@ -287,7 +294,7 @@ public class ControlGUI2 extends JFrame {
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					DribbleBall5.die = true;
 					try {
-						mover.interruptMove();
+						mover.resetQueue();
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
@@ -420,27 +427,29 @@ public class ControlGUI2 extends JFrame {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Kill the mover and wait for it to stop completely
-				try {
-					mover.kill();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+				// try {
+				// mover.kill();
+				// } catch (InterruptedException e1) {
+				// e1.printStackTrace();
+				// }
 				robot.disconnect();
 
 				System.out.println("Quitting the GUI");
 				System.exit(0);
 			}
 		});
-		
+
 		moveNoCollTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), false);
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), false);
 			}
 		});
-				
+
 		moveNoCollOppTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), true);
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), true);
 			}
 		});
 

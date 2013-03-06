@@ -51,41 +51,37 @@ public class DribbleBall5 {
 		int goaly = targetgoal.getY();
 
 		//Determine a different position behind the ball depending on which door we are shooting in
+		if (die)
+			return;
 		if (worldState.areWeOnLeft()){		
 			double slope = (238 - ball.y)/(606 - ball.x);
-			if (die)
-				return;
 			mover.moveToAStar(ball.x - 70, ball.y + slope*70 , true);
-			mover.waitForCompletion();
-			safeSleep(50);
+			mover.delay(50);
 			mover.moveToAndStop(ball.x - 70, ball.y + slope*70);
 			mover.waitForCompletion();
 
 		} else {
 			double slope = (33 - ball.y)/(247 - ball.x);
 			mover.moveToAStar(ball.x + 70, ball.y + 70*slope, true);
-			mover.waitForCompletion();
-			safeSleep(50);
-			mover.moveToAndStop(ball.x + 70, ball.y + 70*slope);
+			mover.delay(50);
+			mover.moveToAndStop(ball.x - 70, ball.y + slope*70);
 			mover.waitForCompletion();
 		}
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 		safeSleep(50);
-		System.out.println("Angle for rotation " + angle);
 		int attempt = 0;
 		System.out.printf("Angle is, %d\n", (int)angle);
 		while (Math.abs(angle) > 15 && attempt < 10) {
-			if ((Math.abs(angle) > 0) && (Math.abs(angle) < 50)) {
-				System.out.println("Code block reached");
-				mover.rotate(Math.toRadians(angle / 2));
+			if ((Math.abs(angle) > 10) && (Math.abs(angle) < 50)) {
+				mover.rotate(Math.toRadians(angle / 3));
 				mover.waitForCompletion();
 			} else if (Math.abs(angle) > 50) {
-				System.out.println("Other code block reached");
-				mover.rotate(Math.toRadians(angle));
+				mover.rotate(Math.toRadians(angle/2));
 				mover.waitForCompletion();
 			}
 			++attempt;
 			angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
+			System.out.println("Angle for rotation " + angle);
 			safeSleep(50);
 			if (die)
 				return;
@@ -93,76 +89,19 @@ public class DribbleBall5 {
 
 		System.out.println("Reached position behind the ball!");
 
-		if (die)
-			return;
-/* Shouldn't be necessary
-		System.out.println("Adjusting to goal.");
-		double adjustAngle;
-		if (worldState.areWeOnLeft()){
-			adjustAngle = TurnToBall.AngleTurner(us, 606, 238);
-			System.out.println("Angle for rotation " + angle);
-			int attempt2 = 0;
-			System.out.printf("Angle is, %d\n", (int)angle);
-			while (Math.abs(angle) > 5 && attempt < 10) {
-				if ((Math.abs(angle) > 0) && (Math.abs(angle) < 50)) {
-					System.out.println("Code block reached");
-					mover.rotate(Math.toRadians(angle / 2));
-					mover.waitForCompletion();
-				} else if (Math.abs(angle) > 50) {
-					System.out.println("Other code block reached");
-					mover.rotate(Math.toRadians(angle));
-					mover.waitForCompletion();
-				}
-				//Thread.sleep(50);
-				++attempt2;
-				angle = TurnToBall.AngleTurner(us, 606, 238);
-				if (die)
-					return;
-			}
-		}
-		else{
-			adjustAngle = TurnToBall.AngleTurner(us, 33, 247);
-			System.out.println("Angle for rotation " + angle);
-			int attempt2 = 0;
-			System.out.printf("Angle is, %d\n", (int)angle);
-			while (Math.abs(angle) > 5 && attempt < 10) {
-				if ((Math.abs(angle) > 0) && (Math.abs(angle) < 50)) {
-					System.out.println("Code block reached");
-					mover.rotate(Math.toRadians(angle / 2));
-					mover.waitForCompletion();
-				} else if (Math.abs(angle) > 50) {
-					System.out.println("Other code block reached");
-					mover.rotate(Math.toRadians(angle));
-					mover.waitForCompletion();
-				}
-				//Thread.sleep(50);
-				++attempt2;
-				angle = TurnToBall.AngleTurner(us, 33, 247);
-				if (die)
-					return;
-			}
-		}
-
-		//Thread.sleep(50);
-		 * 
-		 */
-		if (die)
-			return;
 		mover.move(0, 50);
 
-		double previousx = ball.x;
-		double previousy = ball.y;
+		mover.delay(800);
 		//double previousy = ball.y;
-		while(true){
+		/*while(true){
 			if (((Math.abs(previousx - ball.x)) > 10) ||
 					((Math.abs(previousy) - ball.y) >10)){
 				break;
 			}
-		}
+		}*/
 
 		mover.kick();
-		if (die)
-			return;
+		mover.delay(20);
 		mover.stopRobot();
 		mover.waitForCompletion();
 
