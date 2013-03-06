@@ -89,20 +89,12 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Repeatedly tries to push the movement onto the move queue, giving up
 	 * after 10 attempts
 	 * 
 	 * @param movement
 	 *            The movement to push onto the queue
 	 * @return true if the movement was successfully pushed, false otherwise
-=======
-	 * A method to call: </br>{@link #doMove(double speedX, double speedY)},
-	 * </br> {@link #doMove(double angle)} ,</br> {@link #doMoveTo(double moveToPointX, double moveToPointY)} , </br>
-	 * {@link #doMoveToAndStop(double moveToPointX, double moveToPointY)} ,
-	 * </br> {@link #doMoveTowards (double moveToPointX, double moveToPointY)} ,
-	 * </br> {@link #doRotate (double angle)}
->>>>>>> moverfix
 	 */
 	private boolean pushMovement(MoverConfig movement) {
 		int pushAttempts = 0;
