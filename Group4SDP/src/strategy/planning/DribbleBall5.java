@@ -47,17 +47,25 @@ public class DribbleBall5 {
 		if (die)
 			return;
 		if (worldState.areWeOnLeft()) {
-			double slope = (238 - ball.y) / (606 - ball.x);
+			double slope = (242 - ball.y) / (610 - ball.x);
+			if (ball.y > 240){
+				slope = -slope;
+			}
 			mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, false);
 			mover.delay(50);
-			mover.moveToAndStop(ball.x - 70, ball.y + slope * 70);
+			RobotMover.distanceThreshold = 10;
+			mover.moveToAndStop(ball.x - 65, ball.y + slope * 65);
 			mover.waitForCompletion();
 
 		} else {
-			double slope = (247 - ball.y) / (33 - ball.x);
+			double slope = (244 - ball.y) / (28 - ball.x);
+			if (ball.y < 240){
+				slope = -slope;
+			}
 			mover.moveToAStar(ball.x + 70, ball.y + 70 * slope, true, false);
 			mover.delay(50);
-			mover.moveToAndStop(ball.x + 70, ball.y + slope * 70);
+			RobotMover.distanceThreshold = 10;
+			mover.moveToAndStop(ball.x + 65, ball.y + slope * 65);
 			mover.waitForCompletion();
 		}
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
@@ -66,7 +74,7 @@ public class DribbleBall5 {
 		System.out.printf("Angle is, %d\n", (int) angle);
 		while (Math.abs(angle) > 5 && attempt < 10) {
 			if ((Math.abs(angle) > 5) && (Math.abs(angle) < 50)) {
-				mover.rotate(Math.toRadians(angle / 3));
+				mover.rotate(Math.toRadians(angle / 2));
 				mover.waitForCompletion();
 			} else if (Math.abs(angle) > 50) {
 				mover.rotate(Math.toRadians(angle / 2));
@@ -85,32 +93,38 @@ public class DribbleBall5 {
 		//In case the ball is not straight on the goal, we need to
 		//Move near the ball, rotate and then move more.
 		if (worldState.areWeOnLeft()) {
-			angle = TurnToBall.AngleTurner(us, 238, 606);
+			angle = TurnToBall.AngleTurner(us, 610, 242);
 		}else{
-			angle = TurnToBall.AngleTurner(us, 247, 33);
+			angle = TurnToBall.AngleTurner(us, 28, 242);
 		}
 		//If the angle to the goal is > 10 degrees
-		/*if (angle > 10){
+		//if (angle > 10){
 			mover.move(0, 50);
-			safeSleep(300);
+			System.out.println("Moving towards the ball");
+			safeSleep(600);
+			System.out.println("Moving towards the ball finished");
 			mover.stopRobot();
 			mover.waitForCompletion();
 			safeSleep(50);
 			mover.rotate(Math.toRadians(angle));
 			mover.waitForCompletion();
-		}*/
+		//}
 		
 		
 		//Now we move to the ball and then we kick it.
 		mover.move(0, 50);
 
-		safeSleep(1300);
+		safeSleep(1500);
 
 
 		mover.kick();
-		mover.delay(20);
+		mover.delay(200);
 		mover.stopRobot();
 		mover.waitForCompletion();
+		mover.delay(3000);
+		if (!worldState.ballIsInGoal()){
+			dribbleBall(worldState,mover);
+		}
 
 	}
 }
