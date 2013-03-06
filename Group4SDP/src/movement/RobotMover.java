@@ -343,8 +343,8 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * A general move function as seen from the position of the robot.</br>
-	 * Speeds take values between -100 and 100.</br> NOTE: this movement will
+	 * A general move function as seen from the position of the robot.<br/>
+	 * Speeds take values between -100 and 100.<br/> NOTE: this movement will
 	 * complete almost immediately
 	 * 
 	 * @param speedX
