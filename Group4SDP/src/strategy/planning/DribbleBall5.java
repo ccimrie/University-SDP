@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import movement.RobotMover;
 import strategy.movement.TurnToBall;
-import vision.Position;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.WorldState;
@@ -33,9 +32,7 @@ public class DribbleBall5 {
 
 	public static boolean die = false;
 
-	private static final double xthreshold = 70;
-	private static final double ythreshold = 70;
-	private static double dribbleDistance = 200;
+
 
 	public void dribbleBall(WorldState worldState, RobotMover mover)
 			throws InterruptedException {
@@ -44,10 +41,6 @@ public class DribbleBall5 {
 		Robot us = worldState.ourRobot;
 		Ball ball = worldState.ball;
 
-		// Find which goal we need to be shooting.
-		Position targetgoal = worldState.getOurGoal();
-		int goalx = targetgoal.getX();
-		int goaly = targetgoal.getY();
 
 		// Determine a different position behind the ball depending on which
 		// door we are shooting in
@@ -89,14 +82,11 @@ public class DribbleBall5 {
 
 		System.out.println("Reached position behind the ball!");
 
+		//Now we move to the ball and then we kick it.
 		mover.move(0, 50);
 
 		mover.delay(1200);
-		// double previousy = ball.y;
-		/*
-		 * while(true){ if (((Math.abs(previousx - ball.x)) > 10) ||
-		 * ((Math.abs(previousy) - ball.y) >10)){ break; } }
-		 */
+
 
 		mover.kick();
 		mover.delay(20);
