@@ -67,7 +67,7 @@ public class RobotMover extends Thread {
 	private Semaphore queueSem = new Semaphore(1, true);
 
 	private Semaphore jobSem = new Semaphore(0, true);
-	private Semaphore killSem = new Semaphore(0, true);
+	//private Semaphore killSem = new Semaphore(0, true);
 	private Semaphore waitSem = new Semaphore(0, true);
 
 	/** Thread-safe sleep scheduler */
