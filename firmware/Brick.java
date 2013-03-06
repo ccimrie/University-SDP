@@ -378,9 +378,10 @@ public class Brick {
 	 * @throws InterruptedException
 	 */
 	private static void kick() throws InterruptedException {
+		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();
-		kicker.rotateTo(-60);
+		kicker.rotateTo(-80);
 		kicker.setSpeed(250);
 		kicker.rotateTo(0);
 		kicker.flt();
