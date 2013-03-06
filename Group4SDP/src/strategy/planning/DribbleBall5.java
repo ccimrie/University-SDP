@@ -64,8 +64,8 @@ public class DribbleBall5 {
 		safeSleep(50);
 		int attempt = 0;
 		System.out.printf("Angle is, %d\n", (int) angle);
-		while (Math.abs(angle) > 15 && attempt < 10) {
-			if ((Math.abs(angle) > 10) && (Math.abs(angle) < 50)) {
+		while (Math.abs(angle) > 5 && attempt < 10) {
+			if ((Math.abs(angle) > 5) && (Math.abs(angle) < 50)) {
 				mover.rotate(Math.toRadians(angle / 3));
 				mover.waitForCompletion();
 			} else if (Math.abs(angle) > 50) {
@@ -82,10 +82,29 @@ public class DribbleBall5 {
 
 		System.out.println("Reached position behind the ball!");
 
+		//In case the ball is not straight on the goal, we need to
+		//Move near the ball, rotate and then move more.
+		if (worldState.areWeOnLeft()) {
+			angle = TurnToBall.AngleTurner(us, 238, 606);
+		}else{
+			angle = TurnToBall.AngleTurner(us, 247, 33);
+		}
+		//If the angle to the goal is > 10 degrees
+		/*if (angle > 10){
+			mover.move(0, 50);
+			safeSleep(300);
+			mover.stopRobot();
+			mover.waitForCompletion();
+			safeSleep(50);
+			mover.rotate(Math.toRadians(angle));
+			mover.waitForCompletion();
+		}*/
+		
+		
 		//Now we move to the ball and then we kick it.
 		mover.move(0, 50);
 
-		mover.delay(1200);
+		safeSleep(1300);
 
 
 		mover.kick();
