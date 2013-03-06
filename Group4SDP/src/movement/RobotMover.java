@@ -67,7 +67,7 @@ public class RobotMover extends Thread {
 	private Semaphore queueSem = new Semaphore(1, true);
 
 	private Semaphore jobSem = new Semaphore(0, true);
-	//private Semaphore killSem = new Semaphore(0, true);
+	// private Semaphore killSem = new Semaphore(0, true);
 	private Semaphore waitSem = new Semaphore(0, true);
 
 	/** Thread-safe sleep scheduler */
@@ -292,15 +292,15 @@ public class RobotMover extends Thread {
 	 * @throws InterruptedException
 	 */
 	public void resetQueue() throws InterruptedException {
-		if (moveQueue.isEmpty())
-			return;
-		interruptMove();
-
 		// Block changes in the queue until the queue is finished
 		// resetting
 		queueSem.acquire();
-		// Acquire the permits for queued jobs to cancel the execution for them
-		jobSem.acquire(moveQueue.size());
+		if (moveQueue.isEmpty())
+			return;
+		interruptMove();
+		// Acquire the permits for queued jobs to cancel the execution for them,
+		// but leave 1 job in the semaphore to ensure wakeup
+		jobSem.acquire(Math.max(moveQueue.size() - 1, 0));
 		moveQueue.clear();
 		// Reactivate the movement thread
 		queueSem.release();
@@ -461,7 +461,8 @@ public class RobotMover extends Thread {
 	 */
 	private void doMoveTo(double x, double y) {
 		int i = 0;
-		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold && i < 50 && !interruptMove) {
+		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
+				&& i < 50 && !interruptMove) {
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
@@ -473,7 +474,8 @@ public class RobotMover extends Thread {
 			}
 			System.out.println("Our position: (" + us.x + ", " + us.y + ")");
 			System.out.println("Moving towards: (" + x + ", " + y + ")");
-			System.out.println("Distance: " + DistanceCalculator.Distance(us.x, us.y, x, y));
+			System.out.println("Distance: "
+					+ DistanceCalculator.Distance(us.x, us.y, x, y));
 			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
@@ -548,21 +550,31 @@ public class RobotMover extends Thread {
 		 * We make a vector (xt, yt) pointing from the robot to point, then use
 		 * rotational transformation to put it in robots perspective, then
 		 * normalise the speeds to a scale of 0-100.
-		 */		
+		 */
 		double angle = angleCalculator(us.x, us.y, x, y, us.bearing);
 		// Calling the generic move function
 		doMove(angle);
 	}
+
 	/**
-	 * Method to calculate an angle between two points, there the facing direction of the first one is given.
-	 * @param xf From where X
-	 * @param yf From where Y
-	 * @param x To where X
-	 * @param y To where Y
-	 * @param theta Clockwise angle of the origin from the north
-	 * @return angle (Radians) Angle between two points from the facing direction of the first.
+	 * Method to calculate an angle between two points, there the facing
+	 * direction of the first one is given.
+	 * 
+	 * @param xf
+	 *            From where X
+	 * @param yf
+	 *            From where Y
+	 * @param x
+	 *            To where X
+	 * @param y
+	 *            To where Y
+	 * @param theta
+	 *            Clockwise angle of the origin from the north
+	 * @return angle (Radians) Angle between two points from the facing
+	 *         direction of the first.
 	 */
-	public double angleCalculator (double xf, double yf, double x, double y, double theta){
+	public double angleCalculator(double xf, double yf, double x, double y,
+			double theta) {
 		double xt, yt, xtc, ytc;
 		// Vector from robot to point in the camera axis
 		xtc = x - xf;
@@ -582,7 +594,9 @@ public class RobotMover extends Thread {
 
 		// Finding the angle from dot product
 
-		double angle = Math.acos(dotProductForward / (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt * yt)));
+		double angle = Math.acos(dotProductForward
+				/ (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt
+						* yt)));
 
 		// Adjusting for negative values
 		if (dotProductRight < 0)
@@ -631,21 +645,26 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see #moveToAStar(double x, double y)
 	 */
-	private void doMoveToAStar(double x, double y, boolean avoidball, boolean avoidenemy) {
+	private void doMoveToAStar(double x, double y, boolean avoidball,
+			boolean avoidenemy) {
 		ReducedMap map = new ReducedMap(worldState, avoidball, avoidenemy);
 		System.out.println("Height: " + map.getHeightInTiles());
 		System.out.println("Width: " + map.getWidthInTiles());
 
-		System.out.println("Height: " + worldState.goalInfo.pitchConst.getPitchHeight() + "px");
+		System.out.println("Height: "
+				+ worldState.goalInfo.pitchConst.getPitchHeight() + "px");
 
-		System.out.println("Width: " + worldState.goalInfo.pitchConst.getPitchWidth() + "px");
+		System.out.println("Width: "
+				+ worldState.goalInfo.pitchConst.getPitchWidth() + "px");
 
 		PathFinder finder = new AStarPathFinder(map, 100, true);
 		int selectedx = map.reduceRound(us.y);
 		int selectedy = map.reduceRound(us.x);
 		int goToX = map.reduceRound(y);
 		int goToY = map.reduceRound(x);
-		Path path = finder.findPath(new UnitMover(map.getUnit(selectedx, selectedy)), selectedx, selectedy, goToX, goToY);
+		Path path = finder.findPath(
+				new UnitMover(map.getUnit(selectedx, selectedy)), selectedx,
+				selectedy, goToX, goToY);
 		if (path != null) {
 			int l = path.getLength();
 
@@ -679,13 +698,9 @@ public class RobotMover extends Thread {
 		System.out.println("AStar: Calling stop");
 		robot.stop();
 		/*
-		 * for (int i = 0; i < map.getHeightInTiles(); i++) {
-		 * String brr = "";
-		 * for (int j = 0; j < map.getWidthInTiles(); j++) {
-		 * brr += " " + map.getTerrain(i, j);
-		 * }
-		 * System.out.println(brr);
-		 * }
+		 * for (int i = 0; i < map.getHeightInTiles(); i++) { String brr = "";
+		 * for (int j = 0; j < map.getWidthInTiles(); j++) { brr += " " +
+		 * map.getTerrain(i, j); } System.out.println(brr); }
 		 */
 
 	}
