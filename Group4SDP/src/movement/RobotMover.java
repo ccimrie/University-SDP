@@ -548,14 +548,25 @@ public class RobotMover extends Thread {
 		 * We make a vector (xt, yt) pointing from the robot to point, then use
 		 * rotational transformation to put it in robots perspective, then
 		 * normalise the speeds to a scale of 0-100.
-		 */
-		double theta;
+		 */		
+		double angle = angleCalculator(us.x, us.y, x, y, us.bearing);
+		// Calling the generic move function
+		doMove(angle);
+	}
+	/**
+	 * Method to calculate an angle between two points, there the facing direction of the first one is given.
+	 * @param xf From where X
+	 * @param yf From where Y
+	 * @param x To where X
+	 * @param y To where Y
+	 * @param theta Clockwise angle of the origin from the north
+	 * @return angle (Radians) Angle between two points from the facing direction of the first.
+	 */
+	public double angleCalculator (double xf, double yf, double x, double y, double theta){
 		double xt, yt, xtc, ytc;
 		// Vector from robot to point in the camera axis
-		xtc = x - us.x;
-		ytc = y - us.y;
-		// Clockwise angle of the robot from the north
-		theta = us.bearing;
+		xtc = x - xf;
+		ytc = y - yf;
 
 		// Unit vector in camera axis in the direction of the robot
 		xt = Math.sin(theta);
@@ -576,9 +587,7 @@ public class RobotMover extends Thread {
 		// Adjusting for negative values
 		if (dotProductRight < 0)
 			angle = -angle;
-
-		// Calling the generic move function
-		doMove(angle);
+		return angle;
 	}
 
 	/**
