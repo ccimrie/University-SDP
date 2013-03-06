@@ -425,8 +425,8 @@ public class RobotMover extends Thread {
 	 * @see #move(double angle)
 	 */
 	private void doMove(double angle) {
-		double speedX = 55 * Math.sin(angle);
-		double speedY = 55 * Math.cos(angle);
+		double speedX = 80 * Math.sin(angle);
+		double speedY = 80 * Math.cos(angle);
 		doMove(speedX, speedY);
 	}
 
