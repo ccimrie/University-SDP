@@ -31,7 +31,7 @@ public class RobotMover extends Thread {
 	private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private static int distanceThreshold = 20;
+	public static int distanceThreshold = 20;
 
 	/**
 	 * A method to call: <br/>
@@ -677,7 +677,7 @@ public class RobotMover extends Thread {
 			distanceThreshold = 20;
 		}
 		System.out.println("AStar: Calling stop");
-		// robot.stop();
+		robot.stop();
 		/*
 		 * for (int i = 0; i < map.getHeightInTiles(); i++) {
 		 * String brr = "";
