@@ -144,17 +144,12 @@ public class RobotMover extends Thread {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		boolean wokenWaiters = true;
 		try {
 			while (!die) {
-				// Temporarily block queue changes while retreiving the next job
+				// Temporarily block queue changes while retrieving the next job
 				queueSem.acquire();
-				// Only wait if there are no remaining jobs to process
-				if (moveQueue.isEmpty() && wokenWaiters) {
-					wokenWaiters = false;
-					// Wait for next movement operation
-					jobSem.acquire();
-				}
+				// Wait for next movement operation
+				jobSem.acquire();
 				// Clear the movement interrupt flag for the new movement
 				interruptMove = false;
 				// Set the running flag to true for busy-waiting
@@ -232,11 +227,16 @@ public class RobotMover extends Thread {
 					}
 				} else {
 					queueSem.release();
+				}
+
+				// If we just did the last move in the queue, wake up the
+				// waiting threads
+				if (moveQueue.isEmpty()) {
 					// Only wake up the waiting threads if there are waiting
 					// threads to wake up
+					System.out.println("Waking up waiters");
 					while (waitSem.hasQueuedThreads())
 						waitSem.release();
-					wokenWaiters = true;
 					running = false;
 				}
 			}
@@ -260,10 +260,7 @@ public class RobotMover extends Thread {
 	 */
 	public void kill() throws InterruptedException {
 		die = true;
-		interruptMove = true;
-		// Trigger one final run for the mover thread to clean up waiters, stop
-		// the robot and clear the robot's buffer
-		jobSem.release();
+		resetQueue();
 		// Wait for the thread to die
 		killSem.acquire();
 	}
@@ -344,8 +341,8 @@ public class RobotMover extends Thread {
 
 	/**
 	 * A general move function as seen from the position of the robot.<br/>
-	 * Speeds take values between -100 and 100.<br/> NOTE: this movement will
-	 * complete almost immediately
+	 * Speeds take values between -100 and 100.<br/>
+	 * NOTE: this movement will complete almost immediately
 	 * 
 	 * @param speedX
 	 *            Speed right (for positive values) or left (for negative ones).
