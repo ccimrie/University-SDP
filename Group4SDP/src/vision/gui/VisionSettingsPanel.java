@@ -42,6 +42,7 @@ class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_YELLOW_T = 3;
 	public static final int MOUSE_MODE_GREEN_PLATES = 4;
 	public static final int MOUSE_MODE_GREY_CIRCLES = 5;
+	public static final int MOUSE_MODE_TARGET = 6;
 
 	// A PitchConstants class used to load/save constants for the pitch
 	private final PitchConstants pitchConstants;
@@ -196,6 +197,7 @@ class VisionSettingsPanel extends JPanel {
 	private final JRadioButton rdbtnMouseModeYellow = new JRadioButton();
 	private final JRadioButton rdbtnMouseModeGreenPlates = new JRadioButton();
 	private final JRadioButton rdbtnMouseModeGreyCircles = new JRadioButton();
+	private final JRadioButton targetSelection = new JRadioButton();
 
 	private abstract class BaseSliderChangeListener implements ChangeListener {
 		protected int index;
@@ -648,6 +650,37 @@ class VisionSettingsPanel extends JPanel {
 				rdbtnMouseModeGreyCircles.doClick();
 			}
 		});
+		
+		GridBagConstraints gbc_targetSelection = new GridBagConstraints();
+		gbc_targetSelection.anchor = GridBagConstraints.EAST;
+		gbc_targetSelection.insets = new Insets(0, 0, 5, 5);
+		gbc_targetSelection.fill = GridBagConstraints.VERTICAL;
+		gbc_targetSelection.gridx = 0;
+		gbc_targetSelection.gridy = 7;
+		mouseModePanel.add(targetSelection, gbc_targetSelection);
+		targetSelection.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (targetSelection.isSelected())
+					setMouseMode(MOUSE_MODE_TARGET);
+			}
+		});
+		
+		GridBagConstraints gbc_targetSelectionLabel = new GridBagConstraints();
+		gbc_targetSelectionLabel.anchor = GridBagConstraints.WEST;
+		gbc_targetSelectionLabel.insets = new Insets(0, 0,5, 5);
+		gbc_targetSelectionLabel.gridx = 1;
+		gbc_targetSelectionLabel.gridy = 7;
+		JLabel targetSelectionLabel = new JLabel("Target Selection");
+		targetSelectionLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		targetSelectionLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				targetSelection.doClick();
+			}
+		});
+		mouseModePanel.add(targetSelectionLabel, gbc_targetSelectionLabel);
+		
 		mouseModePanel.add(mouseModeGreyCirclesLabel,
 				gbc_mouseModeGreyCirclesLabel);
 

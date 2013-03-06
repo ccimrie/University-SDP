@@ -78,6 +78,10 @@ public class WorldState {
 	public Ball ball = new Ball();
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
+	
+	// Coordinates of the target placement of the robot.
+	public static int targetX = 100;
+	public static int targetY = 100;
 
 	public WorldState(GoalInfo goalInfo) {
 		// control properties
