@@ -55,14 +55,14 @@ public class DribbleBall5 {
 			return;
 		if (worldState.areWeOnLeft()){		
 			double slope = (238 - ball.y)/(606 - ball.x);
-			mover.moveToAStar(ball.x - 70, ball.y + slope*70 , true);
+			mover.moveToAStar(ball.x - 70, ball.y + slope*70 , true, false);
 			mover.delay(50);
 			mover.moveToAndStop(ball.x - 70, ball.y + slope*70);
 			mover.waitForCompletion();
 
 		} else {
 			double slope = (33 - ball.y)/(247 - ball.x);
-			mover.moveToAStar(ball.x + 70, ball.y + 70*slope, true);
+			mover.moveToAStar(ball.x + 70, ball.y + 70*slope, true, false);
 			mover.delay(50);
 			mover.moveToAndStop(ball.x - 70, ball.y + slope*70);
 			mover.waitForCompletion();

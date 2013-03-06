@@ -442,14 +442,14 @@ public class ControlGUI2 extends JFrame {
 		moveNoCollTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mover.moveToAStar(Integer.parseInt(op4field.getText()),
-						Integer.parseInt(op5field.getText()), false);
+						Integer.parseInt(op5field.getText()), false, true);
 			}
 		});
 
 		moveNoCollOppTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mover.moveToAStar(Integer.parseInt(op4field.getText()),
-						Integer.parseInt(op5field.getText()), true);
+						Integer.parseInt(op5field.getText()), true, true);
 			}
 		});
 
