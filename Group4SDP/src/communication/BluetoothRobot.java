@@ -6,8 +6,13 @@ import strategy.planning.Commands;
 import world.state.Robot;
 import world.state.RobotType;
 
+/**
+ * A class to control the robot via bluetooth
+ */
 public class BluetoothRobot extends Robot implements RobotController {
-
+	/**
+	 * A bi-directional stream connected to the robot by bluetooth
+	 */
 	private BluetoothCommunication comms;
 
 	public BluetoothRobot(RobotType type, BluetoothCommunication comms) {
@@ -83,6 +88,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 		if (input < 0 && input > -180) {
 			input = -input;
 			dir = 1;
+		} else if (input <-180 && input >-360){
+			input+=360;
 		}
 
 		int op1 = input % 10;

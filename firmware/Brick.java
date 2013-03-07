@@ -274,22 +274,22 @@ public class Brick {
 	public static void rotate(int dir, int angle) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
-		leftMotor.setSpeed(350);
-		rightMotor.setSpeed(350);
+		leftMotor.setSpeed(170);
+		rightMotor.setSpeed(170);
 		angle = (int) (angle * 2);
 		chip.move(1, DO_NOTHING, 0);
 		chip.move(2, DO_NOTHING, 0);
 
 		switch (dir) {
 		case 1:
-			chip.move(1, FORWARDS, 120);
-			chip.move(2, BACKWARDS, 120);
+			chip.move(1, FORWARDS, 100);
+			chip.move(2, BACKWARDS, 100);
 			leftMotor.rotate(angle, true);
 			rightMotor.rotate(angle);
 			break;
 		case 2:			
-			chip.move(1, BACKWARDS, 120);
-			chip.move(2, FORWARDS, 120);
+			chip.move(1, BACKWARDS, 100);
+			chip.move(2, FORWARDS, 100);
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(-angle);
 			break;
@@ -378,8 +378,10 @@ public class Brick {
 	 * @throws InterruptedException
 	 */
 	private static void kick() throws InterruptedException {
+		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
-		kicker.rotateTo(-60);
+		kicker.resetTachoCount();
+		kicker.rotateTo(-80);
 		kicker.setSpeed(250);
 		kicker.rotateTo(0);
 		kicker.flt();

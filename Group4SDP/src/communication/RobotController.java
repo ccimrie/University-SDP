@@ -25,7 +25,7 @@ public interface RobotController {
 	public boolean isReady();
 	
 	/**
-	 * Tells the robot to shut down
+	 * Disconnects from the robot
 	 */
 	public void disconnect();
 

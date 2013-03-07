@@ -139,6 +139,7 @@ public class BluetoothCommunication {
 				buffer -= 1;
 				return -2;
 		}
+		System.out.println("Buffer is full, command not sent!");
 		return -2;
 	}
 

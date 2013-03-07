@@ -21,11 +21,13 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
-import strategy.planning.Commands;
+import strategy.movement.TurnToBall;
 import strategy.planning.DribbleBall5;
+import strategy.planning.MainPlanner;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
+import strategy.planning.StrategyInterface;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -40,7 +42,6 @@ import communication.BluetoothRobot;
 import communication.DeviceInfo;
 import communication.RobotController;
 
-// TODO: clean up unused stuff
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
 	// GUI elements
@@ -49,6 +50,8 @@ public class ControlGUI2 extends JFrame {
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();
 	private final JPanel complexMovePanel = new JPanel();
+	private final JPanel moveTargetPanel = new JPanel();
+	private final JPanel moveTargetOptionsPanel = new JPanel();
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -56,6 +59,10 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
+	private final JButton moveNoCollTarget = new JButton(
+			"Move while avoiding just opponent");
+	private final JButton moveNoCollOppTarget = new JButton(
+			"Move while avoiding all obstacles");
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
@@ -76,10 +83,13 @@ public class ControlGUI2 extends JFrame {
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
+	private final static JLabel op4label = new JLabel("Move to (x label): ");
+	private final static JLabel op5label = new JLabel("Move to (y label): ");
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-
+	public static final JTextField op4field = new JTextField();
+	public static final JTextField op5field = new JTextField();
 	// TODO: remove
 	// Strategy used for driving part of milestone 2
 	// private MoveToBall mball = new MoveToBall();
@@ -92,8 +102,8 @@ public class ControlGUI2 extends JFrame {
 
 	private WorldState worldState;
 
-	private Thread stratThread;
-	private Strategy strat;
+	private Thread strategyThread;
+	private StrategyInterface strategy;
 
 	private final RobotController robot;
 	private final RobotMover mover;
@@ -146,7 +156,11 @@ public class ControlGUI2 extends JFrame {
 				DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		// Sets up robot
 		BluetoothRobot robot = new BluetoothRobot(RobotType.Us, comms);
-		
+
+		// Sets up the GUI
+		ControlGUI2 gui = new ControlGUI2(worldState, robot);
+		gui.setVisible(true);
+
 		robot.connect();
 
 		while (!robot.isConnected()) {
@@ -161,10 +175,6 @@ public class ControlGUI2 extends JFrame {
 
 		System.out.println("Robot ready!");
 
-
-		// Sets up the GUI
-		ControlGUI2 gui = new ControlGUI2(worldState, robot);
-		gui.setVisible(true);
 	}
 
 	public ControlGUI2(final WorldState worldState, final RobotController robot) {
@@ -237,6 +247,30 @@ public class ControlGUI2 extends JFrame {
 		complexMovePanel.add(moveToButton);
 		complexMovePanel.add(rotateAndMoveButton);
 
+		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_2.fill = GridBagConstraints.BOTH;
+		gbc_panel_2.gridx = 0;
+		gbc_panel_2.gridy = 4;
+		this.getContentPane().add(moveTargetPanel, gbc_panel_2);
+		moveTargetPanel.add(moveNoCollTarget);
+		moveTargetPanel.add(moveNoCollOppTarget);
+
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_3.fill = GridBagConstraints.BOTH;
+		gbc_panel_3.gridx = 0;
+		gbc_panel_3.gridy = 5;
+		this.getContentPane().add(moveTargetOptionsPanel, gbc_panel_3);
+		op4field.setColumns(6);
+		op5field.setColumns(6);
+		op4field.setText("" + 100);
+		op5field.setText("" + 100);
+		moveTargetOptionsPanel.add(op4label);
+		moveTargetOptionsPanel.add(op4field);
+		moveTargetOptionsPanel.add(op5label);
+		moveTargetOptionsPanel.add(op5field);
+
 		// TODO: remove
 		complexMovePanel.add(dribbleButton);
 
@@ -244,30 +278,37 @@ public class ControlGUI2 extends JFrame {
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.move(100, 100);
+				// mover.move(100, 100);
+				// mover.moveToAStar(worldState.ball.x, worldState.ball.y,
+				// false);
+
+				double angle = TurnToBall.AngleTurner(worldState.ourRobot,
+						worldState.ball.x, worldState.ball.y);
+				System.out.println("Angle is " + (int) angle);
 			}
 		});
 
 		stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Stop strategy if it's running
-				try {
-					Strategy.stop();
-					// TODO: this does precisely nothing (hence strategy doesn't
-					// always immediately stop when this button is clicked) -
-					// the strategy thread always terminates almost immediately.
-					// Possibly make strategy call MainPlanner.run() instead of
-					// creating it in a new thread?
-					if (stratThread != null) {
-						stratThread.interrupt();
-						stratThread.join();
+				// Stop the dribble thread if it's running
+				if (dribbleThread != null && dribbleThread.isAlive()) {
+					DribbleBall5.die = true;
+					try {
+						mover.resetQueue();
+						dribbleThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
 					}
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+				}
+				// Stop strategy if it's running
+				if (strategyThread != null && strategyThread.isAlive()) {
+					Strategy.stop();
+					strategy.kill();
 				}
 				// Stop the robot.
 				mover.stopRobot();
 			}
+			// Run the strategy from here.
 		});
 
 		stratStartButton.addActionListener(new ActionListener() {
@@ -277,9 +318,9 @@ public class ControlGUI2 extends JFrame {
 				Strategy.reset();
 
 				// Run in a new thread to free up UI while running
-				strat = new Strategy(worldState, mover);
-				Thread stratthr = new Thread(strat);
-				stratthr.start();
+				strategy = new MainPlanner(worldState, mover);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 
@@ -338,8 +379,12 @@ public class ControlGUI2 extends JFrame {
 
 		dribbleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dribbleThread = new DribbleBallThread();
-				dribbleThread.start();
+				if (dribbleThread == null || !dribbleThread.isAlive()) {
+					dribbleThread = new DribbleBallThread();
+					dribbleThread.start();
+				} else {
+					System.out.println("Dribble is already active!");
+				}
 			}
 		});
 
@@ -382,16 +427,29 @@ public class ControlGUI2 extends JFrame {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Kill the mover and wait for it to stop completely
-				mover.kill();
-				try {
-					mover.waitForCompletion();
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+				// try {
+				// mover.kill();
+				// } catch (InterruptedException e1) {
+				// e1.printStackTrace();
+				// }
 				robot.disconnect();
 
 				System.out.println("Quitting the GUI");
 				System.exit(0);
+			}
+		});
+
+		moveNoCollTarget.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), false, true);
+			}
+		});
+
+		moveNoCollOppTarget.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), true, true);
 			}
 		});
 
@@ -408,9 +466,8 @@ public class ControlGUI2 extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
-			mover.kill();
 			try {
-				mover.waitForCompletion();
+				mover.kill();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -422,7 +479,8 @@ public class ControlGUI2 extends JFrame {
 	class DribbleBallThread extends Thread {
 		public void run() {
 			try {
-				dribbleBall.dribbleBall(worldState, robot);
+				DribbleBall5.die = false;
+				dribbleBall.dribbleBall(worldState, mover);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
