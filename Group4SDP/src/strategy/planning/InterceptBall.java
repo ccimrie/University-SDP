@@ -9,7 +9,7 @@ public class InterceptBall extends StrategyInterface {
 	private static final double distanceThreshold = 10;
 	private static final double angleThreshold = Math.toRadians(10);
 	private static final double sqVelocityThreshold = 1.0;
-	private static final double velocityFactor = 5.0;
+	private static final double distVelFactorScale = 10.0;
 
 	public InterceptBall(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -29,6 +29,9 @@ public class InterceptBall extends StrategyInterface {
 		 * moving
 		 */
 		if (ball.speedX * ball.speedX + ball.speedY * ball.speedY > sqVelocityThreshold) {
+			// The ball's velocity matters more the further it is from our robot
+			double velocityFactor = world.distanceBetweenUsAndBall() / distVelFactorScale;
+			
 			double projX = ball.x + velocityFactor * ball.speedX;
 			double projY = ball.y + velocityFactor * ball.speedY;
 			return new Position((int) projX, (int) projY);
