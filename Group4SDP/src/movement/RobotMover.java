@@ -1,10 +1,7 @@
 package movement;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import strategy.calculations.DistanceCalculator;
@@ -13,6 +10,7 @@ import strategy.movement.AStar.Path;
 import strategy.movement.AStar.PathFinder;
 import strategy.movement.AStar.ReducedMap;
 import strategy.movement.AStar.UnitMover;
+import utility.SafeSleep;
 import world.state.Robot;
 import world.state.WorldState;
 
@@ -41,13 +39,12 @@ public class RobotMover extends Thread {
 	 * {@link RobotMover#doMove(double speedX, double speedY)}, <br/>
 	 * {@link RobotMover#doMove(double angle)} ,<br/>
 	 * {@link RobotMover#doMoveTo(double x, double y)} , <br/>
-	 * {@link RobotMover#doMoveToAndStop(double x, double y)} , <br/>
 	 * {@link RobotMover#doMoveToAStar(double x, double y, boolean avoidBall)} ,<br/>
 	 * {@link RobotMover#doMoveTowards (double x, double y)} , <br/>
 	 * {@link RobotMover#doRotate (double angle)}
 	 */
 	private enum Mode {
-		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_STOP, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE
+		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE
 	};
 
 	/** Settings info class to permit queueing of movements */
@@ -78,30 +75,12 @@ public class RobotMover extends Thread {
 	/** A semaphore used to signal the RobotMover has completed its job queue */
 	private Semaphore waitSem = new Semaphore(0, true);
 
-	/** Thread-safe sleep scheduler */
-	private final ScheduledExecutorService sleepScheduler = Executors
-			.newScheduledThreadPool(1);
-
-	/** Thread-safe sleep */
-	private void safeSleep(long millis) throws InterruptedException {
-		final Semaphore sleepSem = new Semaphore(0, true);
-		// Schedule a wake-up after the specified time
-		sleepScheduler.schedule(new Runnable() {
-			@Override
-			public void run() {
-				sleepSem.release();
-			}
-		}, millis, TimeUnit.MILLISECONDS);
-		// Wait for the wake-up
-		sleepSem.acquire();
-	}
-
 	/**
 	 * Constructor for the movement class.
 	 * 
 	 * @param worldState
-	 *            a world state from the vision, giving us information on
-	 *            robots, ball etc.
+	 *            A persistent copy of the world state which is assumed to be
+	 *            updated periodically
 	 * @param robot
 	 *            A low-level controller for the robot
 	 */
@@ -151,91 +130,68 @@ public class RobotMover extends Thread {
 	 * 
 	 * @param movement
 	 *            The movement to process
-	 * @throws InterruptedException
-	 *             If the RobotMover thread is interrupted
+	 * @throws Exception
+	 *             If an error occurred
 	 */
-	private void processMovement(MoverConfig movement)
-			throws InterruptedException {
-		try {
-			switch (movement.mode) {
-			case STOP:
-				System.out.println("Stopping robot");
-				robot.stop();
-				break;
-			case KICK:
-				System.out.println("Kicking!");
-				robot.kick();
-				break;
-			case DELAY:
-				System.out.println("Waiting for " + movement.milliseconds
-						+ " milliseconds");
-				safeSleep(movement.milliseconds);
-				break;
-			case MOVE_VECTOR:
-				System.out.println("Moving at speed (" + movement.x + ", "
-						+ movement.y + ")");
-				doMove(movement.x, movement.y);
-				break;
-			case MOVE_ANGLE:
-				System.out.println("Moving at angle " + movement.angle
-						+ " radians (" + Math.toDegrees(movement.angle)
-						+ " degrees)");
-				doMove(movement.angle);
-				break;
-			case MOVE_TO:
-				System.out.println("Moving to point (" + movement.x + ", "
-						+ movement.y + ")");
-				doMoveTo(movement.x, movement.y);
-				break;
-			case MOVE_TO_STOP:
-				System.out.println("Moving to point (" + movement.x + ", "
-						+ movement.y + ") and stopping");
-				doMoveTo(movement.x, movement.y);
-				robot.stop();
-				break;
-			case MOVE_TOWARDS:
-				System.out.println("Moving towards point (" + movement.x + ", "
-						+ movement.y + ")");
-				doMoveTowards(movement.x, movement.y);
-				break;
-			case MOVE_TO_ASTAR:
-				System.out.println("Moving to point (" + movement.x + ", "
-						+ movement.y + ") using A*");
-				doMoveToAStar(movement.x, movement.y, movement.avoidBall,
-						movement.avoidEnemy);
-				break;
-			case ROTATE:
-				System.out.println("Rotating by " + movement.angle
-						+ " radians (" + Math.toDegrees(movement.angle)
-						+ " degrees)");
-				doRotate(movement.angle);
-				break;
-			default:
-				System.out.println("DERP! Unknown movement mode specified");
-				assert (false);
-			}
-		} catch (Exception e) {
-			System.out.println("Error occurred executing job: ");
-			e.printStackTrace();
-			resetQueue();
+	private void processMovement(MoverConfig movement) throws Exception {
+		switch (movement.mode) {
+		case STOP:
+			System.out.println("Stopping robot");
+			robot.stop();
+			break;
+		case KICK:
+			System.out.println("Kicking!");
+			robot.kick();
+			break;
+		case DELAY:
+			System.out.println("Waiting for " + movement.milliseconds
+					+ " milliseconds");
+			SafeSleep.sleep(movement.milliseconds);
+			break;
+		case MOVE_VECTOR:
+			System.out.println("Moving at speed (" + movement.x + ", "
+					+ movement.y + ")");
+			doMove(movement.x, movement.y);
+			break;
+		case MOVE_ANGLE:
+			System.out.println("Moving at angle " + movement.angle
+					+ " radians (" + Math.toDegrees(movement.angle)
+					+ " degrees)");
+			doMove(movement.angle);
+			break;
+		case MOVE_TO:
+			System.out.println("Moving to point (" + movement.x + ", "
+					+ movement.y + ")");
+			doMoveTo(movement.x, movement.y);
+			break;
+		case MOVE_TOWARDS:
+			System.out.println("Moving towards point (" + movement.x + ", "
+					+ movement.y + ")");
+			doMoveTowards(movement.x, movement.y);
+			break;
+		case MOVE_TO_ASTAR:
+			System.out.println("Moving to point (" + movement.x + ", "
+					+ movement.y + ") using A*");
+			doMoveToAStar(movement.x, movement.y, movement.avoidBall,
+					movement.avoidEnemy);
+			break;
+		case ROTATE:
+			System.out.println("Rotating by " + movement.angle + " radians ("
+					+ Math.toDegrees(movement.angle) + " degrees)");
+			doRotate(movement.angle);
+			break;
+		default:
+			System.out.println("DERP! Unknown movement mode specified");
+			assert (false);
 		}
 	}
 
 	/**
-	 * Runner for our movement
+	 * Main method for the movement thread
 	 * 
 	 * @see Thread#run()
 	 */
 	public void run() {
-		// safeSleep requires some initial use to prevent lag spikes on the
-		// first few runs - Thread.sleep has similar problems but less
-		// noticeable
-		try {
-			for (int i = 0; i < 3; ++i)
-				safeSleep(10);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		try {
 			while (!die) {
 				// Wait for next movement operation
@@ -262,17 +218,17 @@ public class RobotMover extends Thread {
 				if (moveQueue.isEmpty())
 					wakeUpWaitingThreads();
 			}
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			// Try to prevent deadlocks when the mover breaks
 			wakeUpWaitingThreads();
+		} finally {
+			// Stop the robot when the movement thread has been told to exit
+			robot.stop();
+			// Clear the robot's buffer to potentially allow restart of a
+			// RobotMover thread
+			robot.clearBuff();
 		}
-		// Stop the robot when the movement thread has been told to exit
-		robot.stop();
-		// Clear the robot's buffer to potentially allow restart of a RobotMover
-		// thread
-		robot.clearBuff();
-		// Kill the thread pool that manages thread-safe sleeping
-		sleepScheduler.shutdown();
 	}
 
 	/**
@@ -281,14 +237,14 @@ public class RobotMover extends Thread {
 	 */
 	public void kill() {
 		die = true;
-		// Interrupt any active movements
 		interruptMove();
 		// Wake up the RobotMover thread if it's waiting for a new job
 		jobSem.release();
 	}
 
 	/**
-	 * Triggers an interrupt in movement
+	 * Triggers an interrupt in any active movement. <br/>
+	 * NOTE: this will have no effect if the active movement is a delay
 	 */
 	public void interruptMove() {
 		interruptMove = true;
@@ -296,9 +252,11 @@ public class RobotMover extends Thread {
 
 	/**
 	 * Resets the queue of movements to allow for an immediate change in planned
-	 * movements, and also interrupts the current movement
+	 * movements <br/>
+	 * NOTE: This does not interrupt an active movement
 	 * 
 	 * @throws InterruptedException
+	 *             if the RobotMover thread was interrupted
 	 */
 	public void resetQueue() throws InterruptedException {
 		// Block changes in the queue until the queue is finished
@@ -344,39 +302,45 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * @return The number of jobs currently queued, not including the one
-	 *         currently running
+	 * Determines how many jobs have been queued, not including the one
+	 * currently running
+	 * 
+	 * @return The number of jobs currently queued
 	 */
 	public int numQueuedJobs() {
-		// Get a lock on the queue to prevent changes while determining how many
-		// jobs there are
 		try {
+			// Get a lock on the queue to prevent changes while determining how
+			// many
+			// jobs there are
 			queueLock.lockInterruptibly();
 			int result = moveQueue.size();
 			queueLock.unlock();
 			return result;
 		} catch (InterruptedException e) {
+			// If the thread has been interrupted, there can't be jobs queued.
 			return 0;
 		}
 	}
 
 	/**
-	 * Waits for the movement to complete before returning
+	 * Waits for the movement queue to complete before returning
 	 */
 	public void waitForCompletion() throws InterruptedException {
 		waitSem.acquire();
 	}
 
 	/**
-	 * A general move function as seen from the position of the robot.<br/>
+	 * Queues a change in the robot's movement vector using the vector.
+	 * components directly<br/>
 	 * Speeds take values between -100 and 100.<br/>
-	 * NOTE: this movement will complete almost immediately
+	 * NOTE: this movement will complete almost immediately.
 	 * 
 	 * @param speedX
-	 *            Speed right (for positive values) or left (for negative ones).
+	 *            Speed right (for positive values) or left (for negative ones),
+	 *            relative to the robot.
 	 * @param speedY
 	 *            Speed forward (for positive values) or backward (for negative
-	 *            ones).
+	 *            ones), relative to the robot
 	 * @return true if the move was successfully queued, false otherwise
 	 */
 	public synchronized boolean move(double speedX, double speedY) {
@@ -405,12 +369,13 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * A general move function where you specify a clockwise angle from the
-	 * front of the robot to move at.<br/>
-	 * NOTE: this movement will complete almost immediately
+	 * Queues a change in the robot's movement vector using a clockwise angle
+	 * from the front of the robot.<br/>
+	 * NOTE: this movement will complete almost immediately.
 	 * 
 	 * @param angle
-	 *            Angle, in radians (0 to 2*PI)
+	 *            The clockwise angle to move at, relative to the front of the
+	 *            robot (in radians)
 	 * @return true if the move was successfully queued, false otherwise
 	 */
 	public synchronized boolean move(double angle) {
@@ -439,15 +404,15 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Moves to a point on a video stream (within a certain margin). Does not
-	 * stop when reaches the point.
+	 * Queues a movement to a point on the camera feed's coordinate system.<br/>
+	 * NOTE: The robot does not stop when it reaches the point.
 	 * 
 	 * @param x
-	 *            Move to position x units down from top left corner of the
-	 *            video feed
+	 *            The x coordinate of the point. (This is the number of pixels
+	 *            from the left edge of the camera feed.)
 	 * @param y
-	 *            Move to position y units right from top left corner of the
-	 *            video feed
+	 *            The y coordinate of the point. (This is the number of pixels
+	 *            from the top edge of the camera feed.)
 	 * @return true if the move was successfully queued, false otherwise
 	 * 
 	 * @see #moveToAndStop(double x, double y)
@@ -483,7 +448,7 @@ public class RobotMover extends Thread {
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
 			try {
-				safeSleep(42);
+				SafeSleep.sleep(42);
 			} catch (InterruptedException e) {
 				System.out.println("Failed to sleep");
 				e.printStackTrace();
@@ -500,7 +465,8 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Moves to a point on a video stream (within a certain margin) and stops.
+	 * Queues a movement to a point on the camera feed's coordinate system, and
+	 * stops the robot when it gets there.
 	 * 
 	 * @param x
 	 *            Move to position x units down from top left corner of the
@@ -514,21 +480,32 @@ public class RobotMover extends Thread {
 	 * @see #waitForCompletion()
 	 */
 	public synchronized boolean moveToAndStop(double x, double y) {
+		// Queue the movement
 		MoverConfig movement = new MoverConfig();
 		movement.x = x;
 		movement.y = y;
-		movement.mode = Mode.MOVE_TO_STOP;
+		movement.mode = Mode.MOVE_TO;
+
+		if (!pushMovement(movement))
+			return false;
+		
+		// Let the mover know it has a new job
+		jobSem.release();
+
+		// Queue the stop
+		movement = new MoverConfig();
+		movement.mode = Mode.STOP;
 
 		if (!pushMovement(movement))
 			return false;
 
-		// Let the mover know it has a new job
+		// Let the mover know it has a second new job
 		jobSem.release();
 		return true;
 	}
 
 	/**
-	 * Starts moving to the direction of the point<br/>
+	 * Queues an instruction to start moving towards a point<br/>
 	 * NOTE: this movement will complete almost immediately
 	 * 
 	 * @param x
@@ -562,67 +539,62 @@ public class RobotMover extends Thread {
 	 * @see #moveTowards(double x, double y)
 	 */
 	private void doMoveTowards(double x, double y) {
-		/*
-		 * We make a vector (xt, yt) pointing from the robot to point, then use
-		 * rotational transformation to put it in robots perspective, then
-		 * normalise the speeds to a scale of 0-100.
-		 */
+		// Get the turn angle for the point
 		double angle = angleCalculator(us.x, us.y, x, y, us.bearing);
-		// Calling the generic move function
+		// Move in the direction the turn angle points to
 		doMove(angle);
 	}
 
 	/**
-	 * Method to calculate an angle between two points, there the facing
-	 * direction of the first one is given.
+	 * Calculates the turn angle between a robot and a point
 	 * 
-	 * @param xf
-	 *            From where X
-	 * @param yf
-	 *            From where Y
-	 * @param x
-	 *            To where X
-	 * @param y
-	 *            To where Y
-	 * @param theta
-	 *            Clockwise angle of the origin from the north
-	 * @return angle (Radians) Angle between two points from the facing
-	 *         direction of the first.
+	 * @param x1
+	 *            The x coordinate of the robot (camera coordinates)
+	 * @param y1
+	 *            The y coordinate of the robot (camera coordinates)
+	 * @param x2
+	 *            The x coordinate of the point (camera coordinates)
+	 * @param y2
+	 *            The y coordinate of the point (camera coordinates)
+	 * @param bearing
+	 *            The bearing of the robot (in radians), relative to up on the
+	 *            camera feed
+	 * @return The turn angle (in radians)
 	 */
-	public double angleCalculator(double xf, double yf, double x, double y,
-			double theta) {
+	public double angleCalculator(double x1, double y1, double x2, double y2,
+			double bearing) {
 		double xt, yt, xtc, ytc;
 		// Vector from robot to point in the camera axis
-		xtc = x - xf;
-		ytc = y - yf;
+		xtc = x2 - x1;
+		ytc = y2 - y1;
 
-		// Unit vector in camera axis in the direction of the robot
-		xt = Math.sin(theta);
-		yt = -Math.cos(theta);
-
-		// Dot product of the two vectors
+		// Unit vector in camera coordinates in the forward direction of the
+		// robot
+		xt = Math.sin(bearing);
+		yt = -Math.cos(bearing);
+		// Dot product between the forward vector and the direction of the point
 		double dotProductForward = xt * xtc + yt * ytc;
 
-		// Turned dot product
-		xt = Math.sin(theta + Math.PI / 2.0);
-		yt = -Math.cos(theta + Math.PI / 2.0);
+		// Unit vector in camera coordinates at a clockwise right angle to the
+		// forward vector (i.e. pointing to the robot's right)
+		xt = Math.sin(bearing + Math.PI / 2.0);
+		yt = -Math.cos(bearing + Math.PI / 2.0);
+		// Dot product between the right vector and the direction of the point
 		double dotProductRight = xt * xtc + yt * ytc;
 
-		// Finding the angle from dot product
-
+		// Find the turn angle using the dot product
 		double angle = Math.acos(dotProductForward
-				/ (Math.sqrt(xtc * xtc + ytc * ytc) * Math.sqrt(xt * xt + yt
-						* yt)));
+				/ (Math.sqrt((xtc * xtc + ytc * ytc) * (xt * xt + yt * yt))));
 
-		// Adjusting for negative values
+		// Ensure the turn angle is in the correct direction
 		if (dotProductRight < 0)
 			angle = -angle;
 		return angle;
 	}
 
 	/**
-	 * Move to a point (x,y) while avoiding point enemy robot and optionally the
-	 * ball. Should go in an arc by default.
+	 * Queues a movement to a point while avoiding optionally either the ball,
+	 * the enemy robot, or both.
 	 * 
 	 * @param x
 	 *            Point in the X axis to move to.
@@ -630,6 +602,8 @@ public class RobotMover extends Thread {
 	 *            Point in the Y axis to move to.
 	 * @param avoidBall
 	 *            Should A* avoid the ball.
+	 * @param avoidEnemy
+	 *            Should A* avoid the enemy robot.
 	 * @return true if the move was successfully queued, false otherwise
 	 * 
 	 * @see #waitForCompletion()
@@ -722,10 +696,10 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Calls robot controller to rotate the robot by an angle <br/>
+	 * Queues a rotation by an angle.
 	 * 
 	 * @param angleRad
-	 *            clockwise angle to rotate (in Radians)
+	 *            clockwise angle to rotate by (in Radians)
 	 * @return true if the rotate was successfully queued, false otherwise
 	 * 
 	 * @see #waitForCompletion()
@@ -754,11 +728,13 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Stops the robot
+	 * Queues a command to stop the robot
 	 * 
 	 * @return true if the stop was successfully queued, false otherwise
 	 * 
 	 * @see #waitForCompletion()
+	 * @see #interruptMove()
+	 * @see #resetQueue()
 	 */
 	public synchronized boolean stopRobot() {
 		MoverConfig movement = new MoverConfig();
@@ -773,7 +749,7 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Makes the robot kick
+	 * Queues a command to make the robot kick
 	 * 
 	 * @return true if the kick was successfully queued, false otherwise
 	 * 
@@ -792,8 +768,7 @@ public class RobotMover extends Thread {
 	}
 
 	/**
-	 * Makes the mover perform a delay job, where it will sleep for the
-	 * specified period <br/>
+	 * Queues a delay job, where the RobotMover will wait for the specified time <br/>
 	 * WARNING: Once a delay job has started, it cannot be interrupted
 	 * 
 	 * @param milliseconds
