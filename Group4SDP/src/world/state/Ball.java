@@ -4,6 +4,8 @@ public class Ball extends Entity {
 	
 	public double x;
 	public double y;
+	public double speedX;
+	public double speedY;
 	
 	public Ball() {
 		super();
