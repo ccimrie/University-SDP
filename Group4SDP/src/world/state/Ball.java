@@ -4,10 +4,15 @@ public class Ball extends Entity {
 	
 	public double x;
 	public double y;
+	public double radius;
 	
 	public Ball() {
 		super();
 		// It's just a ball man
+	}
+	
+	public double getRadius() {
+		return radius;
 	}
 	
 	public String name() {
