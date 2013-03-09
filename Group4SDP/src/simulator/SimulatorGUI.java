@@ -92,7 +92,7 @@ public class SimulatorGUI extends JFrame {
 	public static final JTextField op5field = new JTextField();
 
 	// Strategy used for driving part of milestone 2
-
+     
 	private DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
