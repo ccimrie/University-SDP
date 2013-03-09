@@ -21,8 +21,8 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
-import strategy.movement.TurnToBall;
 import strategy.planning.DribbleBall5;
+import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
@@ -75,27 +75,19 @@ public class ControlGUI2 extends JFrame {
 	private final JButton moveButton = new JButton("Move");
 	private final JButton moveToButton = new JButton("Move To");
 	private final JButton rotateAndMoveButton = new JButton("Rotate & Move");
-	// TODO: remove
-	// private final JButton moveToBallButton = new JButton("MoveToBall");
 	private final JButton dribbleButton = new JButton("Dribble");
 
 	// OPcode fields
 	private final JLabel op1label = new JLabel("Option 1: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
-	private final static JLabel op4label = new JLabel("Move to (x label): ");
-	private final static JLabel op5label = new JLabel("Move to (y label): ");
+	private final JLabel op4label = new JLabel("Move to (x label): ");
+	private final JLabel op5label = new JLabel("Move to (y label): ");
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-	public static final JTextField op4field = new JTextField();
-	public static final JTextField op5field = new JTextField();
-	// TODO: remove
-	// Strategy used for driving part of milestone 2
-	// private MoveToBall mball = new MoveToBall();
-	// private MoveToTheBallThread approachThread;
-
-	// Strategy used for driving part of milestone 2
+	public static JTextField op4field = new JTextField();
+	public static JTextField op5field = new JTextField();
 
 	private DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
@@ -271,20 +263,15 @@ public class ControlGUI2 extends JFrame {
 		moveTargetOptionsPanel.add(op5label);
 		moveTargetOptionsPanel.add(op5field);
 
-		// TODO: remove
 		complexMovePanel.add(dribbleButton);
 
 		this.addWindowListener(new ListenCloseWdw());
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// mover.move(100, 100);
-				// mover.moveToAStar(worldState.ball.x, worldState.ball.y,
-				// false);
-
-				double angle = TurnToBall.AngleTurner(worldState.ourRobot,
-						worldState.ball.x, worldState.ball.y);
-				System.out.println("Angle is " + (int) angle);
+				strategy = new InterceptBall(worldState, mover);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 
@@ -294,7 +281,6 @@ public class ControlGUI2 extends JFrame {
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					DribbleBall5.die = true;
 					try {
-						mover.resetQueue();
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
@@ -304,6 +290,18 @@ public class ControlGUI2 extends JFrame {
 				if (strategyThread != null && strategyThread.isAlive()) {
 					Strategy.stop();
 					strategy.kill();
+					try {
+						strategyThread.join();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+				mover.interruptMove();
+				try {
+					mover.resetQueue();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 				// Stop the robot.
 				mover.stopRobot();
@@ -426,12 +424,14 @@ public class ControlGUI2 extends JFrame {
 
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Strategy.alldie = true;
 				// Kill the mover and wait for it to stop completely
-				// try {
-				// mover.kill();
-				// } catch (InterruptedException e1) {
-				// e1.printStackTrace();
-				// }
+				try {
+					mover.kill();
+					mover.join();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				robot.disconnect();
 
 				System.out.println("Quitting the GUI");
@@ -468,6 +468,7 @@ public class ControlGUI2 extends JFrame {
 		public void windowClosing(WindowEvent e) {
 			try {
 				mover.kill();
+				mover.join();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -482,7 +483,6 @@ public class ControlGUI2 extends JFrame {
 				DribbleBall5.die = false;
 				dribbleBall.dribbleBall(worldState, mover);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

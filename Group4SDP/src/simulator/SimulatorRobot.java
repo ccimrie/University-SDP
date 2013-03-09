@@ -1,9 +1,9 @@
 package simulator;
 
-import communication.RobotController;
-
 import world.state.Robot;
 import world.state.RobotType;
+
+import communication.RobotController;
 
 /**
  * A class to simulate control of the robot, as if there was a bluetooth
@@ -17,11 +17,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 * A boolean value representing whether a simulated connection is active
 	 */
 	private boolean connected = false;
-
+	
 	private final Simulator sim;
 
 	public SimulatorRobot(RobotType type, final Simulator simulator) {
 		super(type);
+		
 		sim = simulator;
 	}
 
@@ -70,13 +71,6 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int stop() {
-		// Assumes 4 wheels
-		assert (sim.getRobotWheelCount() == 4) : "DERP! robot wheel count is not 4";
-
-		sim.setRobotWheelSpeed(Simulator.LEFT_WHEEL, 0);
-		sim.setRobotWheelSpeed(Simulator.RIGHT_WHEEL, 0);
-		sim.setRobotWheelSpeed(Simulator.FRONT_WHEEL, 0);
-		sim.setRobotWheelSpeed(Simulator.BACK_WHEEL, 0);
 
 		return 0;
 	}
@@ -95,13 +89,7 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int move(int speedX, int speedY) {
-		// Assumes 4 wheels
-		assert (sim.getRobotWheelCount() == 4) : "DERP! robot wheel count is not 4";
-
-		sim.setRobotWheelSpeed(Simulator.LEFT_WHEEL, speedY);
-		sim.setRobotWheelSpeed(Simulator.RIGHT_WHEEL, speedY);
-		sim.setRobotWheelSpeed(Simulator.FRONT_WHEEL, speedX);
-		sim.setRobotWheelSpeed(Simulator.BACK_WHEEL, speedX);
+		
 		return 0;
 	}
 
@@ -110,7 +98,6 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int rotate(int angleDeg) {
-		sim.doRotate(Math.toRadians(angleDeg));
 		return 0;
 	}
 
