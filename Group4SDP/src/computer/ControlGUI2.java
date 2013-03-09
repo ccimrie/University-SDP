@@ -21,8 +21,8 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
-import strategy.movement.TurnToBall;
 import strategy.planning.DribbleBall5;
+import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
 import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
@@ -269,13 +269,9 @@ public class ControlGUI2 extends JFrame {
 
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// mover.move(100, 100);
-				// mover.moveToAStar(worldState.ball.x, worldState.ball.y,
-				// false);
-
-				double angle = TurnToBall.AngleTurner(worldState.ourRobot,
-						worldState.ball.x, worldState.ball.y);
-				System.out.println("Angle is " + (int) angle);
+				strategy = new InterceptBall(worldState, mover);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 
@@ -428,6 +424,7 @@ public class ControlGUI2 extends JFrame {
 
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Strategy.alldie = true;
 				// Kill the mover and wait for it to stop completely
 				try {
 					mover.kill();
