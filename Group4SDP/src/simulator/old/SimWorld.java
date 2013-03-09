@@ -3,9 +3,8 @@ package simulator.old;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.RobotType;
-import world.state.WorldInterface;
 
-public class SimWorld implements WorldInterface {
+public class SimWorld {
 	public Robot ourRobot, theirRobot;
 	public Ball ball;
 	
@@ -32,17 +31,14 @@ public class SimWorld implements WorldInterface {
 		ball.y = ballY;
 	}
 	
-	@Override
 	public Robot getOurRobot() {
 		return ourRobot;
 	}
 
-	@Override
 	public Robot getTheirRobot() {
 		return theirRobot;
 	}
 
-	@Override
 	public Ball getBall() {
 		return ball;
 	}

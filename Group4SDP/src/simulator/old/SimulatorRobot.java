@@ -11,9 +11,9 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
-import static simulator.RoboFootball.pitchL;
-import static simulator.RoboFootball.pitchW;
-import static simulator.RoboFootball.scale;
+import static simulator.old.RoboFootball.pitchL;
+import static simulator.old.RoboFootball.pitchW;
+import static simulator.old.RoboFootball.scale;
 
 public class SimulatorRobot {
 

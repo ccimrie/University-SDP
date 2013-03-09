@@ -428,23 +428,23 @@ public class RoboFootball extends TestbedTest {
             getModel().getKeys()['b'] = false;
         }
         
-        if (argKeyChar == 'c') {
-        	if(!control)
-        	{
-        		control = true;
-        		rc = new SimServer(this);
-        		
-        		strategy = new SimStrategy(world,rc);
-        		
-        		strategy.start();
-        		
-        		
-        		//robotControl = new RobotControl();
-        		//robotControl.start();
-        		
-        	}
-            getModel().getKeys()['c'] = false;
-        }
+//        if (argKeyChar == 'c') {
+//        	if(!control)
+//        	{
+//        		control = true;
+//        		rc = new SimServer(this);
+//        		
+//        		strategy = new SimStrategy(world,rc);
+//        		
+//        		strategy.start();
+//        		
+//        		
+//        		//robotControl = new RobotControl();
+//        		//robotControl.start();
+//        		
+//        	}
+//            getModel().getKeys()['c'] = false;
+//        }
 
     }
 
