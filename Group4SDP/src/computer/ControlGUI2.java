@@ -86,8 +86,8 @@ public class ControlGUI2 extends JFrame {
 	private final JTextField op1field = new JTextField();
 	private final JTextField op2field = new JTextField();
 	private final JTextField op3field = new JTextField();
-	private final JTextField op4field = new JTextField();
-	private final JTextField op5field = new JTextField();
+	public static JTextField op4field = new JTextField();
+	public static JTextField op5field = new JTextField();
 
 	private DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
@@ -285,8 +285,6 @@ public class ControlGUI2 extends JFrame {
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					DribbleBall5.die = true;
 					try {
-						mover.interruptMove();
-						mover.resetQueue();
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
@@ -301,6 +299,13 @@ public class ControlGUI2 extends JFrame {
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
+				}
+				mover.interruptMove();
+				try {
+					mover.resetQueue();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 				// Stop the robot.
 				mover.stopRobot();
