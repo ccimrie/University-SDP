@@ -1,5 +1,6 @@
 package simulator;
 
+import utility.SafeSleep;
 import world.state.Robot;
 import world.state.RobotType;
 
@@ -8,7 +9,8 @@ import communication.RobotController;
 /**
  * A class to simulate control of the robot, as if there was a bluetooth
  * connection to the real robot <br/>
- * TODO: implement random (infrequent & toggleable) failures
+ * TODO: implement random (infrequent & toggleable) failures <br/>
+ * TODO: implement simulated bluetooth delays
  * 
  * @author Alex Adams (s1046358)
  */
@@ -17,12 +19,14 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 * A boolean value representing whether a simulated connection is active
 	 */
 	private boolean connected = false;
-	
+
+	private static final double angleThreshold = Math.toRadians(10);
+
 	private final Simulator sim;
 
 	public SimulatorRobot(RobotType type, final Simulator simulator) {
 		super(type);
-		
+
 		sim = simulator;
 	}
 
@@ -71,7 +75,7 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int stop() {
-
+		sim.setRobotSpeed(type, 0, 0);
 		return 0;
 	}
 
@@ -80,7 +84,6 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int kick() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -89,7 +92,7 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int move(int speedX, int speedY) {
-		
+		sim.setRobotSpeed(type, speedX, speedY);
 		return 0;
 	}
 
@@ -98,6 +101,22 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int rotate(int angleDeg) {
+		sim.setRobotRotationSpeed(type, Math.PI / 10);
+		double startOrient = sim.getRobotOrientation(type);
+		double targetOrient = startOrient + Math.toRadians(angleDeg);
+		if (targetOrient < 0)
+			targetOrient += 2.0 * Math.PI;
+		else if (targetOrient > 2.0 * Math.PI) {
+			targetOrient -= 2.0 * Math.PI;
+		}
+
+		try {
+			while (Math.abs(sim.getRobotOrientation(type) - targetOrient) > angleThreshold) {
+				SafeSleep.sleep(50);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
