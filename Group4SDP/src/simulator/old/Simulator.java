@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 
-//import strategy.movement.TurnToBall;
 
 public class Simulator {
-
+	
+	
     private static final Logger log = LoggerFactory.getLogger(TestbedMain.class);
     static SimulatorRobot ourRobot, enemyRobot;
     static Body ball;
