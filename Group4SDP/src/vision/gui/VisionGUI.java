@@ -29,6 +29,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
+import computer.ControlGUI2;
+
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.Position;
@@ -63,6 +65,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	boolean yellowPlateAdjustment = false;
 	boolean bluePlateAdjustment = false;
 	boolean greyCircleAdjustment = false;
+	boolean targetAdjustment = false;
 	int mouseX;
 	int mouseY;
 	String adjust = "";
@@ -206,6 +209,11 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					videoDisplay.grabFocus();
 					mouseX = e.getX();
 					mouseY = e.getY();
+					break;
+				case VisionSettingsPanel.MOUSE_MODE_TARGET:
+					videoDisplay.grabFocus();
+					WorldState.targetX = e.getX();
+					WorldState.targetY = e.getY();
 					break;
 				}
 
@@ -358,6 +366,15 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					imageCenterX = selectorImage.getWidth(null) / 2;
 					imageCenterY = selectorImage.getHeight(null) / 2;
 					break;
+				case VisionSettingsPanel.MOUSE_MODE_TARGET:
+					System.out.println("target mode");
+					targetAdjustment = true;
+					currentFile = imgGreyCircle;
+					selectorImage = greyCircleSelectorImage;
+					// Get the center coordinates of the selector image in use
+					imageCenterX = selectorImage.getWidth(null) / 2;
+					imageCenterY = selectorImage.getHeight(null) / 2;
+					break;
 				}
 			}
 		};
@@ -395,8 +412,15 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		boolean mouseModeYellowT = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_YELLOW_T;
 		boolean mouseModeGreenPlates = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES;
 		boolean mouseModeGreyCircle = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES;
+		boolean mouseSelectTarget = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_TARGET; // moo
 		// If the colour selection mode is on (for colour calibration from the
 		// image)
+		if (mouseSelectTarget) { 
+			g2d.drawOval(WorldState.targetX, WorldState.targetY, 5, 5);
+		    ControlGUI2.op4field.setText("" + WorldState.targetX);
+		    ControlGUI2.op5field.setText("" + WorldState.targetY);
+		}
+		
 		if (mouseModeBlueT || mouseModeYellowT || mouseModeGreenPlates
 				|| mouseModeGreyCircle) {
 			// Show the colour selector image

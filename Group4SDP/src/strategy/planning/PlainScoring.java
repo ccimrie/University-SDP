@@ -135,10 +135,8 @@ public class PlainScoring {
 				p1 = 222;
 				p2 = 235;
 			}
-			synchronized (mover) {
-				mover.moveToAndStop(p1, p2);
-				mover.wait();
-			}
+			mover.moveToAndStop(p1, p2);
+			mover.waitForCompletion();
 			return;
 		}
 
@@ -153,10 +151,8 @@ public class PlainScoring {
 
 		System.out.println(angle);
 
-		synchronized (mover) {
-			mover.rotate(Math.toRadians(angle));
-			mover.wait();
-		}
+		mover.rotate(Math.toRadians(angle));
+		mover.waitForCompletion();
 	}
 
 }
