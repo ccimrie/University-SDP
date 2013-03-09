@@ -49,10 +49,10 @@ public class Updateworld extends TestbedTest {
 
     WorldState worldState;
    
-    PitchConstants pc = new PitchConstants(40);
     
-    GoalInfo gt = new GoalInfo(pc);
-    WorldState theRealWorld= new WorldState(gt);
+    
+    
+
 	Robot ourRobot = new Robot(RobotType.Us);
 	Robot theirRobot = new Robot(RobotType.Them);
 	
@@ -61,7 +61,11 @@ public class Updateworld extends TestbedTest {
  
 
     Body pitch;   
-
+	public Updateworld(WorldState worldState) {
+		// Set the state fields.
+		this.worldState = worldState;
+	
+	}
 
 
     public boolean isSaveLoadEnabled() {
@@ -114,7 +118,7 @@ public class Updateworld extends TestbedTest {
     }
     public WorldState getTheRealWorld(){
     	
-    	return theRealWorld;
+    	return worldState;
     }
     public void createBall() {
         CircleShape ballshape = new CircleShape();
@@ -147,8 +151,22 @@ public class Updateworld extends TestbedTest {
        
         
        // ourownRobot, 
-        theRealWorld.setBallX( (int)(Math.round((ballSim.getWorldCenter().x/scale))));
-        theRealWorld.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+        worldState.setBallX( (int)(Math.round((ballSim.getWorldCenter().x/scale))));
+        worldState.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+        
+        worldState.setBlueX((int)(Math.round((ballSim.getWorldCenter().x/scale))));
+        worldState.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+        
+        worldState.setYellowX((int)(theirRobotSim.robot.getWorldCenter().x/scale));
+        worldState.setYellowY((int)(theirRobotSim.robot.getWorldCenter().y/scale));
+        
+        //worldState.setBlueOrientation(ourRobotSim.robot.getAngle() + Math.PI/2.0f);
+        worldState.setBlueOrientation(ourRobotSim.robot.getAngle() );
+        //worldState.setYellowOrientation(theirRobotSim.robot.getAngle() + Math.PI/2.0f);
+        
+       
+        
+        
        /** 
 
 

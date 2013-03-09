@@ -17,8 +17,9 @@ import world.state.HittingObstacle;
 public class SimDisplayRobot {
 	HittingObstacle obstacle  = new HittingObstacle();
 	
-	float pitchW;
-	float pitchL;
+	 public static final float pitchL = 2.4384f;
+	 public static final float pitchW = 1.2192f;
+	public static final float goalW = 0.6f;
 	public Body robot;
 	public PrismaticJoint joint;
 	public long kickStep = 0;
@@ -45,6 +46,7 @@ public class SimDisplayRobot {
 		
 		if (isOurRobo) {
 			bdr.position.set(0.1f * scale, pitchW * scale / 2);
+			
 			bdr.angle = 0;
 		} else {
 			
@@ -88,6 +90,7 @@ public class SimDisplayRobot {
 		pjd.localAxis1.normalize();
 		pjd.localAnchorA.set(robot.getLocalCenter());
 		pjd.localAnchorB.set(0.0f, 0.09f * scale);
+	
 		pjd.initialize(robot, flap, robot.getWorldCenter(), pjd.localAxis1);
 
 		if (isOurRobo) {

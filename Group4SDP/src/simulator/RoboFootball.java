@@ -168,10 +168,10 @@ public class RoboFootball extends TestbedTest {
 		// float vel = enemyRobo.robot.getAngularVelocity();
 
 		// update the speed
-		if (rc != null) {
-			speed = rc.travelSpeed;
-			angVel = rc.rotateSpeed;
-		}
+//		if (rc != null) {
+//			speed = rc.travelSpeed;
+//			angVel = rc.rotateSpeed;
+//		}
 
 		// Check our robot for kicking
 		if (this.ourRobo.isKicking) {
