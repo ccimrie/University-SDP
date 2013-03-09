@@ -23,8 +23,8 @@ public class BluetoothCommunication {
 	private OutputStream out;
 	private NXTComm nxtComm;
 	private NXTInfo nxtInfo;
-	private boolean isRobotReady = false;
-	private boolean isConnected = false;
+	private boolean robotReady = false;
+	private boolean connected = false;
 	private int buffer = 0;
 
 	/**
@@ -45,8 +45,8 @@ public class BluetoothCommunication {
 	 * @return a boolean indicating whether the server is connected to the robot
 	 *         or not
 	 */
-	public boolean hasConnection() {
-		return isConnected;
+	public boolean isConnected() {
+		return connected;
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class BluetoothCommunication {
 	 * that the robot is ready before sending any commands.
 	 */
 	public boolean isRobotReady() {
-		return isRobotReady;
+		return robotReady;
 	}
 	
 	public void clearBuff(){
@@ -139,6 +139,7 @@ public class BluetoothCommunication {
 				buffer -= 1;
 				return -2;
 		}
+		System.out.println("Buffer is full, command not sent!");
 		return -2;
 	}
 
@@ -179,9 +180,9 @@ public class BluetoothCommunication {
 				}
 			}
 
-			isRobotReady = true;
-			System.out.println("Robot is ready!");
-			isConnected = true;
+			robotReady = true;
+			System.out.println("Connected to robot!");
+			connected = true;
 		} catch (NXTCommException e) {
 			throw new IOException("Failed to connect " + e.toString());
 		} catch (InterruptedException e) { 
@@ -194,7 +195,7 @@ public class BluetoothCommunication {
 	 */
 	public void closeBluetoothConnection() {
 		try {
-			isConnected = false;
+			connected = false;
 			in.close();
 			out.close();
 			nxtComm.close();

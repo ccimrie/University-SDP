@@ -6,7 +6,7 @@ import movement.RobotMover;
 import vision.Position;
 import world.state.WorldState;
 
-public class PenaltyAttack extends StrategyInterface implements Runnable {
+public class PenaltyAttack extends StrategyInterface {
 	public PenaltyAttack(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
@@ -33,14 +33,12 @@ public class PenaltyAttack extends StrategyInterface implements Runnable {
 
 		System.out.println("Turn angle: " + targetAim);
 
-		synchronized (mover) {
-			mover.rotate(Math.toRadians(targetAim));
-			try {
-				mover.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			mover.kick();
+		mover.rotate(Math.toRadians(targetAim));
+		try {
+			mover.waitForCompletion();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+		mover.kick();
 	}
 }

@@ -10,7 +10,7 @@ import world.state.WorldState;
 //The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
 //the pitch.
 
-public class Defensive extends StrategyInterface implements Runnable {
+public class Defensive extends StrategyInterface {
 
 	public Defensive(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -18,6 +18,7 @@ public class Defensive extends StrategyInterface implements Runnable {
 
 	private final int threshold = 30;
 
+	@Override
 	public void run() {
 
 		System.out.println("Defensive strategy activated");
@@ -59,16 +60,10 @@ public class Defensive extends StrategyInterface implements Runnable {
 						+ (int) ourGoalDefendPosition.getY());
 
 				// Move to our goal
-				// Synchronized is needed to call mover.wait(), any movement
-				// commands should also be inside a synchronized block if wait
-				// is called, otherwise weird things will happen
-				synchronized (mover) {
-					mover.moveToAndStop(ourGoalDefendPosition.getX(),
-							ourGoalDefendPosition.getY());
-					// Complete the command before returning control to the
-					// thread.
-					mover.wait();
-				}
+
+				mover.moveTo(ourGoalDefendPosition.getX(),
+						ourGoalDefendPosition.getY());
+				mover.waitForCompletion();
 
 				System.out.println("Point reached");
 
@@ -78,14 +73,12 @@ public class Defensive extends StrategyInterface implements Runnable {
 					 * Now turn to face the ball (and the other robot
 					 * correspondingly)
 					 */
-					angle = TurnToBall.turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y);
-					
+					//angle = TurnToBall.turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y);
+						angle = world.theirRobot.bearing + Math.PI - world.ourRobot.bearing;
 					if (Math.abs(angle) > 15) {
 						System.out.println("Should turn now");
-						synchronized (mover) {
-							mover.rotate(Math.toRadians(angle));
-							mover.wait();
-						}
+						mover.rotate(Math.toRadians(angle));
+						mover.waitForCompletion();	
 					}
 
 					/**
@@ -123,22 +116,10 @@ public class Defensive extends StrategyInterface implements Runnable {
 							// Lower half of the field
 							destY = world.ourRobot.y - ythreshold;
 
-						// Move to the right place on the Y axis
-						synchronized (mover) {
-							mover.moveToAndStop(ourGoalDefendPosition.getX(),
-									destY);
-							mover.wait();
-						}
-						// Turn to face the ball
-						angle = TurnToBall.turner(world.ourRobot, world.theirRobot.x, world.theirRobot.y);
 
-						if (Math.abs(angle) > 15) {
-							System.out.println("Should turn now");
-							synchronized (mover) {
-								mover.rotate(Math.toRadians(angle));
-								mover.wait();
-							}
-						}
+						mover.moveTo(ourGoalDefendPosition.getX(), destY);
+						mover.waitForCompletion();
+
 						previousTheirBearing = theirBearing;
 
 						// The kick line of the attacking robot is calculated,
@@ -161,14 +142,10 @@ public class Defensive extends StrategyInterface implements Runnable {
 					// }
 				}
 			} else {
-				// TODO: The Main planner should handle this
-				System.out.println("The other team does not have posession.");
-				System.out.println("Hence, we're moving to the ball. X: "
-						+ world.ball.x + " Y: " + world.ball.y);
-				synchronized (mover) {
-					mover.moveToAndStop(world.ball.x, world.ball.y);
-					mover.wait();
-				}
+
+				mover.moveTo(world.ball.x, world.ball.y);
+				mover.waitForCompletion();
+
 				System.out.println("Ball reached");
 			}
 

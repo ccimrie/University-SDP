@@ -1,6 +1,7 @@
 package world.state;
 
 import geometry.Vector;
+import strategy.calculations.AngleCalculator;
 import strategy.calculations.DistanceCalculator;
 import strategy.calculations.GoalInfo;
 import world.state.WorldState;
@@ -16,9 +17,9 @@ import vision.Position;
 public class WorldState {
 	/** The number of frames used to calculate velocity */
 	private static final int NUM_FRAMES = 5;
-
+	private AngleCalculator a = new AngleCalculator(this);
 	private long counter;
-
+	private DistanceCalculator dist = new DistanceCalculator();
 	private int direction; // 0 = right, 1 = left.
 	private int colour; // 0 = yellow, 1 = blue
 	private int pitch; // 0 = main, 1 = side room
@@ -52,14 +53,14 @@ public class WorldState {
 	private int ballY;
 
 	// Velocities
-	private double blueXVel;
-	private double blueYVel;
+	private double blueVelX;
+	private double blueVelY;
 
-	private double yellowXVel;
-	private double yellowYVel;
+	private double yellowVelX;
+	private double yellowVelY;
 
-	private double ballXVel;
-	private double ballYVel;
+	private double ballVelX;
+	private double ballVelY;
 
 	private boolean weAreBlue = true;
 	private boolean weAreOnLeft = true;
@@ -77,6 +78,10 @@ public class WorldState {
 	public Ball ball = new Ball();
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
+	
+	// Coordinates of the target placement of the robot.
+	public static int targetX = 100;
+	public static int targetY = 100;
 
 	public WorldState(GoalInfo goalInfo) {
 		// control properties
@@ -84,6 +89,7 @@ public class WorldState {
 		this.colour = 0;
 		this.pitch = 0;
 		this.goalInfo = goalInfo;
+		this.a = new AngleCalculator(this);
 	}
 
 	public void setBlueX(int blueX) {
@@ -96,7 +102,7 @@ public class WorldState {
 	}
 
 	public double getBlueXVelocity() {
-		return blueXVel;
+		return blueVelX;
 	}
 
 	public void setBlueY(int blueY) {
@@ -109,7 +115,7 @@ public class WorldState {
 	}
 
 	public double getBlueYVelocity() {
-		return blueYVel;
+		return blueVelY;
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
@@ -130,7 +136,7 @@ public class WorldState {
 	}
 
 	public double getYellowXVelocity() {
-		return yellowXVel;
+		return yellowVelX;
 	}
 
 	public void setYellowY(int yellowY) {
@@ -143,7 +149,7 @@ public class WorldState {
 	}
 
 	public double getYellowYVelocity() {
-		return yellowYVel;
+		return yellowVelY;
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
@@ -180,7 +186,7 @@ public class WorldState {
 	}
 
 	public double getBallXVelocity() {
-		return ballXVel;
+		return ballVelX;
 	}
 
 	public void setBallY(int ballY) {
@@ -193,7 +199,7 @@ public class WorldState {
 	}
 
 	public double getBallYVelocity() {
-		return ballYVel;
+		return ballVelY;
 	}
 
 	public void setDirection(int direction) {
@@ -231,16 +237,16 @@ public class WorldState {
 		++counter;
 
 		// Reinitialise all positions/angles/velocities to 0
-		blueXVel = 0;
-		blueYVel = 0;
+		blueVelX = 0;
+		blueVelY = 0;
 		blueOrient = 0;
 
-		yellowXVel = 0;
-		yellowYVel = 0;
+		yellowVelX = 0;
+		yellowVelY = 0;
 		yellowOrient = 0;
 
-		ballXVel = 0;
-		ballYVel = 0;
+		ballVelX = 0;
+		ballVelY = 0;
 
 		// Smooth angles
 		for (int i = 0; i < NUM_FRAMES; ++i) {
@@ -258,23 +264,23 @@ public class WorldState {
 		if (prevFrame < 0)
 			prevFrame += NUM_FRAMES;
 
-		blueXVel += blueXBuf[currentFrame] - blueXBuf[prevFrame];
-		blueYVel += blueYBuf[currentFrame] - blueYBuf[prevFrame];
+		blueVelX += blueXBuf[currentFrame] - blueXBuf[prevFrame];
+		blueVelY += blueYBuf[currentFrame] - blueYBuf[prevFrame];
 
-		yellowXVel += yellowXBuf[currentFrame] - yellowXBuf[prevFrame];
-		yellowYVel += yellowYBuf[currentFrame] - yellowYBuf[prevFrame];
+		yellowVelX += yellowXBuf[currentFrame] - yellowXBuf[prevFrame];
+		yellowVelY += yellowYBuf[currentFrame] - yellowYBuf[prevFrame];
 
-		ballXVel += ballXBuf[currentFrame] - ballXBuf[prevFrame];
-		ballYVel += ballYBuf[currentFrame] - ballYBuf[prevFrame];
+		ballVelX += ballXBuf[currentFrame] - ballXBuf[prevFrame];
+		ballVelY += ballYBuf[currentFrame] - ballYBuf[prevFrame];
 
-		blueXVel /= NUM_FRAMES;
-		blueYVel /= NUM_FRAMES;
+		blueVelX /= NUM_FRAMES;
+		blueVelY /= NUM_FRAMES;
 
-		yellowXVel /= NUM_FRAMES;
-		yellowYVel /= NUM_FRAMES;
+		yellowVelX /= NUM_FRAMES;
+		yellowVelY /= NUM_FRAMES;
 
-		ballXVel /= NUM_FRAMES;
-		ballYVel /= NUM_FRAMES;
+		ballVelX /= NUM_FRAMES;
+		ballVelY /= NUM_FRAMES;
 
 		++currentFrame;
 		if (currentFrame >= NUM_FRAMES)
@@ -300,12 +306,12 @@ public class WorldState {
 			this.ourRobot.x = blueX;
 			this.ourRobot.y = blueY;
 			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
-			this.ourRobot.bearing = getBlueOrientation();
+			this.ourRobot.bearing = blueOrient;
 		} else {
 			this.ourRobot.x = yellowX;
 			this.ourRobot.y = yellowY;
 			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
-			this.ourRobot.bearing = getYellowOrientation();
+			this.ourRobot.bearing = yellowOrient;
 		}
 	}
 
@@ -316,18 +322,20 @@ public class WorldState {
 			this.theirRobot.x = yellowX;
 			this.theirRobot.y = yellowY;
 			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
-			this.theirRobot.bearing = getYellowOrientation();
+			this.theirRobot.bearing = yellowOrient;
 		} else {
 			this.theirRobot.x = blueX;
 			this.theirRobot.y = blueY;
 			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
-			this.theirRobot.bearing = getBlueOrientation();
+			this.theirRobot.bearing = blueOrient;
 		}
 	}
 
 	public void setBall() {
 		this.ball.x = ballX;
 		this.ball.y = ballY;
+		this.ball.speedX = ballVelX;
+		this.ball.speedY = ballVelY;
 	}
 
 	public void setWeAreOnLeft(boolean weAreOnLeft) {
@@ -437,4 +445,159 @@ public class WorldState {
 	public PossessionType getPosession() {
 		return hasPossession;
 	}
+
+	public boolean weFaceTheirGoal() {
+
+		double gpt;
+		double gpb;
+		double x;
+		if (weAreOnLeft) {
+			gpt = goalInfo.getRightGoalTop().getY();
+			gpb = goalInfo.getRightGoalBottom().getY();
+			x = goalInfo.getRightGoalBottom().getX();
+		} else {
+			gpt = goalInfo.getLeftGoalTop().getY();
+			gpb = goalInfo.getLeftGoalBottom().getY();
+			x = goalInfo.getLeftGoalBottom().getX();
+		}
+		if ((a.AngleTurner(x, gpt) > 0 && a.AngleTurner(x, gpt) < 20)
+				|| (a.AngleTurner(x, gpb) < 0 && a.AngleTurner(x, gpb) > (-20))) {
+			return true;
+		} else
+			return false;
+	}
+
+	public boolean enemyIsClose() {
+		if (distanceToRobot() < 200)
+			return true;
+		else
+			return false;
+	}
+
+	public boolean enemyInFront() {
+		double ang = a.angleToEnemy();
+		if ((ang > (-15)) && (ang < 15))
+			return true;
+		else
+			return false;
+	}
+
+	public Position getTheirGoalTop() {
+		if (weAreOnLeft)
+			return goalInfo.getRightGoalTop();
+		else
+			return goalInfo.getLeftGoalTop();
+	}
+
+	public Position getTheirGoalBot() {
+		if (weAreOnLeft)
+			return goalInfo.getRightGoalBottom();
+		else
+			return goalInfo.getLeftGoalBottom();
+	}
+
+	public Position getOurGoalTop() {
+		if (weAreOnLeft)
+			return goalInfo.getLeftGoalTop();
+		else
+			return goalInfo.getRightGoalTop();
+	}
+
+	public Position getOurGoalBot() {
+		if (weAreOnLeft)
+			return goalInfo.getLeftGoalBottom();
+		else
+			return goalInfo.getRightGoalBottom();
+	}
+
+	public double distanceToBall() {
+
+		return DistanceCalculator.Distance(ourRobot.x, ourRobot.y, this.ball.x,
+				this.ball.y);
+
+	}
+
+	public double distanceToRobot() {
+
+		return DistanceCalculator.Distance(ourRobot.x, ourRobot.y,
+				theirRobot.x, theirRobot.y);
+
+	}
+
+	public double distanceUsToTheirgoal() {
+		return DistanceCalculator.Distance(ourRobot.x, ourRobot.y, this
+				.getTheirGoal().getX(), this.getTheirGoal().getY());
+	}
+
+	public double distanceThemToTheirgoal() {
+		return DistanceCalculator.Distance(theirRobot.x, theirRobot.y, this
+				.getTheirGoal().getX(), this.getTheirGoal().getY());
+	}
+
+	public double distanceUsToOurgoal() {
+		return DistanceCalculator.Distance(ourRobot.x, ourRobot.y, this
+				.getOurGoal().getX(), this.getOurGoal().getY());
+	}
+
+	public double distanceThemToOurgoal() {
+		return DistanceCalculator.Distance(theirRobot.x, theirRobot.y, this
+				.getOurGoal().getX(), this.getOurGoal().getY());
+	}
+
+	public double angleToEnemy() {
+		double pointBearing = a.findPointBearing(ourRobot,
+				this.getTheirRobot().x, this.getTheirRobot().y);
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToBall() {
+		double pointBearing = a.findPointBearing(ourRobot, this.ball.x,
+				this.ball.y);
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToTheirGoal() {
+		double pointBearing = a.findPointBearing(ourRobot, this.getTheirGoal()
+				.getX(), this.getTheirGoal().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToOurGoal() {
+		double pointBearing = a.findPointBearing(ourRobot, this.getOurGoal()
+				.getX(), this.getOurGoal().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToTheirGoalTop() {
+		double pointBearing = a.findPointBearing(ourRobot, this
+				.getTheirGoalTop().getX(), this.getTheirGoalTop().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToTheirGoalBot() {
+		double pointBearing = a.findPointBearing(ourRobot, this
+				.getTheirGoalBot().getX(), this.getTheirGoalBot().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToOurGoalTop() {
+		double pointBearing = a.findPointBearing(ourRobot, this.getOurGoalTop()
+				.getX(), this.getOurGoalTop().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
+	public double angleToOurGoalBot() {
+		double pointBearing = a.findPointBearing(ourRobot, this.getOurGoalTop()
+				.getX(), this.getOurGoalBot().getY());
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
+
 }

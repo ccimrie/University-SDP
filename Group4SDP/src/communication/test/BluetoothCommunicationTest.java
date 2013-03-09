@@ -1,4 +1,4 @@
-package communication;
+package communication.test;
 
 import java.io.IOException;
 import java.util.Arrays;
