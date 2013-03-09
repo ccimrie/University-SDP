@@ -53,14 +53,14 @@ public class WorldState {
 	private int ballY;
 
 	// Velocities
-	private double blueXVel;
-	private double blueYVel;
+	private double blueVelX;
+	private double blueVelY;
 
-	private double yellowXVel;
-	private double yellowYVel;
+	private double yellowVelX;
+	private double yellowVelY;
 
-	private double ballXVel;
-	private double ballYVel;
+	private double ballVelX;
+	private double ballVelY;
 
 	private boolean weAreBlue = true;
 	private boolean weAreOnLeft = true;
@@ -102,7 +102,7 @@ public class WorldState {
 	}
 
 	public double getBlueXVelocity() {
-		return blueXVel;
+		return blueVelX;
 	}
 
 	public void setBlueY(int blueY) {
@@ -115,7 +115,7 @@ public class WorldState {
 	}
 
 	public double getBlueYVelocity() {
-		return blueYVel;
+		return blueVelY;
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
@@ -136,7 +136,7 @@ public class WorldState {
 	}
 
 	public double getYellowXVelocity() {
-		return yellowXVel;
+		return yellowVelX;
 	}
 
 	public void setYellowY(int yellowY) {
@@ -149,7 +149,7 @@ public class WorldState {
 	}
 
 	public double getYellowYVelocity() {
-		return yellowYVel;
+		return yellowVelY;
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
@@ -186,7 +186,7 @@ public class WorldState {
 	}
 
 	public double getBallXVelocity() {
-		return ballXVel;
+		return ballVelX;
 	}
 
 	public void setBallY(int ballY) {
@@ -199,7 +199,7 @@ public class WorldState {
 	}
 
 	public double getBallYVelocity() {
-		return ballYVel;
+		return ballVelY;
 	}
 
 	public void setDirection(int direction) {
@@ -237,16 +237,16 @@ public class WorldState {
 		++counter;
 
 		// Reinitialise all positions/angles/velocities to 0
-		blueXVel = 0;
-		blueYVel = 0;
+		blueVelX = 0;
+		blueVelY = 0;
 		blueOrient = 0;
 
-		yellowXVel = 0;
-		yellowYVel = 0;
+		yellowVelX = 0;
+		yellowVelY = 0;
 		yellowOrient = 0;
 
-		ballXVel = 0;
-		ballYVel = 0;
+		ballVelX = 0;
+		ballVelY = 0;
 
 		// Smooth angles
 		for (int i = 0; i < NUM_FRAMES; ++i) {
@@ -264,23 +264,23 @@ public class WorldState {
 		if (prevFrame < 0)
 			prevFrame += NUM_FRAMES;
 
-		blueXVel += blueXBuf[currentFrame] - blueXBuf[prevFrame];
-		blueYVel += blueYBuf[currentFrame] - blueYBuf[prevFrame];
+		blueVelX += blueXBuf[currentFrame] - blueXBuf[prevFrame];
+		blueVelY += blueYBuf[currentFrame] - blueYBuf[prevFrame];
 
-		yellowXVel += yellowXBuf[currentFrame] - yellowXBuf[prevFrame];
-		yellowYVel += yellowYBuf[currentFrame] - yellowYBuf[prevFrame];
+		yellowVelX += yellowXBuf[currentFrame] - yellowXBuf[prevFrame];
+		yellowVelY += yellowYBuf[currentFrame] - yellowYBuf[prevFrame];
 
-		ballXVel += ballXBuf[currentFrame] - ballXBuf[prevFrame];
-		ballYVel += ballYBuf[currentFrame] - ballYBuf[prevFrame];
+		ballVelX += ballXBuf[currentFrame] - ballXBuf[prevFrame];
+		ballVelY += ballYBuf[currentFrame] - ballYBuf[prevFrame];
 
-		blueXVel /= NUM_FRAMES;
-		blueYVel /= NUM_FRAMES;
+		blueVelX /= NUM_FRAMES;
+		blueVelY /= NUM_FRAMES;
 
-		yellowXVel /= NUM_FRAMES;
-		yellowYVel /= NUM_FRAMES;
+		yellowVelX /= NUM_FRAMES;
+		yellowVelY /= NUM_FRAMES;
 
-		ballXVel /= NUM_FRAMES;
-		ballYVel /= NUM_FRAMES;
+		ballVelX /= NUM_FRAMES;
+		ballVelY /= NUM_FRAMES;
 
 		++currentFrame;
 		if (currentFrame >= NUM_FRAMES)
@@ -306,12 +306,12 @@ public class WorldState {
 			this.ourRobot.x = blueX;
 			this.ourRobot.y = blueY;
 			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
-			this.ourRobot.bearing = getBlueOrientation();
+			this.ourRobot.bearing = blueOrient;
 		} else {
 			this.ourRobot.x = yellowX;
 			this.ourRobot.y = yellowY;
 			this.ourRobot.setPosition(new Vector(ourRobot.x, ourRobot.y));
-			this.ourRobot.bearing = getYellowOrientation();
+			this.ourRobot.bearing = yellowOrient;
 		}
 	}
 
@@ -322,18 +322,20 @@ public class WorldState {
 			this.theirRobot.x = yellowX;
 			this.theirRobot.y = yellowY;
 			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
-			this.theirRobot.bearing = getYellowOrientation();
+			this.theirRobot.bearing = yellowOrient;
 		} else {
 			this.theirRobot.x = blueX;
 			this.theirRobot.y = blueY;
 			this.theirRobot.setPosition(new Vector(theirRobot.x, theirRobot.y));
-			this.theirRobot.bearing = getBlueOrientation();
+			this.theirRobot.bearing = blueOrient;
 		}
 	}
 
 	public void setBall() {
 		this.ball.x = ballX;
 		this.ball.y = ballY;
+		this.ball.speedX = ballVelX;
+		this.ball.speedY = ballVelY;
 	}
 
 	public void setWeAreOnLeft(boolean weAreOnLeft) {
