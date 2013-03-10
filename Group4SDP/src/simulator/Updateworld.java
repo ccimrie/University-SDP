@@ -154,15 +154,16 @@ public class Updateworld extends TestbedTest {
         worldState.setBallX( (int)(Math.round((ballSim.getWorldCenter().x/scale))));
         worldState.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
         
-        worldState.setBlueX((int)(Math.round((ballSim.getWorldCenter().x/scale))));
-        worldState.setBallY((int)Math.round(ballSim.getWorldCenter().y/scale));
+        worldState.setBlueX((int)(Math.round((ourRobotSim.robot.getWorldCenter().x/scale))));
+        worldState.setBallY((int)Math.round(ourRobotSim.robot.getWorldCenter().y/scale));
         
         worldState.setYellowX((int)(theirRobotSim.robot.getWorldCenter().x/scale));
         worldState.setYellowY((int)(theirRobotSim.robot.getWorldCenter().y/scale));
         
-        //worldState.setBlueOrientation(ourRobotSim.robot.getAngle() + Math.PI/2.0f);
-        worldState.setBlueOrientation(ourRobotSim.robot.getAngle() );
-        //worldState.setYellowOrientation(theirRobotSim.robot.getAngle() + Math.PI/2.0f);
+       worldState.setBlueOrientation(Math.toDegrees(Math.abs((ourRobotSim.robot.getAngle()-Math.PI/2.0f)%(2*Math.PI))) );
+        
+       
+        worldState.setYellowOrientation(Math.toDegrees(Math.abs((theirRobotSim.robot.getAngle()-Math.PI/2.0f)%(2*Math.PI))) );
         
        
         

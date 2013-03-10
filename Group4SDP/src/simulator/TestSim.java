@@ -73,7 +73,8 @@ public class TestSim {
 	        			//System.out.println("Ball x :" + worldState.getBallX() + "Ball y :" + worldState.getBallY());
 	        			//System.out.println("Blue x :" + worldState.getBlueX() + " Blue y :" + worldState.getBlueY());
 	        			//System.out.println("Yellow x :" + worldState.getYellowX() + " Yellow y :" + worldState.getYellowX());
-	        			System.out.println("Blue Orientation :" + worldState.getBlueOrientation() + "Yellow Orientation :" + worldState.getYellowOrientation());
+	        			System.out.println("Blue Orientation :" + worldState.getBlueOrientation());
+	        			System.out.println("Yellow Orientation :" + worldState.getYellowOrientation());
 	        			
 	        		}
 	        		
