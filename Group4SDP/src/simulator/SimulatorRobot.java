@@ -22,9 +22,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	private static final double angleThreshold = Math.toRadians(10);
 
-	private final Simulator sim;
+	private final SimulatorTestbed sim;
 
-	public SimulatorRobot(RobotType type, final Simulator simulator) {
+	public SimulatorRobot(RobotType type, final SimulatorTestbed simulator) {
 		super(type);
 
 		sim = simulator;

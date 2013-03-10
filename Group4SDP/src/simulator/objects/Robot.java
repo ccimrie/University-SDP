@@ -1,8 +1,7 @@
-package simulator;
+package simulator.objects;
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.MathUtils;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -10,25 +9,16 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
-import world.state.HittingObstacle;
 
+public class Robot {
+	public final Body body;
+	private PrismaticJoint joint;
+	private long kickStep = 0;
+	private boolean kicking = false;
 
-
-public class SimDisplayRobot {
-	HittingObstacle obstacle  = new HittingObstacle();
-	
-	 public static final float pitchL = 2.4384f;
-	 public static final float pitchW = 1.2192f;
-	public static final float goalW = 0.6f;
-	public Body robot;
-	public PrismaticJoint joint;
-	public long kickStep = 0;
-	public boolean isKicking = false;
-	
-
-	public SimDisplayRobot(boolean isOurRobo, World world) {
+	public Robot(World world, boolean isOurRobo) {
 		float scale = 20.0f;
-		//Updateworld.scale = scale;
+		// Updateworld.scale = scale;
 		// create robot's body
 		PolygonShape roboShape = new PolygonShape();
 		roboShape.setAsBox(0.09f * scale, 0.09f * scale);
@@ -43,18 +33,18 @@ public class SimDisplayRobot {
 		bdr.angularDamping = 4.0f;
 		bdr.linearDamping = 3.0f;
 		bdr.allowSleep = false;
-		
+
 		if (isOurRobo) {
-			bdr.position.set(0.1f * scale, pitchW * scale / 2);
-			
+			bdr.position.set(0.1f * scale, Pitch.width * scale / 2);
+
 			bdr.angle = 0;
 		} else {
-			
-			bdr.position.set(pitchL * scale - 0.1f * scale, pitchW * scale / 2);
+
+			bdr.position.set(Pitch.length * scale - 0.1f * scale, Pitch.width * scale / 2);
 			bdr.angle = MathUtils.PI;
 		}
-		robot = world.createBody(bdr);
-		robot.createFixture(fd);
+		body = world.createBody(bdr);
+		body.createFixture(fd);
 
 		// Create a bumper mechanism imitating flap in 2 dimensions
 		PolygonShape shapeFlap = new PolygonShape();
@@ -68,12 +58,12 @@ public class SimDisplayRobot {
 		BodyDef bdFlap = new BodyDef();
 		bdFlap.type = BodyType.DYNAMIC;
 		if (isOurRobo) {
-			bdFlap.position.set(robot.getWorldCenter().x + 0.09f * scale
-					+ 0.002f * scale, robot.getWorldCenter().y);
+			bdFlap.position.set(body.getWorldCenter().x + 0.09f * scale
+					+ 0.002f * scale, body.getWorldCenter().y);
 			bdFlap.angle = 0;
 		} else {
-			bdFlap.position.set(robot.getWorldCenter().x - 0.09f * scale
-					- 0.002f * scale, robot.getWorldCenter().y);
+			bdFlap.position.set(body.getWorldCenter().x - 0.09f * scale
+					- 0.002f * scale, body.getWorldCenter().y);
 			bdFlap.angle = MathUtils.PI;
 		}
 		bdFlap.allowSleep = false;
@@ -88,10 +78,10 @@ public class SimDisplayRobot {
 			pjd.localAxis1.set(-1.0f, 0.0f);
 		}
 		pjd.localAxis1.normalize();
-		pjd.localAnchorA.set(robot.getLocalCenter());
+		pjd.localAnchorA.set(body.getLocalCenter());
 		pjd.localAnchorB.set(0.0f, 0.09f * scale);
-	
-		pjd.initialize(robot, flap, robot.getWorldCenter(), pjd.localAxis1);
+
+		pjd.initialize(body, flap, body.getWorldCenter(), pjd.localAxis1);
 
 		if (isOurRobo) {
 			pjd.motorSpeed = 500.0f;
@@ -106,10 +96,5 @@ public class SimDisplayRobot {
 
 		joint = (PrismaticJoint) world.createJoint(pjd);
 	}
-
-
-	
-
-
 
 }
