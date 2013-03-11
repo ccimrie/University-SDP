@@ -119,7 +119,7 @@ public class Robot {
 
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
-		body.applyLinearImpulse(body.getWorldVector(speed).mul(body.getMass()),
+		body.applyLinearImpulse(body.getWorldVector(speed),
 				body.getWorldPoint(body.getLocalCenter()));
 
 		if (rotateActive) {
@@ -173,7 +173,7 @@ public class Robot {
 			throws InterruptedException {
 		lock.lockInterruptibly();
 		// Simulator coordinates are different to the ones we use.
-		speed.set((float) speedY, (float) speedX);
+		speed.set((float) speedY, (float) -speedX);
 		lock.unlock();
 	}
 
@@ -192,10 +192,13 @@ public class Robot {
 
 	public void rotate(double angleRad) throws InterruptedException {
 		// Don't bother with angles that're too small.
-		if (angleRad < rotateThreshold)
+		if (Math.abs(angleRad) < rotateThreshold)
 			return;
 		lock.lockInterruptibly();
-		setRotSpeed(Math.PI / 10);
+		double rotSpeed = Math.PI / 10;
+		if (angleRad < 0)
+			rotSpeed = -rotSpeed;
+		setRotSpeed(rotSpeed);
 		float angle = body.getAngle() - (float) angleRad;
 		targetOrient = new Vec2((float) Math.cos(angle),
 				(float) Math.sin(angle));
