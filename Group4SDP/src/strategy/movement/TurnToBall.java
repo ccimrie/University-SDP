@@ -4,12 +4,23 @@
 
 package strategy.movement;
 
+import vision.Position;
 import world.state.Ball;
 import world.state.Robot;
 
 public class TurnToBall {
 
-	/*
+	public static double turner(Robot us, double objectX, double objectY) {
+		double objectBearing = findBearing(us,  objectX,  objectY);
+		double angle = turnAngle(us.bearing, objectBearing);
+		return angle;
+	}
+	
+	public static double findBearing(Robot us, double objectX, double objectY) {
+		return findPointBearing(us, objectX, objectY);
+	}
+
+/*
 	 * findBearing takes 2 coordinates (the ball and our robot) and calculates
 	 * the bearing of the ball relative to the robot (using the robot as the
 	 * origin and "north" as being up on the camera feed)
@@ -34,7 +45,8 @@ public class TurnToBall {
 			turnAngle -= 360.0;
 		return turnAngle;
 	}
-
+	
+	
 	public static double Turner(Robot us, Ball ball) {
 		double ballBearing = findBearing(us, ball);
 		double angle = turnAngle(us.bearing, ballBearing);

@@ -276,7 +276,7 @@ public class Brick {
 		rightMotor.setAcceleration(2000);
 		leftMotor.setSpeed(170);
 		rightMotor.setSpeed(170);
-		angle = (int) (angle * 2);
+		angle = (int) (angle * 1.875);
 		chip.move(1, DO_NOTHING, 0);
 		chip.move(2, DO_NOTHING, 0);
 

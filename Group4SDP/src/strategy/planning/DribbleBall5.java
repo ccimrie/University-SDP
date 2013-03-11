@@ -1,34 +1,13 @@
 package strategy.planning;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
 import movement.RobotMover;
 import strategy.movement.TurnToBall;
+import utility.SafeSleep;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.WorldState;
 
 public class DribbleBall5 {
-
-	private final ScheduledExecutorService sleepScheduler = Executors
-			.newScheduledThreadPool(1);
-
-	/** Thread-safe sleep */
-	private void safeSleep(long millis) throws InterruptedException {
-		final Semaphore sleepSem = new Semaphore(0, true);
-		// Schedule a wake-up after the specified time
-		sleepScheduler.schedule(new Runnable() {
-			@Override
-			public void run() {
-				sleepSem.release();
-			}
-		}, millis, TimeUnit.MILLISECONDS);
-		// Wait for the wake-up
-		sleepSem.acquire();
-	}
 
 	public static boolean die = false;
 
@@ -69,7 +48,7 @@ public class DribbleBall5 {
 			mover.waitForCompletion();
 		}
 		double angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
-		safeSleep(50);
+		SafeSleep.sleep(50);
 		int attempt = 0;
 		System.out.printf("Angle is, %d\n", (int) angle);
 		while (Math.abs(angle) > 5 && attempt < 10) {
@@ -83,7 +62,7 @@ public class DribbleBall5 {
 			++attempt;
 			angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 			System.out.println("Angle for rotation " + angle);
-			safeSleep(50);
+			SafeSleep.sleep(50);
 			if (die)
 				return;
 		}
@@ -101,11 +80,11 @@ public class DribbleBall5 {
 		//if (angle > 10){
 			mover.move(0, 40);
 			System.out.println("Moving towards the ball");
-			safeSleep(600);
+			SafeSleep.sleep(600);
 			System.out.println("Moving towards the ball finished");
 			mover.stopRobot();
 			mover.waitForCompletion();
-			safeSleep(50);
+			SafeSleep.sleep(50);
 			mover.rotate(Math.toRadians(angle));
 			mover.waitForCompletion();
 		//}
@@ -114,14 +93,14 @@ public class DribbleBall5 {
 		//Now we move to the ball and then we kick it.
 		mover.move(0, 40);
 
-		safeSleep(1500);
+		SafeSleep.sleep(1500);
 		if (worldState.areWeOnLeft()){
 			while (Math.abs(ball.x - 610) > 300){
-				safeSleep(50);
+				SafeSleep.sleep(50);
 			}
 		}else{
 			while (Math.abs(ball.x - 28) > 300){
-				safeSleep(50);
+				SafeSleep.sleep(50);
 			}
 		}
 
