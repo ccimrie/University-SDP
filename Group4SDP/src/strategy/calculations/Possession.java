@@ -8,7 +8,7 @@ import strategy.movement.TurnToBall;
 
 public class Possession {
 	
-	private static final int possessionThreshold = 45;
+	private static final int possessionThreshold = 70;
 	
 	public static boolean hasPossession(WorldState world, RobotType type) {
 	
@@ -29,8 +29,10 @@ public class Possession {
 				&& Compare.compareDouble(bearing_degrees, TurnToBall.findBearing(robot, ball), 180)) 
 				|| (type == RobotType.Us && world.ball.x == 0 && world.ball.y == 0)
 		) {
-			
-			possession = true;
+			double angle = TurnToBall.AngleTurner(robot, ball.x, ball.y);
+			if (Math.abs(angle) < 30){
+				possession = true;
+			}
 		}
 		
 		return possession;
