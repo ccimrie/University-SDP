@@ -1,7 +1,11 @@
 package simulator.objects;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.MathUtils;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -10,11 +14,26 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
+import simulator.SimulatorTestbed;
+
 public class Robot {
 	public final Body body;
 	private PrismaticJoint joint;
-	private long kickStep = 0;
-	private boolean kicking = false;
+
+	private Vec2 speed = new Vec2();
+	private float rotSpeed = 0f;
+
+	private static final double rotateThreshold = Math.toRadians(2);
+
+	private boolean kickActive = false;
+	private int kickStep = 0;
+	private Semaphore kickSem = new Semaphore(0, true);
+
+	private boolean rotateActive = false;
+	private Vec2 targetOrient;
+	private Semaphore rotSem = new Semaphore(0, true);
+
+	private ReentrantLock lock = new ReentrantLock(true);
 
 	public Robot(World world, boolean isOurRobo) {
 		float scale = 20.0f;
@@ -40,7 +59,8 @@ public class Robot {
 			bdr.angle = 0;
 		} else {
 
-			bdr.position.set(Pitch.length * scale - 0.1f * scale, Pitch.width * scale / 2);
+			bdr.position.set(Pitch.length * scale - 0.1f * scale, Pitch.width
+					* scale / 2);
 			bdr.angle = MathUtils.PI;
 		}
 		body = world.createBody(bdr);
@@ -97,4 +117,90 @@ public class Robot {
 		joint = (PrismaticJoint) world.createJoint(pjd);
 	}
 
+	public void beforeStep() throws InterruptedException {
+		lock.lockInterruptibly();
+		body.applyForce(body.getWorldVector(speed),
+				body.getWorldPoint(body.getLocalCenter()));
+		body.applyTorque(rotSpeed);
+
+		if (kickActive) {
+			if (kickStep < 5) {
+				joint.setMotorSpeed(100.0f);
+				++kickStep;
+			} else {
+				joint.setMotorSpeed(-100.0f);
+				kickStep = 0;
+			}
+		} else {
+			joint.setMotorSpeed(-100.0f);
+		}
+		lock.unlock();
+	}
+
+	public void afterStep() throws InterruptedException {
+		if (rotateActive) {
+			lock.lockInterruptibly();
+			float angle = body.getAngle();
+			Vec2 orient = new Vec2((float) Math.cos(angle),
+					(float) Math.sin(angle));
+			if (Math.acos(Vec2.dot(orient, targetOrient)) < rotateThreshold) {
+				rotSem.release();
+				rotateActive = false;
+			}
+			lock.unlock();
+		}
+		if (kickActive && kickStep == 0) {
+			lock.lockInterruptibly();
+			kickSem.release();
+			kickActive = false;
+			lock.unlock();
+		}
+	}
+
+	public void setSpeed(double speedX, double speedY)
+			throws InterruptedException {
+		lock.lockInterruptibly();
+		// Simulator coordinates are different to the ones we use.
+		speed.set((float) speedY, (float) speedX);
+		lock.unlock();
+	}
+
+	public void setRotSpeed(double rotSpeed) throws InterruptedException {
+		lock.lockInterruptibly();
+		rotSpeed = (float) rotSpeed;
+		lock.unlock();
+	}
+
+	public double getOrientation() throws InterruptedException {
+		lock.lockInterruptibly();
+		double result = SimulatorTestbed.convertAngle(body.getAngle());
+		lock.unlock();
+		return result;
+	}
+
+	public void rotate(double angleRad) throws InterruptedException {
+		// Don't bother with angles that're too small.
+		if (angleRad < rotateThreshold)
+			return;
+		lock.lockInterruptibly();
+		setRotSpeed(Math.PI / 10);
+		float angle = body.getAngle() + (float) angleRad;
+		targetOrient = new Vec2((float) Math.cos(angle),
+				(float) Math.sin(angle));
+		rotateActive = true;
+		lock.unlock();
+
+		// Wait for the rotation to complete
+		rotSem.acquire();
+	}
+
+	public void kick() throws InterruptedException {
+		lock.lockInterruptibly();
+		kickActive = true;
+		kickStep = 0;
+		lock.unlock();
+		
+		// Wait for the kick to complete
+		kickSem.acquire();
+	}
 }

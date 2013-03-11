@@ -1,6 +1,5 @@
 package simulator;
 
-import utility.SafeSleep;
 import world.state.Robot;
 import world.state.RobotType;
 
@@ -20,14 +19,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	private boolean connected = false;
 
-	private static final double angleThreshold = Math.toRadians(10);
+	private final simulator.objects.Robot simRobot;
 
-	private final SimulatorTestbed sim;
-
-	public SimulatorRobot(RobotType type, final SimulatorTestbed simulator) {
+	public SimulatorRobot(RobotType type, final simulator.objects.Robot simRobot) {
 		super(type);
 
-		sim = simulator;
+		this.simRobot = simRobot;
 	}
 
 	/**
@@ -75,8 +72,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int stop() {
-		sim.setRobotSpeed(type, 0, 0);
-		return 0;
+		try {
+			simRobot.setSpeed(0, 0);
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -84,7 +85,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int kick() {
-		return 0;
+		try {
+			simRobot.kick();
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -92,8 +98,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int move(int speedX, int speedY) {
-		sim.setRobotSpeed(type, speedX, speedY);
-		return 0;
+		try {
+			simRobot.setSpeed(speedX, speedY);
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -101,23 +111,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int rotate(int angleDeg) {
-		sim.setRobotRotationSpeed(type, Math.PI / 10);
-		double startOrient = sim.getRobotOrientation(type);
-		double targetOrient = startOrient + Math.toRadians(angleDeg);
-		if (targetOrient < 0)
-			targetOrient += 2.0 * Math.PI;
-		else if (targetOrient > 2.0 * Math.PI) {
-			targetOrient -= 2.0 * Math.PI;
-		}
-
 		try {
-			while (Math.abs(sim.getRobotOrientation(type) - targetOrient) > angleThreshold) {
-				SafeSleep.sleep(50);
-			}
+			simRobot.rotate(Math.toRadians(angleDeg));
+			return 0;
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			return -2;
 		}
-		return 0;
 	}
 
 	/**

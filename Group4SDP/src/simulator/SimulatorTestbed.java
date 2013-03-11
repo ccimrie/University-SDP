@@ -1,9 +1,6 @@
 package simulator;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.testbed.framework.TestbedSettings;
 import org.jbox2d.testbed.framework.TestbedTest;
@@ -22,16 +19,9 @@ import world.state.WorldState;
 public class SimulatorTestbed extends TestbedTest {
 	private final WorldState worldState;
 
-	private Vec2 ourRobotSpeed = new Vec2();
-	private float ourRobotRotSpeed = 0f;
-	private Vec2 theirRobotSpeed = new Vec2();
-	private float theirRobotRotSpeed = 0f;
-	private final ReentrantLock ourRobotLock = new ReentrantLock(true);
-	private final ReentrantLock theirRobotLock = new ReentrantLock(true);
-
-	Pitch pitch;
-	Ball simBall;
-	Robot simOurRobot, simTheirRobot;
+	private Pitch pitch;
+	private Ball simBall;
+	private Robot simOurRobot, simTheirRobot;
 
 	public SimulatorTestbed(final WorldState worldState) {
 		super();
@@ -53,7 +43,7 @@ public class SimulatorTestbed extends TestbedTest {
 
 		this.simOurRobot = new Robot(world, true);
 		this.simTheirRobot = new Robot(world, false);
-		
+
 		getWorld().setGravity(new Vec2(0.0f, 0.0f));
 
 		setCamera(new Vec2(Pitch.length / 2, Pitch.width / 2).mul(Pitch.scale),
@@ -73,7 +63,7 @@ public class SimulatorTestbed extends TestbedTest {
 	 *            The angle in JBox2D's coordinate system (in radians)
 	 * @return The angle in our coordinate system (in radians)
 	 */
-	private double convertAngle(double jboxAngle) {
+	public static double convertAngle(double jboxAngle) {
 		double x = Math.cos(jboxAngle);
 		double y = Math.sin(jboxAngle);
 
@@ -84,107 +74,6 @@ public class SimulatorTestbed extends TestbedTest {
 			angle = 2.0 * Math.PI - angle;
 
 		return angle;
-	}
-
-	private void setOurRobotSpeed(double speedX, double speedY) {
-		ourRobotLock.lock();
-		// Simulator coordinates are different to the ones we use.
-		ourRobotSpeed = new Vec2((float) speedY, (float) speedX);
-		ourRobotLock.unlock();
-	}
-
-	private void setEnemyRobotSpeed(double speedX, double speedY) {
-		theirRobotLock.lock();
-		// Simulator coordinates are different to the ones we use.
-		theirRobotSpeed = new Vec2((float) speedY, (float) speedX);
-		theirRobotLock.unlock();
-	}
-
-	public synchronized void setRobotSpeed(RobotType robot, double speedX,
-			double speedY) {
-		switch (robot) {
-		case Us:
-			setOurRobotSpeed(speedX, speedY);
-			break;
-		case Them:
-			setEnemyRobotSpeed(speedX, speedY);
-			break;
-		default:
-			System.out
-					.println("DERP! Invalid robot type passed to SimulatorTestbed.setRobotSpeed()");
-		}
-	}
-
-	private void setOurRobotRotationSpeed(double rotationSpeed) {
-		ourRobotLock.lock();
-		ourRobotRotSpeed = (float) rotationSpeed;
-		ourRobotLock.unlock();
-	}
-
-	private void setEnemyRobotRotationSpeed(double rotationSpeed) {
-		theirRobotLock.lock();
-		theirRobotRotSpeed = (float) rotationSpeed;
-		theirRobotLock.unlock();
-	}
-
-	public synchronized void setRobotRotationSpeed(RobotType robot,
-			double rotationSpeed) {
-		switch (robot) {
-		case Us:
-			setOurRobotRotationSpeed(rotationSpeed);
-			break;
-		case Them:
-			setEnemyRobotRotationSpeed(rotationSpeed);
-			break;
-		default:
-			System.out
-					.println("DERP! Invalid robot type passed to SimulatorTest.setRobotRotationSpeed()");
-		}
-	}
-
-	@Override
-	public void step(TestbedSettings settings) {
-
-		// Apply force vectors and torque
-		Body ourRobot = simOurRobot.body;
-		Body theirRobot = simTheirRobot.body;
-
-		ourRobotLock.lock();
-		ourRobot.applyForce(ourRobot.getWorldVector(ourRobotSpeed),
-				ourRobot.getWorldPoint(ourRobot.getLocalCenter()));
-		ourRobot.applyTorque(ourRobotRotSpeed);
-		ourRobotLock.unlock();
-
-		theirRobotLock.lock();
-		theirRobot.applyForce(theirRobot.getWorldVector(theirRobotSpeed),
-				theirRobot.getWorldPoint(ourRobot.getLocalCenter()));
-		theirRobot.applyTorque(theirRobotRotSpeed);
-		theirRobotLock.unlock();
-
-		// Step the simulation
-		super.step(settings);
-
-		// Update the world state
-		worldState
-				.setBallX((int) (simBall.body.getWorldCenter().x * Pitch.scale));
-		worldState
-				.setBallY((int) (simBall.body.getWorldCenter().y * Pitch.scale));
-
-		worldState
-				.setBlueX((int) (simOurRobot.body.getWorldCenter().x * Pitch.scale));
-		worldState
-				.setBlueY((int) (simOurRobot.body.getWorldCenter().y * Pitch.scale));
-
-		worldState
-				.setYellowX((int) (simTheirRobot.body.getWorldCenter().x * Pitch.scale));
-		worldState
-				.setYellowY((int) (simTheirRobot.body.getWorldCenter().y * Pitch.scale));
-
-		worldState
-				.setBlueOrientation(convertAngle(simOurRobot.body.getAngle()));
-
-		worldState.setYellowOrientation(convertAngle(simTheirRobot.body
-				.getAngle()));
 	}
 
 	public double getRobotOrientation(RobotType robot) {
@@ -201,5 +90,45 @@ public class SimulatorTestbed extends TestbedTest {
 					.println("DERP! Invalid robot type passed to SimulatorTestbed.getRobotOrientation()");
 		}
 		return result;
+	}
+
+	@Override
+	public void step(TestbedSettings settings) {
+		assert (simBall != null && simOurRobot != null && simTheirRobot != null) : "SimulatorTestbed stepped before being initialized";
+
+		try {
+			simOurRobot.beforeStep();
+			simTheirRobot.beforeStep();
+
+			// Step the simulation
+			super.step(settings);
+
+			simOurRobot.afterStep();
+			simTheirRobot.afterStep();
+
+			// Update the world state
+			worldState
+					.setBallX((int) (simBall.body.getWorldCenter().x * Pitch.scale));
+			worldState
+					.setBallY((int) (simBall.body.getWorldCenter().y * Pitch.scale));
+
+			worldState
+					.setBlueX((int) (simOurRobot.body.getWorldCenter().x * Pitch.scale));
+			worldState
+					.setBlueY((int) (simOurRobot.body.getWorldCenter().y * Pitch.scale));
+
+			worldState
+					.setYellowX((int) (simTheirRobot.body.getWorldCenter().x * Pitch.scale));
+			worldState
+					.setYellowY((int) (simTheirRobot.body.getWorldCenter().y * Pitch.scale));
+
+			worldState.setBlueOrientation(convertAngle(simOurRobot.body
+					.getAngle()));
+
+			worldState.setYellowOrientation(convertAngle(simTheirRobot.body
+					.getAngle()));
+		} catch (InterruptedException e) {
+			System.out.println("Simulator interrupted");
+		}
 	}
 }
