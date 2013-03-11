@@ -1,16 +1,9 @@
 package simulator;
 
 // UI imports
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,22 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 
-import movement.RobotMover;
-import strategy.calculations.GoalInfo;
-import strategy.movement.TurnToBall;
-import strategy.planning.DribbleBall5;
-import strategy.planning.MainPlanner;
-import strategy.planning.PenaltyAttack;
-import strategy.planning.PenaltyDefense;
-import strategy.planning.Strategy;
-import strategy.planning.StrategyInterface;
-import vision.PitchConstants;
-import world.state.RobotType;
 import world.state.WorldState;
-
-
 
 import communication.RobotController;
 
@@ -130,5 +109,6 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		startStopQuitPanel.add(stratStartButton);
 		startStopQuitPanel.add(penaltyAtkButton);
 		startStopQuitPanel.add(penaltyDefButton);
+		pack();
 	}
 }
