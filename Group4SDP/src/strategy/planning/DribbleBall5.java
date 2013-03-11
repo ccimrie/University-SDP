@@ -130,9 +130,9 @@ public class DribbleBall5 {
 		mover.stopRobot();
 		mover.waitForCompletion();
 		mover.delay(3000);
-		//if (!worldState.ballIsInGoal()){
-		//	dribbleBall(worldState,mover);
-		//}
+		if (!worldState.ballIsInGoal()){
+			dribbleBall(worldState,mover);
+		}
 
 	}
 }
