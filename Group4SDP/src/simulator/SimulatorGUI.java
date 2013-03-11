@@ -122,11 +122,12 @@ public class SimulatorGUI extends JFrame {
 			GoalInfo goalInfo = new GoalInfo(pitchConstants);
 			WorldState worldState = new WorldState(goalInfo);
 
-			Simulator simulator = new Simulator(worldState);
+			SimulatorTestbed simTest = new SimulatorTestbed(worldState);
+			Simulator simulator = new Simulator(simTest);
 
 			// Sets up both robots
-			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us, simulator);
-			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simulator);
+			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us, simTest.simOurRobot);
+			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
 
 			// Sets up the GUI
 			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot);

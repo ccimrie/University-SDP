@@ -17,7 +17,7 @@ import org.jbox2d.dynamics.joints.PrismaticJointDef;
 import simulator.SimulatorTestbed;
 
 public class Robot {
-	public final Body body;
+	public Body body;
 	private PrismaticJoint joint;
 
 	private Vec2 speed = new Vec2();
@@ -35,7 +35,7 @@ public class Robot {
 
 	private ReentrantLock lock = new ReentrantLock(true);
 
-	public Robot(World world, boolean isOurRobo) {
+	public void init(World world, boolean isOurRobo) {
 		float scale = 20.0f;
 		// Updateworld.scale = scale;
 		// create robot's body
@@ -119,11 +119,18 @@ public class Robot {
 
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
-		body.applyForce(body.getWorldVector(speed),
+		body.applyLinearImpulse(body.getWorldVector(speed).mul(body.getMass()),
 				body.getWorldPoint(body.getLocalCenter()));
-		body.applyTorque(rotSpeed);
+
+		if (rotateActive) {
+			System.out.println("beforeStep(): processing rotate");
+			System.out.println("rotSpeed: " + rotSpeed);
+			body.applyAngularImpulse(body.getMass() * rotSpeed);
+			System.out.println("beforeStep(): processing rotate done");
+		}
 
 		if (kickActive) {
+			System.out.println("beforeStep(): processing kick");
 			if (kickStep < 5) {
 				joint.setMotorSpeed(100.0f);
 				++kickStep;
@@ -131,6 +138,7 @@ public class Robot {
 				joint.setMotorSpeed(-100.0f);
 				kickStep = 0;
 			}
+			System.out.println("beforeStep(): processing kick done");
 		} else {
 			joint.setMotorSpeed(-100.0f);
 		}
@@ -139,6 +147,7 @@ public class Robot {
 
 	public void afterStep() throws InterruptedException {
 		if (rotateActive) {
+			System.out.println("afterStep(): processing rotate");
 			lock.lockInterruptibly();
 			float angle = body.getAngle();
 			Vec2 orient = new Vec2((float) Math.cos(angle),
@@ -148,12 +157,15 @@ public class Robot {
 				rotateActive = false;
 			}
 			lock.unlock();
+			System.out.println("afterStep(): processing rotate done");
 		}
 		if (kickActive && kickStep == 0) {
+			System.out.println("afterStep(): processing kick");
 			lock.lockInterruptibly();
-			kickSem.release();
 			kickActive = false;
+			kickSem.release();
 			lock.unlock();
+			System.out.println("afterStep(): processing kick done");
 		}
 	}
 
@@ -167,7 +179,7 @@ public class Robot {
 
 	public void setRotSpeed(double rotSpeed) throws InterruptedException {
 		lock.lockInterruptibly();
-		rotSpeed = (float) rotSpeed;
+		this.rotSpeed = -(float) rotSpeed;
 		lock.unlock();
 	}
 
@@ -184,14 +196,16 @@ public class Robot {
 			return;
 		lock.lockInterruptibly();
 		setRotSpeed(Math.PI / 10);
-		float angle = body.getAngle() + (float) angleRad;
+		float angle = body.getAngle() - (float) angleRad;
 		targetOrient = new Vec2((float) Math.cos(angle),
 				(float) Math.sin(angle));
 		rotateActive = true;
 		lock.unlock();
 
+		System.out.println("Rotate queued");
 		// Wait for the rotation to complete
 		rotSem.acquire();
+		System.out.println("Rotate completed");
 	}
 
 	public void kick() throws InterruptedException {
@@ -199,7 +213,7 @@ public class Robot {
 		kickActive = true;
 		kickStep = 0;
 		lock.unlock();
-		
+
 		// Wait for the kick to complete
 		kickSem.acquire();
 	}

@@ -14,17 +14,14 @@ public class Simulator {
 
 	private final JFrame testbed;
 
-	public Simulator(final WorldState worldState) {
+	public Simulator(final SimulatorTestbed simTest) {
 		// Instantiate model where all the tests reside.
 		TestbedModel model = new TestbedModel();
 		TestbedPanel panel = new TestPanelJ2D(model);
-
-		// Instantiate new custom test.
-		SimulatorTestbed matchTest = new SimulatorTestbed(worldState);
 		
 		// Add test to the model
 		model.addCategory("SDP");
-		model.addTest(matchTest);
+		model.addTest(simTest);
 
 		testbed = new TestbedFrame(model, panel);
 		testbed.setVisible(true);

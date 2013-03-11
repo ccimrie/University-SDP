@@ -21,11 +21,14 @@ public class SimulatorTestbed extends TestbedTest {
 
 	private Pitch pitch;
 	private Ball simBall;
-	private Robot simOurRobot, simTheirRobot;
+	public final Robot simOurRobot;
+	public final Robot simTheirRobot;
 
 	public SimulatorTestbed(final WorldState worldState) {
 		super();
 		this.worldState = worldState;
+		simOurRobot = new Robot();
+		simTheirRobot = new Robot();
 	}
 
 	@Override
@@ -41,8 +44,8 @@ public class SimulatorTestbed extends TestbedTest {
 		this.pitch = new Pitch(world);
 		this.simBall = new Ball(world);
 
-		this.simOurRobot = new Robot(world, true);
-		this.simTheirRobot = new Robot(world, false);
+		this.simOurRobot.init(world, true);
+		this.simTheirRobot.init(world, false);
 
 		getWorld().setGravity(new Vec2(0.0f, 0.0f));
 
