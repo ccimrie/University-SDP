@@ -1,15 +1,17 @@
 package simulator;
 
 import javax.swing.JFrame;
-import javax.swing.UIManager;
 
 import org.jbox2d.testbed.framework.TestbedFrame;
 import org.jbox2d.testbed.framework.TestbedModel;
 import org.jbox2d.testbed.framework.TestbedPanel;
 import org.jbox2d.testbed.framework.j2d.TestPanelJ2D;
 
-import world.state.WorldState;
-
+/**
+ * A class for wrapping a SimulatorTestbed object in a JBox2D simulation
+ * 
+ * @author Alex Adams (s1046358)
+ */
 public class Simulator {
 
 	private final JFrame testbed;
@@ -18,7 +20,7 @@ public class Simulator {
 		// Instantiate model where all the tests reside.
 		TestbedModel model = new TestbedModel();
 		TestbedPanel panel = new TestPanelJ2D(model);
-		
+
 		// Add test to the model
 		model.addCategory("SDP");
 		model.addTest(simTest);

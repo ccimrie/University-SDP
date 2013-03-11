@@ -8,10 +8,10 @@ import org.jbox2d.testbed.framework.TestbedTest;
 import simulator.objects.Ball;
 import simulator.objects.Pitch;
 import simulator.objects.Robot;
-import world.state.RobotType;
 import world.state.WorldState;
 
 /**
+ * The main simulator class
  * 
  * @author Alex Adams (s1046358)
  * @author Bachir
@@ -79,20 +79,17 @@ public class SimulatorTestbed extends TestbedTest {
 		return angle;
 	}
 
-	public double getRobotOrientation(RobotType robot) {
-		double result = 0;
-		switch (robot) {
-		case Us:
-			result = convertAngle(simOurRobot.body.getAngle());
-			break;
-		case Them:
-			result = convertAngle(simTheirRobot.body.getAngle());
-			break;
-		default:
-			System.out
-					.println("DERP! Invalid robot type passed to SimulatorTestbed.getRobotOrientation()");
-		}
-		return result;
+	/**
+	 * TODO: proper implementation <br/>
+	 * Converts coordinates from the simulator's coordinate system to the
+	 * vision's
+	 * 
+	 * @param simCoords
+	 *            The simulator coordinates to be converted
+	 * @return The coordinates after conversion
+	 */
+	public static Vec2 convertCoordsFromSim(Vec2 simCoords) {
+		return simCoords.mul(Pitch.scale);
 	}
 
 	@Override
@@ -110,26 +107,42 @@ public class SimulatorTestbed extends TestbedTest {
 			simTheirRobot.afterStep();
 
 			// Update the world state
-			worldState
-					.setBallX((int) (simBall.body.getWorldCenter().x * Pitch.scale));
-			worldState
-					.setBallY((int) (simBall.body.getWorldCenter().y * Pitch.scale));
+			Vec2 ball = convertCoordsFromSim(simBall.body.getWorldCenter());
+			worldState.setBallX((int) ball.x);
+			worldState.setBallY((int) ball.y);
 
-			worldState
-					.setBlueX((int) (simOurRobot.body.getWorldCenter().x * Pitch.scale));
-			worldState
-					.setBlueY((int) (simOurRobot.body.getWorldCenter().y * Pitch.scale));
+			Vec2 ourRobot = convertCoordsFromSim(simOurRobot.body
+					.getWorldCenter());
+			double ourRobotAngle = convertAngle(simOurRobot.body.getAngle());
+			Vec2 theirRobot = convertCoordsFromSim(simTheirRobot.body
+					.getWorldCenter());
+			double theirRobotAngle = convertAngle(simTheirRobot.body.getAngle());
 
-			worldState
-					.setYellowX((int) (simTheirRobot.body.getWorldCenter().x * Pitch.scale));
-			worldState
-					.setYellowY((int) (simTheirRobot.body.getWorldCenter().y * Pitch.scale));
+			if (worldState.areWeBlue()) {
+				worldState.setBlueX((int) ourRobot.x);
+				worldState.setBlueY((int) ourRobot.y);
+				worldState.setBlueOrientation(ourRobotAngle);
 
-			worldState.setBlueOrientation(convertAngle(simOurRobot.body
-					.getAngle()));
+				worldState.setYellowX((int) theirRobot.x);
+				worldState.setYellowY((int) theirRobot.y);
+				worldState.setYellowOrientation(theirRobotAngle);
+			} else {
+				worldState.setBlueX((int) theirRobot.x);
+				worldState.setBlueY((int) theirRobot.y);
+				worldState.setBlueOrientation(theirRobotAngle);
 
-			worldState.setYellowOrientation(convertAngle(simTheirRobot.body
-					.getAngle()));
+				worldState.setYellowX((int) ourRobot.x);
+				worldState.setYellowY((int) ourRobot.y);
+				worldState.setYellowOrientation(ourRobotAngle);
+			}
+
+			worldState.update();
+
+			worldState.setOurRobot();
+			worldState.setTheirRobot();
+			worldState.setBall();
+			worldState.updatePossesion();
+
 		} catch (InterruptedException e) {
 			System.out.println("Simulator interrupted");
 		}

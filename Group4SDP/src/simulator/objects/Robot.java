@@ -16,138 +16,199 @@ import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
 import simulator.SimulatorTestbed;
 
+/**
+ * A class representing a robot in the simulator, which is also responsible for
+ * managing things like speed and rotation for that robot
+ * 
+ * @author Alex Adams (s1046358)
+ */
 public class Robot {
+	/** The robot's body in the simulator */
 	public Body body;
-	private PrismaticJoint joint;
+	/** A controllable part representing the robot's kicker */
+	private PrismaticJoint kicker;
 
+	/**
+	 * The robot's speed vector, where x is the forward/back speed, y is
+	 * left/right, both from -100 to 100.
+	 */
 	private Vec2 speed = new Vec2();
+	/** The rotation speed for the robot in radians per second */
 	private float rotSpeed = 0f;
 
+	/**
+	 * The threshold for rotating, within which the rotation should stop.
+	 */
 	private static final double rotateThreshold = Math.toRadians(2);
 
+	/** Flag to enable kicking */
 	private boolean kickActive = false;
+	/**
+	 * State variable for the kicker to spread out the kicker's motion over a
+	 * few steps
+	 */
 	private int kickStep = 0;
+	/**
+	 * Used to make the kick() caller wait until the kick finishes, micking the
+	 * real robot finishing the kick before returning confirmation
+	 */
 	private Semaphore kickSem = new Semaphore(0, true);
 
+	/** Flag to enable rotation */
 	private boolean rotateActive = false;
+	/** The direction vector to rotate to */
 	private Vec2 targetOrient;
+	/**
+	 * Used to make the rotate() caller wait until the rotate finishes,
+	 * mimicking the real robot finishing the rotate before returning
+	 * confirmation
+	 */
 	private Semaphore rotSem = new Semaphore(0, true);
 
+	/**
+	 * Recursive mutex to prevent variables being read/written by multiple
+	 * threads simultaneously
+	 */
 	private ReentrantLock lock = new ReentrantLock(true);
 
+	/**
+	 * (Re-)initializes the robot. This should only be called during a call to
+	 * initTest() in SimulatorTestbed.
+	 * 
+	 * @param world
+	 *            The simulator's world
+	 * @param isOurRobo
+	 *            A flag to say whether this robot is ours or not
+	 */
 	public void init(World world, boolean isOurRobo) {
 		float scale = 20.0f;
-		// Updateworld.scale = scale;
-		// create robot's body
-		PolygonShape roboShape = new PolygonShape();
-		roboShape.setAsBox(0.09f * scale, 0.09f * scale);
 
-		FixtureDef fd = new FixtureDef();
-		fd.shape = roboShape;
-		fd.density = 10.0f;
-		fd.friction = 0.3f;
+		// Create the robot with its properties
+		PolygonShape robotShape = new PolygonShape();
+		robotShape.setAsBox(0.09f * scale, 0.09f * scale);
 
-		BodyDef bdr = new BodyDef();
-		bdr.type = BodyType.DYNAMIC;
-		bdr.angularDamping = 4.0f;
-		bdr.linearDamping = 3.0f;
-		bdr.allowSleep = false;
+		FixtureDef robotFixDef = new FixtureDef();
+		robotFixDef.shape = robotShape;
+		robotFixDef.density = 10.0f;
+		robotFixDef.friction = 0.3f;
 
+		BodyDef robotBodyDef = new BodyDef();
+		robotBodyDef.type = BodyType.DYNAMIC;
+		robotBodyDef.angularDamping = 4.0f;
+		robotBodyDef.linearDamping = 3.0f;
+		robotBodyDef.allowSleep = false;
+
+		// TODO: move this so we can choose where the robot starts
 		if (isOurRobo) {
-			bdr.position.set(0.1f * scale, Pitch.width * scale / 2);
+			robotBodyDef.position.set(0.1f * scale, Pitch.width * scale / 2);
 
-			bdr.angle = 0;
+			robotBodyDef.angle = 0;
 		} else {
 
-			bdr.position.set(Pitch.length * scale - 0.1f * scale, Pitch.width
-					* scale / 2);
-			bdr.angle = MathUtils.PI;
+			robotBodyDef.position.set(Pitch.length * scale - 0.1f * scale,
+					Pitch.width * scale / 2);
+			robotBodyDef.angle = MathUtils.PI;
 		}
-		body = world.createBody(bdr);
-		body.createFixture(fd);
+		body = world.createBody(robotBodyDef);
+		body.createFixture(robotFixDef);
 
-		// Create a bumper mechanism imitating flap in 2 dimensions
-		PolygonShape shapeFlap = new PolygonShape();
-		shapeFlap.setAsBox(0.001f * scale, 0.09f * scale);
+		// Create a kicker
+		PolygonShape kickerShape = new PolygonShape();
+		kickerShape.setAsBox(0.001f * scale, 0.09f * scale);
 
-		FixtureDef flapfx = new FixtureDef();
-		flapfx.shape = shapeFlap;
-		flapfx.density = 3.0f;
-		flapfx.friction = 0.3f;
+		FixtureDef kickerFixDef = new FixtureDef();
+		kickerFixDef.shape = kickerShape;
+		kickerFixDef.density = 3.0f;
+		kickerFixDef.friction = 0.3f;
 
-		BodyDef bdFlap = new BodyDef();
-		bdFlap.type = BodyType.DYNAMIC;
+		BodyDef kickerBodyDef = new BodyDef();
+		kickerBodyDef.type = BodyType.DYNAMIC;
 		if (isOurRobo) {
-			bdFlap.position.set(body.getWorldCenter().x + 0.09f * scale
+			kickerBodyDef.position.set(body.getWorldCenter().x + 0.09f * scale
 					+ 0.002f * scale, body.getWorldCenter().y);
-			bdFlap.angle = 0;
+			kickerBodyDef.angle = 0;
 		} else {
-			bdFlap.position.set(body.getWorldCenter().x - 0.09f * scale
+			kickerBodyDef.position.set(body.getWorldCenter().x - 0.09f * scale
 					- 0.002f * scale, body.getWorldCenter().y);
-			bdFlap.angle = MathUtils.PI;
+			kickerBodyDef.angle = MathUtils.PI;
 		}
-		bdFlap.allowSleep = false;
-		Body flap = world.createBody(bdFlap);
-		flap.createFixture(flapfx);
+		kickerBodyDef.allowSleep = false;
+		Body kickerBody = world.createBody(kickerBodyDef);
+		kickerBody.createFixture(kickerFixDef);
 
-		// Create a mechanical joint between robot and flap/bumper
-		PrismaticJointDef pjd = new PrismaticJointDef();
+		// Create a mechanical joint between robot and kicker
+		PrismaticJointDef kickerJointDef = new PrismaticJointDef();
 		if (isOurRobo) {
-			pjd.localAxis1.set(1.0f, 0.0f);
+			kickerJointDef.localAxis1.set(1.0f, 0.0f);
 		} else {
-			pjd.localAxis1.set(-1.0f, 0.0f);
+			kickerJointDef.localAxis1.set(-1.0f, 0.0f);
 		}
-		pjd.localAxis1.normalize();
-		pjd.localAnchorA.set(body.getLocalCenter());
-		pjd.localAnchorB.set(0.0f, 0.09f * scale);
+		kickerJointDef.localAxis1.normalize();
+		kickerJointDef.localAnchorA.set(body.getLocalCenter());
+		kickerJointDef.localAnchorB.set(0.0f, 0.09f * scale);
 
-		pjd.initialize(body, flap, body.getWorldCenter(), pjd.localAxis1);
+		kickerJointDef.initialize(body, kickerBody, body.getWorldCenter(),
+				kickerJointDef.localAxis1);
 
+		// TODO: calibrate
 		if (isOurRobo) {
-			pjd.motorSpeed = 500.0f;
+			kickerJointDef.motorSpeed = 200.0f;
 		} else {
-			pjd.motorSpeed = -500.0f;
+			kickerJointDef.motorSpeed = -200.0f;
 		}
-		pjd.maxMotorForce = 800.0f;
-		pjd.enableMotor = true;
-		pjd.lowerTranslation = 0.0f;
-		pjd.upperTranslation = 0.8f;
-		pjd.enableLimit = true;
+		kickerJointDef.maxMotorForce = 400.0f;
+		kickerJointDef.enableMotor = true;
+		kickerJointDef.lowerTranslation = 0.0f;
+		kickerJointDef.upperTranslation = 0.7f;
+		kickerJointDef.enableLimit = true;
 
-		joint = (PrismaticJoint) world.createJoint(pjd);
+		this.kicker = (PrismaticJoint) world.createJoint(kickerJointDef);
 	}
 
+	/**
+	 * TODO: calibrate<br/>
+	 * Step pre-processing method which processes the forces to be applied for
+	 * this step
+	 * 
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
+		// Apply forward/back/left/right speed
 		body.applyLinearImpulse(body.getWorldVector(speed),
 				body.getWorldPoint(body.getLocalCenter()));
 
-		if (rotateActive) {
-			System.out.println("beforeStep(): processing rotate");
-			System.out.println("rotSpeed: " + rotSpeed);
+		// If we're doing a rotation, apply the angular motion
+		if (rotateActive)
 			body.applyAngularImpulse(body.getMass() * rotSpeed);
-			System.out.println("beforeStep(): processing rotate done");
-		}
 
 		if (kickActive) {
-			System.out.println("beforeStep(): processing kick");
+			// TODO: calibrate
+			// Slows the kickers motion over 5 steps
 			if (kickStep < 5) {
-				joint.setMotorSpeed(100.0f);
+				kicker.setMotorSpeed(100.0f);
 				++kickStep;
 			} else {
-				joint.setMotorSpeed(-100.0f);
+				kicker.setMotorSpeed(-100.0f);
 				kickStep = 0;
 			}
-			System.out.println("beforeStep(): processing kick done");
 		} else {
-			joint.setMotorSpeed(-100.0f);
+			// If we're not kicking, make sure the kicker stays retracted
+			kicker.setMotorSpeed(-100.0f);
 		}
 		lock.unlock();
 	}
 
+	/**
+	 * Step post-processing method which is responsible for waking up threads
+	 * waiting for rotation or kicking to finish
+	 * 
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void afterStep() throws InterruptedException {
 		if (rotateActive) {
-			System.out.println("afterStep(): processing rotate");
 			lock.lockInterruptibly();
 			float angle = body.getAngle();
 			Vec2 orient = new Vec2((float) Math.cos(angle),
@@ -157,18 +218,25 @@ public class Robot {
 				rotateActive = false;
 			}
 			lock.unlock();
-			System.out.println("afterStep(): processing rotate done");
 		}
 		if (kickActive && kickStep == 0) {
-			System.out.println("afterStep(): processing kick");
 			lock.lockInterruptibly();
 			kickActive = false;
 			kickSem.release();
 			lock.unlock();
-			System.out.println("afterStep(): processing kick done");
 		}
 	}
 
+	/**
+	 * Sets the speed vector for the robot
+	 * 
+	 * @param speedX
+	 *            The speed in the left/right axis relative to the robot
+	 * @param speedY
+	 *            The speed in the forward/back axis relative to the robot
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void setSpeed(double speedX, double speedY)
 			throws InterruptedException {
 		lock.lockInterruptibly();
@@ -177,12 +245,28 @@ public class Robot {
 		lock.unlock();
 	}
 
+	/**
+	 * Sets the rotation speed for the robot
+	 * 
+	 * @param rotSpeed
+	 *            The rotation speed for the robot in radians
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void setRotSpeed(double rotSpeed) throws InterruptedException {
 		lock.lockInterruptibly();
 		this.rotSpeed = -(float) rotSpeed;
 		lock.unlock();
 	}
 
+	/**
+	 * Gets the bearing for the robot in the coordinate system used by vision &
+	 * strategy
+	 * 
+	 * @return The clockwise bearing relative to north in radians
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public double getOrientation() throws InterruptedException {
 		lock.lockInterruptibly();
 		double result = SimulatorTestbed.convertAngle(body.getAngle());
@@ -190,27 +274,45 @@ public class Robot {
 		return result;
 	}
 
+	/**
+	 * Performs a rotation for the robot and waits for it to complete before
+	 * returning, to mimick waiting for the confirmation code from the real
+	 * robot
+	 * 
+	 * @param angleRad
+	 *            The angle the robot should rotate by, in radians
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void rotate(double angleRad) throws InterruptedException {
 		// Don't bother with angles that're too small.
 		if (Math.abs(angleRad) < rotateThreshold)
 			return;
 		lock.lockInterruptibly();
+		// TODO: calibrate
 		double rotSpeed = Math.PI / 10;
 		if (angleRad < 0)
 			rotSpeed = -rotSpeed;
 		setRotSpeed(rotSpeed);
+
 		float angle = body.getAngle() - (float) angleRad;
 		targetOrient = new Vec2((float) Math.cos(angle),
 				(float) Math.sin(angle));
 		rotateActive = true;
 		lock.unlock();
 
-		System.out.println("Rotate queued");
 		// Wait for the rotation to complete
 		rotSem.acquire();
-		System.out.println("Rotate completed");
 	}
 
+	/**
+	 * Performs a kick for the robot and waits for it to complete before
+	 * returning, to mimick waiting for the confirmation code from the real
+	 * robot
+	 * 
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
+	 */
 	public void kick() throws InterruptedException {
 		lock.lockInterruptibly();
 		kickActive = true;

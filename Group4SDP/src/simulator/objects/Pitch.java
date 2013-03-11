@@ -6,6 +6,11 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.World;
 
+/**
+ * A class representing the pitch in the simulator
+ * 
+ * @author Alex Adams (s1046358)
+ */
 public class Pitch {
 	private final Body body;
 
@@ -15,11 +20,19 @@ public class Pitch {
 
 	public static final float scale = 20.0f;
 
+	/**
+	 * Constructs a pitch object within the simulator's world
+	 * 
+	 * @param simWorld
+	 *            The simulator's world the pitch is to be constructed in
+	 */
 	public Pitch(final World simWorld) {
 		BodyDef bd = new BodyDef();
 		body = simWorld.createBody(bd);
 		PolygonShape shape = new PolygonShape();
 
+		// Vertices for the pitch boundary, starting from the bottom left corner
+		// and forming a loop
 		Vec2[] pitchVerts = new Vec2[12];
 
 		pitchVerts[0] = new Vec2(0.0f, 0.0f);
@@ -35,9 +48,11 @@ public class Pitch {
 		pitchVerts[10] = new Vec2(-0.06f, (width - goalWidth) / 2);
 		pitchVerts[11] = new Vec2(0.0f, (width - goalWidth) / 2.0f);
 
+		// Scale the vertices
 		for (int i = 0; i < pitchVerts.length; ++i)
 			pitchVerts[i] = pitchVerts[i].mul(scale);
 
+		// Create the pitch as a physical object in the simulator
 		for (int i = 0; i < pitchVerts.length; ++i) {
 			shape.setAsEdge(pitchVerts[i], pitchVerts[(i + 1)
 					% pitchVerts.length]);
