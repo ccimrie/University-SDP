@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
@@ -46,12 +47,20 @@ import communication.RobotController;
 public class SimulatorGUI extends JFrame {
 	// GUI elements
 
+	private final JPanel robotSelectionPanel = new JPanel();
 	private final JPanel startStopQuitPanel = new JPanel();
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();
 	private final JPanel complexMovePanel = new JPanel();
 	private final JPanel moveTargetPanel = new JPanel();
 	private final JPanel moveTargetOptionsPanel = new JPanel();
+	
+	//Simulator specific object
+	private final JLabel robotSelector = new JLabel("Please select a colour: ");
+	private final JRadioButton radioButton1 = new JRadioButton("Blue");
+	private final JRadioButton radioButton2 = new JRadioButton("Yellow");
+	
+	
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -122,7 +131,7 @@ public class SimulatorGUI extends JFrame {
 			// Sets up the GUI
 			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");
-			SimulatorGUI theirRobotGUI = new SimulatorGUI(worldState, theirRobot);
+			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(worldState, theirRobot);
 			theirRobotGUI.setTitle("Opponent Robot Control GUI");
 			
 			ourRobotGUI.setVisible(true);
@@ -147,8 +156,6 @@ public class SimulatorGUI extends JFrame {
 		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
 
-		//this.setTitle("Group 4 control GUI");
-
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
@@ -158,13 +165,25 @@ public class SimulatorGUI extends JFrame {
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		this.getContentPane().setLayout(gridBagLayout);
+		
+		GridBagConstraints gbc_robotSelectionPanel = new GridBagConstraints();
+		gbc_robotSelectionPanel.anchor = GridBagConstraints.NORTH;
+		gbc_robotSelectionPanel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_robotSelectionPanel.insets = new Insets(0, 0, 5, 0);
+		gbc_robotSelectionPanel.gridx = 0;
+		gbc_robotSelectionPanel.gridy = 0;
+		this.getContentPane().add(robotSelectionPanel, gbc_robotSelectionPanel);
+		robotSelectionPanel.add(robotSelector);
+		robotSelectionPanel.add(radioButton1);
+		robotSelectionPanel.add(radioButton2);
+
 
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
 		gbc_startStopQuitPanel.anchor = GridBagConstraints.NORTH;
 		gbc_startStopQuitPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_startStopQuitPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_startStopQuitPanel.gridx = 0;
-		gbc_startStopQuitPanel.gridy = 0;
+		gbc_startStopQuitPanel.gridy = 1;
 		this.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
 		startStopQuitPanel.add(startButton);
 		startStopQuitPanel.add(stopButton);
@@ -178,7 +197,7 @@ public class SimulatorGUI extends JFrame {
 		gbc_simpleMoveTestPanel.fill = GridBagConstraints.VERTICAL;
 		gbc_simpleMoveTestPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_simpleMoveTestPanel.gridx = 0;
-		gbc_simpleMoveTestPanel.gridy = 1;
+		gbc_simpleMoveTestPanel.gridy = 2;
 		// gbc_simpleMoveTestPanel.gridwidth = 2;
 		this.getContentPane().add(optionsPanel, gbc_simpleMoveTestPanel);
 		optionsPanel.add(op1label);
@@ -192,7 +211,7 @@ public class SimulatorGUI extends JFrame {
 		gbc_panel.insets = new Insets(0, 0, 5, 0);
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
-		gbc_panel.gridy = 2;
+		gbc_panel.gridy = 3;
 		this.getContentPane().add(simpleMovePanel, gbc_panel);
 		simpleMovePanel.add(forwardButton);
 		simpleMovePanel.add(backwardButton);
@@ -204,7 +223,7 @@ public class SimulatorGUI extends JFrame {
 		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_1.gridx = 0;
-		gbc_panel_1.gridy = 3;
+		gbc_panel_1.gridy = 4;
 		this.getContentPane().add(complexMovePanel, gbc_panel_1);
 		complexMovePanel.add(rotateButton);
 		complexMovePanel.add(moveButton);
@@ -215,7 +234,7 @@ public class SimulatorGUI extends JFrame {
 		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 0;
-		gbc_panel_2.gridy = 4;
+		gbc_panel_2.gridy = 5;
 		this.getContentPane().add(moveTargetPanel, gbc_panel_2);
 		moveTargetPanel.add(moveNoCollTarget);
 		moveTargetPanel.add(moveNoCollOppTarget);
@@ -224,7 +243,7 @@ public class SimulatorGUI extends JFrame {
 		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_3.fill = GridBagConstraints.BOTH;
 		gbc_panel_3.gridx = 0;
-		gbc_panel_3.gridy = 5;
+		gbc_panel_3.gridy = 6;
 		this.getContentPane().add(moveTargetOptionsPanel, gbc_panel_3);
 		op4field.setColumns(6);
 		op5field.setColumns(6);
@@ -432,6 +451,7 @@ public class SimulatorGUI extends JFrame {
 		public void windowClosing(WindowEvent e) {
 			try {
 				mover.kill();
+				mover.join();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
