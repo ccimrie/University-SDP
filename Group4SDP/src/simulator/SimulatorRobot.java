@@ -8,7 +8,8 @@ import communication.RobotController;
 /**
  * A class to simulate control of the robot, as if there was a bluetooth
  * connection to the real robot <br/>
- * TODO: implement random (infrequent & toggleable) failures
+ * TODO: implement random (infrequent & toggleable) failures <br/>
+ * TODO: implement simulated bluetooth delays
  * 
  * @author Alex Adams (s1046358)
  */
@@ -17,13 +18,13 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 * A boolean value representing whether a simulated connection is active
 	 */
 	private boolean connected = false;
-	
-	private final Simulator sim;
 
-	public SimulatorRobot(RobotType type, final Simulator simulator) {
+	private final simulator.objects.Robot simRobot;
+
+	public SimulatorRobot(RobotType type, final simulator.objects.Robot simRobot) {
 		super(type);
-		
-		sim = simulator;
+
+		this.simRobot = simRobot;
 	}
 
 	/**
@@ -71,8 +72,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int stop() {
-
-		return 0;
+		try {
+			simRobot.setSpeed(0, 0);
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -80,8 +85,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int kick() {
-		// TODO Auto-generated method stub
-		return 0;
+		try {
+			simRobot.kick();
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -89,8 +98,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int move(int speedX, int speedY) {
-		
-		return 0;
+		try {
+			simRobot.setSpeed(speedX, speedY);
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
@@ -98,7 +111,12 @@ public class SimulatorRobot extends Robot implements RobotController {
 	 */
 	@Override
 	public int rotate(int angleDeg) {
-		return 0;
+		try {
+			simRobot.rotate(Math.toRadians(angleDeg));
+			return 0;
+		} catch (InterruptedException e) {
+			return -2;
+		}
 	}
 
 	/**
