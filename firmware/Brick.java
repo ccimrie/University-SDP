@@ -53,7 +53,7 @@ public class Brick {
 	private static NXTRegulatedMotor rightMotor = Motor.C;
 
 	public static void main(String[] args) throws Exception {
-		while (true){
+		while (!die){
 			// Waiting for a connection and opening streams on success
 			LCD.clear();
 			LCD.drawString("Waiting for", 0, 2);
@@ -71,7 +71,7 @@ public class Brick {
 			int opcode = DO_NOTHING;
 			int option1, option2, option3;
 
-			while ((opcode != QUIT) && !(Button.ESCAPE.isDown())) {
+			while ((opcode != QUIT) && (opcode != FORCEQUIT) && !(Button.ESCAPE.isDown())) {
 
 				// Get the next command from the inputstream
 				byte[] byteBuffer = new byte[4];
@@ -131,8 +131,8 @@ public class Brick {
 					LCD.clear();
 					LCD.drawString("Rotate!", 0, 2);
 					LCD.refresh();
-					// The angle is calculated by having option2*10 + option3
-					rotate(option1, option2 * 10 + option3);
+					// The angle is calculated by having option2*127 + option3
+					rotate(option1, option2 * 127 + option3);
 					replytopc(opcode, os);
 					break;
 
@@ -191,9 +191,6 @@ public class Brick {
 			LCD.refresh();
 			connection.close();
 			LCD.clear();
-			if (die){
-				return;
-			}
 			Thread.sleep(200);
 		}
 	}

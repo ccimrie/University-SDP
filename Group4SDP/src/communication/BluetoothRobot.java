@@ -105,8 +105,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 			input+=360;
 		}
 
-		int op1 = input % 10;
-		int op2 = input / 10;
+		int op1 = input % 127;
+		int op2 = input / 127;
 		int[] command = { Commands.ROTATE, dir, op2, op1 };// Angle is the sum
 															// of option1 +
 															// option2
