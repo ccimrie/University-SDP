@@ -6,6 +6,8 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.World;
 
+import world.state.WorldState;
+
 /**
  * A class representing the pitch in the simulator
  * 
@@ -14,9 +16,10 @@ import org.jbox2d.dynamics.World;
 public class Pitch {
 	private final Body body;
 
-	public static final float length = 2.4384f;
-	public static final float width = 1.2192f;
-	public static final float goalWidth = 0.6f;
+	public final float length;
+	public final float width;
+	public final float goalWidth;
+	public final float goalDepth;
 
 	public static final float scale = 20.0f;
 
@@ -31,26 +34,31 @@ public class Pitch {
 		body = simWorld.createBody(bd);
 		PolygonShape shape = new PolygonShape();
 
+		length = 2.445f;
+		width = 1.225f;
+		goalWidth = 0.6f;
+		goalDepth = 0.06f;
+
 		// Vertices for the pitch boundary, starting from the bottom left corner
 		// and forming a loop
 		Vec2[] pitchVerts = new Vec2[12];
 
 		pitchVerts[0] = new Vec2(0.0f, 0.0f);
 		pitchVerts[1] = new Vec2(length, 0.0f);
-		pitchVerts[2] = new Vec2(length, (width - goalWidth) / 2);
-		pitchVerts[3] = new Vec2(length + 0.06f, (width - goalWidth) / 2);
-		pitchVerts[4] = new Vec2(length + 0.06f, (width + goalWidth) / 2);
-		pitchVerts[5] = new Vec2(length, (width + goalWidth) / 2);
+		pitchVerts[2] = new Vec2(length, (width - goalWidth) / 2.0f);
+		pitchVerts[3] = new Vec2(length + goalDepth, (width - goalWidth) / 2.0f);
+		pitchVerts[4] = new Vec2(length + goalDepth, (width + goalWidth) / 2.0f);
+		pitchVerts[5] = new Vec2(length, (width + goalWidth) / 2.0f);
 		pitchVerts[6] = new Vec2(length, width);
 		pitchVerts[7] = new Vec2(0.0f, width);
-		pitchVerts[8] = new Vec2(0.0f, (width + goalWidth) / 2);
-		pitchVerts[9] = new Vec2(-0.06f, (width + goalWidth) / 2);
-		pitchVerts[10] = new Vec2(-0.06f, (width - goalWidth) / 2);
+		pitchVerts[8] = new Vec2(0.0f, (width + goalWidth) / 2.0f);
+		pitchVerts[9] = new Vec2(-goalDepth, (width + goalWidth) / 2.0f);
+		pitchVerts[10] = new Vec2(-goalDepth, (width - goalWidth) / 2.0f);
 		pitchVerts[11] = new Vec2(0.0f, (width - goalWidth) / 2.0f);
 
 		// Scale the vertices
-		for (int i = 0; i < pitchVerts.length; ++i)
-			pitchVerts[i] = pitchVerts[i].mul(scale);
+		// for (int i = 0; i < pitchVerts.length; ++i)
+		// pitchVerts[i] = pitchVerts[i].mul(scale);
 
 		// Create the pitch as a physical object in the simulator
 		for (int i = 0; i < pitchVerts.length; ++i) {

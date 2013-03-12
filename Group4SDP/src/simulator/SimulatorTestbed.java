@@ -1,5 +1,6 @@
 package simulator;
 
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.testbed.framework.TestbedSettings;
@@ -39,57 +40,29 @@ public class SimulatorTestbed extends TestbedTest {
 	@Override
 	public void initTest(boolean arg0) {
 		System.out.println("Initializing Simulator");
+		try {
 
-		World world = getWorld();
-		this.pitch = new Pitch(world);
-		this.simBall = new Ball(world);
+			World world = getWorld();
+			this.pitch = new Pitch(world);
+			this.simBall = new Ball(world, new Vec2(pitch.length / 2.0f,
+					pitch.width / 2.0f));
 
-		this.simOurRobot.init(world, true);
-		this.simTheirRobot.init(world, false);
+			this.simOurRobot.init(world, new Vec2(pitch.length * 0.1f,
+					pitch.width / 2.0f), 0.0f);
+			this.simTheirRobot.init(world, new Vec2(pitch.length * 0.9f,
+					pitch.width / 2.0f), MathUtils.PI);
 
-		getWorld().setGravity(new Vec2(0.0f, 0.0f));
+			getWorld().setGravity(new Vec2(0.0f, 0.0f));
 
-		setCamera(new Vec2(Pitch.length / 2, Pitch.width / 2).mul(Pitch.scale),
-				0.5f * Pitch.scale);
+			setCamera(new Vec2(pitch.length / 2, pitch.width / 2), 200.0f);
+
+		} catch (InterruptedException ignore) {
+		}
 	}
 
 	@Override
 	public boolean isSaveLoadEnabled() {
 		return true;
-	}
-
-	/**
-	 * Converts angles from JBox2D's coordinate system to the same system used
-	 * by vision & strategy
-	 * 
-	 * @param jboxAngle
-	 *            The angle in JBox2D's coordinate system (in radians)
-	 * @return The angle in our coordinate system (in radians)
-	 */
-	public static double convertAngle(double jboxAngle) {
-		double x = Math.cos(jboxAngle);
-		double y = Math.sin(jboxAngle);
-
-		double angle = Math.acos(y);
-		if (angle < 0)
-			angle += 2.0 * Math.PI;
-		if (x < 0)
-			angle = 2.0 * Math.PI - angle;
-
-		return angle;
-	}
-
-	/**
-	 * TODO: proper implementation <br/>
-	 * Converts coordinates from the simulator's coordinate system to the
-	 * vision's
-	 * 
-	 * @param simCoords
-	 *            The simulator coordinates to be converted
-	 * @return The coordinates after conversion
-	 */
-	public static Vec2 convertCoordsFromSim(Vec2 simCoords) {
-		return simCoords.mul(Pitch.scale);
 	}
 
 	@Override
@@ -107,16 +80,19 @@ public class SimulatorTestbed extends TestbedTest {
 			simTheirRobot.afterStep();
 
 			// Update the world state
-			Vec2 ball = convertCoordsFromSim(simBall.body.getWorldCenter());
+			Vec2 ball = Simulator.convertCoordsFromSim(simBall.body
+					.getWorldCenter());
 			worldState.setBallX((int) ball.x);
 			worldState.setBallY((int) ball.y);
 
-			Vec2 ourRobot = convertCoordsFromSim(simOurRobot.body
+			Vec2 ourRobot = Simulator.convertCoordsFromSim(simOurRobot.body
 					.getWorldCenter());
-			double ourRobotAngle = convertAngle(simOurRobot.body.getAngle());
-			Vec2 theirRobot = convertCoordsFromSim(simTheirRobot.body
+			double ourRobotAngle = Simulator.convertAngle(simOurRobot.body
+					.getAngle());
+			Vec2 theirRobot = Simulator.convertCoordsFromSim(simTheirRobot.body
 					.getWorldCenter());
-			double theirRobotAngle = convertAngle(simTheirRobot.body.getAngle());
+			double theirRobotAngle = Simulator.convertAngle(simTheirRobot.body
+					.getAngle());
 
 			if (worldState.areWeBlue()) {
 				worldState.setBlueX((int) ourRobot.x);

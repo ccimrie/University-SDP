@@ -21,7 +21,7 @@ public class TestSim {
 		final GoalInfo goalInfo = new GoalInfo(pitchConstants);
 		final WorldState worldState = new WorldState(goalInfo);
 
-		final Simulator sim = new Simulator(worldState);
+		final Simulator sim = new Simulator(new SimulatorTestbed(worldState));
 
 		while (true) {
 			try {

@@ -4,7 +4,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -14,7 +13,7 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.PrismaticJoint;
 import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
-import simulator.SimulatorTestbed;
+import simulator.Simulator;
 
 /**
  * A class representing a robot in the simulator, which is also responsible for
@@ -79,13 +78,17 @@ public class Robot {
 	 *            The simulator's world
 	 * @param isOurRobo
 	 *            A flag to say whether this robot is ours or not
+	 * @throws InterruptedException
+	 *             If the thread is interrupted
 	 */
-	public void init(World world, boolean isOurRobo) {
-		float scale = 20.0f;
+	public void init(final World world, final Vec2 initialPos,
+			final float initialAngle) throws InterruptedException {
+		System.out.println("Initializing robot");
+		lock.lockInterruptibly();
 
 		// Create the robot with its properties
 		PolygonShape robotShape = new PolygonShape();
-		robotShape.setAsBox(0.09f * scale, 0.09f * scale);
+		robotShape.setAsBox(0.09f, 0.09f);
 
 		FixtureDef robotFixDef = new FixtureDef();
 		robotFixDef.shape = robotShape;
@@ -98,23 +101,17 @@ public class Robot {
 		robotBodyDef.linearDamping = 3.0f;
 		robotBodyDef.allowSleep = false;
 
-		// TODO: move this so we can choose where the robot starts
-		if (isOurRobo) {
-			robotBodyDef.position.set(0.1f * scale, Pitch.width * scale / 2);
+		robotBodyDef.position.set(initialPos);
+		System.out.println("Robot position: "
+				+ robotBodyDef.position.toString());
+		robotBodyDef.angle = initialAngle;
 
-			robotBodyDef.angle = 0;
-		} else {
-
-			robotBodyDef.position.set(Pitch.length * scale - 0.1f * scale,
-					Pitch.width * scale / 2);
-			robotBodyDef.angle = MathUtils.PI;
-		}
 		body = world.createBody(robotBodyDef);
 		body.createFixture(robotFixDef);
 
 		// Create a kicker
 		PolygonShape kickerShape = new PolygonShape();
-		kickerShape.setAsBox(0.001f * scale, 0.09f * scale);
+		kickerShape.setAsBox(0.001f, 0.09f);
 
 		FixtureDef kickerFixDef = new FixtureDef();
 		kickerFixDef.shape = kickerShape;
@@ -123,46 +120,41 @@ public class Robot {
 
 		BodyDef kickerBodyDef = new BodyDef();
 		kickerBodyDef.type = BodyType.DYNAMIC;
-		if (isOurRobo) {
-			kickerBodyDef.position.set(body.getWorldCenter().x + 0.09f * scale
-					+ 0.002f * scale, body.getWorldCenter().y);
-			kickerBodyDef.angle = 0;
-		} else {
-			kickerBodyDef.position.set(body.getWorldCenter().x - 0.09f * scale
-					- 0.002f * scale, body.getWorldCenter().y);
-			kickerBodyDef.angle = MathUtils.PI;
-		}
+
+		kickerBodyDef.position.set((new Vec2(0.11f * (float) Math
+				.cos(initialAngle), 0.11f * (float) Math.sin(initialAngle)))
+				.add(body.getWorldCenter()));
+		System.out.println("Kicker position: "
+				+ kickerBodyDef.position.toString());
+		kickerBodyDef.angle = initialAngle;
+
 		kickerBodyDef.allowSleep = false;
 		Body kickerBody = world.createBody(kickerBodyDef);
 		kickerBody.createFixture(kickerFixDef);
 
 		// Create a mechanical joint between robot and kicker
 		PrismaticJointDef kickerJointDef = new PrismaticJointDef();
-		if (isOurRobo) {
-			kickerJointDef.localAxis1.set(1.0f, 0.0f);
-		} else {
-			kickerJointDef.localAxis1.set(-1.0f, 0.0f);
-		}
+		kickerJointDef.localAxis1.set((float) Math.cos(initialAngle),
+				(float) Math.sin(initialAngle));
 		kickerJointDef.localAxis1.normalize();
 		kickerJointDef.localAnchorA.set(body.getLocalCenter());
-		kickerJointDef.localAnchorB.set(0.0f, 0.09f * scale);
+		kickerJointDef.localAnchorB.set(0.0f, 0.09f);
 
 		kickerJointDef.initialize(body, kickerBody, body.getWorldCenter(),
 				kickerJointDef.localAxis1);
 
 		// TODO: calibrate
-		if (isOurRobo) {
-			kickerJointDef.motorSpeed = 200.0f;
-		} else {
-			kickerJointDef.motorSpeed = -200.0f;
-		}
-		kickerJointDef.maxMotorForce = 400.0f;
+		kickerJointDef.motorSpeed = 2.0f;
+		kickerJointDef.maxMotorForce = 4.0f;
 		kickerJointDef.enableMotor = true;
 		kickerJointDef.lowerTranslation = 0.0f;
 		kickerJointDef.upperTranslation = 0.7f;
 		kickerJointDef.enableLimit = true;
 
 		this.kicker = (PrismaticJoint) world.createJoint(kickerJointDef);
+		lock.unlock();
+		System.out.println("Initialization complete:");
+		System.out.println("body is null: " + (body == null));
 	}
 
 	/**
@@ -176,7 +168,7 @@ public class Robot {
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
 		// Apply forward/back/left/right speed
-		body.applyLinearImpulse(body.getWorldVector(speed),
+		body.applyLinearImpulse(body.getWorldVector(speed.mul(1.0f/400.0f)),
 				body.getWorldPoint(body.getLocalCenter()));
 
 		// If we're doing a rotation, apply the angular motion
@@ -187,10 +179,10 @@ public class Robot {
 			// TODO: calibrate
 			// Slows the kickers motion over 5 steps
 			if (kickStep < 5) {
-				kicker.setMotorSpeed(100.0f);
+				kicker.setMotorSpeed(1.0f);
 				++kickStep;
 			} else {
-				kicker.setMotorSpeed(-100.0f);
+				kicker.setMotorSpeed(-1.0f);
 				kickStep = 0;
 			}
 		} else {
@@ -269,7 +261,7 @@ public class Robot {
 	 */
 	public double getOrientation() throws InterruptedException {
 		lock.lockInterruptibly();
-		double result = SimulatorTestbed.convertAngle(body.getAngle());
+		double result = Simulator.convertAngle(body.getAngle());
 		lock.unlock();
 		return result;
 	}

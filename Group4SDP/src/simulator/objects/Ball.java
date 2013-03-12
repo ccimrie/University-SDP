@@ -1,6 +1,7 @@
 package simulator.objects;
 
 import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -21,9 +22,9 @@ public class Ball {
 	 * @param simWorld
 	 *            The simulator's world the ball is to be created in
 	 */
-	public Ball(final World simWorld) {
+	public Ball(final World simWorld, final Vec2 initialPos) {
 		CircleShape ballshape = new CircleShape();
-		ballshape.m_radius = 0.025f * Pitch.scale;
+		ballshape.m_radius = 0.025f;
 
 		FixtureDef fdb = new FixtureDef();
 		fdb.shape = ballshape;
@@ -35,8 +36,7 @@ public class Ball {
 		ballbd.angularDamping = 1.0f;
 		ballbd.linearDamping = 0.5f;
 		ballbd.bullet = true;
-		ballbd.position.set(Pitch.length * Pitch.scale / 2, Pitch.width
-				* Pitch.scale / 2);
+		ballbd.position.set(initialPos);
 
 		body = simWorld.createBody(ballbd);
 		body.createFixture(fdb);
