@@ -84,4 +84,6 @@ public interface RobotController {
 	 * Clears the command / confirmation buffers for the robot
 	 */
 	public void clearBuff();
+
+	public void forcequit();
 }

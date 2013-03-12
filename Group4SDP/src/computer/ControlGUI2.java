@@ -55,6 +55,7 @@ public class ControlGUI2 extends JFrame {
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
+	private final JButton forceQuitButton = new JButton("Force quit");
 	private final JButton stopButton = new JButton("Stop");
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
@@ -197,6 +198,7 @@ public class ControlGUI2 extends JFrame {
 		startStopQuitPanel.add(startButton);
 		startStopQuitPanel.add(stopButton);
 		startStopQuitPanel.add(quitButton);
+		startStopQuitPanel.add(forceQuitButton);
 		startStopQuitPanel.add(stratStartButton);
 		startStopQuitPanel.add(penaltyAtkButton);
 		startStopQuitPanel.add(penaltyDefButton);
@@ -325,7 +327,8 @@ public class ControlGUI2 extends JFrame {
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
-				penaltyAtk.run();
+				Thread penaltyatkthr = new Thread (penaltyAtk);
+				penaltyatkthr.start();
 			}
 		});
 
@@ -333,7 +336,8 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyDefense penaltyDef = new PenaltyDefense(worldState,
 						mover);
-				penaltyDef.run();
+				Thread penaltydefthr = new Thread (penaltyDef);
+				penaltydefthr.start();
 			}
 		});
 
@@ -433,6 +437,23 @@ public class ControlGUI2 extends JFrame {
 					e1.printStackTrace();
 				}
 				robot.disconnect();
+
+				System.out.println("Quitting the GUI");
+				System.exit(0);
+			}
+		});
+		
+		forceQuitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Strategy.alldie = true;
+				// Kill the mover and wait for it to stop completely
+				try {
+					mover.kill();
+					mover.join();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				robot.forcequit();
 
 				System.out.println("Quitting the GUI");
 				System.exit(0);
