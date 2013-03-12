@@ -52,6 +52,7 @@ public class Offense2 extends StrategyInterface {
 				try {
 					SafeSleep.sleep(600);
 					if (!shouldidie && !Strategy.alldie){
+						mover.stopRobot();
 						return;
 					}
 				} catch (InterruptedException e) {
@@ -85,6 +86,7 @@ public class Offense2 extends StrategyInterface {
 						try {
 							SafeSleep.sleep(600);
 							if (!shouldidie && !Strategy.alldie){
+								mover.stopRobot();
 								return;
 							}
 						} catch (InterruptedException e) {
@@ -103,6 +105,7 @@ public class Offense2 extends StrategyInterface {
 					try {
 						SafeSleep.sleep(600);
 						if (!shouldidie && !Strategy.alldie){
+							mover.stopRobot();
 							return;
 						}
 					} catch (InterruptedException e) {
@@ -114,6 +117,10 @@ public class Offense2 extends StrategyInterface {
 				while (world.distanceUsToTheirgoal() > 200){
 					try {
 						SafeSleep.sleep(50);
+						if (!shouldidie && !Strategy.alldie){
+							mover.stopRobot();
+							return;
+						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
