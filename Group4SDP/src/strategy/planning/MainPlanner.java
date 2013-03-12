@@ -86,9 +86,9 @@ public class MainPlanner extends StrategyInterface {
 					strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
 					System.out.println("[MainPlanner] Defense thread started.");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Offensive(world, mover);
-					strategyThread = new Thread((Offensive) activeStrat, "Offense Thread");
-					System.out.println("[MainPlanner] Ofence thread started.");
+					activeStrat = new Offense2(world, mover);
+					strategyThread = new Thread((Offense2) activeStrat,
+							"Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					System.out.println("[MainPlanner] End of game.");
 				}
