@@ -7,7 +7,7 @@ import world.state.Ball;
 import world.state.WorldState;
 
 public class InterceptBall extends StrategyInterface {
-	private static final double distanceThreshold = 20;
+	private static final double distanceThreshold = 40;
 	private static final double angleThreshold = Math.toRadians(15);
 	private static final double sqVelocityThreshold = 1.0;
 	private static final double distVelFactorScale = 10.0;
@@ -47,11 +47,15 @@ public class InterceptBall extends StrategyInterface {
 
 		try {
 			while (!shouldidie && !Strategy.alldie) {
+				Position projBallPos = projectedBallPos();
+				
 				if (world.distanceBetweenUsAndBall() > distanceThreshold) {
-					Position projBallPos = projectedBallPos();
+					mover.moveTowards(projBallPos.getX(), projBallPos.getY());
+				} else {
 					ballTurnAngle = mover.angleCalculator(world.ourRobot.x,
 							world.ourRobot.y, projBallPos.getX(),
 							projBallPos.getY(), world.ourRobot.bearing);
+					
 					while (Math.abs(ballTurnAngle) > angleThreshold) {
 						mover.rotate(ballTurnAngle);
 						mover.waitForCompletion();
@@ -61,12 +65,8 @@ public class InterceptBall extends StrategyInterface {
 								world.ourRobot.y, projBallPos.getX(),
 								projBallPos.getY(), world.ourRobot.bearing);
 					}
-
-					mover.moveTowards(projBallPos.getX(), projBallPos.getY());
-					SafeSleep.sleep(50);
-				} else {
-					SafeSleep.sleep(50);
 				}
+				SafeSleep.sleep(50);
 			}
 		} catch (InterruptedException e) {
 			System.err.println(e.getMessage());
