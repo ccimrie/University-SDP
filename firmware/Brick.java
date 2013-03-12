@@ -18,7 +18,9 @@ import lejos.nxt.comm.NXTConnection;
  * 
  */
 public class Brick {
-
+	
+	private static boolean die = false;
+	
 	// IO control
 	private static InputStream is;
 	private static OutputStream os;
@@ -35,6 +37,7 @@ public class Brick {
 	private final static int QUIT = 5;
 	private final static int ROTATE = 6;
 	private final static int ROTATEMOVE = 7;
+	private final static int FORCEQUIT = 55;
 	private final static int TEST = 66;
 
 	// I2C motor board
@@ -50,140 +53,150 @@ public class Brick {
 	private static NXTRegulatedMotor rightMotor = Motor.C;
 
 	public static void main(String[] args) throws Exception {
+		while (true){
+			// Waiting for a connection and opening streams on success
+			LCD.clear();
+			LCD.drawString("Waiting for", 0, 2);
+			LCD.drawString("Bluetooth", 0, 3);
+			NXTConnection connection = Bluetooth.waitForConnection();
+			is = connection.openInputStream();
+			os = connection.openOutputStream();
+			LCD.clear();
+			LCD.drawString("Connected!", 0, 2);
+			byte[] robotready = { 0, 0, 0, 0 };
+			os.write(robotready);
+			os.flush();
 
-		// Waiting for a connection and opening streams on success
-		LCD.clear();
-		LCD.drawString("Waiting for", 0, 2);
-		LCD.drawString("Bluetooth", 0, 3);
-		NXTConnection connection = Bluetooth.waitForConnection();
-		is = connection.openInputStream();
-		os = connection.openOutputStream();
-		LCD.clear();
-		LCD.drawString("Connected!", 0, 2);
-		byte[] robotready = { 0, 0, 0, 0 };
-		os.write(robotready);
-		os.flush();
+			// Begin reading commands
+			int opcode = DO_NOTHING;
+			int option1, option2, option3;
 
-		// Begin reading commands
-		int opcode = DO_NOTHING;
-		int option1, option2, option3;
+			while ((opcode != QUIT) && !(Button.ESCAPE.isDown())) {
 
-		while ((opcode != QUIT) && !(Button.ESCAPE.isDown())) {
+				// Get the next command from the inputstream
+				byte[] byteBuffer = new byte[4];
+				is.read(byteBuffer);
 
-			// Get the next command from the inputstream
-			byte[] byteBuffer = new byte[4];
-			is.read(byteBuffer);
+				// We send 4 different numbers, use as options
+				opcode = byteBuffer[0];
+				option1 = byteBuffer[1];
+				option2 = byteBuffer[2];
+				option3 = byteBuffer[3];
 
-			// We send 4 different numbers, use as options
-			opcode = byteBuffer[0];
-			option1 = byteBuffer[1];
-			option2 = byteBuffer[2];
-			option3 = byteBuffer[3];
+				if (opcode > 0)
+					LCD.drawString("opcode = " + opcode, 0, 2);
+				switch (opcode) {
 
-			if (opcode > 0)
-				LCD.drawString("opcode = " + opcode, 0, 2);
-			switch (opcode) {
+				case FORWARDS:
+					LCD.clear();
+					LCD.drawString("Forward!", 0, 2);
+					LCD.refresh();
+					move(0, option1);
+					replytopc(opcode, os);
+					break;
 
-			case FORWARDS:
-				LCD.clear();
-				LCD.drawString("Forward!", 0, 2);
-				LCD.refresh();
-				move(0, option1);
-				replytopc(opcode, os);
-				break;
+				case BACKWARDS:
+					LCD.clear();
+					LCD.drawString("Backward!", 0, 2);
+					LCD.refresh();
+					move(0, -option1);
+					replytopc(opcode, os);
+					break;
 
-			case BACKWARDS:
-				LCD.clear();
-				LCD.drawString("Backward!", 0, 2);
-				LCD.refresh();
-				move(0, -option1);
-				replytopc(opcode, os);
-				break;
+				case LEFT:
+					LCD.clear();
+					LCD.drawString("Left!", 0, 2);
+					LCD.refresh();
+					move(-option1, 0);
+					replytopc(opcode, os);
+					break;
 
-			case LEFT:
-				LCD.clear();
-				LCD.drawString("Left!", 0, 2);
-				LCD.refresh();
-				move(-option1, 0);
-				replytopc(opcode, os);
-				break;
+				case RIGHT:
+					LCD.clear();
+					LCD.drawString("Right!", 0, 2);
+					LCD.refresh();
+					move(option1, 0);
+					replytopc(opcode, os);
+					break;
 
-			case RIGHT:
-				LCD.clear();
-				LCD.drawString("Right!", 0, 2);
-				LCD.refresh();
-				move(option1, 0);
-				replytopc(opcode, os);
-				break;
+				case STOP:
+					LCD.clear();
+					LCD.drawString("Stopping!", 0, 2);
+					LCD.refresh();
+					stop();
+					replytopc(opcode, os);
+					break;
 
-			case STOP:
-				LCD.clear();
-				LCD.drawString("Stopping!", 0, 2);
-				LCD.refresh();
-				stop();
-				replytopc(opcode, os);
-				break;
+				case ROTATE:
+					LCD.clear();
+					LCD.drawString("Rotate!", 0, 2);
+					LCD.refresh();
+					// The angle is calculated by having option2*10 + option3
+					rotate(option1, option2 * 10 + option3);
+					replytopc(opcode, os);
+					break;
 
-			case ROTATE:
-				LCD.clear();
-				LCD.drawString("Rotate!", 0, 2);
-				LCD.refresh();
-				// The angle is calculated by having option2*10 + option3
-				rotate(option1, option2 * 10 + option3);
-				replytopc(opcode, os);
-				break;
+				case KICK:
+					LCD.clear();
+					LCD.drawString("Kicking!", 0, 2);
+					LCD.refresh();
+					kick();
+					replytopc(opcode, os);
+					break;
 
-			case KICK:
-				LCD.clear();
-				LCD.drawString("Kicking!", 0, 2);
-				LCD.refresh();
-				kick();
-				replytopc(opcode, os);
-				break;
+				case MOVE:
+					LCD.clear();
+					LCD.drawString("Moving at an angle!", 0, 2);
+					LCD.refresh();
+					move(option1, option2);
+					replytopc(opcode, os);
+					break;
 
-			case MOVE:
-				LCD.clear();
-				LCD.drawString("Moving at an angle!", 0, 2);
-				LCD.refresh();
-				move(option1, option2);
-				replytopc(opcode, os);
-				break;
+				case ROTATEMOVE:
+					LCD.clear();
+					LCD.drawString("Moving at an angle!", 0, 2);
+					LCD.refresh();
 
-			case ROTATEMOVE:
-				LCD.clear();
-				LCD.drawString("Moving at an angle!", 0, 2);
-				LCD.refresh();
-				
-				moveAndRotate();
-				//rotateMove(option1, option2, option3);
-				replytopc(opcode,os);
-				break;
+					moveAndRotate();
+					//rotateMove(option1, option2, option3);
+					replytopc(opcode,os);
+					break;
 
-			case TEST:
-				boolean receiveTrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
-				String tmp = "TEST! " + receiveTrue;
-				LCD.drawString(tmp, 0, 2);
-				byte[] testres = new byte[] { 66, 77, 88, 99 };
-				os.write(testres);
-				os.flush();
-				break;
-			case QUIT: // Exit the loop, close connection
-				// Sound.twoBeeps();
-				break;
+				case TEST:
+					boolean receiveTrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
+					String tmp = "TEST! " + receiveTrue;
+					LCD.drawString(tmp, 0, 2);
+					byte[] testres = new byte[] { 66, 77, 88, 99 };
+					os.write(testres);
+					os.flush();
+					break;
+				case QUIT: // Exit the loop, close connection
+					// Sound.twoBeeps();
+					break;
+					
+				case FORCEQUIT:
+					//Quit the brick. otherwise it'd loop back to
+					//waiting for connection.
+					die = true;
+					break;
+				}
 			}
+
+			// Closing streams and connection
+			is.close();
+			os.close();
+			Thread.sleep(100); // Waiting for data to drain
+			LCD.clear();
+			LCD.drawString("Closing", 0, 2);
+			LCD.refresh();
+			connection.close();
+			LCD.clear();
+			if (die){
+				return;
+			}
+			Thread.sleep(200);
 		}
-
-		// Closing streams and connection
-		is.close();
-		os.close();
-		Thread.sleep(100); // Waiting for data to drain
-		LCD.clear();
-		LCD.drawString("Closing", 0, 2);
-		LCD.refresh();
-		connection.close();
-		LCD.clear();
 	}
-
 	/**
 	 * Replies to pc that we have received a package and finished its
 	 * execution
@@ -350,7 +363,7 @@ public class Brick {
 			rightMotor.backward();
 
 	}
-	
+
 	private static void moveAndRotate() throws InterruptedException{
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
