@@ -54,6 +54,7 @@ public class ControlGUI2 extends JFrame {
 	private final JPanel moveTargetOptionsPanel = new JPanel();
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
+	private final JButton resetButton = new JButton("Reset");
 	private final JButton quitButton = new JButton("Quit");
 	private final JButton forceQuitButton = new JButton("Force quit");
 	private final JButton stopButton = new JButton("Stop");
@@ -99,7 +100,7 @@ public class ControlGUI2 extends JFrame {
 	private StrategyInterface strategy;
 
 	private final RobotController robot;
-	private final RobotMover mover;
+	private RobotMover mover;
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -197,6 +198,7 @@ public class ControlGUI2 extends JFrame {
 		this.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
 		startStopQuitPanel.add(startButton);
 		startStopQuitPanel.add(stopButton);
+		startStopQuitPanel.add(resetButton);
 		startStopQuitPanel.add(quitButton);
 		startStopQuitPanel.add(forceQuitButton);
 		startStopQuitPanel.add(stratStartButton);
@@ -281,6 +283,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Stop the dribble thread if it's running
 				if (dribbleThread != null && dribbleThread.isAlive()) {
+					System.out.println("Killing dribble thread");
 					DribbleBall5.die = true;
 					try {
 						dribbleThread.join();
@@ -290,6 +293,7 @@ public class ControlGUI2 extends JFrame {
 				}
 				// Stop strategy if it's running
 				if (strategyThread != null && strategyThread.isAlive()) {
+					System.out.println("Killing strategy thread");
 					Strategy.stop();
 					strategy.kill();
 					try {
@@ -298,6 +302,7 @@ public class ControlGUI2 extends JFrame {
 						e1.printStackTrace();
 					}
 				}
+				System.out.println("Stopping the robot");
 				mover.interruptMove();
 				try {
 					mover.resetQueue();
@@ -308,9 +313,9 @@ public class ControlGUI2 extends JFrame {
 				// Stop the robot.
 				mover.stopRobot();
 			}
-			// Run the strategy from here.
 		});
 
+		// Run the strategy from here.
 		stratStartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Allow restart of strategies after previously killing all
@@ -327,7 +332,7 @@ public class ControlGUI2 extends JFrame {
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
-				Thread penaltyatkthr = new Thread (penaltyAtk);
+				Thread penaltyatkthr = new Thread(penaltyAtk);
 				penaltyatkthr.start();
 			}
 		});
@@ -336,7 +341,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyDefense penaltyDef = new PenaltyDefense(worldState,
 						mover);
-				Thread penaltydefthr = new Thread (penaltyDef);
+				Thread penaltydefthr = new Thread(penaltyDef);
 				penaltydefthr.start();
 			}
 		});
@@ -426,33 +431,75 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
+		resetButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Disconnecting...");
+				Strategy.alldie = true;
+				// Kill the mover and wait for it to stop completely
+				if (mover.isAlive()) {
+					try {
+						mover.kill();
+						mover.join(3000);
+						// If the mover still hasn't stopped within 3 seconds,
+						// assume it's stuck and kill the program
+						if (mover.isAlive()) {
+							System.out
+									.println("Could not kill mover! Shutting down GUI...");
+							robot.disconnect();
+							System.exit(0);
+						}
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+				robot.disconnect();
+				System.out.println("Reconnecting...");
+				try {
+					robot.connect();
+					mover = new RobotMover(worldState, robot);
+					mover.start();
+				} catch (Exception e1) {
+					System.out
+							.println("Failed to reconnect! Shutting down GUI...");
+					System.exit(0);
+				}
+			}
+		});
+		
 		quitButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Strategy.alldie = true;
 				// Kill the mover and wait for it to stop completely
 				try {
 					mover.kill();
-					mover.join();
+					// If the mover still hasn't stopped within 3 seconds,
+					// assume it's stuck and kill the program the hard way
+					mover.join(3000);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
+				robot.clearBuff();
 				robot.disconnect();
 
 				System.out.println("Quitting the GUI");
 				System.exit(0);
 			}
 		});
-		
+
 		forceQuitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Strategy.alldie = true;
 				// Kill the mover and wait for it to stop completely
 				try {
 					mover.kill();
-					mover.join();
+					// If the mover still hasn't stopped within 3 seconds,
+					// assume it's stuck and kill the program the hard way
+					mover.join(3000);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
+				robot.clearBuff();
 				robot.forcequit();
 
 				System.out.println("Quitting the GUI");
@@ -487,14 +534,21 @@ public class ControlGUI2 extends JFrame {
 
 	public class ListenCloseWdw extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
+			Strategy.alldie = true;
+			// Kill the mover and wait for it to stop completely
 			try {
 				mover.kill();
-				mover.join();
+				// If the mover still hasn't stopped within 3 seconds,
+				// assume it's stuck and kill the program the hard way
+				mover.join(3000);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
+			robot.clearBuff();
 			robot.disconnect();
-			System.out.println("Quit...");
+
+			System.out.println("Quitting the GUI");
+			System.exit(0);
 		}
 	}
 
