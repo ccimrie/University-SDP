@@ -79,6 +79,9 @@ public class WorldState {
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
 	
+	private static final double sqVelocityThreshold = 1.0;
+	private static final double distVelFactorScale = 10.0;
+	
 	// Coordinates of the target placement of the robot.
 	public static int targetX = 100;
 	public static int targetY = 100;
@@ -598,6 +601,24 @@ public class WorldState {
 				.getX(), this.getOurGoalBot().getY());
 		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
+	}
+	public Position projectedBallPos() {
+		
+
+		/*
+		 * Don't bother projecting where the ball's going to be if it's barely
+		 * moving
+		 */
+		if (ball.speedX * ball.speedX + ball.speedY * ball.speedY > sqVelocityThreshold) {
+			// The ball's velocity matters more the further it is from our robot
+			double velocityFactor = distanceBetweenUsAndBall()
+					/ distVelFactorScale;
+
+			double projX = ball.x + velocityFactor * ball.speedX;
+			double projY = ball.y + velocityFactor * ball.speedY;
+			return new Position((int) projX, (int) projY);
+		} else
+			return new Position((int) ball.x, (int) ball.y);
 	}
 
 }

@@ -1,6 +1,7 @@
 package strategy.planning;
 
 import movement.RobotMover;
+import strategy.calculations.AngleCalculator;
 import strategy.calculations.IsRobotFacingPoint;
 import strategy.movement.DistanceToBall;
 import strategy.movement.TurnToBall;
@@ -20,13 +21,15 @@ public class Offense2 extends StrategyInterface {
 	Position theirGoal;
 	Robot them;
 	Robot us;
+	AngleCalculator angg = new AngleCalculator(world);
+	Position a = world.getTheirGoal();
 
-	//Preconditions for activation of the strategy:
-	//Assume that we have the ball and we're facing the enemy goal.
-	
-	//The way this strategy works is that it checks if the other robot
-	//is in the way. If it isn't it tries to score. Else it tries to side
-	//step it and then score.
+	// Preconditions for activation of the strategy:
+	// Assume that we have the ball and we're facing the enemy goal.
+
+	// The way this strategy works is that it checks if the other robot
+	// is in the way. If it isn't it tries to score. Else it tries to side
+	// step it and then score.
 
 	public Offense2(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -38,20 +41,104 @@ public class Offense2 extends StrategyInterface {
 
 	public void run() {
 		System.out.println("Offense started!");
-		while (!shouldidie && !Strategy.alldie){
-			if (world.distanceThemToTheirgoal() > 
-			world.distanceUsToTheirgoal()){
-				//In case we are in front of them
+		while (!shouldidie && !Strategy.alldie) {
+			if (Math.abs(world.angleToTheirGoal()) > 60
+					&& Math.abs(world.angleToTheirGoal()) < 100) {
+				// moving near wall and pushing ball into goal
+
+				if (world.angleToTheirGoal() > 0) {
+					double angle = angg.AngleTurner(us.x, us.y - 50);
+					mover.rotate(angle);
+					try {
+						mover.waitForCompletion();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						System.out.println("[offence] cannot turn");
+						e.printStackTrace();
+					}
+
+				} else {
+					double angle = angg.AngleTurner(us.x, us.y + 50);
+					mover.rotate(angle);
+					try {
+						mover.waitForCompletion();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						System.out.println("[offence] cannot turn");
+						e.printStackTrace();
+					}
+
+				}
+			
+			while (!shouldidie && !Strategy.alldie
+					&& wall.notHittingWall(world) && !world.enemyInFront()) {
+
+				mover.move(0, 100);
+				try {
+					SafeSleep.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			double angle = angg.AngleTurner(a.getX(), us.y);
+			mover.rotate(angle);
+			try {
+				mover.waitForCompletion();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			while (!shouldidie && !Strategy.alldie && !wall.inCorner(world)
+					&& !world.enemyInFront()) {
+
+				mover.move(0, 100);
+				try {
+					SafeSleep.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			while (!shouldidie && !Strategy.alldie
+					&& !wall.notHittingWall(world) && !world.enemyInFront()) {
+				if (world.angleToTheirGoal() > 0) {
+					mover.move(-100, 0);
+					try {
+						SafeSleep.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				} else {
+					mover.move(100, 0);
+					try {
+						SafeSleep.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+
+			mover.stopRobot();
+			mover.kick();
+		}
+
+			if (world.distanceThemToTheirgoal() > world.distanceUsToTheirgoal()) {
+				// In case we are in front of them
 				try {
 					faceGoal();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				mover.move(0, 80);
-				while (world.distanceUsToTheirgoal() >300);
+				while (world.distanceUsToTheirgoal() > 300)
+					;
 				try {
 					SafeSleep.sleep(600);
-					if (!shouldidie && !Strategy.alldie){
+					if (!shouldidie && !Strategy.alldie) {
 						mover.stopRobot();
 						return;
 					}
@@ -70,22 +157,26 @@ public class Offense2 extends StrategyInterface {
 					e.printStackTrace();
 				}
 				// In case they are in our way we should sidestep them.
-				if (Math.abs(them.y - us.y) < 30){
+				if (Math.abs(them.y - us.y) < 30) {
 					mover.move(0.80);
-					//Sidestep in the direction where there is more space.
+					// Sidestep in the direction where there is more space.
 					if (world.angleToEnemy() > 0) {
 						Dribbler.dribble(mover, 2);
 					} else {
 						Dribbler.dribble(mover, 1);
 					}
-					//After we start sidestepping them, sleep until
-					//we have nearly passed them or if we are too close to the wall.
-					while (Math.abs(us.x - them.x) < 30 ||
-							(us.y - world.goalInfo.pitchConst.getLeftBuffer() < 40)
-							|| (us.y - world.goalInfo.pitchConst.getRightBuffer() < 40)){
+					// After we start sidestepping them, sleep until
+					// we have nearly passed them or if we are too close to the
+					// wall.
+					while (Math.abs(us.x - them.x) < 30
+							|| (us.y
+									- world.goalInfo.pitchConst.getLeftBuffer() < 40)
+							|| (us.y
+									- world.goalInfo.pitchConst
+											.getRightBuffer() < 40)) {
 						try {
 							SafeSleep.sleep(600);
-							if (!shouldidie && !Strategy.alldie){
+							if (!shouldidie && !Strategy.alldie) {
 								mover.stopRobot();
 								return;
 							}
@@ -94,17 +185,17 @@ public class Offense2 extends StrategyInterface {
 							e.printStackTrace();
 						}
 					}
-					//Face the goal. This will stop the sidemovement
+					// Face the goal. This will stop the sidemovement
 					try {
 						faceGoal();
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					mover.move(0,80);
+					mover.move(0, 80);
 					try {
 						SafeSleep.sleep(600);
-						if (!shouldidie && !Strategy.alldie){
+						if (!shouldidie && !Strategy.alldie) {
 							mover.stopRobot();
 							return;
 						}
@@ -113,11 +204,11 @@ public class Offense2 extends StrategyInterface {
 						e.printStackTrace();
 					}
 				}
-				//Else we can dribble and score and don't bother with them.
-				while (world.distanceUsToTheirgoal() > 200){
+				// Else we can dribble and score and don't bother with them.
+				while (world.distanceUsToTheirgoal() > 200) {
 					try {
 						SafeSleep.sleep(50);
-						if (!shouldidie && !Strategy.alldie){
+						if (!shouldidie && !Strategy.alldie) {
 							mover.stopRobot();
 							return;
 						}
@@ -131,8 +222,9 @@ public class Offense2 extends StrategyInterface {
 			}
 		}
 	}
+
 	public void faceGoal() throws InterruptedException {
-		Position a = world.getTheirGoal();
+
 		System.out.println(a.getX() + ", " + a.getY());
 
 		double angle = (TurnToBall.AngleTurner(world.getOurRobot(), a.getX(),

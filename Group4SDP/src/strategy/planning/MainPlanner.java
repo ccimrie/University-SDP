@@ -77,8 +77,8 @@ public class MainPlanner extends StrategyInterface {
 					strategyThread = new Thread((Defensive) activeStrat,
 							"Defense Thread");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat,
+					activeStrat = new Offense2(world, mover);
+					strategyThread = new Thread((Offense2) activeStrat,
 							"Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					// TODO change to EndOfGame strategy type, when implemented
