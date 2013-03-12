@@ -7,8 +7,10 @@ import strategy.movement.TurnToBall;
 import vision.Position;
 import world.state.Ball;
 import world.state.HittingObstacle;
+import world.state.Robot;
 import world.state.WorldState;
 import utility.SafeSleep;
+import strategy.movement.Dribbler;
 
 public class Offense2 extends StrategyInterface {
 
@@ -16,170 +18,112 @@ public class Offense2 extends StrategyInterface {
 	HittingObstacle wall = new HittingObstacle();
 	MoveToPoint mpoint = new MoveToPoint();
 	Position theirGoal;
+	Robot them;
+	Robot us;
+
+	//Preconditions for activation of the strategy:
+	//Assume that we have the ball and we're facing the enemy goal.
+	
+	//The way this strategy works is that it checks if the other robot
+	//is in the way. If it isn't it tries to score. Else it tries to side
+	//step it and then score.
 
 	public Offense2(WorldState world, RobotMover mover) {
 		super(world, mover);
 		this.ball = world.ball;
 		this.theirGoal = world.getTheirGoal();
+		this.them = world.theirRobot;
+		this.us = world.ourRobot;
 	}
 
 	public void run() {
-
+		System.out.println("Offense started!");
 		while (!shouldidie && !Strategy.alldie){
-			System.out.println("Domination is started");
-			// Case where we have the ball and the opponent is behind us and
-			double angle = IsRobotFacingPoint.Turner(world.ourRobot,
-					theirGoal.getX(), theirGoal.getY());
-			double angleT = IsRobotFacingPoint.Turner(world.ourRobot,
-					world.theirRobot.x, world.theirRobot.y);
-			// double angleDeg = Math.toDegrees(angle);
-			double realangle = TurnToBall.AngleTurner(world.getOurRobot(),
-					theirGoal.getX(), theirGoal.getY());
-			double angleDeg = Math.abs(realangle);
-
-			if (world.ourRobot.x - world.theirRobot.x > 0
-					&& (angleDeg < 15 || angleDeg > 345)) {
-				System.out.println("enemy is behind, straight punch!");
+			if (world.distanceThemToTheirgoal() > 
+			world.distanceUsToTheirgoal()){
+				//In case we are in front of them
 				try {
 					faceGoal();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				mover.move(0, 100);
+				mover.move(0, 80);
+				while (world.distanceUsToTheirgoal() >300);
 				try {
-					SafeSleep.sleep(1500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				mover.kick();
-				mover.stopRobot();
-				return;
-
-			}
-			if (world.ourRobot.x - world.theirRobot.x > 0
-					&& (angleDeg > 15 || angleDeg < 345)) {
-				System.out.println("enemy is behind, navigate and punch ");
-				try {
-					faceGoal();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				mover.move(0, 100);
-				try {
-					SafeSleep.sleep(1500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				mover.kick();
-				mover.stopRobot();
-				return;
-			}
-			if ((angleDeg < 20 || angleDeg > 340)
-					&& (DistanceToBall.Distance(world.ourRobot.x,
-							world.theirRobot.y, theirGoal.getX(), theirGoal.getY()) < 200)) {
-
-				System.out.println("Blind punch to side");
-
-				mover.rotate(Math.toRadians(5));
-				try {
-					mover.waitForCompletion();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				mover.kick();
-
-				return;
-			}
-			if (world.theirRobot.x > world.ourRobot.x
-					&& (angleT < 20 || angleT > 340)) {
-				System.out.println("enemy is really ahead of us ");
-				double mid = world.theirRobot.x - world.ourRobot.x;
-				double nu = world.theirRobot.y + 20;
-				if (DistanceToBall.Distance(world.ourRobot.x, world.ourRobot.y,
-						world.theirRobot.x, world.theirRobot.y) > 200) {
-					System.out.println("try to score ");
-					double goalX = theirGoal.getX();
-					double goalY = theirGoal.getY();
-					double gpt = 165;
-					double gpb = 310;
-					double d = DistanceToBall.Distance(world.ourRobot.x,
-							world.ourRobot.y, goalX, goalY);
-					double newAngle = 0;
-					if (Math.abs(gpb - world.ourRobot.y) < Math.abs(gpt
-							- world.ourRobot.y)) {
-
-					} else
-						newAngle = (TurnToBall.AngleTurner(world.getOurRobot(),
-								goalX, gpb));
-					System.out.println("This angle to test sin navigation! it is "
-							+ newAngle);
-
-					mover.rotate(Math.toRadians(5));
-					try {
-						mover.waitForCompletion();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					SafeSleep.sleep(600);
+					if (!shouldidie && !Strategy.alldie){
+						return;
 					}
-					mover.kick();
-
-				} else {
-					System.out.println("atempt to dodge");
-					double mang = 0;
-					if (world.ourRobot.x - 104 > 395 - world.ourRobot.x) {
-						mang = 45;
-					} else
-						mang = -45;
-					int t = 0;
-
-					mover.move(Math.toRadians(mang));
-
-					while (world.ourRobot.x < world.theirRobot.x || t < 3
-							|| wall.notHittingWall(world)) {
-
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				mover.kick();
+				mover.stopRobot();
+			} else {
+				// Their robot is in front of us.
+				// Face the goal first.
+				try {
+					faceGoal();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// In case they are in our way we should sidestep them.
+				if (Math.abs(them.y - us.y) < 30){
+					mover.move(0.80);
+					//Sidestep in the direction where there is more space.
+					if (world.angleToEnemy() > 0) {
+						Dribbler.dribble(mover, 2);
+					} else {
+						Dribbler.dribble(mover, 1);
+					}
+					//After we start sidestepping them, sleep until
+					//we have nearly passed them or if we are too close to the wall.
+					while (Math.abs(us.x - them.x) < 30 ||
+							(us.y - world.goalInfo.pitchConst.getLeftBuffer() < 40)
+							|| (us.y - world.goalInfo.pitchConst.getRightBuffer() < 40)){
 						try {
-							SafeSleep.sleep(1500);
+							SafeSleep.sleep(600);
+							if (!shouldidie && !Strategy.alldie){
+								return;
+							}
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						t += 1;
-
 					}
-					mover.stopRobot();
-					return;
+					//Face the goal. This will stop the sidemovement
+					try {
+						faceGoal();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					mover.move(0,80);
+					try {
+						SafeSleep.sleep(600);
+						if (!shouldidie && !Strategy.alldie){
+							return;
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			}
-			if (wall.inCorner(world)
-					&& (world.theirRobot.x > world.ourRobot.x && (angleT < 20 || angleT > 340))) {
-				System.out.println("run away from corner");
-				int p1 = 0;
-				int p2 = 0;
-				if (world.ourRobot.x > 300) {
-					p1 = 412;
-					p2 = 232;
-				} else {
-					p1 = 222;
-					p2 = 235;
+				//Else we can dribble and score and don't bother with them.
+				while (world.distanceUsToTheirgoal() > 200){
+					try {
+						SafeSleep.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-				mover.moveToAndStop(p1, p2);
-				try {
-					mover.waitForCompletion();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return;
+				mover.kick();
+				mover.stopRobot();
 			}
 		}
 	}
-
 	public void faceGoal() throws InterruptedException {
 		Position a = world.getTheirGoal();
 		System.out.println(a.getX() + ", " + a.getY());
