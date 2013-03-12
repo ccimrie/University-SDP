@@ -49,7 +49,20 @@ public class BluetoothRobot extends Robot implements RobotController {
 			e1.printStackTrace();
 		}
 		comms.closeBluetoothConnection();
-		System.out.println("Quit...");
+		System.out.println("Quit... Please reconnect.");
+		System.exit(0);
+	}
+	
+	public void forcequit() {
+		int[] command = { Commands.FORCEQUIT, 0, 0, 0 };
+		try {
+			comms.sendToRobotSimple(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		comms.closeBluetoothConnection();
+		System.out.println("Force quit... Reset the brick.");
 		System.exit(0);
 	}
 
