@@ -6,8 +6,6 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.World;
 
-import world.state.WorldState;
-
 /**
  * A class representing the pitch in the simulator
  * 

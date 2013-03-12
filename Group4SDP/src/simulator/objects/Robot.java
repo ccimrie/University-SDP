@@ -97,8 +97,8 @@ public class Robot {
 
 		BodyDef robotBodyDef = new BodyDef();
 		robotBodyDef.type = BodyType.DYNAMIC;
-		robotBodyDef.angularDamping = 4.0f;
-		robotBodyDef.linearDamping = 3.0f;
+		robotBodyDef.angularDamping = 5.0f;
+		robotBodyDef.linearDamping = 5.0f;
 		robotBodyDef.allowSleep = false;
 
 		robotBodyDef.position.set(initialPos);
@@ -168,12 +168,12 @@ public class Robot {
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
 		// Apply forward/back/left/right speed
-		body.applyLinearImpulse(body.getWorldVector(speed.mul(1.0f/400.0f)),
-				body.getWorldPoint(body.getLocalCenter()));
+		body.applyLinearImpulse(body.getWorldVector(new Vec2(speed.x / 9600.0f,
+				speed.y / 8000.0f)), body.getWorldPoint(body.getLocalCenter()));
 
 		// If we're doing a rotation, apply the angular motion
 		if (rotateActive)
-			body.applyAngularImpulse(body.getMass() * rotSpeed);
+			body.applyAngularImpulse(rotSpeed / 3000.0f);
 
 		if (kickActive) {
 			// TODO: calibrate
