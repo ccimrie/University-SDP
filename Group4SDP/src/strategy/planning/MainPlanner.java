@@ -6,14 +6,15 @@ import world.state.WorldState;
 public class MainPlanner extends StrategyInterface {
 
 	int angleToTurnToBall = 15;
+	double startTime;
 	boolean collisionInProgress = false;
 	boolean isTurning = false;
 
 	enum state {
-		Offensive, Defensive, StartOfGame, MoveToBall, EndOfGame
+		Offensive, Defensive, MoveToBall, EndOfGame
 	}
 
-	state currentState = state.StartOfGame;
+	state currentState = state.MoveToBall;
 	state newState = currentState;
 
 	public MainPlanner(WorldState world, RobotMover mover) {
@@ -24,16 +25,15 @@ public class MainPlanner extends StrategyInterface {
 	@Override
 	public void run() {
 		System.out.println("[MainPlanner] Are we blue? " + world.areWeBlue());
-		System.out.println("[MainPlanner] Are we on the left side? "
-				+ world.areWeOnLeft());
-		System.out.println("[MainPlanner] Are we on the main pitch? "
-				+ world.isMainPitch());
+		System.out.println("[MainPlanner] Are we on the left side? " + world.areWeOnLeft());
+		System.out.println("[MainPlanner] Are we on the main pitch? " + world.isMainPitch());
 		
 		StrategyInterface activeStrat;
 		Thread strategyThread;
-		activeStrat = new Defensive(world, mover);
-		strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
+		activeStrat = new InterceptBall(world, mover);
+		strategyThread = new Thread((InterceptBall) activeStrat, "Move to ball Thread");
 		strategyThread.start();
+		startTime = System.currentTimeMillis();
 
 		/*
 		 * The while loop will execute the strategy until it is broken or we're
@@ -42,209 +42,58 @@ public class MainPlanner extends StrategyInterface {
 		while (!Strategy.alldie && !shouldidie) {
 			// Get state
 			int ourRobot; // 1 if we are blue and 2 if we are yellow
-			if (world.areWeBlue())
+			int theirRobot;
+			int theirVelocity;
+			
+			if (world.areWeBlue()) {
 				ourRobot = 1;
-			else
-				ourRobot = 2;
-
-			if (world.ballIsInGoal())
-				newState = state.EndOfGame;
-			else if (world.whoHasTheBall() == -1) {
-				// Nobody has the ball
-				newState = state.StartOfGame;
-			} else if (world.whoHasTheBall() == ourRobot) {
-				// We have the ball
-				newState = state.Offensive;
-			} else {
-				// They have the ball
-				newState = state.Defensive;
+				theirRobot = 2;
+				theirVelocity = (int)Math.sqrt(world.getYellowXVelocity() * world.getYellowXVelocity() +
+						world.getYellowXVelocity() * world.getYellowXVelocity());
 			}
+			else {
+				ourRobot = 2;
+				theirRobot = 1;
+				theirVelocity = (int)Math.sqrt(world.getBlueXVelocity() * world.getBlueXVelocity() +
+						world.getBlueXVelocity() * world.getBlueXVelocity());
+			}
+			
+//			if (currentState == state.MoveToBall && theirVelocity >= 50 && 
+//					(System.currentTimeMillis() - startTime) >= 3000) {
+//				newState = state.Defensive;
+			if (currentState == state.MoveToBall && world.whoHasTheBall() == ourRobot) {
+				newState = state.Offensive;
+			} else if (currentState == state.Defensive  && world.whoHasTheBall() == ourRobot) {
+				newState = state.Offensive;
+			} else if (currentState == state.Offensive  && world.whoHasTheBall() == theirRobot) {
+				newState = state.Defensive;
+			} else if (world.ballIsInGoal()) {
+				newState = state.EndOfGame;
+			}
+
 			// If state did not change, do nothing
 			// Otherwise kill old strategy and start new one
 			if (currentState != newState) {
 				currentState = newState;
 				if (strategyThread.isAlive())
 					activeStrat.kill();
-
-				if (currentState == state.StartOfGame) {
-					// TODO change to StartOfGame strategy type, when
-					// implemented
-					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat,
-							"Start Thread");
+				if (currentState == state.MoveToBall) {
+					activeStrat = new InterceptBall(world, mover);
+					strategyThread = new Thread((InterceptBall) activeStrat, "Move to ball Thread");
+					System.out.println("[MainPlanner] Move To Ball Started");
 				} else if (currentState == state.Defensive) {
 					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat,
-							"Defense Thread");
+					strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
+					System.out.println("[MainPlanner] Defense thread started.");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat,
-							"Offense Thread");
+					activeStrat = new Offensive(world, mover);
+					strategyThread = new Thread((Offensive) activeStrat, "Offense Thread");
+					System.out.println("[MainPlanner] Ofence thread started.");
 				} else if (currentState == state.EndOfGame) {
-					// TODO change to EndOfGame strategy type, when implemented
-					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat,
-							"End Thread");
+					System.out.println("[MainPlanner] End of game.");
 				}
 				strategyThread.start();
 			}
 		}
-
-		// TODO: all of the commented code should be inside the while loop if
-		// it's to be used; it's been removed from the while loop to avoid
-		// having more than half the file between the end of the while loop's
-		// contents, and the closing brace for the while loop.
-		// if (currentState != newState) {
-		// System.out.println("State changed to " +
-		// currentState.toString());
-		// newState = currentState;
-		// }
-
-		// OBSTACLE DETECTION STRATEGY
-		// WE MUST IMPLEMENT THAT OURSELVES
-		// When touch sensor is pressed, go back no matter what.
-		/*
-		 * if (collisionInProgress) { if (rc.isMoving()) { return; } else {
-		 * collisionInProgress = false;
-		 * System.out.println("Finished Collision"); return; } } if
-		 * (rc.isTouchPressed()) { System.out.println("Collision in Progress");
-		 * rc.travel(-0.3d, 0.3d); currentState = state.GetBehindBall;
-		 * collisionInProgress = true; return; }
-		 */
-
-		// BLOCK TURNS
-		// NO IDEA WHY THIS CODE IS NEEDED.
-		/*
-		 * if (isTurning) { if (rc.isMoving()) { return; } else {
-		 * System.out.println("Finished Turn"); isTurning = false; } }
-		 */
-		// TODO: ROBOT AVOIDANCE STRATEGY
-		// We should avoid other robots like the plague to stop our vision
-		// from
-		// breaking.
-
-		// END OF PLAY STRATEGY
-		// If the ball is in the goal then stop playing.
-		// if(world.bal//
-		// }lIsInGoal()) {
-		// rc.stop();
-		// return;
-		// }
-
-		// if (currentState == state.StartOfMatch) {
-		// currentState = state.GetBehindBall;
-		// return;
-		// }
-
-		// if (currentState == state.GetBehindBall) {
-		// // STEP 1
-		// // ======
-		// // First we want to get behind the ball
-		// Point2D pointBehindBall =
-		// LineupStrategies.getPointBehindBall(world);
-		// // Get the square distance between us and the destination
-		// double distanceBetweenUsAndPointBehindBall =
-		// DistanceCalculathrtor.Distance(world.ourRobot.x, world.ourRobot.y,
-		// pointBehindBall.getX(), pointBehindBall.getY());
-		//
-		// // Radius in which to stop trying to get behind ball
-		// int pointRadius = 30;
-		// // If we are further away than this then go to the point
-		// if(distanceBetweenUsAndPointBehindBall > pointRadius) {
-		// GoToPoint.goToPoint(
-		// world,
-		// rc,
-		// new Vector(pointBehindBall.getX(),
-		// pointBehindBall.getY()),
-		// AvoidanceStrategy.AvoidingBall
-		// );
-		// return;
-		// } else {
-		// currentState = state.TurnToBall;
-		// return;
-		// }
-		// }
-		//
-		//
-		// if (currentState == state.TurnToBall) {
-		// // STEP 2
-		// // ======
-		// // Now turn to the ball.
-		//
-		// // If they have possession at this state, go back to one
-		// if (world.hasPossession == PossessionType.Them){
-		// currentState = state.GetBehindBall;
-		// }
-		//
-		// double angle = TurnToBall.Turner(world.ourRobot, world.ball);
-		// if ((Math.abs(angle) > angleToTurnToBall)) {
-		// rc.rotate((int)-angle);
-		// isTurning = true;
-		// System.out.println("Turn in Progress");
-		// return;
-		// } else {
-		// currentState = state.TakePossesion;
-		// return;
-		// }
-		// }
-		//
-		// if (currentState == state.TakePossesion) {
-		// // STEP 3
-		// // ======
-		// // Having turned to the ball, we may now slowly try to take
-		// posession.
-		//
-		// // If they have possession at this state, go back to one
-		// if (world.hasPossession == PossessionType.Them){
-		// currentState = state.GetBehindBall;
-		// return;
-		// }
-		// if (world.hasPossession == PossessionType.Us) {
-		// currentState = state.DriveToGoalWithBall;
-		// return;
-		// }
-		// // Otherwise we can get it
-		// if (world.hasPossession == PossessionType.Nobody) {
-		// GoToPoint.goToPoint(world, rc, world.ball.getPosition(),
-		// AvoidanceStrategy.IgnoringBall);
-		// return;
-		// }
-		// }
-		//
-		// if (currentState == state.DriveToGoalWithBall) {
-		// // STEP 4
-		// // ======
-		// // Having obtained posession, we may now drive towards the enemy
-		// goal.
-		// if (world.hasPossession == PossessionType.Us) {
-		// GoToPoint.goToPoint(world, rc,
-		// world.getTheirGoal(),
-		// AvoidanceStrategy.IgnoringBall);
-		// currentState = state.ShootAndScore;
-		// } else {
-		// currentState = state.GetBehindBall;
-		// return;
-		// }
-		// }
-		//
-		// if (currentState == state.ShootAndScore) {
-		// // STEP 5
-		// // ======
-		// // We are heading towards the enemy goal. Can we kick and score?
-		// if (world.hasPossession != PossessionType.Us) {
-		// currentState = state.GetBehindBall;
-		// }
-		// if (world.areWeInOurHalf() != true) {
-		// // We can score!
-		// double scoringAngle = IsRobotFacingPoint.Turner(
-		// world.ourRobot,
-		// world.getTheirGoal().getX(),
-		// world.getTheirGoal().getY());
-		// if(Math.abs(scoringAngle) < 15) {
-		// rc.kick();
-		// }
-		// return;
-		// }
-		// }
 	}
 }
