@@ -132,4 +132,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 	public void clearBuff() {
 		// Not required for simulated robot
 	}
+
+	@Override
+	public void forcequit() {
+		// Not required for simulated robot
+	}
 }
