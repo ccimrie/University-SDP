@@ -325,7 +325,8 @@ public class ControlGUI2 extends JFrame {
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
-				penaltyAtk.run();
+				Thread penaltyatkthr = new Thread (penaltyAtk);
+				penaltyatkthr.start();
 			}
 		});
 
@@ -333,7 +334,8 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				PenaltyDefense penaltyDef = new PenaltyDefense(worldState,
 						mover);
-				penaltyDef.run();
+				Thread penaltydefthr = new Thread (penaltyDef);
+				penaltydefthr.start();
 			}
 		});
 
