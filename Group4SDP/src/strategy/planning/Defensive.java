@@ -88,6 +88,8 @@ public class Defensive extends StrategyInterface {
 					System.out.println("Should turn now");
 					mover.rotate(Math.toRadians(angle));
 					mover.waitForCompletion();
+					if (shouldidie)
+						return;
 				}
 
 				/**
@@ -127,6 +129,8 @@ public class Defensive extends StrategyInterface {
 					System.out.println("Moving on the y axis");
 					mover.moveToAndStop(ourGoalDefendPosition.getX(), destY);
 					mover.waitForCompletion();
+					if (shouldidie)
+						return;
 
 //					/**
 //					 * Now turn to face the ball (and the other robot
@@ -141,6 +145,8 @@ public class Defensive extends StrategyInterface {
 //						System.out.println("Should turn now");
 //						mover.rotate(Math.toRadians(angle));
 //						mover.waitForCompletion();
+//					if (shouldidie)
+//						return;
 //					}
 
 					previousTheirBearing = theirBearing;
