@@ -225,23 +225,23 @@ public class Brick {
 		if (y > 0) {
 			leftMotor.setSpeed(y);
 			rightMotor.setSpeed(y);
-			leftMotor.backward();
-			rightMotor.forward();
+			leftMotor.forward();
+			rightMotor.backward();
 		} else if (y < 0) {
 			leftMotor.setSpeed(-y);
 			rightMotor.setSpeed(-y);
-			leftMotor.forward();
-			rightMotor.backward();
+			leftMotor.backward();
+			rightMotor.forward();
 		} else {
 			leftMotor.flt();
 			rightMotor.flt();
 		}
 
 		if (x > 0) {
-			chip.move(FRONTMOTOR, FORWARDS, x);
+			chip.move(FRONTMOTOR, BACKWARDS, x);
 			chip.move(BACKMOTOR, FORWARDS, x);
 		} else if (x < 0) {
-			chip.move(FRONTMOTOR, BACKWARDS, -x);
+			chip.move(FRONTMOTOR, FORWARDS, -x);
 			chip.move(BACKMOTOR, BACKWARDS, -x);
 		} else {
 			chip.move(1, DO_NOTHING, 0);
@@ -274,24 +274,24 @@ public class Brick {
 	public static void rotate(int dir, int angle) throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
-		leftMotor.setSpeed(170);
-		rightMotor.setSpeed(170);
+		leftMotor.setSpeed(400);
+		rightMotor.setSpeed(400);
 		angle = (int) (angle * 1.875);
 		chip.move(1, DO_NOTHING, 0);
 		chip.move(2, DO_NOTHING, 0);
 
 		switch (dir) {
 		case 1:
-			chip.move(1, FORWARDS, 100);
-			chip.move(2, BACKWARDS, 100);
-			leftMotor.rotate(angle, true);
-			rightMotor.rotate(angle);
-			break;
-		case 2:			
-			chip.move(1, BACKWARDS, 100);
-			chip.move(2, FORWARDS, 100);
+			chip.move(1, FORWARDS, 80);
+			chip.move(2, FORWARDS, 80);
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(-angle);
+			break;
+		case 2:			
+			chip.move(1, BACKWARDS, 80);
+			chip.move(2, BACKWARDS, 80);
+			leftMotor.rotate(angle, true);
+			rightMotor.rotate(angle);
 			break;
 		}
 		chip.stop();
@@ -381,7 +381,7 @@ public class Brick {
 		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();
-		kicker.rotateTo(-80);
+		kicker.rotateTo(80);
 		kicker.setSpeed(250);
 		kicker.rotateTo(0);
 		kicker.flt();
