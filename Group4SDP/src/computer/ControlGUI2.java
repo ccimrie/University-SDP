@@ -24,8 +24,8 @@ import strategy.calculations.GoalInfo;
 import strategy.planning.DribbleBall5;
 import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
-import strategy.planning.PenaltyAttack;
 import strategy.planning.PenaltyDefense;
+import strategy.planning.PenaltyManager;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
 import vision.DistortionFix;
@@ -342,37 +342,17 @@ public class ControlGUI2 extends JFrame {
 
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
-				Thread penaltyatkthr = new Thread(penaltyAtk);
-				penaltyatkthr.start();
-				try {
-					penaltyatkthr.join(30000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				// Force stop
-				if (penaltyatkthr.isAlive())
-					cleanQuit();
-				// Start mainplanner after penalty
-				startMainPlanner();
+				strategy = new PenaltyManager(worldState, mover, true);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 
 		penaltyDefButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PenaltyDefense penaltyDef = new PenaltyDefense(worldState,
-						mover);
-				Thread penaltydefthr = new Thread(penaltyDef);
-				penaltydefthr.start();
-				try {
-					penaltydefthr.join(30000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				if (penaltydefthr.isAlive())
-					cleanQuit();
-				// Start mainplanner after penalty
-				startMainPlanner();
+				strategy = new PenaltyManager(worldState, mover, false);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
 			}
 		});
 
@@ -510,6 +490,7 @@ public class ControlGUI2 extends JFrame {
 					e1.printStackTrace();
 				}
 				System.out.println("Quitting the GUI");
+				cleanQuit();
 			}
 		});
 
