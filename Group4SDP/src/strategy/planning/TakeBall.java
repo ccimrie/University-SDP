@@ -68,7 +68,7 @@ public class TakeBall extends StrategyInterface {
 								world.ourRobot.y, projBallPos.getX(),
 								projBallPos.getY(), world.ourRobot.bearing);
 						
-						while (Math.abs(ballTurnAngle) > angleThreshold) {
+						while ((Math.abs(ballTurnAngle) > angleThreshold)&& !shouldidie && !Strategy.alldie) {
 							mover.rotate(ballTurnAngle);
 							mover.waitForCompletion();
 							if (shouldidie || Strategy.alldie)
