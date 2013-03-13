@@ -171,6 +171,20 @@ public class ControlGUI2 extends JFrame {
 
 	}
 
+	private void startMainPlanner() {
+		assert (strategyThread == null || !strategyThread.isAlive()) : "Strategy is already running";
+		strategy = new MainPlanner(worldState, mover);
+		strategyThread = new Thread(strategy);
+		strategyThread.start();
+	}
+
+	private void cleanQuit() {
+		robot.clearBuff();
+		if (robot.isConnected())
+			robot.disconnect();
+		System.exit(0);
+	}
+
 	public ControlGUI2(final WorldState worldState, final RobotController robot) {
 		this.worldState = worldState;
 		this.robot = robot;
@@ -322,10 +336,7 @@ public class ControlGUI2 extends JFrame {
 				// strategies
 				Strategy.reset();
 
-				// Run in a new thread to free up UI while running
-				strategy = new MainPlanner(worldState, mover);
-				strategyThread = new Thread(strategy);
-				strategyThread.start();
+				startMainPlanner();
 			}
 		});
 
@@ -334,6 +345,16 @@ public class ControlGUI2 extends JFrame {
 				PenaltyAttack penaltyAtk = new PenaltyAttack(worldState, mover);
 				Thread penaltyatkthr = new Thread(penaltyAtk);
 				penaltyatkthr.start();
+				try {
+					penaltyatkthr.join(30000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				// Force stop
+				if (penaltyatkthr.isAlive())
+					cleanQuit();
+				// Start mainplanner after penalty
+				startMainPlanner();
 			}
 		});
 
@@ -343,6 +364,15 @@ public class ControlGUI2 extends JFrame {
 						mover);
 				Thread penaltydefthr = new Thread(penaltyDef);
 				penaltydefthr.start();
+				try {
+					penaltydefthr.join(30000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				if (penaltydefthr.isAlive())
+					cleanQuit();
+				// Start mainplanner after penalty
+				startMainPlanner();
 			}
 		});
 
@@ -445,8 +475,7 @@ public class ControlGUI2 extends JFrame {
 						if (mover.isAlive()) {
 							System.out
 									.println("Could not kill mover! Shutting down GUI...");
-							robot.disconnect();
-							System.exit(0);
+							cleanQuit();
 						}
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
@@ -462,11 +491,11 @@ public class ControlGUI2 extends JFrame {
 				} catch (Exception e1) {
 					System.out
 							.println("Failed to reconnect! Shutting down GUI...");
-					System.exit(0);
+					cleanQuit();
 				}
 			}
 		});
-		
+
 		quitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -480,11 +509,7 @@ public class ControlGUI2 extends JFrame {
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-				robot.clearBuff();
-				robot.disconnect();
-
 				System.out.println("Quitting the GUI");
-				System.exit(0);
 			}
 		});
 
@@ -500,10 +525,10 @@ public class ControlGUI2 extends JFrame {
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-				robot.clearBuff();
-				robot.forcequit();
 
 				System.out.println("Quitting the GUI");
+				robot.clearBuff();
+				robot.forcequit();
 				System.exit(0);
 			}
 		});
@@ -545,11 +570,8 @@ public class ControlGUI2 extends JFrame {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			robot.clearBuff();
-			robot.disconnect();
-
 			System.out.println("Quitting the GUI");
-			System.exit(0);
+			cleanQuit();
 		}
 	}
 

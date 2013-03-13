@@ -6,10 +6,7 @@ import movement.RobotMover;
 import vision.Position;
 import world.state.WorldState;
 
-public class PenaltyAttack extends StrategyInterface {
-	private Thread strategyThread;
-	private StrategyInterface strategy;
-	
+public class PenaltyAttack extends StrategyInterface {	
 	public PenaltyAttack(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
@@ -43,9 +40,5 @@ public class PenaltyAttack extends StrategyInterface {
 			e.printStackTrace();
 		}
 		mover.kick();
-		//After we kick start the strategy thread.
-		strategy = new MainPlanner(world, mover);
-		strategyThread = new Thread(strategy);
-		strategyThread.start();
 	}
 }

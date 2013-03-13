@@ -10,9 +10,6 @@ public class PenaltyDefense extends StrategyInterface {
 	double originaly;
 	Ball ball;
 	
-	private Thread strategyThread;
-	private StrategyInterface strategy;
-	
 	public PenaltyDefense(WorldState world, RobotMover mover) {
 		super(world, mover);
 		//Original position of the ball. Use this to determine
@@ -78,8 +75,5 @@ public class PenaltyDefense extends StrategyInterface {
 			}
 			System.out.println(counter);
 		}
-		strategy = new MainPlanner(world, mover);
-		strategyThread = new Thread(strategy);
-		strategyThread.start();
 	}
 }
