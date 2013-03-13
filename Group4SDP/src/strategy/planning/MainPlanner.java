@@ -25,13 +25,16 @@ public class MainPlanner extends StrategyInterface {
 	@Override
 	public void run() {
 		System.out.println("[MainPlanner] Are we blue? " + world.areWeBlue());
-		System.out.println("[MainPlanner] Are we on the left side? " + world.areWeOnLeft());
-		System.out.println("[MainPlanner] Are we on the main pitch? " + world.isMainPitch());
-		
+		System.out.println("[MainPlanner] Are we on the left side? "
+				+ world.areWeOnLeft());
+		System.out.println("[MainPlanner] Are we on the main pitch? "
+				+ world.isMainPitch());
+
 		StrategyInterface activeStrat;
 		Thread strategyThread;
 		activeStrat = new InterceptBall(world, mover);
-		strategyThread = new Thread((InterceptBall) activeStrat, "Move to ball Thread");
+		strategyThread = new Thread((InterceptBall) activeStrat,
+				"Move to ball Thread");
 		strategyThread.start();
 		startTime = System.currentTimeMillis();
 
@@ -44,28 +47,33 @@ public class MainPlanner extends StrategyInterface {
 			int ourRobot; // 1 if we are blue and 2 if we are yellow
 			int theirRobot;
 			int theirVelocity;
-			
+
 			if (world.areWeBlue()) {
 				ourRobot = 1;
 				theirRobot = 2;
-				theirVelocity = (int)Math.sqrt(world.getYellowXVelocity() * world.getYellowXVelocity() +
-						world.getYellowXVelocity() * world.getYellowXVelocity());
-			}
-			else {
+				theirVelocity = (int) Math.sqrt(world.getYellowXVelocity()
+						* world.getYellowXVelocity()
+						+ world.getYellowXVelocity()
+						* world.getYellowXVelocity());
+			} else {
 				ourRobot = 2;
 				theirRobot = 1;
-				theirVelocity = (int)Math.sqrt(world.getBlueXVelocity() * world.getBlueXVelocity() +
-						world.getBlueXVelocity() * world.getBlueXVelocity());
+				theirVelocity = (int) Math.sqrt(world.getBlueXVelocity()
+						* world.getBlueXVelocity() + world.getBlueXVelocity()
+						* world.getBlueXVelocity());
 			}
-			
-//			if (currentState == state.MoveToBall && theirVelocity >= 50 && 
-//					(System.currentTimeMillis() - startTime) >= 3000) {
-//				newState = state.Defensive;
-			if (currentState == state.MoveToBall && world.whoHasTheBall() == ourRobot) {
+
+			// if (currentState == state.MoveToBall && theirVelocity >= 50 &&
+			// (System.currentTimeMillis() - startTime) >= 3000) {
+			// newState = state.Defensive;
+			if (currentState == state.MoveToBall
+					&& world.whoHasTheBall() == ourRobot) {
 				newState = state.Offensive;
-			} else if (currentState == state.Defensive  && world.whoHasTheBall() == ourRobot) {
+			} else if (currentState == state.Defensive
+					&& world.whoHasTheBall() == ourRobot) {
 				newState = state.Offensive;
-			} else if (currentState == state.Offensive  && world.whoHasTheBall() == theirRobot) {
+			} else if (currentState == state.Offensive
+					&& world.whoHasTheBall() == theirRobot) {
 				newState = state.Defensive;
 			} else if (world.ballIsInGoal()) {
 				newState = state.EndOfGame;
@@ -79,18 +87,21 @@ public class MainPlanner extends StrategyInterface {
 					activeStrat.kill();
 				if (currentState == state.MoveToBall) {
 					activeStrat = new InterceptBall(world, mover);
-					strategyThread = new Thread((InterceptBall) activeStrat, "Move to ball Thread");
+					strategyThread = new Thread(activeStrat,
+							"Move to ball Thread");
 					System.out.println("[MainPlanner] Move To Ball Started");
 				} else if (currentState == state.Defensive) {
 					activeStrat = new Defensive(world, mover);
-					strategyThread = new Thread((Defensive) activeStrat, "Defense Thread");
+					strategyThread = new Thread(activeStrat, "Defense Thread");
 					System.out.println("[MainPlanner] Defense thread started.");
 				} else if (currentState == state.Offensive) {
 					activeStrat = new Offense2(world, mover);
-					strategyThread = new Thread((Offense2) activeStrat,
-							"Offense Thread");
+					strategyThread = new Thread(activeStrat, "Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					System.out.println("[MainPlanner] End of game.");
+					activeStrat = new EndOfGame(world, mover);
+					strategyThread = new Thread((EndOfGame) activeStrat,
+							"End of Game Thread");
 				}
 				strategyThread.start();
 			}
