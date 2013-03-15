@@ -50,7 +50,6 @@ public class BluetoothRobot extends Robot implements RobotController {
 		}
 		comms.closeBluetoothConnection();
 		System.out.println("Quit... Please reconnect.");
-		System.exit(0);
 	}
 	
 	public void forcequit() {
@@ -63,7 +62,6 @@ public class BluetoothRobot extends Robot implements RobotController {
 		}
 		comms.closeBluetoothConnection();
 		System.out.println("Force quit... Reset the brick.");
-		System.exit(0);
 	}
 
 	@Override

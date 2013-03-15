@@ -9,37 +9,12 @@ import world.state.WorldState;
 public class InterceptBall extends StrategyInterface {
 	private static final double distanceThreshold = 40;
 	private static final double angleThreshold = Math.toRadians(15);
-	private static final double sqVelocityThreshold = 1.0;
-	private static final double distVelFactorScale = 10.0;
+	
 
 	public InterceptBall(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
-
-	/**
-	 * Projects where the ball is going to be based on its current position and
-	 * velocity
-	 * 
-	 * @return The projected position of the ball
-	 */
-	private Position projectedBallPos() {
-		Ball ball = world.ball;
-
-		/*
-		 * Don't bother projecting where the ball's going to be if it's barely
-		 * moving
-		 */
-		if (ball.speedX * ball.speedX + ball.speedY * ball.speedY > sqVelocityThreshold) {
-			// The ball's velocity matters more the further it is from our robot
-			double velocityFactor = world.distanceBetweenUsAndBall()
-					/ distVelFactorScale;
-
-			double projX = ball.x + velocityFactor * ball.speedX;
-			double projY = ball.y + velocityFactor * ball.speedY;
-			return new Position((int) projX, (int) projY);
-		} else
-			return new Position((int) ball.x, (int) ball.y);
-	}
+	
 
 	@Override
 	public void run() {
@@ -47,7 +22,7 @@ public class InterceptBall extends StrategyInterface {
 
 		try {
 			while (!shouldidie && !Strategy.alldie) {
-				Position projBallPos = projectedBallPos();
+				Position projBallPos = world.projectedBallPos();
 				
 				if (world.distanceBetweenUsAndBall() > distanceThreshold) {
 					mover.moveTowards(projBallPos.getX(), projBallPos.getY());

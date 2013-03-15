@@ -10,9 +10,6 @@ public class PenaltyDefense extends StrategyInterface {
 	double originaly;
 	Ball ball;
 	
-	private Thread strategyThread;
-	private StrategyInterface strategy;
-	
 	public PenaltyDefense(WorldState world, RobotMover mover) {
 		super(world, mover);
 		//Original position of the ball. Use this to determine
@@ -29,8 +26,8 @@ public class PenaltyDefense extends StrategyInterface {
 		while ((!shouldidie && !Strategy.alldie) &&
 				(Math.abs(ball.x - originalx) < 10) && 
 				((Math.abs(ball.y - originaly)) < 10)){
-			System.out.println(Math.toDegrees(world.theirRobot.bearing) + " "
-					+ theirOriginal);
+//			System.out.println(Math.toDegrees(world.theirRobot.bearing) + " "
+//					+ theirOriginal);
 
 			if (Math.toDegrees(world.theirRobot.bearing) > theirOriginal + 5
 					&& counter > -1) {
@@ -52,9 +49,7 @@ public class PenaltyDefense extends StrategyInterface {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-
-			if (Math.toDegrees(world.theirRobot.bearing) < theirOriginal - 5
+			} else if (Math.toDegrees(world.theirRobot.bearing) < theirOriginal - 5
 					&& counter < 1) {
 				System.out.println("going forwards");
 
@@ -75,11 +70,15 @@ public class PenaltyDefense extends StrategyInterface {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				try {
+					SafeSleep.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			System.out.println(counter);
+//			System.out.println(counter);
 		}
-		strategy = new MainPlanner(world, mover);
-		strategyThread = new Thread(strategy);
-		strategyThread.start();
 	}
 }
