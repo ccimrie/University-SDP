@@ -14,13 +14,6 @@ public class InterceptBall extends StrategyInterface {
 	public InterceptBall(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
-
-	/**
-	 * Projects where the ball is going to be based on its current position and
-	 * velocity
-	 * 
-	 * @return The projected position of the ball
-	 */
 	
 
 	@Override

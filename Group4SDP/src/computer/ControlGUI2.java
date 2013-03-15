@@ -463,7 +463,7 @@ public class ControlGUI2 extends JFrame {
 				robot.disconnect();
 				System.out.println("Reconnecting...");
 				try {
-					Thread.sleep(500);
+					Thread.sleep(1000);
 					robot.connect();
 					mover = new RobotMover(worldState, robot);
 					mover.start();
