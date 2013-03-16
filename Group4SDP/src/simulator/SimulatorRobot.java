@@ -3,6 +3,8 @@ package simulator;
 import world.state.Robot;
 import world.state.RobotType;
 
+import utility.SafeSleep;
+
 import communication.RobotController;
 
 /**
@@ -47,9 +49,8 @@ public class SimulatorRobot extends Robot implements RobotController {
 	public boolean isConnected() {
 		return connected;
 	}
-
+	
 	/**
-	 * TODO: add a small delay between connected and ready becoming true<br/>
 	 * Simulates whether the robot is ready to receive commands
 	 * 
 	 * @return true if the robot's ready, false otherwise.
@@ -73,7 +74,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 	@Override
 	public int stop() {
 		try {
+			SafeSleep.sleep(25);
 			simRobot.setSpeed(0, 0);
+			SafeSleep.sleep(25);
 			return 0;
 		} catch (InterruptedException e) {
 			return -2;
@@ -86,7 +89,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 	@Override
 	public int kick() {
 		try {
+			SafeSleep.sleep(25);
 			simRobot.kick();
+			SafeSleep.sleep(25);
 			return 0;
 		} catch (InterruptedException e) {
 			return -2;
@@ -99,7 +104,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 	@Override
 	public int move(int speedX, int speedY) {
 		try {
+			SafeSleep.sleep(25);
 			simRobot.setSpeed(speedX, speedY);
+			SafeSleep.sleep(25);
 			return 0;
 		} catch (InterruptedException e) {
 			return -2;
@@ -112,7 +119,9 @@ public class SimulatorRobot extends Robot implements RobotController {
 	@Override
 	public int rotate(int angleDeg) {
 		try {
+			SafeSleep.sleep(25);
 			simRobot.rotate(Math.toRadians(angleDeg));
+			SafeSleep.sleep(25);
 			return 0;
 		} catch (InterruptedException e) {
 			return -2;
