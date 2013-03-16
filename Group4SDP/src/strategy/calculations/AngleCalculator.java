@@ -9,7 +9,7 @@ import world.state.Ball;
 import world.state.Robot;
 
 public class AngleCalculator {
-	private static WorldState world;
+	private WorldState world;
 	public AngleCalculator(WorldState world){
 		this.world = world;
 	}

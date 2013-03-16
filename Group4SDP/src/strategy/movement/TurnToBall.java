@@ -4,7 +4,6 @@
 
 package strategy.movement;
 
-import vision.Position;
 import world.state.Ball;
 import world.state.Robot;
 
