@@ -92,7 +92,8 @@ public class Robot {
 
 		FixtureDef robotFixDef = new FixtureDef();
 		robotFixDef.shape = robotShape;
-		robotFixDef.density = 10.0f;
+		// Realistic density - water is 1000.
+		robotFixDef.density = 600.0f;
 		robotFixDef.friction = 0.3f;
 
 		BodyDef robotBodyDef = new BodyDef();
@@ -115,14 +116,14 @@ public class Robot {
 
 		FixtureDef kickerFixDef = new FixtureDef();
 		kickerFixDef.shape = kickerShape;
-		kickerFixDef.density = 3.0f;
+		kickerFixDef.density = 600.0f;
 		kickerFixDef.friction = 0.3f;
 
 		BodyDef kickerBodyDef = new BodyDef();
 		kickerBodyDef.type = BodyType.DYNAMIC;
 
-		kickerBodyDef.position.set((new Vec2(0.11f * (float) Math
-				.cos(initialAngle), 0.11f * (float) Math.sin(initialAngle)))
+		kickerBodyDef.position.set((new Vec2(0.10f * (float) Math
+				.cos(initialAngle), 0.10f * (float) Math.sin(initialAngle)))
 				.add(body.getWorldCenter()));
 		System.out.println("Kicker position: "
 				+ kickerBodyDef.position.toString());
@@ -187,7 +188,7 @@ public class Robot {
 			}
 		} else {
 			// If we're not kicking, make sure the kicker stays retracted
-			kicker.setMotorSpeed(-100.0f);
+			kicker.setMotorSpeed(-1.0f);
 		}
 		lock.unlock();
 	}

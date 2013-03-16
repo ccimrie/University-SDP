@@ -144,6 +144,6 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	@Override
 	public void forcequit() {
-		// Not required for simulated robot
+		connected = false;
 	}
 }
