@@ -4,12 +4,13 @@ import movement.RobotMover;
 import world.state.WorldState;
 
 public abstract class StrategyInterface implements Runnable {
-	protected boolean shouldidie = false;
+	protected boolean shouldidie;
 
 	WorldState world;
 	RobotMover mover;
 
 	public StrategyInterface(WorldState world, RobotMover mover) {
+		this.shouldidie = false;
 		this.world = world;
 		this.mover = mover;
 	}

@@ -113,7 +113,6 @@ public class BluetoothCommunication {
 	 */
 	
 	public int sendToRobot(int[] comm) throws IOException {
-		System.out.println("Buffer state " + buffer);
 		if (buffer<2){
 			byte[] command = { (byte) comm[0], (byte) comm[1], (byte) comm[2],
 					(byte) comm[3] };
@@ -121,7 +120,6 @@ public class BluetoothCommunication {
 			out.write(command);
 			out.flush();
 			buffer +=1;
-			System.out.println("Command sent " + command[0]);
 		} else {
 			//The buffer is full we can't send a package;
 			return -1;

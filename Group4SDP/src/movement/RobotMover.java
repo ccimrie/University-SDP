@@ -120,7 +120,6 @@ public class RobotMover extends Thread {
 	 * Wakes up any threads waiting on a movement queue to complete
 	 */
 	private void wakeUpWaitingThreads() {
-		System.out.println("Mover: Waking up waiters");
 		waitSem.release();
 		running = false;
 	}
@@ -136,48 +135,31 @@ public class RobotMover extends Thread {
 	private void processMovement(MoverConfig movement) throws Exception {
 		switch (movement.mode) {
 		case STOP:
-			System.out.println("Stopping robot");
 			robot.stop();
 			break;
 		case KICK:
-			System.out.println("Kicking!");
 			robot.kick();
 			break;
 		case DELAY:
-			System.out.println("Waiting for " + movement.milliseconds
-					+ " milliseconds");
 			SafeSleep.sleep(movement.milliseconds);
 			break;
 		case MOVE_VECTOR:
-			System.out.println("Moving at speed (" + movement.x + ", "
-					+ movement.y + ")");
 			doMove(movement.x, movement.y);
 			break;
 		case MOVE_ANGLE:
-			System.out.println("Moving at angle " + movement.angle
-					+ " radians (" + Math.toDegrees(movement.angle)
-					+ " degrees)");
 			doMove(movement.angle);
 			break;
 		case MOVE_TO:
-			System.out.println("Moving to point (" + movement.x + ", "
-					+ movement.y + ")");
 			doMoveTo(movement.x, movement.y);
 			break;
 		case MOVE_TOWARDS:
-			System.out.println("Moving towards point (" + movement.x + ", "
-					+ movement.y + ")");
 			doMoveTowards(movement.x, movement.y);
 			break;
 		case MOVE_TO_ASTAR:
-			System.out.println("Moving to point (" + movement.x + ", "
-					+ movement.y + ") using A*");
 			doMoveToAStar(movement.x, movement.y, movement.avoidBall,
 					movement.avoidEnemy);
 			break;
 		case ROTATE:
-			System.out.println("Rotating by " + movement.angle + " radians ("
-					+ Math.toDegrees(movement.angle) + " degrees)");
 			doRotate(movement.angle);
 			break;
 		default:
@@ -453,10 +435,6 @@ public class RobotMover extends Thread {
 				System.out.println("Failed to sleep");
 				e.printStackTrace();
 			}
-			System.out.println("Our position: (" + us.x + ", " + us.y + ")");
-			System.out.println("Moving towards: (" + x + ", " + y + ")");
-			System.out.println("Distance: "
-					+ DistanceCalculator.Distance(us.x, us.y, x, y));
 			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
