@@ -26,17 +26,8 @@ public class InterceptBall extends StrategyInterface {
 
 				if (world.distanceBetweenUsAndBall() > distanceThreshold) {
 					System.out.println("Projected ball pos: (" + projBallPos.getX() + ", " + projBallPos.getY() + ")");
-					mover.moveTowards(projBallPos.getX(), projBallPos.getY());
-				} else {
-					ballTurnAngle = mover.angleCalculator(world.ourRobot.x, world.ourRobot.y, projBallPos.getX(), projBallPos.getY(), world.ourRobot.bearing);
-
-					while (Math.abs(ballTurnAngle) > angleThreshold) {
-						mover.rotate(ballTurnAngle);
-						mover.waitForCompletion();
-						if (shouldidie || Strategy.alldie)
-							return;
-						ballTurnAngle = mover.angleCalculator(world.ourRobot.x, world.ourRobot.y, projBallPos.getX(), projBallPos.getY(), world.ourRobot.bearing);
-					}
+					double targetX = (world.areWeOnLeft()) ? 60 : 580;
+					mover.moveTowards(targetX, projBallPos.getY());
 				}
 				SafeSleep.sleep(50);
 			}

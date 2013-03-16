@@ -613,9 +613,25 @@ public class WorldState {
 			// The ball's velocity matters more the further it is from our robot
 			double velocityFactor = distanceBetweenUsAndBall()
 					/ distVelFactorScale;
+			
+			int minX = this.goalInfo.getLeftGoalCenter().getX();
+			int maxX = this.goalInfo.getRightGoalCenter().getX();
+			int minY = this.goalInfo.getTopLeftCorner().getY();
+			int maxY = this.goalInfo.getBotLeftCorner().getY();;
 
 			double projX = ball.x + velocityFactor * ball.speedX;
+			if (projX < minX)
+				projX = minX + 30;
+			else if (projX > maxX)
+				projX = maxX - 30;
+			
 			double projY = ball.y + velocityFactor * ball.speedY;
+			if (projY < minY)
+				projY = minY + 30;
+			else if (projY > maxY)
+				projY = maxY - 30;
+			
+			
 			return new Position((int) projX, (int) projY);
 		} else
 			return new Position((int) ball.x, (int) ball.y);
