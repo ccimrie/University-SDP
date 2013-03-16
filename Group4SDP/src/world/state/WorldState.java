@@ -19,7 +19,6 @@ public class WorldState {
 	private static final int NUM_FRAMES = 5;
 	private AngleCalculator a = new AngleCalculator(this);
 	private long counter;
-	private DistanceCalculator dist = new DistanceCalculator();
 	private int direction; // 0 = right, 1 = left.
 	private int colour; // 0 = yellow, 1 = blue
 	private int pitch; // 0 = main, 1 = side room
