@@ -380,9 +380,19 @@ public class RobotMover extends Thread {
 	 * @see #move(double angle)
 	 */
 	private void doMove(double angle) {
-		double speedX = 100 * Math.sin(angle);
-		double speedY = 100 * Math.cos(angle);
-		doMove(speedX, speedY);
+		double x = Math.sin(angle);
+		double absX = Math.abs(x);
+		double y = Math.cos(angle);
+		double absY = Math.abs(y);
+
+		double speed = 100.0;
+		if (Math.abs(y) > Math.abs(x)) {
+			speed /= absY;
+		} else {
+			speed /= absX;
+		}
+
+		doMove(speed * x, speed * y);
 	}
 
 	/**
@@ -466,7 +476,7 @@ public class RobotMover extends Thread {
 
 		if (!pushMovement(movement))
 			return false;
-		
+
 		// Let the mover know it has a new job
 		jobSem.release();
 
