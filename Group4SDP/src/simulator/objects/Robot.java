@@ -169,12 +169,12 @@ public class Robot {
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
 		// Apply forward/back/left/right speed
-		body.applyLinearImpulse(body.getWorldVector(new Vec2(speed.x / 96.0f,
-				speed.y / 80.0f)), body.getWorldPoint(body.getLocalCenter()));
+		body.applyLinearImpulse(body.getWorldVector(new Vec2(speed.x / 144.0f,
+				speed.y / 120.0f)), body.getWorldPoint(body.getLocalCenter()));
 
 		// If we're doing a rotation, apply the angular motion
 		if (rotateActive)
-			body.applyAngularImpulse(rotSpeed / 3000.0f);
+			body.applyAngularImpulse(rotSpeed / 30.0f);
 
 		if (kickActive) {
 			// TODO: calibrate
