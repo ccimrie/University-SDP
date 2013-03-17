@@ -145,8 +145,8 @@ public class Robot {
 				kickerJointDef.localAxis1);
 
 		// TODO: calibrate
-		kickerJointDef.motorSpeed = 2.0f;
-		kickerJointDef.maxMotorForce = 4.0f;
+		kickerJointDef.motorSpeed = 2.0f; //2.0
+		kickerJointDef.maxMotorForce = 3.0f; //4.0
 		kickerJointDef.enableMotor = true;
 		kickerJointDef.lowerTranslation = 0.0f;
 		kickerJointDef.upperTranslation = 0.7f;
@@ -169,8 +169,8 @@ public class Robot {
 	public void beforeStep() throws InterruptedException {
 		lock.lockInterruptibly();
 		// Apply forward/back/left/right speed
-		body.applyLinearImpulse(body.getWorldVector(new Vec2(speed.x / 9600.0f,
-				speed.y / 8000.0f)), body.getWorldPoint(body.getLocalCenter()));
+		body.applyLinearImpulse(body.getWorldVector(new Vec2(speed.x / 96.0f,
+				speed.y / 80.0f)), body.getWorldPoint(body.getLocalCenter()));
 
 		// If we're doing a rotation, apply the angular motion
 		if (rotateActive)
