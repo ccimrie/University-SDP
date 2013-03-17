@@ -75,9 +75,7 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	SimulatorRobot theirRobot;
 
 	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot) {
-		SimulatorTestbed simTest = new SimulatorTestbed(worldState);
-		Simulator simulator = new Simulator(simTest);
-		theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
+
 		mover = new RobotMover(worldState, theirRobot);
 		mover.start();
 		
@@ -112,25 +110,25 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		mainPanel.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyChar()  == 's') {
-					theirRobot.move(0, -100);
+					mover.move(0, -100);
 				}
 				if (e.getKeyChar() == 'w') {
-					theirRobot.move(0, 100);
+					mover.move(0, 100);
 				}
 				if (e.getKeyChar() == 'a') {
-					theirRobot.rotate(-5);
+					mover.rotate(-5);
 
 				}
 				if (e.getKeyChar() == 'd') {
-					theirRobot.rotate(5);
+					mover.rotate(5);
 				}
 				if (e.getKeyChar() == 'k') {
-					theirRobot.kick();
+					mover.kick();
 				}
 			}
 
 			public void keyReleased(KeyEvent e) {
-				theirRobot.stop();
+				mover.stopRobot();
 			}
 
 			public void keyTyped(KeyEvent e) {
