@@ -1,177 +1,187 @@
 package strategy.planning;
 
 import movement.RobotMover;
-import strategy.calculations.Possession;
-import strategy.movement.TurnToBall;
 import utility.SafeSleep;
 import vision.Position;
-import world.state.RobotType;
 import world.state.WorldState;
 
-//The defensive strategy is triggered when the ball (and the enemy robot) are in our part of 
-//the pitch.
-
+/**
+ * Defensive Strategy. CASE 1.
+ * 
+ * Should work when the combination on the field is:
+ * 		1) OUR GOAL - US -THEM 
+ * 		2) They have possession of the ball or are about to have it (ie. they are advancing quickly to the ball) 
+ * 		3) Everything is happening on our side of the pitch
+ * 
+ * What the Strategy does: 
+ * 		1) We retreat to the middle of our goal 
+ * 	While loop: 
+ *		2) Turn to face the opponent 
+ *		3) Move accordingly on the y axis - when their rotation angle has stabilized and as long as the turn is not too small. 
+ *		4)Adjust according to the movement of the robot - angle and up-down y axis (while loop iterations).
+ * 
+ * The defence should be off if the situation changes to:
+ * 		1) Ball & other robot not on our side of the pitch.
+ * 		2) Ball on our side of the pitch, but the other robot has no possession of it and is not attempting to get it. 
+ * 		3) We have caught the ball in defence or diverted it from out goal 
+ * 		4) They scored a goal
+ * 		5) The combination on the pitch is OUR GOAL - THEM - US, as in this case we can't get there in time for this defence to work
+ * 
+ * @autor Simona Petrova & Marija Pinkute. 2013.
+ * 
+ * */
 public class Defensive extends StrategyInterface {
+
+	private Position ourGoalCenter;
+	private Position ourGoalDefendPosition;
+	private double previousTheirBearing = 0;
+	private final int threshold = 30;
 
 	public Defensive(WorldState world, RobotMover mover) {
 		super(world, mover);
 	}
 
-	private final int threshold = 30;
-
 	@Override
 	public void run() {
-
-		System.out.println("Defensive strategy activated");
-		if (!Possession.hasPossession(world, RobotType.Them)) {
-			System.out
-					.println("The other team does not have posession of the ball, kill the defence strategy");
-			return;
-		}
-		/** Determine which goal is ours and set the goal constants */
-		Position ourGoalTop;
-		Position ourGoalCenter;
-		Position ourGoalBottom;
-		Position ourGoalDefendPosition;
-		if (world.areWeOnLeft()) {
-			ourGoalCenter = world.goalInfo.getLeftGoalCenter();
-			ourGoalTop = world.goalInfo.getLeftGoalTop();
-			ourGoalBottom = world.goalInfo.getLeftGoalBottom();
-			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
-					+ threshold, ourGoalCenter.getY());
-			System.out.println("We are on the left");
-		} else {
-			ourGoalCenter = world.goalInfo.getRightGoalCenter();
-			ourGoalTop = world.goalInfo.getRightGoalTop();
-			ourGoalBottom = world.goalInfo.getRightGoalBottom();
-			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
-					- threshold, ourGoalCenter.getY());
-			System.out.println("We are on the right");
-		}
-
-		// Defining auxiliary parameters used for calculating
-		double angle, ythreshold, destY;
-		double previousTheirBearing = 0;
-		double theirBearing;
-
 		try {
+			System.out.println("Defensive strategy activated");
 
-			// TODO: Main planner has to handle this -In case they have
-			// possession of the ball, our robot goes to defend the goal
+			// Set the goal dimension variables, so that we we know which goal
+			// to protect.
+			setGoalVariables();
 
-			System.out.println("They have the posession");
-			System.out.println("Left: x "
-					+ (int) (ourGoalDefendPosition.getX()) + " y "
-					+ (int) ourGoalDefendPosition.getY());
-
-			// Move to our goal
+			// Initial step of defence. Move to the center of our goal
 			mover.moveToAndStop(ourGoalDefendPosition.getX(),
 					ourGoalDefendPosition.getY());
 			mover.waitForCompletion();
+			if (shouldidie)
+				return;
 
-			System.out.println("Point reached");
-			System.out.println(!Strategy.alldie);
-			System.out.println(!shouldidie);
 			while (!Strategy.alldie && !shouldidie) {
-				System.out.println("While loop");
-				/**
-				 * Now turn to face the ball (and the other robot
-				 * correspondingly)
-				 */
-				angle = Math.toDegrees(world.theirRobot.bearing + Math.PI
-						- world.ourRobot.bearing);
-				if (angle > 180)
-					angle -= 360;
-				
-				if (Math.abs(angle) > 7) {
-					System.out.println("Angle to turn initially " + angle);
-					System.out.println("Should turn now");
-					mover.rotate(Math.toRadians(angle));
+
+				double turningAngle = calcAngleToTrunToFaceOtherRobot();
+
+				// Turn only if the turning angle is more than 7 degrees.
+				if (Math.abs(turningAngle) > 7) {
+					mover.rotate(Math.toRadians(turningAngle));
 					mover.waitForCompletion();
 					if (shouldidie)
 						return;
 				}
 
-				/**
-				 * Given their bearing, calculate where exactly in our goal they
-				 * are aiming.
-				 */
-
-				theirBearing = Math.toDegrees(world.theirRobot.bearing);
-
-				// First check if it the initial run, then check if the
-				// angle has changed due to fluctuation and if it has
-				// stabilised
-				if ((previousTheirBearing == 0)
-						|| ((Math.abs(previousTheirBearing - theirBearing) > 5) && (Math
-								.abs(previousTheirBearing - theirBearing) < 10))) {
-					if (world.areWeOnLeft()) {
-						angle = Math.abs(270 - theirBearing);
-						double tan = Math.tan(Math.toRadians(angle));
-						ythreshold = (world.theirRobot.x - ourGoalCenter.getX())
-								* tan;
-						ythreshold -= Math.abs(world.theirRobot.y
-								- world.ourRobot.y);
-					} else {
-						angle = Math.abs(90 - theirBearing);
-						ythreshold = (ourGoalCenter.getX() - world.theirRobot.x)
-								* Math.tan(Math.toRadians(angle));
-						ythreshold -= Math.abs(world.theirRobot.y
-								- world.ourRobot.y);
-					}
-
-					// Upper half of the field
-					if (world.theirRobot.y < ourGoalCenter.getY())
-						destY = world.ourRobot.y + ythreshold;
-					else
-						// Lower half of the field
-						destY = world.ourRobot.y - ythreshold;
-					System.out.println("Moving on the y axis");
+				// Move on the Y axis if needed to face the other robot
+				double destY = calcDistYAxisAcordingToEnemy();
+				if (destY != -1) {
 					mover.moveToAndStop(ourGoalDefendPosition.getX(), destY);
 					mover.waitForCompletion();
 					if (shouldidie)
 						return;
-
-//					/**
-//					 * Now turn to face the ball (and the other robot
-//					 * correspondingly)
-//					 */
-//					angle = Math.toDegrees(world.theirRobot.bearing + Math.PI
-//							- world.ourRobot.bearing);
-//					if (angle > 180)
-//						angle -= 360;
-//					System.out.println("Second angle turn " + angle);
-//					if (Math.abs(angle) > 5) {
-//						System.out.println("Should turn now");
-//						mover.rotate(Math.toRadians(angle));
-//						mover.waitForCompletion();
-//					if (shouldidie)
-//						return;
-//					}
-
-					previousTheirBearing = theirBearing;
-
-					// The kick line of the attacking robot is calculated,
-					// the
-					// target point on the y axis is destY
-
-					/** Don't delete for future strategy */
-					// In case the other robot is aiming for a point inside
-					// the
-					// goal
-					/*
-					 * if((destY < ourGoalBottom.getY()) && (destY >
-					 * ourGoalTop.getY())){ We have to move to the point with
-					 * coordinates (ourGoalcenter.getX(), destY)
-					 */
-				} else {
+				} else
 					SafeSleep.sleep(50);
-				}
-			}
 
+			}
 		} catch (InterruptedException e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace(System.err);
 		}
+	}
+
+	/**
+	 * Determine which goal is ours and set the goal constants
+	 * 
+	 * @return ourGoalDefendPosition, the Position object to which our robot
+	 *         should go to defend the center of our goal
+	 */
+	public Position setGoalVariables() {
+
+		if (world.areWeOnLeft()) {
+			ourGoalCenter = world.goalInfo.getLeftGoalCenter();
+			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
+					+ threshold, ourGoalCenter.getY());
+		} else {
+			ourGoalCenter = world.goalInfo.getRightGoalCenter();
+			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
+					- threshold, ourGoalCenter.getY());
+		}
+		return ourGoalDefendPosition;
+	}
+
+	/**
+	 * Calculate the angle at which our robot should face the other robot. In
+	 * this case we assume that the other robot has possession of the ball, thus
+	 * we have to face it in order to catch.
+	 * 
+	 * @return angle, the angle at which our robot should turn to face the other
+	 *         robot
+	 */
+	public double calcAngleToTrunToFaceOtherRobot() {
+		double angle = 0;
+
+		// Finding the angle to which we should turn
+		if (Math.toDegrees(world.theirRobot.bearing) > 180)
+			angle = Math.toDegrees(world.theirRobot.bearing - Math.PI);
+		else
+			angle = Math.toDegrees(world.theirRobot.bearing + Math.PI);
+
+		// Finding the angle our robot should turn to get to the destination
+		// angle
+		angle -= Math.toDegrees(world.ourRobot.bearing);
+
+		// If the turning angle is more than 180 degrees turn anti-clockwise as
+		// smaller turn
+		if (angle > 180)
+			angle -= 360;
+
+		return angle;
+	}
+
+	/**
+	 * Calculating the kick line of the attacking robot and returning where on
+	 * the X axis we should stand.
+	 * 
+	 * The robot should move if: ~ it is the first turn ~ if the change in their
+	 * bearing is larger than 5 degrees, as it may have changed due to
+	 * fluctuation ~ if the change in their bearing is smaller than 10 degrees,
+	 * because we want to turn only when the angle has stabilized
+	 * 
+	 * @return destY, the destination on the Y axis our robot should move, if no
+	 *         move is to be made return -1.
+	 */
+	public double calcDistYAxisAcordingToEnemy() {
+
+		double angle, ythreshold;
+		double destY = -1;
+		double theirBearing = Math.toDegrees(world.theirRobot.bearing);
+		
+		double diffTheirsBearings = Math.abs(previousTheirBearing
+				- theirBearing);
+
+		if ((previousTheirBearing == 0)
+				|| ((diffTheirsBearings > 5) && (diffTheirsBearings < 10))) {
+
+			if (world.areWeOnLeft()) {
+				angle = Math.abs(270 - theirBearing);
+				double tan = Math.tan(Math.toRadians(angle));
+				ythreshold = (world.theirRobot.x - ourGoalCenter.getX()) * tan;
+				ythreshold -= Math.abs(world.theirRobot.y - world.ourRobot.y);
+			} else {
+				angle = Math.abs(90 - theirBearing);
+				ythreshold = (ourGoalCenter.getX() - world.theirRobot.x)
+						* Math.tan(Math.toRadians(angle));
+				ythreshold -= Math.abs(world.theirRobot.y - world.ourRobot.y);
+			}
+
+			// Upper half of the field
+			if (world.theirRobot.y < ourGoalCenter.getY())
+				destY = world.ourRobot.y + ythreshold;
+			else
+				// Lower half of the field
+				destY = world.ourRobot.y - ythreshold;
+
+			previousTheirBearing = theirBearing;
+		}
+
+		return destY;
+
 	}
 }
