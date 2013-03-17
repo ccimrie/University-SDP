@@ -6,6 +6,8 @@ import utility.SafeSleep;
 import world.state.Ball;
 import world.state.Robot;
 import world.state.WorldState;
+import strategy.calculations.GoalInfo;
+import vision.PitchConstants;
 
 public class DribbleBall5 {
 
@@ -18,7 +20,10 @@ public class DribbleBall5 {
 		// Get robot and ball from world
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
+		Robot them = worldState.theirRobot;
 		Ball ball = worldState.ball;
+		PitchConstants pitch = new PitchConstants(2);
+		GoalInfo goal = new GoalInfo(pitch);
 
 
 		// Determine a different position behind the ball depending on which
@@ -71,10 +76,41 @@ public class DribbleBall5 {
 
 		//In case the ball is not straight on the goal, we need to
 		//Move near the ball, rotate and then move more.
+		// We also need to avoid enemy robot who is standing on the goal
+		
+		//We should aim for the middle of the position between one of the
+		//goalposts and the enemy robot
 		if (worldState.areWeOnLeft()) {
-			angle = TurnToBall.AngleTurner(us, 610, 242);
+			//in case their robot isn't at the goal at all.
+			if (them.y > goal.getRightGoalTop().getY() ||
+				them.y < goal.getRightGoalBottom().getY()){
+				angle = TurnToBall.AngleTurner(us, 610, 242);
+			} else {
+				//Decide on which side of the goal we see more of the goal
+				double side1 = goal.getRightGoalTop().getY() - them.y;
+				double side2 = goal.getRightGoalBottom().getY() - them.y;
+				if (Math.abs(side1)>Math.abs(side2)){
+					angle = TurnToBall.AngleTurner(us, 610, them.y + (side1/2));
+				}else{
+					angle = TurnToBall.AngleTurner(us, 610, them.y + (side2/2));
+				}
+			}
+			
 		}else{
-			angle = TurnToBall.AngleTurner(us, 28, 242);
+			//in case their robot isn't at the goal at all.
+			if (them.y < goal.getLeftGoalTop().getY() ||
+				them.y > goal.getLeftGoalBottom().getY()){	
+				angle = TurnToBall.AngleTurner(us, 28, 242);
+			}	else {
+				//Decide on which side of the goal we see more of the goal
+				double side1 = goal.getLeftGoalTop().getY() - them.y;
+				double side2 = goal.getLeftGoalBottom().getY() - them.y;
+				if (Math.abs(side1)>Math.abs(side2)){
+					angle = TurnToBall.AngleTurner(us, 28, them.y + (side1/2));
+				}else{
+					angle = TurnToBall.AngleTurner(us, 28, them.y + (side2/2));
+				}
+			}
 		}
 		//If the angle to the goal is > 10 degrees
 		//if (angle > 10){
