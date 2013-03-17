@@ -72,11 +72,9 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	private final RobotMover mover;
 	private WorldState worldState;
 	private final RobotController robot;
-	SimulatorRobot theirRobot;
-
 	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot) {
 
-		mover = new RobotMover(worldState, theirRobot);
+		mover = new RobotMover(worldState, robot);
 		mover.start();
 		
 		this.worldState = worldState;
