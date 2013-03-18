@@ -8,6 +8,8 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -130,7 +132,7 @@ public class SimulatorGUI extends JFrame {
 			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
 			theirRobot.setPower(1.5f);
 			// Sets up the GUI
-			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot);
+			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot, theirRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");
 			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(worldState, theirRobot);
 			theirRobotGUI.setTitle("Opponent Robot Control GUI");
@@ -151,11 +153,16 @@ public class SimulatorGUI extends JFrame {
 		}
 	}
 
-	public SimulatorGUI(final WorldState worldState, final RobotController robot) {
+	public SimulatorGUI(final WorldState worldState, final RobotController robot, final RobotController ennemyRobot ) {
 		this.worldState = worldState;
 		this.robot = robot;
 		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
+		
+		
+		RobotMover moverEnnemy = new RobotMover(worldState, ennemyRobot);
+		
+		moverEnnemy.start();
 
 		op1field.setColumns(6);
 		op2field.setColumns(6);
@@ -445,6 +452,249 @@ public class SimulatorGUI extends JFrame {
 		this.setResizable(false);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
+		
+		simpleMovePanel.setFocusable(true);
+		simpleMovePanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
+		
+		robotSelectionPanel.setFocusable(true);
+		robotSelectionPanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		startStopQuitPanel.setFocusable(true);
+		startStopQuitPanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
+		
+		
+		
+
+		optionsPanel.setFocusable(true);
+		optionsPanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
+
+		complexMovePanel.setFocusable(true);
+		complexMovePanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
+
+		moveTargetOptionsPanel.setFocusable(true);
+		moveTargetOptionsPanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+	
+
+		
+		
+		moveTargetPanel.setFocusable(true);
+		moveTargetPanel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar()  == 's') {
+					ennemyRobot.move(0, -100);
+				}
+				if (e.getKeyChar() == 'w') {
+					ennemyRobot.move(0, 100);
+				}
+				if (e.getKeyChar() == 'a') {
+					ennemyRobot.rotate(-8);
+
+				}
+				if (e.getKeyChar() == 'd') {
+					ennemyRobot.rotate(8);
+				}
+				if (e.getKeyChar() == 'k') {
+					ennemyRobot.kick();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				ennemyRobot.stop();
+			}
+
+			public void keyTyped(KeyEvent e) {
+			}
+		});
+		
+		
+		
 		this.pack();
 	}
 
