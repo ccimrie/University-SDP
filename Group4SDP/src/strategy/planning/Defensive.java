@@ -95,11 +95,11 @@ public class Defensive extends StrategyInterface {
 	public Position setGoalVariables() {
 
 		if (world.areWeOnLeft()) {
-			ourGoalCenter = world.goalInfo.getLeftGoalCenter();
+			ourGoalCenter = world.goalInfo.getLeftGoalCenter(0);
 			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
 					+ threshold, ourGoalCenter.getY());
 		} else {
-			ourGoalCenter = world.goalInfo.getRightGoalCenter();
+			ourGoalCenter = world.goalInfo.getRightGoalCenter(0);
 			ourGoalDefendPosition = new Position(ourGoalCenter.getX()
 					- threshold, ourGoalCenter.getY());
 		}
@@ -139,10 +139,11 @@ public class Defensive extends StrategyInterface {
 	 * Calculating the kick line of the attacking robot and returning where on
 	 * the X axis we should stand.
 	 * 
-	 * The robot should move if: ~ it is the first turn ~ if the change in their
-	 * bearing is larger than 5 degrees, as it may have changed due to
-	 * fluctuation ~ if the change in their bearing is smaller than 10 degrees,
-	 * because we want to turn only when the angle has stabilized
+	 * The robot should move back to the center of the goal into our defence position if the enemy is not facing us.
+	 * The robot should move on the Y axis if: 
+	 * 		~ it is the first turn 
+	 * 		~ if the change in their bearing is larger than 5 degrees, as it may have changed due to fluctuation 
+	 * 		~ if the change in their bearing is smaller than 10 degrees, because we want to turn only when the angle has stabilized
 	 * 
 	 * @return destY, the destination on the Y axis our robot should move, if no
 	 *         move is to be made return -1.
@@ -152,35 +153,45 @@ public class Defensive extends StrategyInterface {
 		double angle, ythreshold;
 		double destY = -1;
 		double theirBearing = Math.toDegrees(world.theirRobot.bearing);
+		System.out.println(theirBearing);
 		
 		double diffTheirsBearings = Math.abs(previousTheirBearing
 				- theirBearing);
-
+		
+		if (theirBearing<180  && world.areWeOnLeft())
+			return ourGoalDefendPosition.getY();
+		
+		if (theirBearing>180  && !world.areWeOnLeft())
+			return ourGoalDefendPosition.getY();
+		
 		if ((previousTheirBearing == 0)
 				|| ((diffTheirsBearings > 5) && (diffTheirsBearings < 10))) {
 
 			if (world.areWeOnLeft()) {
 				angle = Math.abs(270 - theirBearing);
-				double tan = Math.tan(Math.toRadians(angle));
-				ythreshold = (world.theirRobot.x - ourGoalCenter.getX()) * tan;
-				ythreshold -= Math.abs(world.theirRobot.y - world.ourRobot.y);
+				ythreshold = (world.theirRobot.x - ourGoalCenter.getX()) * Math.tan(Math.toRadians(angle));
+				System.out.println("ythershold " + ythreshold);
 			} else {
 				angle = Math.abs(90 - theirBearing);
 				ythreshold = (ourGoalCenter.getX() - world.theirRobot.x)
-						* Math.tan(Math.toRadians(angle));
-				ythreshold -= Math.abs(world.theirRobot.y - world.ourRobot.y);
+						* Math.tan(Math.toRadians(angle));		
 			}
 
-			// Upper half of the field
+			
+			ythreshold -= Math.abs(world.theirRobot.y - world.ourRobot.y);
+			
+			System.out.println("ythershold - world.theirRobot.y - world.ourRobot.y " + ythreshold);
+			// Lower half of the field
 			if (world.theirRobot.y < ourGoalCenter.getY())
 				destY = world.ourRobot.y + ythreshold;
 			else
-				// Lower half of the field
+				// Upper half of the field
 				destY = world.ourRobot.y - ythreshold;
 
 			previousTheirBearing = theirBearing;
 		}
 
+		System.out.println(destY);
 		return destY;
 
 	}

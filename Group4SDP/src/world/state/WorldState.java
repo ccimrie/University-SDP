@@ -85,18 +85,29 @@ public class WorldState {
 	public static int targetX = 100;
 	public static int targetY = 100;
 
-	/** Constructor to be used for tests create a bogus world state */
+	/** Constructor to be used for tests create a bogus world state
+	 * @author Marija Pinkute
+	 *  */
 	public WorldState(GoalInfo goalInfo, double ourOrient, double theirOrient,
-			boolean weAreBlue) {
+			boolean weAreBlue, boolean weAreOnLeft, int ourX, int ourY, int theirX, int theirY) {
 		this.goalInfo = goalInfo;
 		this.weAreBlue = weAreBlue;
-
+		this.weAreOnLeft = weAreOnLeft; 
+		
 		if (weAreBlue) {
 			this.blueOrient = ourOrient;
 			this.yellowOrient = theirOrient;
+			this.blueX = ourX;
+			this.blueY = ourY;
+			this.yellowX = theirY;
+			this.yellowY = theirX; 
 		} else {
 			this.blueOrient = theirOrient;
 			this.yellowOrient = ourOrient;
+			this.blueX = theirX;
+			this.blueY = theirY;
+			this.yellowX = ourY;
+			this.yellowY = ourX; 
 		}
 
 		setOurRobot();
