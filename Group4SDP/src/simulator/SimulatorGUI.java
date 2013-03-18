@@ -128,7 +128,7 @@ public class SimulatorGUI extends JFrame {
 			// Sets up both robots
 			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us, simTest.simOurRobot);
 			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
-
+			theirRobot.setPower(1.5f);
 			// Sets up the GUI
 			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");

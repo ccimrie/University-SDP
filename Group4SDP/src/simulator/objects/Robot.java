@@ -34,6 +34,8 @@ public class Robot {
 	private Vec2 speed = new Vec2();
 	/** The rotation speed for the robot in radians per second */
 	private float rotSpeed = 0f;
+	
+	private float power = 1;
 
 	/**
 	 * The threshold for rotating, within which the rotation should stop.
@@ -156,6 +158,7 @@ public class Robot {
 		lock.unlock();
 		System.out.println("Initialization complete:");
 		System.out.println("body is null: " + (body == null));
+		
 	}
 
 	/**
@@ -234,9 +237,18 @@ public class Robot {
 			throws InterruptedException {
 		lock.lockInterruptibly();
 		// Simulator coordinates are different to the ones we use.
-		speed.set((float) speedY, (float) -speedX);
+		speed.set((float) speedY*power, (float) -speedX*power);
 		lock.unlock();
 	}
+	
+	
+	public void setPower(float powerInput){
+	
+		power = powerInput;
+		
+
+	}
+	
 
 	/**
 	 * Sets the rotation speed for the robot

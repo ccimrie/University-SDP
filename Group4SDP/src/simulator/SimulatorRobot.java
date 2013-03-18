@@ -29,6 +29,15 @@ public class SimulatorRobot extends Robot implements RobotController {
 		this.simRobot = simRobot;
 	}
 
+	
+	public void setPower(float powerInput){
+		
+		simRobot.setPower(powerInput);
+		
+		
+
+	}
+	
 	/**
 	 * Simulates creating a connection to the robot
 	 * 

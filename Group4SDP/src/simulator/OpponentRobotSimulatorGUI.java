@@ -75,10 +75,12 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot) {
 
 		mover = new RobotMover(worldState, robot);
+		
 		mover.start();
 		
 		this.worldState = worldState;
 		this.robot = robot;
+		
 
 		op1field.setColumns(6);
 		op2field.setColumns(6);
@@ -114,15 +116,16 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 					mover.move(0, 100);
 				}
 				if (e.getKeyChar() == 'a') {
-					mover.rotate(-5);
+					mover.rotate(-1* Math.toRadians(8));
 
 				}
 				if (e.getKeyChar() == 'd') {
-					mover.rotate(5);
+					mover.rotate(Math.toRadians(8));
 				}
 				if (e.getKeyChar() == 'k') {
 					mover.kick();
 				}
+				
 			}
 
 			public void keyReleased(KeyEvent e) {
