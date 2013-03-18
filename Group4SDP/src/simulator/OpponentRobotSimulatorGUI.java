@@ -4,6 +4,8 @@ package simulator;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -40,6 +42,7 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
+	private final JButton setEnnemySpeed = new JButton("Set Speed");
 
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
@@ -58,7 +61,7 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	private final JButton dribbleButton = new JButton("Dribble");
 
 	// OPcode fields
-	private final JLabel op1label = new JLabel("Option 1: ");
+	private final JLabel op1label = new JLabel("Speed of the opponent: ");
 	private final JLabel op2label = new JLabel("Option 2: ");
 	private final JLabel op3label = new JLabel("Option 3: ");
 	private final static JLabel op4label = new JLabel("Move to (x label): ");
@@ -72,8 +75,9 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	private final RobotMover mover;
 	private WorldState worldState;
 	private final RobotController robot;
-	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot) {
+	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot, final SimulatorRobot zeEnnemy) {
 
+		
 		mover = new RobotMover(worldState, robot);
 		
 		mover.start();
@@ -85,7 +89,7 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		op1field.setColumns(6);
 		op2field.setColumns(6);
 		op3field.setColumns(6);
-		op1field.setText("0");
+		op1field.setText("1");
 		op2field.setText("0");
 		op3field.setText("0");
 		// Auto-generated GUI code (made more readable)
@@ -105,6 +109,27 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		mainPanel.add(stratStartButton);
 		mainPanel.add(penaltyAtkButton);
 		mainPanel.add(penaltyDefButton);
+		mainPanel.add(op1label);
+		mainPanel.add(op1field);
+		mainPanel.add(setEnnemySpeed);
+		
+		
+		
+		
+		
+		setEnnemySpeed.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int op1 = Integer.parseInt(op1field.getText());
+
+				zeEnnemy.setPower(op1);
+			}
+		});
+		
+		
+		
+		
+		
+		
 		
 		mainPanel.setFocusable(true);
 		mainPanel.addKeyListener(new KeyListener() {

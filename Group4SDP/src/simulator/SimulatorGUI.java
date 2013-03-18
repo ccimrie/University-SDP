@@ -130,11 +130,13 @@ public class SimulatorGUI extends JFrame {
 			// Sets up both robots
 			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us, simTest.simOurRobot);
 			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
+			//Sets the Speed of the opponent
+			
 			theirRobot.setPower(1.5f);
 			// Sets up the GUI
 			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot, theirRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");
-			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(worldState, theirRobot);
+			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(worldState, theirRobot, theirRobot );
 			theirRobotGUI.setTitle("Opponent Robot Control GUI");
 			
 			ourRobotGUI.setVisible(true);
@@ -285,6 +287,7 @@ public class SimulatorGUI extends JFrame {
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					DribbleBall5.die = true;
 					try {
+						
 						mover.resetQueue();
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
