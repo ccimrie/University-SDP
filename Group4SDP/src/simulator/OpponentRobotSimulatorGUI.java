@@ -24,17 +24,18 @@ import world.state.WorldState;
 import communication.RobotController;
 
 /**
- * Simulator GUI class based on ControlGUI2 but adapted to use two panels - 
- * one for our robot and one for opponent
+ * Simulator GUI class based on ControlGUI2 but adapted to use two panels - one
+ * for our robot and one for opponent
+ * 
  * @author Maithu
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class OpponentRobotSimulatorGUI extends JFrame {
 	// GUI elements
 
 	private final JPanel mainPanel = new JPanel();
-	
+
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -42,7 +43,7 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
-	private final JButton setEnnemySpeed = new JButton("Set Speed");
+	private final JButton setEnemySpeedButton = new JButton("Set Speed");
 
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
@@ -74,17 +75,15 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 
 	private final RobotMover mover;
 	private WorldState worldState;
-	private final RobotController robot;
-	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot, final SimulatorRobot zeEnnemy) {
+	private final SimulatorRobot robot;
 
-		
-		mover = new RobotMover(worldState, robot);
-		
-		mover.start();
-		
+	public OpponentRobotSimulatorGUI(final WorldState worldState,
+			final SimulatorRobot robot) {
 		this.worldState = worldState;
 		this.robot = robot;
-		
+		mover = new RobotMover(worldState, robot);
+
+		mover.start();
 
 		op1field.setColumns(6);
 		op2field.setColumns(6);
@@ -111,55 +110,29 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		mainPanel.add(penaltyDefButton);
 		mainPanel.add(op1label);
 		mainPanel.add(op1field);
-		mainPanel.add(setEnnemySpeed);
-		
-		
-		
-		
-		
-		setEnnemySpeed.addActionListener(new ActionListener() {
+		mainPanel.add(setEnemySpeedButton);
+
+		setEnemySpeedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
 
-				zeEnnemy.setPower(op1);
+				robot.setPower(op1);
 			}
 		});
-		
-		
-		
-		
-		
-		
-		
+
+		KeyControl keyController = new KeyControl(mover);
+
+		startButton.addKeyListener(keyController);
+		stopButton.addKeyListener(keyController);
+		quitButton.addKeyListener(keyController);
+		stratStartButton.addKeyListener(keyController);
+		penaltyAtkButton.addKeyListener(keyController);
+		penaltyDefButton.addKeyListener(keyController);
+		op1field.addKeyListener(keyController);
+		setEnemySpeedButton.addKeyListener(keyController);
+		mainPanel.addKeyListener(keyController);
 		mainPanel.setFocusable(true);
-		mainPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					mover.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					mover.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					mover.rotate(-1* Math.toRadians(8));
 
-				}
-				if (e.getKeyChar() == 'd') {
-					mover.rotate(Math.toRadians(8));
-				}
-				if (e.getKeyChar() == 'k') {
-					mover.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				mover.stopRobot();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
 		pack();
 	}
 
