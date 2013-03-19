@@ -10,14 +10,14 @@ import strategy.movement.TurnToBall;
 import strategy.planning.DribbleBall5;
 
 public class InterceptBall extends StrategyInterface {
-	private static final double distanceThreshold = 50;
+	private static final double distanceThreshold = 70;
 	private static final double angleThreshold = Math.toRadians(15);
 	private Ball ball;
 	private final double initx;
 	private final double inity;
 	private Robot us;
 	private int ourRobot = 2;
-	private DribbleBall5 dribble;
+	private DribbleBall5 dribble = new DribbleBall5();
 
 	public InterceptBall(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -63,8 +63,12 @@ public class InterceptBall extends StrategyInterface {
 					double targetX = (world.areWeOnLeft()) ? 60 : 560;
 					mover.moveTowards(targetX, projBallPos.getY());
 				}
+				else {
+					break;
+				}
 				SafeSleep.sleep(50);
 			}
+			System.out.println("Exited intercept part");
 			//In case we don't intercept the ball in time, ie it hits us on
 			//the side, start dribbleball5 from the previous milestone
 			//immediately.

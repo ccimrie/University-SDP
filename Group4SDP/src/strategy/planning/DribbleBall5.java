@@ -18,6 +18,7 @@ public class DribbleBall5 {
 	public void dribbleBall(WorldState worldState, RobotMover mover)
 			throws InterruptedException {
 		// Get robot and ball from world
+		System.out.println("Dribble activated!");
 		worldState.setOurRobot();
 		Robot us = worldState.ourRobot;
 		Robot them = worldState.theirRobot;
