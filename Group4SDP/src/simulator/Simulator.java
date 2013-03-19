@@ -1,12 +1,11 @@
 package simulator;
 
-import java.awt.event.KeyListener;
-
 import javax.swing.JFrame;
 
 import org.jbox2d.common.Vec2;
 import org.jbox2d.testbed.framework.TestbedFrame;
 import org.jbox2d.testbed.framework.TestbedModel;
+import org.jbox2d.testbed.framework.TestbedPanel;
 import org.jbox2d.testbed.framework.j2d.TestPanelJ2D;
 
 /**
@@ -18,19 +17,18 @@ public class Simulator {
 	private static final float scaleX = 578.0f / 2.445f;
 	private static final float scaleY = 312.0f / 1.225f; 
 
-	private final TestPanelJ2D testbedPanel;
 	private final JFrame testbed;
 
 	public Simulator(final SimulatorTestbed simTest) {
 		// Instantiate model where all the tests reside.
 		TestbedModel model = new TestbedModel();
-		testbedPanel = new TestPanelJ2D(model);
+		TestbedPanel panel = new TestPanelJ2D(model);
 
 		// Add test to the model
 		model.addCategory("SDP");
 		model.addTest(simTest);
 
-		testbed = new TestbedFrame(model, testbedPanel);
+		testbed = new TestbedFrame(model, panel);
 		testbed.setVisible(true);
 		testbed.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
