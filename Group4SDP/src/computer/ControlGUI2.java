@@ -307,6 +307,7 @@ public class ControlGUI2 extends JFrame {
 				// Stop strategy if it's running
 				if (strategyThread != null && strategyThread.isAlive()) {
 					System.out.println("Killing strategy thread");
+					DribbleBall5.die = true;
 					Strategy.stop();
 					strategy.kill();
 					try {
