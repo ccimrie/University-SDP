@@ -49,8 +49,19 @@ public class BluetoothRobot extends Robot implements RobotController {
 			e1.printStackTrace();
 		}
 		comms.closeBluetoothConnection();
-		System.out.println("Quit...");
-		System.exit(0);
+		System.out.println("Quit... Please reconnect.");
+	}
+	
+	public void forcequit() {
+		int[] command = { Commands.FORCEQUIT, 0, 0, 0 };
+		try {
+			comms.sendToRobotSimple(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		comms.closeBluetoothConnection();
+		System.out.println("Force quit... Reset the brick.");
 	}
 
 	@Override
@@ -92,8 +103,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 			input+=360;
 		}
 
-		int op1 = input % 10;
-		int op2 = input / 10;
+		int op1 = input % 127;
+		int op2 = input / 127;
 		int[] command = { Commands.ROTATE, dir, op2, op1 };// Angle is the sum
 															// of option1 +
 															// option2

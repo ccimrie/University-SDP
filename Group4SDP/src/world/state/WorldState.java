@@ -19,7 +19,6 @@ public class WorldState {
 	private static final int NUM_FRAMES = 5;
 	private AngleCalculator a = new AngleCalculator(this);
 	private long counter;
-	private DistanceCalculator dist = new DistanceCalculator();
 	private int direction; // 0 = right, 1 = left.
 	private int colour; // 0 = yellow, 1 = blue
 	private int pitch; // 0 = main, 1 = side room
@@ -78,8 +77,10 @@ public class WorldState {
 	public Ball prevBall = new Ball();
 	public PossessionType hasPossession = PossessionType.Nobody;
 
+	
 	private static final double sqVelocityThreshold = 1.0;
-	private static final double distVelFactorScale = 10.0;
+	private static final double distVelFactorScale = 5.0;
+	
 
 	// Coordinates of the target placement of the robot.
 	public static int targetX = 100;
@@ -151,6 +152,7 @@ public class WorldState {
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
+		this.blueOrient = blueOrientation;
 		this.blueOrientBuf[currentFrame] = blueOrientation;
 	}
 
@@ -185,6 +187,7 @@ public class WorldState {
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
+		this.yellowOrient = yellowOrientation;
 		this.yellowOrientBuf[currentFrame] = yellowOrientation;
 	}
 
@@ -631,8 +634,8 @@ public class WorldState {
 		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
-
 	public Position projectedBallPos() {
+		
 
 		/*
 		 * Don't bother projecting where the ball's going to be if it's barely
@@ -642,9 +645,25 @@ public class WorldState {
 			// The ball's velocity matters more the further it is from our robot
 			double velocityFactor = distanceBetweenUsAndBall()
 					/ distVelFactorScale;
+			
+			int minX = this.goalInfo.getLeftGoalCenter().getX();
+			int maxX = this.goalInfo.getRightGoalCenter().getX();
+			int minY = this.goalInfo.getTopLeftCorner().getY();
+			int maxY = this.goalInfo.getBotLeftCorner().getY();;
 
 			double projX = ball.x + velocityFactor * ball.speedX;
+			if (projX < minX)
+				projX = minX + 30;
+			else if (projX > maxX)
+				projX = maxX - 30;
+			
 			double projY = ball.y + velocityFactor * ball.speedY;
+			if (projY < minY)
+				projY = minY + 30;
+			else if (projY > maxY)
+				projY = maxY - 30;
+			
+			
 			return new Position((int) projX, (int) projY);
 		} else
 			return new Position((int) ball.x, (int) ball.y);

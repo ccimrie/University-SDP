@@ -8,6 +8,7 @@ import vision.Position;
 import world.state.Ball;
 import world.state.HittingObstacle;
 import world.state.WorldState;
+import utility.SafeSleep;
 
 // TODO: convert to a proper strategy-like class.........
 public class PlainScoring {
@@ -43,7 +44,7 @@ public class PlainScoring {
 			System.out.println("enemy is behind, straight punch!");
 			faceGoal();
 			mover.move(0, 100);
-			Thread.sleep(1500);
+			SafeSleep.sleep(1500);
 			mover.kick();
 			mover.stopRobot();
 			return;
@@ -54,7 +55,7 @@ public class PlainScoring {
 			System.out.println("enemy is behind, navigate and punch ");
 			faceGoal();
 			mover.move(0, 100);
-			Thread.sleep(1500);
+			SafeSleep.sleep(1500);
 
 			mover.kick();
 			mover.stopRobot();
@@ -65,11 +66,11 @@ public class PlainScoring {
 						world.theirRobot.y, theirGoal.getX(), theirGoal.getY()) < 200)) {
 
 			System.out.println("Blind punch to side");
-			synchronized (mover) {
-				mover.rotate(Math.toRadians(5));
-				mover.wait();
-				mover.kick();
-			}
+
+			mover.rotate(Math.toRadians(5));
+			mover.waitForCompletion();
+			mover.kick();
+			
 			return;
 		}
 		if (world.theirRobot.x > world.ourRobot.x
@@ -96,11 +97,10 @@ public class PlainScoring {
 				System.out.println("This angle to test sin navigation! it is "
 						+ newAngle);
 
-				synchronized (mover) {
-					mover.rotate(Math.toRadians(5));
-					mover.wait();
-					mover.kick();
-				}
+				mover.rotate(Math.toRadians(5));
+				mover.waitForCompletion();
+				mover.kick();
+
 			} else {
 				System.out.println("atempt to dodge");
 				double mang = 0;
@@ -115,7 +115,7 @@ public class PlainScoring {
 				while (world.ourRobot.x < world.theirRobot.x || t < 3
 						|| wall.notHittingWall(world)) {
 
-					Thread.sleep(1000);
+					SafeSleep.sleep(1500);
 					t += 1;
 
 				}
