@@ -25,12 +25,8 @@ import javax.swing.UIManager;
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
 import strategy.movement.TurnToBall;
-import strategy.planning.DribbleBall5;
-import strategy.planning.MainPlanner;
-import strategy.planning.PenaltyAttack;
-import strategy.planning.PenaltyDefense;
-import strategy.planning.Strategy;
-import strategy.planning.StrategyInterface;
+
+import strategy.planning.*;
 import vision.PitchConstants;
 import world.state.RobotType;
 import world.state.WorldState;
@@ -114,6 +110,8 @@ public class SimulatorGUI extends JFrame {
 
 	private final RobotController robot;
 	private final RobotMover mover;
+	
+	
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -128,11 +126,11 @@ public class SimulatorGUI extends JFrame {
 			Simulator simulator = new Simulator(simTest);
 
 			// Sets up both robots
-			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us, simTest.simOurRobot);
-			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them, simTest.simTheirRobot);
-			//Sets the Speed of the opponent
-			
-			theirRobot.setPower(1.5f);
+			SimulatorRobot ourRobot = new SimulatorRobot(RobotType.Us,
+					simTest.simOurRobot);
+			SimulatorRobot theirRobot = new SimulatorRobot(RobotType.Them,
+					simTest.simTheirRobot);
+
 			// Sets up the GUI
 			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot, theirRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");
@@ -263,6 +261,11 @@ public class SimulatorGUI extends JFrame {
 		moveTargetOptionsPanel.add(op4field);
 		moveTargetOptionsPanel.add(op5label);
 		moveTargetOptionsPanel.add(op5field);
+	
+		
+		
+	
+		
 
 		// TODO: remove
 		complexMovePanel.add(dribbleButton);
@@ -274,10 +277,16 @@ public class SimulatorGUI extends JFrame {
 				// mover.move(100, 100);
 				// mover.moveToAStar(worldState.ball.x, worldState.ball.y,
 				// false);
-
-				double angle = TurnToBall.AngleTurner(worldState.ourRobot,
-						worldState.ball.x, worldState.ball.y);
-				System.out.println("Angle is " + (int) angle);
+				if (strategyThread == null || !strategyThread.isAlive()) {
+					Strategy.reset();
+				strategy = new InterceptBall(worldState, mover);
+				strategyThread = new Thread(strategy);
+				strategyThread.start();
+				}
+				else {System.out.println("strategy already running");}
+			//	double angle = TurnToBall.AngleTurner(worldState.ourRobot,
+			//			worldState.ball.x, worldState.ball.y);
+			//	System.out.println("Angle is " + (int) angle);
 			}
 		});
 
@@ -725,4 +734,11 @@ public class SimulatorGUI extends JFrame {
 			}
 		}
 	}
+	
+	
+	
+
+	
+	
+	
 }
