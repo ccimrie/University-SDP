@@ -13,8 +13,6 @@ public class DribbleBall5 {
 
 	public static boolean die = false;
 
-
-
 	public void dribbleBall(WorldState worldState, RobotMover mover)
 			throws InterruptedException {
 		// Get robot and ball from world
@@ -23,7 +21,7 @@ public class DribbleBall5 {
 		Robot us = worldState.ourRobot;
 		Robot them = worldState.theirRobot;
 		Ball ball = worldState.ball;
-		PitchConstants pitch = new PitchConstants(2);
+		PitchConstants pitch = worldState.goalInfo.pitchConst;
 		GoalInfo goal = new GoalInfo(pitch);
 
 
@@ -36,10 +34,10 @@ public class DribbleBall5 {
 			if (ball.y > 240){
 				slope = -slope;
 			}
-			mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, false);
+			mover.moveToAStar(ball.x - 40, ball.y + slope * 70, true, false);
 			mover.delay(50);
 			RobotMover.distanceThreshold = 10;
-			mover.moveToAndStop(ball.x - 60, ball.y + slope * 60);
+			mover.moveToAndStop(ball.x - 40, ball.y + slope * 60);
 			mover.waitForCompletion();
 
 		} else {

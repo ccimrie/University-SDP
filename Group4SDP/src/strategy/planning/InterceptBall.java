@@ -10,14 +10,15 @@ import world.state.Robot;
 import world.state.WorldState;
 
 public class InterceptBall extends StrategyInterface {
-	private static final double distanceThreshold = 20;
+	private static final double distanceThreshold = 40;
 	private static final double angleThreshold = Math.toRadians(15);
 	private Ball ball;
 	private final double initx;
 	private final double inity;
 	private Robot us;
 	private int ourRobot = 2;
-	private DribbleBall5 dribble = new DribbleBall5();
+	//private DribbleBall5 dribble = new DribbleBall5();
+	private Offense4 offence4;
 
 	public InterceptBall(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -79,7 +80,7 @@ public class InterceptBall extends StrategyInterface {
 			// Check if the ball is closer to our goal then us.
 			if (Math.abs(ball.x - world.getOurGoal().getX()) > Math.abs(us.x
 					- world.getOurGoal().getX())) {
-				dribble.dribbleBall(world, mover);
+				//dribble.dribbleBall(world, mover);
 			} else {
 
 				// After we are on the trajectory, rotate to face the ball.
@@ -93,7 +94,10 @@ public class InterceptBall extends StrategyInterface {
 					SafeSleep.sleep(50);
 				}
 				mover.stopRobot();
-				dribble.dribbleBall(world, mover);
+				
+				//dribble.dribbleBall(world, mover);
+				offence4 = new Offense4(world, mover);
+				offence4.run();
 			}
 		} catch (InterruptedException e) {
 			System.err.println(e.getMessage());

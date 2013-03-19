@@ -28,10 +28,10 @@ public class Offense4 extends StrategyInterface {
 			mover.waitForCompletion();
 		}
 
-		double ySpeed = 60;
+		double ySpeed = 40;
 		if (world.ourRobot.y > 240)
 			ySpeed = -ySpeed;
-		mover.move(ySpeed, 80);
+		mover.move(ySpeed, 100);
 		while (!shouldidie && !Strategy.alldie
 				&& Math.abs(world.ourRobot.y - targetY) > 20) {
 			SafeSleep.sleep(50);
