@@ -79,7 +79,7 @@ public class WorldState {
 	public PossessionType hasPossession = PossessionType.Nobody;
 	
 	private static final double sqVelocityThreshold = 1.0;
-	private static final double distVelFactorScale = 3.0;
+	private static final double distVelFactorScale = 5.0;
 	
 	// Coordinates of the target placement of the robot.
 	public static int targetX = 100;
