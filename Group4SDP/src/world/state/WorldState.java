@@ -89,10 +89,11 @@ public class WorldState {
 	 * @author Marija Pinkute
 	 *  */
 	public WorldState(GoalInfo goalInfo, double ourOrient, double theirOrient,
-			boolean weAreBlue, boolean weAreOnLeft, int ourX, int ourY, int theirX, int theirY) {
+			boolean weAreBlue, boolean weAreOnLeft, int ourX, int ourY, int theirX, int theirY, int pitch) {
 		this.goalInfo = goalInfo;
 		this.weAreBlue = weAreBlue;
 		this.weAreOnLeft = weAreOnLeft; 
+		this.pitch = pitch;
 		
 		if (weAreBlue) {
 			this.blueOrient = ourOrient;

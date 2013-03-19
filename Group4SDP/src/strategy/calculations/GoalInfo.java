@@ -18,19 +18,6 @@ public class GoalInfo {
 	 * @param int pitch, Main Pitch 0; Side Pitch 1, for now returns only one value which is the one of the Main pitch
 	 * @author Simona Petrova & Marija Pinkute. 2013.
 	 */
-		
-	public Position getRightGoalTopCorner(int pitch){
-		return new Position(604, 158);
-	}
-	
-	public Position getRightGoalCenter(int pitch){
-		return new Position(604, 240);
-	}
-	
-	public Position getRightGoalBottom(int pitch){
-		return new Position(604, 316);
-	}
-	
 	public Position getLeftGoalTop(int pitch){
 		return new Position(32,170);
 	}
@@ -41,6 +28,18 @@ public class GoalInfo {
 	
 	public Position getLeftGoalBottom(int pitch){
 		return new Position(32,328);
+	}
+	
+	public Position getRightGoalTop(int pitch){
+		return new Position(604, 158);
+	}
+	
+	public Position getRightGoalCenter(int pitch){
+		return new Position(604, 240);
+	}
+	
+	public Position getRightGoalBottom(int pitch){
+		return new Position(604, 316);
 	}
 	
 	/**Calculating the goal positions according to the selected pitch area in vision*/
