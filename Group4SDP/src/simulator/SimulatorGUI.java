@@ -279,7 +279,7 @@ public class SimulatorGUI extends JFrame {
 				// false);
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
-				strategy = new InterceptBall(worldState, mover);
+				strategy = new Defensive(worldState, mover);
 				strategyThread = new Thread(strategy);
 				strategyThread.start();
 				}
