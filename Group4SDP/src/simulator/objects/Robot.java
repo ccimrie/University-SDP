@@ -148,7 +148,7 @@ public class Robot {
 
 		// TODO: calibrate
 		kickerJointDef.motorSpeed = 2.0f; //2.0
-		kickerJointDef.maxMotorForce = 3.0f; //4.0
+		kickerJointDef.maxMotorForce = 10.0f; //4.0
 		kickerJointDef.enableMotor = true;
 		kickerJointDef.lowerTranslation = 0.0f;
 		kickerJointDef.upperTranslation = 0.7f;
@@ -183,15 +183,15 @@ public class Robot {
 			// TODO: calibrate
 			// Slows the kickers motion over 5 steps
 			if (kickStep < 5) {
-				kicker.setMotorSpeed(1.0f);
+				kicker.setMotorSpeed(3.0f);
 				++kickStep;
 			} else {
-				kicker.setMotorSpeed(-1.0f);
+				kicker.setMotorSpeed(-3.0f);
 				kickStep = 0;
 			}
 		} else {
 			// If we're not kicking, make sure the kicker stays retracted
-			kicker.setMotorSpeed(-1.0f);
+			kicker.setMotorSpeed(-3.0f);
 		}
 		lock.unlock();
 	}
