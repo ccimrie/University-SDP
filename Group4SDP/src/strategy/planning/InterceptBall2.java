@@ -92,7 +92,17 @@ public class InterceptBall2 extends StrategyInterface {
 					// goal
 					double angle = world.ourRobot.bearing - Math.PI * 1.5;
 					double cos = Math.cos(angle), sin = Math.sin(angle);
-					mover.move(speedRight * cos - speedForward * sin, speedForward * cos + speedRight * sin);
+					double speedX = speedRight * cos - speedForward * sin;
+					if (speedX > 100.0)
+						speedX = 100.0;
+					else if (speedX < -100.0)
+						speedX = -100.0;
+					double speedY = speedForward * cos + speedRight * sin;
+					if (speedY > 100.0)
+						speedY = 100.0;
+					else if (speedY < -100.0)
+						speedY = -100.0;
+					mover.move(speedX, speedY);
 				} else {
 					mover.resetQueue();
 					mover.stopRobot();
