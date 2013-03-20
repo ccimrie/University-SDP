@@ -366,8 +366,7 @@ public class ControlGUI2 extends JFrame {
 
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
-				robot.beep();
+				int op1 = Integer.parseInt(op1field.getText());				
 				mover.move(0, op1);
 			}
 		});

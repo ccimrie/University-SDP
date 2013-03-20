@@ -17,7 +17,7 @@ public class Offense42 extends StrategyInterface {
 			while (!(shouldidie || Strategy.alldie)) {
 				mover.resetQueue();
 				// Get to the side wall
-				mover.setSpeedCoef(0.5);
+				mover.setSpeedCoef(0.7);
 				// int i=0;
 				// while (!(((world.ourRobot.x - world.ball.x) < 80) && ((world.ourRobot.x - world.ball.x) > 0)) &&
 				// !(shouldidie || Strategy.alldie)) {
