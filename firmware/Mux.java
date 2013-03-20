@@ -13,7 +13,7 @@ public class Mux extends I2CSensor {
 	private final static int FORWARDS = 1;
 	private final static int BACKWARDS = 2;
 	// Stopping time (in miliseconds)
-	private static final int STOPTIME = 40;
+	private static final int STOPTIME = 10;
 	private I2CMotor backMotor;
 	private I2CMotor frontMotor;
 

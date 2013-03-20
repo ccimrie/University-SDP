@@ -24,8 +24,6 @@ import strategy.calculations.GoalInfo;
 import strategy.planning.DribbleBall5;
 import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
-import strategy.planning.Offense3;
-import strategy.planning.Offense4;
 import strategy.planning.PenaltyManager;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
@@ -282,10 +280,12 @@ public class ControlGUI2 extends JFrame {
 		this.addWindowListener(new ListenCloseWdw());
 
 		startButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {				
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
+					robot.beep();
 					strategy = new InterceptBall(worldState, mover);
+					//strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
 					strategyThread.start();
 				} else {
@@ -367,7 +367,7 @@ public class ControlGUI2 extends JFrame {
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
-
+				robot.beep();
 				mover.move(0, op1);
 			}
 		});

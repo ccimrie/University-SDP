@@ -34,7 +34,7 @@ public class DribbleBall5 {
 			if (ball.y > 240){
 				slope = -slope;
 			}
-			mover.moveToAStar(ball.x - 40, ball.y + slope * 70, true, false);
+			mover.moveToAStar(ball.x - 40, ball.y + slope * 70, true, true);
 			mover.delay(50);
 			RobotMover.distanceThreshold = 10;
 			mover.moveToAndStop(ball.x - 40, ball.y + slope * 60);
@@ -45,7 +45,7 @@ public class DribbleBall5 {
 			if (ball.y < 240){
 				slope = -slope;
 			}
-			mover.moveToAStar(ball.x + 70, ball.y + 70 * slope, true, false);
+			mover.moveToAStar(ball.x + 70, ball.y + 70 * slope, true, true);
 			mover.delay(50);
 			RobotMover.distanceThreshold = 10;
 			mover.moveToAndStop(ball.x + 60, ball.y + slope * 60);
@@ -104,29 +104,34 @@ public class DribbleBall5 {
 				//Decide on which side of the goal we see more of the goal
 				double side1 = goal.getLeftGoalTop().getY() - them.y;
 				double side2 = goal.getLeftGoalBottom().getY() - them.y;
-				if (Math.abs(side1)>Math.abs(side2)){
+				System.out.println("HEllo there");
+				if (Math.abs(side1)>Math.abs(side2)){		
 					angle = TurnToBall.AngleTurner(us, 28, them.y + (side1/2));
+					System.out.println("lolol " + (them.y + side1));
+					mover.moveTowards(50, them.y + (side1/2));
 				}else{
 					angle = TurnToBall.AngleTurner(us, 28, them.y + (side2/2));
+					System.out.println("lolol2 " + (them.y + side2));
+					mover.moveTowards(50, them.y + (side2/2));
 				}
 			}
 		}
 		//If the angle to the goal is > 10 degrees
 		//if (angle > 10){
-			mover.move(0, 40);
-			System.out.println("Moving towards the ball");
-			SafeSleep.sleep(600);
-			System.out.println("Moving towards the ball finished");
-			mover.stopRobot();
-			mover.waitForCompletion();
-			SafeSleep.sleep(50);
-			mover.rotate(Math.toRadians(angle));
-			mover.waitForCompletion();
+			//mover.move(0, 40);
+			//System.out.println("Moving towards the ball");
+			//SafeSleep.sleep(600);
+			//System.out.println("Moving towards the ball finished");
+			//mover.stopRobot();
+			//mover.waitForCompletion();
+			//SafeSleep.sleep(50);
+			//mover.rotate(Math.toRadians(angle));
+			//mover.waitForCompletion();
 		//}
 		
 		
 		//Now we move to the ball and then we kick it.
-		mover.move(0, 40);
+		//mover.move(0, 40);
 
 		SafeSleep.sleep(1500);
 		if (worldState.areWeOnLeft()){

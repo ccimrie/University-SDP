@@ -7,6 +7,7 @@ import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
+import lejos.nxt.Sound;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 
@@ -39,6 +40,7 @@ public class Brick {
 	private final static int ROTATEMOVE = 7;
 	private final static int FORCEQUIT = 55;
 	private final static int TEST = 66;
+	private final static int BEEP = 42;
 
 	// I2C motor board
 	private static Mux chip = new Mux(SensorPort.S1);
@@ -159,6 +161,11 @@ public class Brick {
 
 					moveAndRotate();
 					//rotateMove(option1, option2, option3);
+					replytopc(opcode,os);
+					break;
+					
+				case BEEP: // Exit the loop, close connection
+					beep();
 					replytopc(opcode,os);
 					break;
 
@@ -292,14 +299,14 @@ public class Brick {
 
 		switch (dir) {
 		case 1:
-			chip.move(1, FORWARDS, 80);
-			chip.move(2, FORWARDS, 80);
+			chip.move(1, FORWARDS, 70);
+			chip.move(2, FORWARDS, 70);
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(-angle);
 			break;
 		case 2:			
-			chip.move(1, BACKWARDS, 80);
-			chip.move(2, BACKWARDS, 80);
+			chip.move(1, BACKWARDS, 70);
+			chip.move(2, BACKWARDS, 70);
 			leftMotor.rotate(angle, true);
 			rightMotor.rotate(angle);
 			break;
@@ -395,5 +402,13 @@ public class Brick {
 		kicker.setSpeed(250);
 		kicker.rotateTo(0);
 		kicker.flt();
+	}
+	
+	private static void beep() throws InterruptedException {
+		Sound.playTone(1000,150,100);
+		Thread.sleep(1000);
+		Sound.playTone(1000,150,100);
+		Thread.sleep(1000);
+		Sound.playTone(1500,500,100);
 	}
 }
