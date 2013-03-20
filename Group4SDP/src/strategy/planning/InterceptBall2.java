@@ -90,7 +90,7 @@ public class InterceptBall2 extends StrategyInterface {
 					}
 					// Transform speeds to world coordinates instead of local, in case our robot is not facing the enemy
 					// goal
-					double angle = (world.ourRobot.bearing + Math.PI) % (2.0 * Math.PI);
+					double angle = world.ourRobot.bearing - Math.PI * 1.5;
 					double cos = Math.cos(angle), sin = Math.sin(angle);
 					mover.move(speedRight * cos - speedForward * sin, speedForward * cos + speedRight * sin);
 				} else {
