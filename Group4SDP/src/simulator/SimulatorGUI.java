@@ -5,11 +5,10 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -24,22 +23,25 @@ import javax.swing.UIManager;
 
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
-import strategy.movement.TurnToBall;
-
-import strategy.planning.*;
+import strategy.planning.DribbleBall5;
+import strategy.planning.InterceptBall;
+import strategy.planning.MainPlanner;
+import strategy.planning.PenaltyAttack;
+import strategy.planning.PenaltyDefense;
+import strategy.planning.Strategy;
+import strategy.planning.StrategyInterface;
 import vision.PitchConstants;
 import world.state.RobotType;
 import world.state.WorldState;
 
-
-
 import communication.RobotController;
 
 /**
- * Simulator GUI class based on ControlGUI2 but adapted to use two panels - 
- * one for our robot and one for opponent
+ * Simulator GUI class based on ControlGUI2 but adapted to use two panels - one
+ * for our robot and one for opponent
+ * 
  * @author Maithu
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class SimulatorGUI extends JFrame {
@@ -52,13 +54,12 @@ public class SimulatorGUI extends JFrame {
 	private final JPanel complexMovePanel = new JPanel();
 	private final JPanel moveTargetPanel = new JPanel();
 	private final JPanel moveTargetOptionsPanel = new JPanel();
-	
-	//Simulator specific object
+
+	// Simulator specific object
 	private final JLabel robotSelector = new JLabel("Please select a colour: ");
 	private final JRadioButton radioButton1 = new JRadioButton("Blue");
 	private final JRadioButton radioButton2 = new JRadioButton("Yellow");
-	
-	
+
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -99,7 +100,7 @@ public class SimulatorGUI extends JFrame {
 	public static final JTextField op5field = new JTextField();
 
 	// Strategy used for driving part of milestone 2
-     
+
 	private DribbleBall5 dribbleBall = new DribbleBall5();
 	private DribbleBallThread dribbleThread;
 
@@ -110,8 +111,6 @@ public class SimulatorGUI extends JFrame {
 
 	private final RobotController robot;
 	private final RobotMover mover;
-	
-	
 
 	public static void main(String[] args) throws IOException {
 		// Make the GUI pretty
@@ -132,20 +131,27 @@ public class SimulatorGUI extends JFrame {
 					simTest.simTheirRobot);
 
 			// Sets up the GUI
-			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot, theirRobot);
+			SimulatorGUI ourRobotGUI = new SimulatorGUI(worldState, ourRobot,
+					theirRobot);
 			ourRobotGUI.setTitle("Our Robot Control GUI");
-			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(worldState, theirRobot, theirRobot );
+			OpponentRobotSimulatorGUI theirRobotGUI = new OpponentRobotSimulatorGUI(
+					worldState, theirRobot);
 			theirRobotGUI.setTitle("Opponent Robot Control GUI");
 			
+			// Enable keyboard controls for the enemy robot
+			KeyboardFocusManager manager = KeyboardFocusManager
+					.getCurrentKeyboardFocusManager();
+			manager.addKeyEventDispatcher(new KeyControl(theirRobotGUI.mover));
+
 			ourRobotGUI.setVisible(true);
 			theirRobotGUI.setVisible(true);
 
 			ourRobot.connect();
 			theirRobot.connect();
-			
+
 			while (!ourRobot.isConnected() && theirRobot.isConnected()) {
 				// Reduce CPU cost
-					Thread.sleep(10);
+				Thread.sleep(10);
 			}
 			System.out.println("Robot ready!");
 		} catch (Exception e) {
@@ -153,15 +159,15 @@ public class SimulatorGUI extends JFrame {
 		}
 	}
 
-	public SimulatorGUI(final WorldState worldState, final RobotController robot, final RobotController ennemyRobot ) {
+	public SimulatorGUI(final WorldState worldState,
+			final RobotController robot, final RobotController ennemyRobot) {
 		this.worldState = worldState;
 		this.robot = robot;
 		this.mover = new RobotMover(worldState, robot);
 		this.mover.start();
-		
-		
+
 		RobotMover moverEnnemy = new RobotMover(worldState, ennemyRobot);
-		
+
 		moverEnnemy.start();
 
 		op1field.setColumns(6);
@@ -173,7 +179,7 @@ public class SimulatorGUI extends JFrame {
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		this.getContentPane().setLayout(gridBagLayout);
-		
+
 		GridBagConstraints gbc_robotSelectionPanel = new GridBagConstraints();
 		gbc_robotSelectionPanel.anchor = GridBagConstraints.NORTH;
 		gbc_robotSelectionPanel.fill = GridBagConstraints.HORIZONTAL;
@@ -184,7 +190,6 @@ public class SimulatorGUI extends JFrame {
 		robotSelectionPanel.add(robotSelector);
 		robotSelectionPanel.add(radioButton1);
 		robotSelectionPanel.add(radioButton2);
-
 
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
 		gbc_startStopQuitPanel.anchor = GridBagConstraints.NORTH;
@@ -261,11 +266,6 @@ public class SimulatorGUI extends JFrame {
 		moveTargetOptionsPanel.add(op4field);
 		moveTargetOptionsPanel.add(op5label);
 		moveTargetOptionsPanel.add(op5field);
-	
-		
-		
-	
-		
 
 		// TODO: remove
 		complexMovePanel.add(dribbleButton);
@@ -279,14 +279,15 @@ public class SimulatorGUI extends JFrame {
 				// false);
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
-				strategy = new InterceptBall(worldState, mover);
-				strategyThread = new Thread(strategy);
-				strategyThread.start();
+					strategy = new InterceptBall(worldState, mover);
+					strategyThread = new Thread(strategy);
+					strategyThread.start();
+				} else {
+					System.out.println("strategy already running");
 				}
-				else {System.out.println("strategy already running");}
-			//	double angle = TurnToBall.AngleTurner(worldState.ourRobot,
-			//			worldState.ball.x, worldState.ball.y);
-			//	System.out.println("Angle is " + (int) angle);
+				// double angle = TurnToBall.AngleTurner(worldState.ourRobot,
+				// worldState.ball.x, worldState.ball.y);
+				// System.out.println("Angle is " + (int) angle);
 			}
 		});
 
@@ -296,7 +297,7 @@ public class SimulatorGUI extends JFrame {
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					DribbleBall5.die = true;
 					try {
-						
+
 						mover.resetQueue();
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
@@ -430,11 +431,12 @@ public class SimulatorGUI extends JFrame {
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Kill the mover and wait for it to stop completely
-				// try {
-				// mover.kill();
-				// } catch (InterruptedException e1) {
-				// e1.printStackTrace();
-				// }
+				try {
+					mover.kill();
+					mover.join();
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				robot.disconnect();
 
 				System.out.println("Quitting the GUI");
@@ -464,249 +466,7 @@ public class SimulatorGUI extends JFrame {
 		this.setResizable(false);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
-		
-		simpleMovePanel.setFocusable(true);
-		simpleMovePanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
 
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
-		
-		robotSelectionPanel.setFocusable(true);
-		robotSelectionPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		startStopQuitPanel.setFocusable(true);
-		startStopQuitPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
-		
-		
-		
-
-		optionsPanel.setFocusable(true);
-		optionsPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
-
-		complexMovePanel.setFocusable(true);
-		complexMovePanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
-
-		moveTargetOptionsPanel.setFocusable(true);
-		moveTargetOptionsPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-	
-
-		
-		
-		moveTargetPanel.setFocusable(true);
-		moveTargetPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					ennemyRobot.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					ennemyRobot.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					ennemyRobot.rotate(-8);
-
-				}
-				if (e.getKeyChar() == 'd') {
-					ennemyRobot.rotate(8);
-				}
-				if (e.getKeyChar() == 'k') {
-					ennemyRobot.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				ennemyRobot.stop();
-			}
-
-			public void keyTyped(KeyEvent e) {
-			}
-		});
-		
-		
-		
 		this.pack();
 	}
 
@@ -734,11 +494,5 @@ public class SimulatorGUI extends JFrame {
 			}
 		}
 	}
-	
-	
-	
 
-	
-	
-	
 }

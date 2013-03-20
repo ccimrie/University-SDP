@@ -6,35 +6,29 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import movement.RobotMover;
-
-import world.state.RobotType;
 import world.state.WorldState;
 
-import communication.RobotController;
-
 /**
- * Simulator GUI class based on ControlGUI2 but adapted to use two panels - 
- * one for our robot and one for opponent
+ * Simulator GUI class based on ControlGUI2 but adapted to use two panels - one
+ * for our robot and one for opponent
+ * 
  * @author Maithu
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class OpponentRobotSimulatorGUI extends JFrame {
 	// GUI elements
 
 	private final JPanel mainPanel = new JPanel();
-	
+
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -72,19 +66,19 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 	public static final JTextField op4field = new JTextField();
 	public static final JTextField op5field = new JTextField();
 
-	private final RobotMover mover;
+	public final RobotMover mover;
 	private WorldState worldState;
-	private final RobotController robot;
-	public OpponentRobotSimulatorGUI(final WorldState worldState, final RobotController robot, final SimulatorRobot zeEnnemy) {
+	private final SimulatorRobot robot;
 
-		
+	public OpponentRobotSimulatorGUI(final WorldState worldState,
+			final SimulatorRobot robot) {
+
 		mover = new RobotMover(worldState, robot);
-		
+
 		mover.start();
-		
+
 		this.worldState = worldState;
 		this.robot = robot;
-		
 
 		op1field.setColumns(6);
 		op2field.setColumns(6);
@@ -112,52 +106,12 @@ public class OpponentRobotSimulatorGUI extends JFrame {
 		mainPanel.add(op1label);
 		mainPanel.add(op1field);
 		mainPanel.add(setEnnemySpeed);
-		
-		
-		
-		
-		
+
 		setEnnemySpeed.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				float op1 = Float.parseFloat(op1field.getText());
 
-				zeEnnemy.setPower(op1);
-			}
-		});
-		
-		
-		
-		
-		
-		
-		
-		mainPanel.setFocusable(true);
-		mainPanel.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar()  == 's') {
-					mover.move(0, -100);
-				}
-				if (e.getKeyChar() == 'w') {
-					mover.move(0, 100);
-				}
-				if (e.getKeyChar() == 'a') {
-					mover.rotate(-1* Math.toRadians(8));
-
-				}
-				if (e.getKeyChar() == 'd') {
-					mover.rotate(Math.toRadians(8));
-				}
-				if (e.getKeyChar() == 'k') {
-					mover.kick();
-				}
-				
-			}
-
-			public void keyReleased(KeyEvent e) {
-				mover.stopRobot();
-			}
-
-			public void keyTyped(KeyEvent e) {
+				robot.setPower(op1);
 			}
 		});
 		pack();
