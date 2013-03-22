@@ -366,7 +366,7 @@ public class Vision implements VideoReceiver {
 						worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
-		} catch (Exception e) {
+		} catch (NoAngleException e) {
 			debugGraphics.drawString(e.getMessage(), 15, 440);
 			// System.err.println(e.getClass().toString() + ": " +
 			// e.getMessage());
@@ -754,7 +754,7 @@ public class Vision implements VideoReceiver {
 				}
 			}
 		}
-
+		
 		double blueAngle = findPlateAngle(frame, debugOverlay, plate1mean,
 				cluster1);
 		double yellowAngle = findPlateAngle(frame, debugOverlay, plate2mean,
@@ -787,7 +787,7 @@ public class Vision implements VideoReceiver {
 			ArrayList<Position> points) throws NoAngleException {
 		Graphics debugGraphics = debugOverlay.getGraphics();
 
-		// The constant 1400 passed is the max squared distance from the
+		// The constant 850 passed is the max squared distance from the
 		// centroid in which the farthest points can be located.for one
 		// pain
 		Position[] plateCorners = null;
@@ -827,7 +827,6 @@ public class Vision implements VideoReceiver {
 						colour.getBlue(), null);
 
 				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
-					System.out.println("Found a grey pixel at search pt 1!");
 					++searchPt1GreyPoints;
 				}
 			}
@@ -845,7 +844,6 @@ public class Vision implements VideoReceiver {
 						colour.getBlue(), null);
 
 				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
-					System.out.println("Found a grey pixel at search pt 2!");
 					++searchPt2GreyPoints;
 				}
 			}
@@ -861,6 +859,7 @@ public class Vision implements VideoReceiver {
 		// Checking which side has more "grey" points - that side is the
 		// back, the other is the front
 		Position front = null, back = null;
+		boolean error = false;
 		if (searchPt1GreyPoints > searchPt2GreyPoints) {
 			xvector = avg1.getX() - avg2.getX();
 			yvector = avg1.getY() - avg2.getY();
@@ -873,14 +872,11 @@ public class Vision implements VideoReceiver {
 
 			front = searchPt1;
 			back = searchPt2;
-		} else
-			throw new NoAngleException("Can't distinguish front from back");
-
-		double angle = 0;
-		angle = Math.acos(yvector
-				/ Math.sqrt(xvector * xvector + yvector * yvector));
-		if (xvector > 0)
-			angle = 2.0 * Math.PI - angle;
+		} else {
+			error = true;
+			front = searchPt1;
+			back = searchPt2;
+		}
 
 		/** Debugging shapes drawn on the debugging layer of the video feed */
 		debugGraphics.setColor(Color.magenta);
@@ -905,6 +901,14 @@ public class Vision implements VideoReceiver {
 		debugGraphics.drawOval(plateCorners[3].getX() - 1,
 				plateCorners[3].getY() - 1, 2, 2);
 
+		if (error)
+			throw new NoAngleException("Can't distinguish front from back");
+		
+		double angle = 0;
+		angle = Math.acos(yvector
+				/ Math.sqrt(xvector * xvector + yvector * yvector));
+		if (xvector > 0)
+			angle = 2.0 * Math.PI - angle;
 		return angle;
 	}
 }
