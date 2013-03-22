@@ -49,6 +49,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	// Pitch dimension selector variables
 	private boolean selectionActive = false;
 	private Point anchor;
+	private Point mousePos;
 	private int a;
 	private int b;
 	private int c;
@@ -415,12 +416,12 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		boolean mouseSelectTarget = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_TARGET; // moo
 		// If the colour selection mode is on (for colour calibration from the
 		// image)
-		if (mouseSelectTarget) { 
+		if (mouseSelectTarget) {
 			g2d.drawOval(WorldState.targetX, WorldState.targetY, 5, 5);
-		    ControlGUI2.op4field.setText("" + WorldState.targetX);
-		    ControlGUI2.op5field.setText("" + WorldState.targetY);
+			ControlGUI2.op4field.setText("" + WorldState.targetX);
+			ControlGUI2.op5field.setText("" + WorldState.targetY);
 		}
-		
+
 		if (mouseModeBlueT || mouseModeYellowT || mouseModeGreenPlates
 				|| mouseModeGreyCircle) {
 			// Show the colour selector image
@@ -433,6 +434,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 		// Eliminating area around the pitch dimensions
 		if (!selectionActive) {
+			int a = pitchConstants.getLeftBuffer();
+			int b = pitchConstants.getTopBuffer();
+			int c = videoWidth - pitchConstants.getRightBuffer() - a;
+			int d = videoHeight - pitchConstants.getBottomBuffer() - b;
 			// Making the pitch surroundings transparent
 			Composite originalComposite = g2d.getComposite();
 			int type = AlphaComposite.SRC_OVER;
@@ -520,7 +525,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		Position leftGoalBottom = worldState.goalInfo.getLeftGoalBottom();
 		frameGraphics.drawLine(leftGoalTop.getX(), leftGoalTop.getY(),
 				leftGoalBottom.getX(), leftGoalBottom.getY());
-		
+
 		Position rightGoalTop = worldState.goalInfo.getRightGoalTop();
 		Position rightGoalBottom = worldState.goalInfo.getRightGoalBottom();
 		frameGraphics.drawLine(rightGoalTop.getX(), rightGoalTop.getY(),
