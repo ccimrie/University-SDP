@@ -42,16 +42,22 @@ public class PitchConstants {
 	// Threshold upper and lower values
 	private int[] redLower = new int[NUM_THRESHOLDS];
 	private int[] redUpper = new int[NUM_THRESHOLDS];
+	private boolean[] redInverted = new boolean[NUM_THRESHOLDS];
 	private int[] greenLower = new int[NUM_THRESHOLDS];
 	private int[] greenUpper = new int[NUM_THRESHOLDS];
+	private boolean[] greenInverted = new boolean[NUM_THRESHOLDS];
 	private int[] blueLower = new int[NUM_THRESHOLDS];
 	private int[] blueUpper = new int[NUM_THRESHOLDS];
+	private boolean[] blueInverted = new boolean[NUM_THRESHOLDS];
 	private float[] hueLower = new float[NUM_THRESHOLDS];
 	private float[] hueUpper = new float[NUM_THRESHOLDS];
+	private boolean[] hueInverted = new boolean[NUM_THRESHOLDS];
 	private float[] saturationLower = new float[NUM_THRESHOLDS];
 	private float[] saturationUpper = new float[NUM_THRESHOLDS];
+	private boolean[] saturationInverted = new boolean[NUM_THRESHOLDS];
 	private float[] valueLower = new float[NUM_THRESHOLDS];
 	private float[] valueUpper = new float[NUM_THRESHOLDS];
+	private boolean[] valueInverted = new boolean[NUM_THRESHOLDS];
 	// Debug
 	private boolean[] debug = new boolean[NUM_THRESHOLDS];
 
@@ -128,6 +134,32 @@ public class PitchConstants {
 	}
 
 	/**
+	 * Tests whether the thresholds are inverted for red for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isRedInverted(int i) {
+		return redInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for red for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if red should be inverted, false otherwise
+	 */
+	public void setRedInverted(int i, boolean inverted) {
+		this.redInverted[i] = inverted;
+	}
+
+	/**
 	 * Gets the lower threshold value for green for the object specified
 	 * 
 	 * @param i
@@ -175,6 +207,32 @@ public class PitchConstants {
 	 */
 	public void setGreenUpper(int i, int upper) {
 		this.greenUpper[i] = upper;
+	}
+	
+	/**
+	 * Tests whether the thresholds are inverted for green for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isGreenInverted(int i) {
+		return greenInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for green for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if green should be inverted, false otherwise
+	 */
+	public void setGreenInverted(int i, boolean inverted) {
+		this.greenInverted[i] = inverted;
 	}
 
 	/**
@@ -226,6 +284,32 @@ public class PitchConstants {
 	public void setBlueUpper(int i, int upper) {
 		this.blueUpper[i] = upper;
 	}
+	
+	/**
+	 * Tests whether the thresholds are inverted for blue for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isBlueInverted(int i) {
+		return blueInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for blue for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if blue should be inverted, false otherwise
+	 */
+	public void setBlueInverted(int i, boolean inverted) {
+		this.blueInverted[i] = inverted;
+	}
 
 	/**
 	 * Gets the lower threshold value for hue for the object specified
@@ -275,6 +359,32 @@ public class PitchConstants {
 	 */
 	public void setHueUpper(int i, float upper) {
 		this.hueUpper[i] = upper;
+	}
+	
+	/**
+	 * Tests whether the thresholds are inverted for hue for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isHueInverted(int i) {
+		return hueInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for hue for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if hue should be inverted, false otherwise
+	 */
+	public void setHueInverted(int i, boolean inverted) {
+		this.hueInverted[i] = inverted;
 	}
 
 	/**
@@ -330,6 +440,32 @@ public class PitchConstants {
 	public void setSaturationUpper(int i, float upper) {
 		this.saturationUpper[i] = upper;
 	}
+	
+	/**
+	 * Tests whether the thresholds are inverted for saturation for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isSaturationInverted(int i) {
+		return saturationInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for saturation for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if saturation should be inverted, false otherwise
+	 */
+	public void setSaturationInverted(int i, boolean inverted) {
+		this.saturationInverted[i] = inverted;
+	}
 
 	/**
 	 * Gets the lower threshold value for colour value for the object specified
@@ -379,6 +515,32 @@ public class PitchConstants {
 	 */
 	public void setValueUpper(int i, float upper) {
 		this.valueUpper[i] = upper;
+	}
+	
+	/**
+	 * Tests whether the thresholds are inverted for value for the object
+	 * specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @return true if inverted, false otherwise
+	 */
+	public boolean isValueInverted(int i) {
+		return valueInverted[i];
+	}
+
+	/**
+	 * Sets whether the thresholds are inverted for value for the object specified
+	 * 
+	 * @param i
+	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
+	 *            cause an ArrayIndexOutOfBoundsException
+	 * @param inverted
+	 *            true if value should be inverted, false otherwise
+	 */
+	public void setValueInverted(int i, boolean inverted) {
+		this.valueInverted[i] = inverted;
 	}
 
 	/**
@@ -579,21 +741,27 @@ public class PitchConstants {
 			for (int i = 0; i < NUM_THRESHOLDS; ++i) {
 				pitchFile.write(String.valueOf(getRedLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getRedUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isRedInverted(i)) + "\n");
 
 				pitchFile.write(String.valueOf(getGreenLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getGreenUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isGreenInverted(i)) + "\n");
 
 				pitchFile.write(String.valueOf(getBlueLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getBlueUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isBlueInverted(i)) + "\n");
 
 				pitchFile.write(String.valueOf(getHueLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getHueUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isHueInverted(i)) + "\n");
 
 				pitchFile.write(String.valueOf(getSaturationLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getSaturationUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isSaturationInverted(i)) + "\n");
 
 				pitchFile.write(String.valueOf(getValueLower(i)) + "\n");
 				pitchFile.write(String.valueOf(getValueUpper(i)) + "\n");
+				pitchFile.write(String.valueOf(isValueInverted(i)) + "\n");
 			}
 			pitchFile.close();
 
@@ -624,7 +792,7 @@ public class PitchConstants {
 			this.bottomBuffer = scannerDim.nextInt();
 			this.leftBuffer = scannerDim.nextInt();
 			this.rightBuffer = scannerDim.nextInt();
-			
+
 			scannerDim.close();
 		} catch (Exception e) {
 			System.err.println("Cannot load pitch dimensions file " + fileName
@@ -641,7 +809,6 @@ public class PitchConstants {
 		} catch (FileNotFoundException e) {
 			System.err.println("Cannot load thresholds file " + fileName + ":");
 			System.err.println(e.getMessage());
-			e.printStackTrace(System.err);
 			loadDefaultConstants();
 			return;
 		}
@@ -653,18 +820,24 @@ public class PitchConstants {
 		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
 			this.redLower[i] = scanner.nextInt();
 			this.redUpper[i] = scanner.nextInt();
+			this.redInverted[i] = scanner.nextBoolean();
 			this.greenLower[i] = scanner.nextInt();
 			this.greenUpper[i] = scanner.nextInt();
+			this.greenInverted[i] = scanner.nextBoolean();
 			this.blueLower[i] = scanner.nextInt();
 			this.blueUpper[i] = scanner.nextInt();
+			this.blueInverted[i] = scanner.nextBoolean();
 			this.hueLower[i] = scanner.nextFloat();
 			this.hueUpper[i] = scanner.nextFloat();
+			this.hueInverted[i] = scanner.nextBoolean();
 			this.saturationLower[i] = scanner.nextFloat();
 			this.saturationUpper[i] = scanner.nextFloat();
+			this.saturationInverted[i] = scanner.nextBoolean();
 			this.valueLower[i] = scanner.nextFloat();
 			this.valueUpper[i] = scanner.nextFloat();
+			this.valueInverted[i] = scanner.nextBoolean();
 		}
-		
+
 		scanner.close();
 	}
 
@@ -678,16 +851,22 @@ public class PitchConstants {
 		for (int i = 0; i < 5; ++i) {
 			this.redLower[i] = RGBMIN;
 			this.redUpper[i] = RGBMAX;
+			this.redInverted[i] = false;
 			this.greenLower[i] = RGBMIN;
 			this.greenUpper[i] = RGBMAX;
+			this.greenInverted[i] = false;
 			this.blueLower[i] = RGBMIN;
 			this.blueUpper[i] = RGBMAX;
+			this.blueInverted[i] = false;
 			this.hueLower[i] = HSVMIN;
 			this.hueUpper[i] = HSVMAX;
+			this.hueInverted[i] = false;
 			this.saturationLower[i] = HSVMIN;
 			this.saturationUpper[i] = HSVMAX;
+			this.saturationInverted[i] = false;
 			this.valueLower[i] = HSVMIN;
 			this.valueUpper[i] = HSVMAX;
+			this.valueInverted[i] = false;
 		}
 
 		// Pitch Dimensions

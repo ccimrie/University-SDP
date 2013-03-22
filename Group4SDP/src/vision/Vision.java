@@ -145,7 +145,7 @@ public class Vision implements VideoReceiver {
 					bluePoints.add(new Position(column, row));
 
 					/*
-					 * If we're in the "Green Plate" tab, we show what pixels
+					 * If we're in the "Blue Robot" tab, we show what pixels
 					 * we're looking at, for debugging and to help with
 					 * threshold setting.
 					 */
@@ -163,7 +163,7 @@ public class Vision implements VideoReceiver {
 					yellowPoints.add(new Position(column, row));
 
 					/*
-					 * If we're in the "Green Plate" tab, we show what pixels
+					 * If we're in the "Yellow Robot" tab, we show what pixels
 					 * we're looking at, for debugging and to help with
 					 * threshold setting.
 					 */
@@ -360,20 +360,67 @@ public class Vision implements VideoReceiver {
 
 			if (!anyDebug) {
 				debugGraphics.setColor(Color.red);
-				debugGraphics.drawLine(0, worldState.getBallY(), 640, worldState.getBallY());
-				debugGraphics.drawLine(worldState.getBallX(), 0, worldState.getBallX(), 480);
+				debugGraphics.drawLine(0, worldState.getBallY(), 640,
+						worldState.getBallY());
+				debugGraphics.drawLine(worldState.getBallX(), 0,
+						worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (Exception e) {
 			debugGraphics.drawString(e.getMessage(), 15, 440);
-//			System.err.println(e.getClass().toString() + ": " + e.getMessage());
-//			e.printStackTrace(System.err);
+			// System.err.println(e.getClass().toString() + ": " +
+			// e.getMessage());
+			// e.printStackTrace(System.err);
 		}
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
 		for (WorldStateReceiver receiver : worldStateReceivers)
 			receiver.sendWorldState(worldState);
+	}
+
+	/**
+	 * Tests if an integer value is within bounds, or outside bounds if the
+	 * range is inverted
+	 * 
+	 * @param value
+	 *            The value to check
+	 * @param lower
+	 *            The lower bound
+	 * @param upper
+	 *            The upper bound
+	 * @param inverted
+	 *            true if the range is inverted, false otherwise
+	 * @return true if the value is within bounds, false otherwise
+	 */
+	private boolean checkBounds(int value, int lower, int upper,
+			boolean inverted) {
+		if (!inverted)
+			return (lower <= value && value <= upper);
+		else
+			return (upper <= value || value <= lower);
+	}
+
+	/**
+	 * Tests if a floating point value is within bounds, or outside bounds if
+	 * the range is inverted
+	 * 
+	 * @param value
+	 *            The value to check
+	 * @param lower
+	 *            The lower bound
+	 * @param upper
+	 *            The upper bound
+	 * @param inverted
+	 *            true if the range is inverted, false otherwise
+	 * @return true if the value is within bounds, false otherwise
+	 */
+	private boolean checkBounds(float value, float lower, float upper,
+			boolean inverted) {
+		if (!inverted)
+			return (lower <= value && value <= upper);
+		else
+			return (upper <= value || value <= lower);
 	}
 
 	/**
@@ -390,49 +437,49 @@ public class Vision implements VideoReceiver {
 	 *         (and thus the pixel is part of the blue T), false otherwise.
 	 */
 	private boolean isColour(Color colour, float[] hsbvals, int object) {
-		int objectPitchConstants = -1;
+		int objectIdx = -1;
 
 		switch (object) {
 		case BLUE_T:
-			objectPitchConstants = PitchConstants.BLUE;
+			objectIdx = PitchConstants.BLUE;
 			break;
 		case YELLOW_T:
-			objectPitchConstants = PitchConstants.YELLOW;
+			objectIdx = PitchConstants.YELLOW;
 			break;
 		case BALL:
-			objectPitchConstants = PitchConstants.BALL;
+			objectIdx = PitchConstants.BALL;
 			break;
 		case GREY_CIRCLE:
-			objectPitchConstants = PitchConstants.GREY;
+			objectIdx = PitchConstants.GREY;
 			break;
 		case GREEN_PLATE:
-			objectPitchConstants = PitchConstants.GREEN;
-
+			objectIdx = PitchConstants.GREEN;
 		}
 
-		return hsbvals[0] <= pitchConstants.getHueUpper(objectPitchConstants)
-				&& hsbvals[0] >= pitchConstants
-						.getHueLower(objectPitchConstants)
-				&& hsbvals[1] <= pitchConstants
-						.getSaturationUpper(objectPitchConstants)
-				&& hsbvals[1] >= pitchConstants
-						.getSaturationLower(objectPitchConstants)
-				&& hsbvals[2] <= pitchConstants
-						.getValueUpper(objectPitchConstants)
-				&& hsbvals[2] >= pitchConstants
-						.getValueLower(objectPitchConstants)
-				&& colour.getRed() <= pitchConstants
-						.getRedUpper(objectPitchConstants)
-				&& colour.getRed() >= pitchConstants
-						.getRedLower(objectPitchConstants)
-				&& colour.getGreen() <= pitchConstants
-						.getGreenUpper(objectPitchConstants)
-				&& colour.getGreen() >= pitchConstants
-						.getGreenLower(objectPitchConstants)
-				&& colour.getBlue() <= pitchConstants
-						.getBlueUpper(objectPitchConstants)
-				&& colour.getBlue() >= pitchConstants
-						.getBlueLower(objectPitchConstants);
+		return checkBounds(colour.getRed(),
+				pitchConstants.getRedLower(objectIdx),
+				pitchConstants.getRedUpper(objectIdx),
+				pitchConstants.isRedInverted(objectIdx))
+				&& checkBounds(colour.getGreen(),
+						pitchConstants.getGreenLower(objectIdx),
+						pitchConstants.getGreenUpper(objectIdx),
+						pitchConstants.isGreenInverted(objectIdx))
+				&& checkBounds(colour.getBlue(),
+						pitchConstants.getBlueLower(objectIdx),
+						pitchConstants.getBlueUpper(objectIdx),
+						pitchConstants.isBlueInverted(objectIdx))
+				&& checkBounds(hsbvals[0],
+						pitchConstants.getHueLower(objectIdx),
+						pitchConstants.getHueUpper(objectIdx),
+						pitchConstants.isHueInverted(objectIdx))
+				&& checkBounds(hsbvals[1],
+						pitchConstants.getSaturationLower(objectIdx),
+						pitchConstants.getSaturationUpper(objectIdx),
+						pitchConstants.isSaturationInverted(objectIdx))
+				&& checkBounds(hsbvals[2],
+						pitchConstants.getValueLower(objectIdx),
+						pitchConstants.getValueUpper(objectIdx),
+						pitchConstants.isValueInverted(objectIdx));
 	}
 
 	/**
@@ -779,8 +826,10 @@ public class Vision implements VideoReceiver {
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
 						colour.getBlue(), null);
 
-				if (isColour(colour, colourHSV, GREY_CIRCLE))
+				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
+					System.out.println("Found a grey pixel at search pt 1!");
 					++searchPt1GreyPoints;
+				}
 			}
 		}
 		// Try the other side
@@ -795,8 +844,10 @@ public class Vision implements VideoReceiver {
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
 						colour.getBlue(), null);
 
-				if (isColour(colour, colourHSV, GREY_CIRCLE))
+				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
+					System.out.println("Found a grey pixel at search pt 2!");
 					++searchPt2GreyPoints;
+				}
 			}
 		}
 
