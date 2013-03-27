@@ -16,26 +16,27 @@ public class InterceptBall extends StrategyInterface {
 	@Override
 	public void run() {
 		System.out.println("InterceptBall started");
-		double ballTurnAngle;
+		double turnAngle;
 
 		try {
 			System.out.println("shouldidie: " + shouldidie);
 			System.out.println("Strategy.alldie: " + Strategy.alldie);
 			while (!shouldidie && !Strategy.alldie) {
 				Position projBallPos = world.projectedBallPos();
-				ballTurnAngle = mover.angleCalculator(world.ourRobot.x,
+				turnAngle = mover.angleCalculator(world.ourRobot.x,
 						world.ourRobot.y, projBallPos.getX(),
 						projBallPos.getY(), world.ourRobot.bearing);
 
 				int rotAttempts = 0;
-				while (Math.abs(ballTurnAngle) > angleThreshold && rotAttempts < 10) {
-					mover.rotate(ballTurnAngle);
+				while (Math.abs(turnAngle) > angleThreshold && rotAttempts < 10) {
+					mover.rotate(turnAngle);
 					mover.waitForCompletion();
 					if (shouldidie || Strategy.alldie)
 						return;
-					ballTurnAngle = mover.angleCalculator(world.ourRobot.x,
+					turnAngle = mover.angleCalculator(world.ourRobot.x,
 							world.ourRobot.y, projBallPos.getX(),
 							projBallPos.getY(), world.ourRobot.bearing);
+					++rotAttempts;
 				}
 
 				if (world.distanceBetweenUsAndBall() > distanceThreshold) {
