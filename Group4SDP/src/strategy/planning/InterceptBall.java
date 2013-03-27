@@ -23,20 +23,26 @@ public class InterceptBall extends StrategyInterface {
 			System.out.println("Strategy.alldie: " + Strategy.alldie);
 			while (!shouldidie && !Strategy.alldie) {
 				Position projBallPos = world.projectedBallPos();
+				ballTurnAngle = mover.angleCalculator(world.ourRobot.x,
+						world.ourRobot.y, projBallPos.getX(),
+						projBallPos.getY(), world.ourRobot.bearing);
+
+				int rotAttempts = 0;
+				while (Math.abs(ballTurnAngle) > angleThreshold && rotAttempts < 10) {
+					mover.rotate(ballTurnAngle);
+					mover.waitForCompletion();
+					if (shouldidie || Strategy.alldie)
+						return;
+					ballTurnAngle = mover.angleCalculator(world.ourRobot.x,
+							world.ourRobot.y, projBallPos.getX(),
+							projBallPos.getY(), world.ourRobot.bearing);
+				}
 
 				if (world.distanceBetweenUsAndBall() > distanceThreshold) {
-					System.out.println("Projected ball pos: (" + projBallPos.getX() + ", " + projBallPos.getY() + ")");
+					System.out.println("Projected ball pos: ("
+							+ projBallPos.getX() + ", " + projBallPos.getY()
+							+ ")");
 					mover.moveTowards(projBallPos.getX(), projBallPos.getY());
-				} else {
-					ballTurnAngle = mover.angleCalculator(world.ourRobot.x, world.ourRobot.y, projBallPos.getX(), projBallPos.getY(), world.ourRobot.bearing);
-
-					while (Math.abs(ballTurnAngle) > angleThreshold) {
-						mover.rotate(ballTurnAngle);
-						mover.waitForCompletion();
-						if (shouldidie || Strategy.alldie)
-							return;
-						ballTurnAngle = mover.angleCalculator(world.ourRobot.x, world.ourRobot.y, projBallPos.getX(), projBallPos.getY(), world.ourRobot.bearing);
-					}
 				}
 				SafeSleep.sleep(50);
 			}

@@ -36,12 +36,12 @@ public interface RobotController {
 	 */
 	public int stop();
 	
-	/**
-	 * Tells the robot to beep 3 times
-	 * 
-	 * @return A confirmation code for the command
-	 */
-	public int beep();
+//	/**
+//	 * Tells the robot to beep 3 times
+//	 * 
+//	 * @return A confirmation code for the command
+//	 */
+//	public int beep();
 
 	/**
 	 * Tells the robot to kick

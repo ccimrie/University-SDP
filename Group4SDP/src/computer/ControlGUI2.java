@@ -283,7 +283,6 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {				
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
-					robot.beep();
 					strategy = new InterceptBall(worldState, mover);
 					//strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
