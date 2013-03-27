@@ -21,37 +21,37 @@ class ThresholdsPanel extends JPanel {
 	private final int redMax = SLIDER_MAX;
 	private final JPanel redPanel = new JPanel();
 	private final JLabel redLabel = new JLabel("Red:");
-	private RangeSlider redSlider;
+	private InvertibleRangeSlider redSlider;
 
 	private final int greenMin = SLIDER_MIN;
 	private final int greenMax = SLIDER_MAX;
 	private final JPanel greenPanel = new JPanel();
 	private final JLabel greenLabel = new JLabel("Green:");
-	private RangeSlider greenSlider;
+	private InvertibleRangeSlider greenSlider;
 
 	private final int blueMin = SLIDER_MIN;
 	private final int blueMax = SLIDER_MAX;
 	private final JPanel bluePanel = new JPanel();
 	private final JLabel blueLabel = new JLabel("Blue:");
-	private RangeSlider blueSlider;
+	private InvertibleRangeSlider blueSlider;
 
 	private final int hueMin = SLIDER_MIN;
 	private final int hueMax = SLIDER_MAX;
 	private final JPanel huePanel = new JPanel();
 	private final JLabel hueLabel = new JLabel("Hue:");
-	private RangeSlider hueSlider;
+	private InvertibleRangeSlider hueSlider;
 
 	private final int saturationMin = SLIDER_MIN;
 	private final int saturationMax = SLIDER_MAX;
 	private final JPanel saturationPanel = new JPanel();
 	private final JLabel saturationLabel = new JLabel("Sat:");
-	private RangeSlider saturationSlider;
+	private InvertibleRangeSlider saturationSlider;
 
 	private final int valueMin = SLIDER_MIN;
 	private final int valueMax = SLIDER_MAX;
 	private final JPanel valuePanel = new JPanel();
 	private final JLabel valueLabel = new JLabel("Value:");
-	private RangeSlider valueSlider;
+	private InvertibleRangeSlider valueSlider;
 
 	/**
 	 * Constructs a ThresholdsPanel with the default setting of all minimums to
@@ -64,32 +64,33 @@ class ThresholdsPanel extends JPanel {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		redSlider = new RangeSlider(redMin, redMax + 1);
+		redSlider = new InvertibleRangeSlider(redMin, redMax + 1);
 		redPanel.add(redLabel);
 		redPanel.add(redSlider);
 		this.add(redPanel);
 
-		greenSlider = new RangeSlider(greenMin, greenMax + 1);
+		greenSlider = new InvertibleRangeSlider(greenMin, greenMax + 1);
 		greenPanel.add(greenLabel);
 		greenPanel.add(greenSlider);
 		this.add(greenPanel);
 
-		blueSlider = new RangeSlider(blueMin, blueMax + 1);
+		blueSlider = new InvertibleRangeSlider(blueMin, blueMax + 1);
 		bluePanel.add(blueLabel);
 		bluePanel.add(blueSlider);
 		this.add(bluePanel);
 
-		hueSlider = new RangeSlider(hueMin, hueMax + 1);
+		hueSlider = new InvertibleRangeSlider(hueMin, hueMax + 1);
 		huePanel.add(hueLabel);
 		huePanel.add(hueSlider);
 		this.add(huePanel);
 
-		saturationSlider = new RangeSlider(saturationMin, saturationMax + 1);
+		saturationSlider = new InvertibleRangeSlider(saturationMin,
+				saturationMax + 1);
 		saturationPanel.add(saturationLabel);
 		saturationPanel.add(saturationSlider);
 		this.add(saturationPanel);
 
-		valueSlider = new RangeSlider(valueMin, valueMax + 1);
+		valueSlider = new InvertibleRangeSlider(valueMin, valueMax + 1);
 		valuePanel.add(valueLabel);
 		valuePanel.add(valueSlider);
 		this.add(valuePanel);
@@ -120,6 +121,25 @@ class ThresholdsPanel extends JPanel {
 	}
 
 	/**
+	 * Tests if the red slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isRedSliderInverted() {
+		return redSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the red slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setRedSliderInverted(boolean inverted) {
+		redSlider.setInverted(inverted);
+	}
+
+	/**
 	 * Gets the lower and upper values for the green threshold slider
 	 * 
 	 * @return An int[] in the format {lower, upper}
@@ -141,6 +161,25 @@ class ThresholdsPanel extends JPanel {
 	public void setGreenSliderValues(int lower, int upper) {
 		greenSlider.setLowerValue(lower);
 		greenSlider.setUpperValue(upper);
+	}
+
+	/**
+	 * Tests if the green slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isGreenSliderInverted() {
+		return greenSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the green slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setGreenSliderInverted(boolean inverted) {
+		greenSlider.setInverted(inverted);
 	}
 
 	/**
@@ -168,6 +207,25 @@ class ThresholdsPanel extends JPanel {
 	}
 
 	/**
+	 * Tests if the blue slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isBlueSliderInverted() {
+		return blueSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the blue slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setBlueSliderInverted(boolean inverted) {
+		blueSlider.setInverted(inverted);
+	}
+
+	/**
 	 * Gets the lower and upper values for the hue threshold slider
 	 * 
 	 * @return An int[] in the format {lower, upper}
@@ -189,6 +247,25 @@ class ThresholdsPanel extends JPanel {
 	public void setHueSliderValues(int lower, int upper) {
 		hueSlider.setLowerValue(lower);
 		hueSlider.setUpperValue(upper);
+	}
+	
+	/**
+	 * Tests if the hue slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isHueSliderInverted() {
+		return hueSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the hue slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setHueSliderInverted(boolean inverted) {
+		hueSlider.setInverted(inverted);
 	}
 
 	/**
@@ -214,6 +291,25 @@ class ThresholdsPanel extends JPanel {
 		saturationSlider.setLowerValue(lower);
 		saturationSlider.setUpperValue(upper);
 	}
+	
+	/**
+	 * Tests if the saturation slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isSaturationSliderInverted() {
+		return saturationSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the saturation slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setSaturationSliderInverted(boolean inverted) {
+		saturationSlider.setInverted(inverted);
+	}
 
 	/**
 	 * Gets the lower and upper values for the colour value threshold slider
@@ -238,6 +334,25 @@ class ThresholdsPanel extends JPanel {
 		valueSlider.setLowerValue(lower);
 		valueSlider.setUpperValue(upper);
 	}
+	
+	/**
+	 * Tests if the value slider is inverted
+	 * 
+	 * @return true if it is inverted, false otherwise
+	 */
+	public boolean isValueSliderInverted() {
+		return valueSlider.isInverted();
+	}
+
+	/**
+	 * Sets whether the value slider is inverted
+	 * 
+	 * @param inverted
+	 *            true if it should be inverted, false otherwise
+	 */
+	public void setValueSliderInverted(boolean inverted) {
+		valueSlider.setInverted(inverted);
+	}
 
 	/**
 	 * Used to set all the slider values at once
@@ -252,19 +367,29 @@ class ThresholdsPanel extends JPanel {
 	public void setSliderValues(int index, PitchConstants pitchConstants) {
 		setRedSliderValues(pitchConstants.getRedLower(index),
 				pitchConstants.getRedUpper(index));
+		setRedSliderInverted(pitchConstants.isRedInverted(index));
+		
 		setGreenSliderValues(pitchConstants.getGreenLower(index),
 				pitchConstants.getGreenUpper(index));
+		setGreenSliderInverted(pitchConstants.isGreenInverted(index));
+		
 		setBlueSliderValues(pitchConstants.getBlueLower(index),
 				pitchConstants.getBlueUpper(index));
+		setBlueSliderInverted(pitchConstants.isBlueInverted(index));
 
 		setHueSliderValues((int) (255.0 * pitchConstants.getHueLower(index)),
 				(int) (255.0 * pitchConstants.getHueUpper(index)));
+		setHueSliderInverted(pitchConstants.isHueInverted(index));
+		
 		setSaturationSliderValues(
 				(int) (255.0 * pitchConstants.getSaturationLower(index)),
 				(int) (255.0 * pitchConstants.getSaturationUpper(index)));
+		setSaturationSliderInverted(pitchConstants.isSaturationInverted(index));
+		
 		setValueSliderValues(
 				(int) (255.0 * pitchConstants.getValueLower(index)),
 				(int) (255.0 * pitchConstants.getValueUpper(index)));
+		setValueSliderInverted(pitchConstants.isValueInverted(index));
 	}
 
 	/**
