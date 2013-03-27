@@ -8,7 +8,7 @@ import world.state.Ball;
 import world.state.Robot;
 import world.state.WorldState;
 
-public class InterceptBall2 extends StrategyInterface {
+public class InterceptBallMilestone4 extends StrategyInterface {
 	private static final double distanceThreshold = 20;
 	private static final double angleThreshold = Math.toRadians(15);
 	private Ball ball;
@@ -19,7 +19,7 @@ public class InterceptBall2 extends StrategyInterface {
 	// private DribbleBall5 dribble = new DribbleBall5();
 	private Offense42 offence42;
 
-	public InterceptBall2(WorldState world, RobotMover mover) {
+	public InterceptBallMilestone4(WorldState world, RobotMover mover) {
 		super(world, mover);
 		this.ball = world.ball;
 		initx = ball.x;
@@ -57,52 +57,15 @@ public class InterceptBall2 extends StrategyInterface {
 			double targetX = (world.areWeOnLeft()) ? 60 : 560;
 			while (!shouldidie && !Strategy.alldie) {
 				Position projBallPos = world.projectedBallPos();
-
 				double distance = DistanceCalculator.Distance(world.ourRobot.x, world.ourRobot.y, targetX, projBallPos.getY());
 				if (distance > distanceThreshold) {
-					double xDiff = targetX - world.ourRobot.x;
-					double yDiff = projBallPos.getY() - world.ourRobot.y;
-					double speedForward = 0, speedRight = 0;
-					// our robot is more than the threshold to the left of the target X
-					if (xDiff > distanceThreshold) {
-						speedForward = -100;
-					} else {
-						speedForward = 0;
-					}
-					// We are below where we need to be
-					if (yDiff < -distanceThreshold) {
-						speedRight = 100;
-					}
-					// We are above where we need to be
-					else if (yDiff > distanceThreshold) {
-						speedRight = -100;
-					}
-					// We are where we need to be
-					else {
-						speedForward = 100;
-						speedRight = 0;
-					}
-					// Slow down as we approach to avoid overshooting
-					if (Math.abs(yDiff) > 2.0 * distanceThreshold) {
+					System.out.println("Projected ball pos: (" + projBallPos.getX() + ", " + projBallPos.getY() + ")");
+					if (distance > 2.5 * distanceThreshold) {
 						mover.setSpeedCoef(1.0);
 					} else {
 						mover.setSpeedCoef(0.7);
 					}
-					// Transform speeds to world coordinates instead of local, in case our robot is not facing the enemy
-					// goal
-					double angle = world.ourRobot.bearing - Math.PI * 1.5;
-					double cos = Math.cos(angle), sin = Math.sin(angle);
-					double speedX = speedRight * cos - speedForward * sin;
-					if (speedX > 100.0)
-						speedX = 100.0;
-					else if (speedX < -100.0)
-						speedX = -100.0;
-					double speedY = speedForward * cos + speedRight * sin;
-					if (speedY > 100.0)
-						speedY = 100.0;
-					else if (speedY < -100.0)
-						speedY = -100.0;
-					mover.move(speedX, speedY);
+					mover.moveTowards(targetX, projBallPos.getY());
 				} else {
 					mover.resetQueue();
 					mover.stopRobot();
@@ -111,7 +74,7 @@ public class InterceptBall2 extends StrategyInterface {
 				SafeSleep.sleep(50);
 				mover.setSpeedCoef(1.0);
 				// Proceed to dribble if we have the ball
-				if (world.distanceToBall() < 70)
+				if (world.distanceToBall()<70)
 					break;
 			}
 			System.out.println("Exited intercept part");
@@ -120,27 +83,25 @@ public class InterceptBall2 extends StrategyInterface {
 			// immediately.
 
 			// Check if the ball is closer to our goal then us.
-			/*
-			 * if (Math.abs(ball.x - world.getOurGoal().getX()) > Math.abs(us.x - world.getOurGoal().getX())) {
-			 * // dribble.dribbleBall(world, mover);
-			 * } else {
-			 * 
-			 * // After we are on the trajectory, rotate to face the ball.
-			 * // and start moving towards it.
-			 * ballTurnAngle = Math.toRadians(TurnToBall.Turner(us, ball));
-			 * mover.rotate(ballTurnAngle);
-			 * mover.waitForCompletion();
-			 * mover.move(0, 100);
-			 * while (world.whoHasTheBall() != ourRobot && !shouldidie && !Strategy.alldie) {
-			 * SafeSleep.sleep(50);
-			 * }
-			 * mover.stopRobot();
-			 * 
-			 * // dribble.dribbleBall(world, mover);
-			 * offence42 = new Offense42(world, mover);
-			 * offence42.run();
-			 * }
-			 */
+			/*if (Math.abs(ball.x - world.getOurGoal().getX()) > Math.abs(us.x - world.getOurGoal().getX())) {
+				// dribble.dribbleBall(world, mover);
+			} else {
+
+				// After we are on the trajectory, rotate to face the ball.
+				// and start moving towards it.
+				ballTurnAngle = Math.toRadians(TurnToBall.Turner(us, ball));
+				mover.rotate(ballTurnAngle);
+				mover.waitForCompletion();
+				mover.move(0, 100);
+				while (world.whoHasTheBall() != ourRobot && !shouldidie && !Strategy.alldie) {
+					SafeSleep.sleep(50);
+				}
+				mover.stopRobot();
+
+				// dribble.dribbleBall(world, mover);
+				offence42 = new Offense42(world, mover);
+				offence42.run();
+			}*/
 			offence42 = new Offense42(world, mover);
 			offence42.run();
 		} catch (InterruptedException e) {

@@ -78,19 +78,19 @@ public class BluetoothRobot extends Robot implements RobotController {
 		return confirmation;
 	}
 	
-	@Override
-	public int beep() {
-		int[] command = { Commands.BEEP, 0, 0, 0 };
-		int confirmation = 0;
-		try {
-			confirmation = comms.sendToRobot(command);
-		} catch (IOException e1) {
-			System.out.println("Could not send command");
-			e1.printStackTrace();
-		}
-		System.out.println("Beep...");
-		return confirmation;
-	}
+//	@Override
+//	public int beep() {
+//		int[] command = { Commands.BEEP, 0, 0, 0 };
+//		int confirmation = 0;
+//		try {
+//			confirmation = comms.sendToRobot(command);
+//		} catch (IOException e1) {
+//			System.out.println("Could not send command");
+//			e1.printStackTrace();
+//		}
+//		System.out.println("Beep...");
+//		return confirmation;
+//	}
 
 	@Override
 	public int kick() {
