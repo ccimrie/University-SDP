@@ -30,6 +30,13 @@ public class RobotMover extends Thread {
 	private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
+	private double speedCoef=1.0;
+	
+	public void setSpeedCoef(double coef){
+		coefLock.lock();
+		speedCoef=coef;
+		coefLock.unlock();
+	}
 
 	/** The distance at which a moveTo command decides it's close enough */
 	public static int distanceThreshold = 20;
@@ -74,6 +81,8 @@ public class RobotMover extends Thread {
 	private Semaphore jobSem = new Semaphore(0, true);
 	/** A semaphore used to signal the RobotMover has completed its job queue */
 	private Semaphore waitSem = new Semaphore(0, true);
+
+	private ReentrantLock coefLock = new ReentrantLock(true);
 
 	/**
 	 * Constructor for the movement class.
@@ -347,7 +356,9 @@ public class RobotMover extends Thread {
 	 * @see #move(double speedX, double speedY)
 	 */
 	private void doMove(double speedX, double speedY) {
-		robot.move((int) speedX, (int) speedY);
+		coefLock.lock();
+		robot.move((int) (speedCoef*speedX), (int) (speedCoef*speedY));
+		coefLock.unlock();
 	}
 
 	/**
@@ -435,7 +446,7 @@ public class RobotMover extends Thread {
 	private void doMoveTo(double x, double y) {
 		int i = 0;
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
-				&& i < 50 && !interruptMove) {
+				&& i < 500 && !interruptMove) {
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
@@ -640,6 +651,7 @@ public class RobotMover extends Thread {
 		int selectedy = map.reduceRound(us.x);
 		int goToX = map.reduceRound(y);
 		int goToY = map.reduceRound(x);
+		System.out.println("(" + goToX + ", " + goToY + ")");
 		Path path = finder.findPath(
 				new UnitMover(map.getUnit(selectedx, selectedy)), selectedx,
 				selectedy, goToX, goToY);
@@ -660,7 +672,7 @@ public class RobotMover extends Thread {
 			}
 
 			i = 0;
-			distanceThreshold = 30;
+			distanceThreshold = 24;
 			while (i < l && !interruptMove) {
 				// map.terrain[path.getX(i)][path.getY(i)] = 7;
 				System.out.println("AStar: Calling movement to ("

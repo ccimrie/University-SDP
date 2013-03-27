@@ -280,10 +280,12 @@ public class ControlGUI2 extends JFrame {
 		this.addWindowListener(new ListenCloseWdw());
 
 		startButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {				
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
+					robot.beep();
 					strategy = new InterceptBall(worldState, mover);
+					//strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
 					strategyThread.start();
 				} else {
@@ -364,8 +366,7 @@ public class ControlGUI2 extends JFrame {
 
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
-
+				int op1 = Integer.parseInt(op1field.getText());				
 				mover.move(0, op1);
 			}
 		});

@@ -70,9 +70,9 @@ public class ReducedMap implements TileBasedMap {
 			int ballx = reduceRound(world.ball.y);
 			int bally = reduceRound(world.ball.x);
 			if (ballx <= 1)
-				ballx += 2;
+				ballx += 3;
 			if (bally <= 1)
-				bally += 2;
+				bally += 3;
 			if (ballx >= WIDTH - 1)
 				ballx -= 2;
 			if (bally >= HEIGHT - 1)

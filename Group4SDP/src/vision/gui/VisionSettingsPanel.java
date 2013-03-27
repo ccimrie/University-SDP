@@ -217,6 +217,9 @@ class VisionSettingsPanel extends JPanel {
 			int[] lowerUpper = tabPanels[super.index].getRedSliderValues();
 			pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
 			pitchConstants.setRedUpper(super.index, lowerUpper[1]);
+			
+			boolean inverted = tabPanels[super.index].isRedSliderInverted();
+			pitchConstants.setRedInverted(super.index, inverted);
 		}
 	}
 
@@ -231,6 +234,9 @@ class VisionSettingsPanel extends JPanel {
 			pitchConstants.setGreenLower(super.index,
 					Math.max(0, lowerUpper[0]));
 			pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
+			
+			boolean inverted = tabPanels[super.index].isGreenSliderInverted();
+			pitchConstants.setGreenInverted(super.index, inverted);
 		}
 	}
 
@@ -245,6 +251,9 @@ class VisionSettingsPanel extends JPanel {
 			pitchConstants
 					.setBlueLower(super.index, Math.max(0, lowerUpper[0]));
 			pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
+			
+			boolean inverted = tabPanels[super.index].isBlueSliderInverted();
+			pitchConstants.setBlueInverted(super.index, inverted);
 		}
 	}
 
@@ -260,6 +269,9 @@ class VisionSettingsPanel extends JPanel {
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			pitchConstants.setHueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
+			
+			boolean inverted = tabPanels[super.index].isHueSliderInverted();
+			pitchConstants.setHueInverted(super.index, inverted);
 		}
 	}
 
@@ -277,6 +289,9 @@ class VisionSettingsPanel extends JPanel {
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			pitchConstants.setSaturationUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
+			
+			boolean inverted = tabPanels[super.index].isSaturationSliderInverted();
+			pitchConstants.setSaturationInverted(super.index, inverted);
 		}
 	}
 
@@ -292,6 +307,9 @@ class VisionSettingsPanel extends JPanel {
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			pitchConstants.setValueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
+			
+			boolean inverted = tabPanels[super.index].isValueSliderInverted();
+			pitchConstants.setValueInverted(super.index, inverted);
 		}
 	}
 
@@ -650,7 +668,7 @@ class VisionSettingsPanel extends JPanel {
 				rdbtnMouseModeGreyCircles.doClick();
 			}
 		});
-		
+
 		GridBagConstraints gbc_targetSelection = new GridBagConstraints();
 		gbc_targetSelection.anchor = GridBagConstraints.EAST;
 		gbc_targetSelection.insets = new Insets(0, 0, 5, 5);
@@ -665,10 +683,10 @@ class VisionSettingsPanel extends JPanel {
 					setMouseMode(MOUSE_MODE_TARGET);
 			}
 		});
-		
+
 		GridBagConstraints gbc_targetSelectionLabel = new GridBagConstraints();
 		gbc_targetSelectionLabel.anchor = GridBagConstraints.WEST;
-		gbc_targetSelectionLabel.insets = new Insets(0, 0,5, 5);
+		gbc_targetSelectionLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_targetSelectionLabel.gridx = 1;
 		gbc_targetSelectionLabel.gridy = 7;
 		JLabel targetSelectionLabel = new JLabel("Target Selection");
@@ -680,7 +698,7 @@ class VisionSettingsPanel extends JPanel {
 			}
 		});
 		mouseModePanel.add(targetSelectionLabel, gbc_targetSelectionLabel);
-		
+
 		mouseModePanel.add(mouseModeGreyCirclesLabel,
 				gbc_mouseModeGreyCirclesLabel);
 
@@ -741,9 +759,9 @@ class VisionSettingsPanel extends JPanel {
 
 		mainTabPanel.add(saveLoadPanel);
 
-		rdbtnPitch0.doClick();
-		rdbtnBlue.doClick();
-		rdbtnLeft.doClick();
+		rdbtnPitch1.doClick();
+		rdbtnYellow.doClick();
+		rdbtnRight.doClick();
 		rdbtnDistortOff.doClick();
 		rdbtnDebugOn.doClick();
 		rdbtnMouseModeOff.doClick();
@@ -764,7 +782,7 @@ class VisionSettingsPanel extends JPanel {
 	public void setMouseMode(int mouseMode) {
 		this.mouseMode = mouseMode;
 	}
-	
+
 	public boolean isDebugEnabled() {
 		return debugEnabled;
 	}

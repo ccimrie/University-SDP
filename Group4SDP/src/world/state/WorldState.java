@@ -16,7 +16,7 @@ import vision.Position;
  */
 public class WorldState {
 	/** The number of frames used to calculate velocity */
-	private static final int NUM_FRAMES = 5;
+	private static final int NUM_FRAMES = 10;
 	private AngleCalculator a = new AngleCalculator(this);
 	private long counter;
 	private int direction; // 0 = right, 1 = left.
@@ -604,7 +604,11 @@ public class WorldState {
 		return angle;
 	}
 	public Position projectedBallPos() {
-		
+		// Ignore noise
+		if (Math.abs(ball.speedX) < 0.3)
+			ball.speedX = 0;
+		if (Math.abs(ball.speedY) < 0.3)
+			ball.speedY = 0;
 
 		/*
 		 * Don't bother projecting where the ball's going to be if it's barely

@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Represents the centre point of an object, for example the ball or a robot.
  * 
  * @author s0840449
- * @author Alex Adams (s1046358) - made some optimizatons, tidied a few comments
+ * @author Alex Adams (s1046358)
  */
 public class Position {
 	private int x;
@@ -61,6 +61,11 @@ public class Position {
 	 */
 	public void setY(int y) {
 		this.y = y;
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
 	}
 
 	/**
