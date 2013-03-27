@@ -8,7 +8,7 @@ import world.state.Ball;
 import world.state.Robot;
 import world.state.WorldState;
 
-public class InterceptBall extends StrategyInterface {
+public class InterceptBallMilestone4 extends StrategyInterface {
 	private static final double distanceThreshold = 20;
 	private static final double angleThreshold = Math.toRadians(15);
 	private Ball ball;
@@ -19,7 +19,7 @@ public class InterceptBall extends StrategyInterface {
 	// private DribbleBall5 dribble = new DribbleBall5();
 	private Offense42 offence42;
 
-	public InterceptBall(WorldState world, RobotMover mover) {
+	public InterceptBallMilestone4(WorldState world, RobotMover mover) {
 		super(world, mover);
 		this.ball = world.ball;
 		initx = ball.x;
