@@ -448,7 +448,7 @@ public class ControlGUI2 extends JFrame {
 
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for (int i = 0; i < 100; ++i) {
+				for (int i = 0; i < 3; ++i) {
 					System.out.println("Disconnecting...");
 					Strategy.alldie = true;
 					// Kill the mover and wait for it to stop completely

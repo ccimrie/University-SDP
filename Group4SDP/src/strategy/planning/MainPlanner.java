@@ -66,10 +66,9 @@ public class MainPlanner extends StrategyInterface {
 			// if (currentState == state.MoveToBall && theirVelocity >= 50 &&
 			// (System.currentTimeMillis() - startTime) >= 3000) {
 			// newState = state.Defensive;
-			if (currentState != state.MoveToBall && world.whoHasTheBall() == -1) {
+			if (world.whoHasTheBall() == -1) {
 				newState = state.MoveToBall;
-			} else if (currentState == state.MoveToBall
-					&& world.whoHasTheBall() == ourRobot) {
+			} else if (world.whoHasTheBall() == ourRobot) {
 				newState = state.Offensive;
 			} else if (/*currentState == state.Defensive
 					&& */world.whoHasTheBall() == ourRobot) {
@@ -99,7 +98,7 @@ public class MainPlanner extends StrategyInterface {
 					strategyThread = new Thread(activeStrat, "Defense Thread");
 					System.out.println("[MainPlanner] Defense thread started.");
 				} else if (currentState == state.Offensive) {
-					activeStrat = new Offense3(world, mover);
+					activeStrat = new Offense2(world, mover);
 					strategyThread = new Thread(activeStrat, "Offense Thread");
 				} else if (currentState == state.EndOfGame) {
 					System.out.println("[MainPlanner] End of game.");

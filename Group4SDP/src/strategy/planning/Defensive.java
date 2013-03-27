@@ -54,20 +54,6 @@ public class Defensive extends StrategyInterface {
 		double theirBearing;
 
 		try {
-
-			// TODO: Main planner has to handle this -In case they have
-			// possession of the ball, our robot goes to defend the goal
-
-			System.out.println("They have the posession");
-			System.out.println("Left: x "
-					+ (int) (ourGoalDefendPosition.getX()) + " y "
-					+ (int) ourGoalDefendPosition.getY());
-
-			// Move to our goal
-			mover.moveToAndStop(ourGoalDefendPosition.getX(),
-					ourGoalDefendPosition.getY());
-			mover.waitForCompletion();
-
 			System.out.println("Point reached");
 			System.out.println(!Strategy.alldie);
 			System.out.println(!shouldidie);
