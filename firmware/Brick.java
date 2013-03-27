@@ -68,7 +68,7 @@ public class Brick {
 			byte[] robotready = { 0, 0, 0, 0 };
 			os.write(robotready);
 			os.flush();
-
+			Sound.playTone(1000,200,100);
 			// Begin reading commands
 			int opcode = DO_NOTHING;
 			int option1, option2, option3;
@@ -197,6 +197,7 @@ public class Brick {
 			LCD.drawString("Closing", 0, 2);
 			LCD.refresh();
 			connection.close();
+			Sound.playTone(1500,400,100);
 			LCD.clear();
 			Thread.sleep(200);
 		}
@@ -406,9 +407,5 @@ public class Brick {
 	
 	private static void beep() throws InterruptedException {
 		Sound.playTone(1000,150,100);
-		Thread.sleep(1000);
-		Sound.playTone(1000,150,100);
-		Thread.sleep(1000);
-		Sound.playTone(1500,500,100);
 	}
 }

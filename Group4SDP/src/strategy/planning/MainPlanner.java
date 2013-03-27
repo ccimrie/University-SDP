@@ -71,14 +71,16 @@ public class MainPlanner extends StrategyInterface {
 			} else if (currentState == state.MoveToBall
 					&& world.whoHasTheBall() == ourRobot) {
 				newState = state.Offensive;
-			} else if (currentState == state.Defensive
-					&& world.whoHasTheBall() == ourRobot) {
+			} else if (/*currentState == state.Defensive
+					&& */world.whoHasTheBall() == ourRobot) {
 				newState = state.Offensive;
-			} else if (currentState == state.Offensive
-					&& world.whoHasTheBall() == theirRobot) {
+			} else if (/*currentState == state.Offensive
+					&& */world.whoHasTheBall() == theirRobot) {
 				newState = state.Defensive;
 			} else if (world.ballIsInGoal()) {
 				newState = state.EndOfGame;
+			} else {
+				newState = state.MoveToBall;
 			}
 
 			// If state did not change, do nothing

@@ -759,9 +759,9 @@ class VisionSettingsPanel extends JPanel {
 
 		mainTabPanel.add(saveLoadPanel);
 
-		rdbtnPitch1.doClick();
-		rdbtnYellow.doClick();
-		rdbtnRight.doClick();
+		rdbtnPitch0.doClick();
+		rdbtnBlue.doClick();
+		rdbtnLeft.doClick();
 		rdbtnDistortOff.doClick();
 		rdbtnDebugOn.doClick();
 		rdbtnMouseModeOff.doClick();
