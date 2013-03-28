@@ -51,7 +51,7 @@ public class RobotMover extends Thread {
 	 * {@link RobotMover#doRotate (double angle)}
 	 */
 	private enum Mode {
-		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE
+		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE, DRIBBLEON, DRIBBLEOFF
 	};
 
 	/** Settings info class to permit queueing of movements */
@@ -62,6 +62,7 @@ public class RobotMover extends Thread {
 		public boolean avoidBall = false;
 		public boolean avoidEnemy = false;
 		public long milliseconds = 0;
+		private int dribblemode = 0;
 
 		public Mode mode;
 	};
@@ -148,6 +149,12 @@ public class RobotMover extends Thread {
 			break;
 		case KICK:
 			robot.kick();
+			break;
+		case DRIBBLEON:
+			robot.dribble(movement.dribblemode);
+			break;
+		case DRIBBLEOFF:
+			robot.stopdribble();
 			break;
 		case DELAY:
 			SafeSleep.sleep(movement.milliseconds);
@@ -758,6 +765,45 @@ public class RobotMover extends Thread {
 	public synchronized boolean kick() {
 		MoverConfig movement = new MoverConfig();
 		movement.mode = Mode.KICK;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a new job
+		jobSem.release();
+		return true;
+	}
+	
+	/**
+	 * Turns the dribbler on
+	 * 
+	 * @return true if the dribbler command was successfully queued, false otherwise
+	 * @param direction - 1 for forward, 2 for backwards
+	 * @see #waitForCompletion()
+	 */
+	public synchronized boolean dribble(int direction) {
+		MoverConfig movement = new MoverConfig();
+		movement.dribblemode = direction;
+		movement.mode = Mode.DRIBBLEON;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a new job
+		jobSem.release();
+		return true;
+	}
+	
+	/**
+	 * Turns the dribbler off.
+	 * @return true if the dribbler command was successfully queued, false otherwise
+	 * @param direction - 1 for forward, 2 for backwards
+	 * @see #waitForCompletion()
+	 */
+	
+	public synchronized boolean stopdribble(){
+		MoverConfig movement = new MoverConfig();
+		movement.mode = Mode.DRIBBLEOFF;
 
 		if (!pushMovement(movement))
 			return false;
