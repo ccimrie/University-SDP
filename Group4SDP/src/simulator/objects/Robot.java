@@ -34,7 +34,7 @@ public class Robot {
 	private Vec2 speed = new Vec2();
 	/** The rotation speed for the robot in radians per second */
 	private float rotSpeed = 0f;
-	
+
 	private float power = 1;
 
 	/**
@@ -147,18 +147,18 @@ public class Robot {
 				kickerJointDef.localAxis1);
 
 		// TODO: calibrate
-		kickerJointDef.motorSpeed = 2.0f; //2.0
-		kickerJointDef.maxMotorForce = 10.0f; //4.0
+		kickerJointDef.motorSpeed = 2.0f; // 2.0
+		kickerJointDef.maxMotorForce = 10.0f; // 4.0
 		kickerJointDef.enableMotor = true;
 		kickerJointDef.lowerTranslation = 0.0f;
-		kickerJointDef.upperTranslation = 0.7f;
+		kickerJointDef.upperTranslation = 0.1f;
 		kickerJointDef.enableLimit = true;
 
 		this.kicker = (PrismaticJoint) world.createJoint(kickerJointDef);
 		lock.unlock();
 		System.out.println("Initialization complete:");
 		System.out.println("body is null: " + (body == null));
-		
+
 	}
 
 	/**
@@ -183,15 +183,15 @@ public class Robot {
 			// TODO: calibrate
 			// Slows the kickers motion over 5 steps
 			if (kickStep < 5) {
-				kicker.setMotorSpeed(3.0f);
+				kicker.setMotorSpeed(2.0f);
 				++kickStep;
 			} else {
-				kicker.setMotorSpeed(-3.0f);
+				kicker.setMotorSpeed(-2.0f);
 				kickStep = 0;
 			}
 		} else {
 			// If we're not kicking, make sure the kicker stays retracted
-			kicker.setMotorSpeed(-3.0f);
+			kicker.setMotorSpeed(-2.0f);
 		}
 		lock.unlock();
 	}
@@ -237,18 +237,13 @@ public class Robot {
 			throws InterruptedException {
 		lock.lockInterruptibly();
 		// Simulator coordinates are different to the ones we use.
-		speed.set((float) speedY*power, (float) -speedX*power);
+		speed.set((float) speedY * power, (float) -speedX * power);
 		lock.unlock();
 	}
-	
-	
-	public void setPower(float powerInput){
-	
-		power = powerInput;
-		
 
+	public void setPower(float powerInput) {
+		power = powerInput;
 	}
-	
 
 	/**
 	 * Sets the rotation speed for the robot
