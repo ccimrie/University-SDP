@@ -2,7 +2,6 @@ package communication;
 
 import java.io.IOException;
 
-import strategy.planning.Commands;
 import world.state.Robot;
 import world.state.RobotType;
 
@@ -113,6 +112,40 @@ public class BluetoothRobot extends Robot implements RobotController {
 			e1.printStackTrace();
 		}
 		System.out.println("Kick");
+		return confirmation;
+	}
+	
+	@Override
+	public int dribble(int direction){
+		int [] command = { Commands.DRIBBLERON, direction, 0, 0 };
+		int confirmation = 0;
+		String direct;
+		if (direction == 1){
+			direct = "forwards";
+		}else{
+			direct = "backwards";
+		}
+		try {
+			confirmation = comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Dribbling in direction " + direct + "!");
+		return confirmation;
+	}
+	
+	@Override
+	public int stopdribble(){
+		int[] command = { Commands.DRIBBLEROFF, 0, 0, 0 };
+		int confirmation = 0;
+		try {
+			confirmation = comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Stop the dribbler.");
 		return confirmation;
 	}
 

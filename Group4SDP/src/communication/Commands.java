@@ -1,4 +1,4 @@
-package strategy.planning;
+package communication;
 
 /**
  * Opcodes for commands.
@@ -23,6 +23,8 @@ public class Commands {
 	public final static int RIGHT = 11;
 	public final static int ANGLEMOVE = 12;
 	public final static int SLOWMOVE = 13;
+	public final static int DRIBBLERON = 23;
+	public final static int DRIBBLEROFF = 24;
 	public final static int TEST = 66;
 	public final static int FORCEQUIT = 55;
 	public final static int BEEP = 42;
