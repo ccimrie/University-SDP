@@ -38,6 +38,8 @@ public class Brick {
 	private final static int QUIT = 5;
 	private final static int ROTATE = 6;
 	private final static int ROTATEMOVE = 7;
+	private final static int DRIBBLERON = 23;
+	private final static int DRIBBLEROFF = 24;
 	private final static int FORCEQUIT = 55;
 	private final static int TEST = 66;
 	private final static int BEEP = 42;
@@ -173,6 +175,27 @@ public class Brick {
 						beep();
 						replytopc(opcode, os);
 						break;
+						
+					case DRIBBLERON:
+						LCD.clear();
+						LCD.drawString("Dribbler!", 0, 2);
+						LCD.refresh();
+						kicker.setAcceleration(6000);
+						kicker.setSpeed(900);
+						//Use option1 to send parameter. 1 for dribble, 2 (or anything else
+						//for kicking
+						if (option1 == 1){
+							kicker.forward();
+						}else{
+							kicker.backward();
+						}
+						replytopc(opcode, os);
+						break;
+						
+					case DRIBBLEROFF:
+						kicker.flt();
+						replytopc(opcode, os);
+						break;
 
 					case TEST:
 						boolean receiveTrue = ((opcode == 66) && (option1 == 0)
@@ -183,6 +206,7 @@ public class Brick {
 						os.write(testres);
 						os.flush();
 						break;
+						
 					case QUIT: // Exit the loop, close connection
 						// Sound.twoBeeps();
 						break;
