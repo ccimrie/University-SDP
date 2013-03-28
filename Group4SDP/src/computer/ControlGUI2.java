@@ -60,8 +60,10 @@ public class ControlGUI2 extends JFrame {
 	private final JButton stratStartButton = new JButton("Strat Start");
 	private final JButton penaltyAtkButton = new JButton("Penalty Attack");
 	private final JButton penaltyDefButton = new JButton("Penalty Defend");
-	private final JButton moveNoCollTarget = new JButton("Move while avoiding just opponent");
-	private final JButton moveNoCollOppTarget = new JButton("Move while avoiding all obstacles");
+	private final JButton moveNoCollTarget = new JButton(
+			"Move while avoiding just opponent");
+	private final JButton moveNoCollOppTarget = new JButton(
+			"Move while avoiding all obstacles");
 	// Basic movement
 	private final JButton forwardButton = new JButton("Forward");
 	private final JButton backwardButton = new JButton("Backward");
@@ -121,7 +123,8 @@ public class ControlGUI2 extends JFrame {
 		int compressionQuality = 80;
 
 		try {
-			VideoStream vStream = new VideoStream(videoDevice, width, height, channel, videoStandard, compressionQuality);
+			VideoStream vStream = new VideoStream(videoDevice, width, height,
+					channel, videoStandard, compressionQuality);
 
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
@@ -129,7 +132,8 @@ public class ControlGUI2 extends JFrame {
 			Vision vision = new Vision(worldState, pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
-			VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream, distortionFix);
+			VisionGUI gui = new VisionGUI(width, height, worldState,
+					pitchConstants, vStream, distortionFix);
 
 			vStream.addReceiver(distortionFix);
 			distortionFix.addReceiver(gui);
@@ -141,7 +145,8 @@ public class ControlGUI2 extends JFrame {
 		}
 
 		// Sets up the communication
-		BluetoothCommunication comms = new BluetoothCommunication(DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
+		BluetoothCommunication comms = new BluetoothCommunication(
+				DeviceInfo.NXT_NAME, DeviceInfo.NXT_MAC_ADDRESS);
 		// Sets up robot
 		BluetoothRobot robot = new BluetoothRobot(RobotType.Us, comms);
 
@@ -280,12 +285,11 @@ public class ControlGUI2 extends JFrame {
 		this.addWindowListener(new ListenCloseWdw());
 
 		startButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {				
+			public void actionPerformed(ActionEvent e) {
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
-					robot.beep();
 					strategy = new InterceptBall(worldState, mover);
-					//strategy = new Offense42(worldState, mover);
+					// strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
 					strategyThread.start();
 				} else {
@@ -366,7 +370,7 @@ public class ControlGUI2 extends JFrame {
 
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());				
+				int op1 = Integer.parseInt(op1field.getText());
 				mover.move(0, op1);
 			}
 		});
@@ -444,33 +448,38 @@ public class ControlGUI2 extends JFrame {
 
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Disconnecting...");
-				Strategy.alldie = true;
-				// Kill the mover and wait for it to stop completely
-				if (mover.isAlive()) {
-					try {
-						mover.kill();
-						mover.join(3000);
-						// If the mover still hasn't stopped within 3 seconds,
-						// assume it's stuck and kill the program
-						if (mover.isAlive()) {
-							System.out.println("Could not kill mover! Shutting down GUI...");
-							cleanQuit();
+				for (int i = 0; i < 3; ++i) {
+					System.out.println("Disconnecting...");
+					Strategy.alldie = true;
+					// Kill the mover and wait for it to stop completely
+					if (mover.isAlive()) {
+						try {
+							mover.kill();
+							mover.join(3000);
+							// If the mover still hasn't stopped within 3
+							// seconds,
+							// assume it's stuck and kill the program
+							if (mover.isAlive()) {
+								System.out
+										.println("Could not kill mover! Shutting down GUI...");
+								cleanQuit();
+							}
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
 						}
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
 					}
-				}
-				robot.disconnect();
-				System.out.println("Reconnecting...");
-				try {
-					Thread.sleep(1000);
-					robot.connect();
-					mover = new RobotMover(worldState, robot);
-					mover.start();
-				} catch (Exception e1) {
-					System.out.println("Failed to reconnect! Shutting down GUI...");
-					cleanQuit();
+					robot.disconnect();
+					System.out.println("Reconnecting...");
+					try {
+						Thread.sleep(400);
+						robot.connect();
+						mover = new RobotMover(worldState, robot);
+						mover.start();
+					} catch (Exception e1) {
+						System.out
+								.println("Failed to reconnect! Shutting down GUI...");
+						cleanQuit();
+					}
 				}
 			}
 		});
@@ -515,20 +524,23 @@ public class ControlGUI2 extends JFrame {
 
 		moveNoCollTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), false, true);
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), false, true);
 			}
 		});
 
 		moveNoCollOppTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), true, true);
+				mover.moveToAStar(Integer.parseInt(op4field.getText()),
+						Integer.parseInt(op5field.getText()), true, true);
 			}
 		});
 
 		// Center the window on startup
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension frameSize = this.getPreferredSize();
-		this.setLocation((dim.width - frameSize.width) / 2, (dim.height - frameSize.height) / 2);
+		this.setLocation((dim.width - frameSize.width) / 2,
+				(dim.height - frameSize.height) / 2);
 		this.setResizable(false);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

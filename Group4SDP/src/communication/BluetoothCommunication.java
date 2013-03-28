@@ -72,14 +72,14 @@ public class BluetoothCommunication {
 	public boolean isRobotReady() {
 		return robotReady;
 	}
-	
-	public void clearBuff(){
+
+	public void clearBuff() {
 		buffer = 0;
 	}
 
 	/**
-	 * Send 4 byte commands to the robot. Simple version that does not keep track of
-	 * the buffer or require confirmation of received package.
+	 * Send 4 byte commands to the robot. Simple version that does not keep
+	 * track of the buffer or require confirmation of received package.
 	 * 
 	 * @param comm
 	 *            - int [] with 4 elements, first element is the opcode the rest
@@ -89,17 +89,18 @@ public class BluetoothCommunication {
 	 */
 
 	public void sendToRobotSimple(int[] comm) throws IOException {
-
+		if (!connected)
+			return;
 		byte[] command = { (byte) comm[0], (byte) comm[1], (byte) comm[2],
 				(byte) comm[3] };
 
 		out.write(command);
 		out.flush();
 	}
-	
+
 	/**
-	 * Send 4 byte commands to the robot. This version keeps track of the buffer and
-	 * requires confirmation to be received from a package.
+	 * Send 4 byte commands to the robot. This version keeps track of the buffer
+	 * and requires confirmation to be received from a package.
 	 * 
 	 * @param comm
 	 *            - int [] with 4 elements, first element is the opcode the rest
@@ -107,35 +108,38 @@ public class BluetoothCommunication {
 	 * @throws IOException
 	 *             when fail to send command to robot
 	 * 
-	 * @return Returns the opcode sent (if successful), 
-	 * -1 if we couldn't send the command because the buffer was full
-	 * or -2 if we received wrong opcode or didn't receive confirmation.
+	 * @return Returns the opcode sent (if successful), -1 if we couldn't send
+	 *         the command because the buffer was full or -2 if we received
+	 *         wrong opcode or didn't receive confirmation or -3 if the
+	 *         connection is not open
 	 */
-	
+
 	public int sendToRobot(int[] comm) throws IOException {
-		if (buffer<2){
+		if (!connected)
+			return -3;
+		if (buffer < 2) {
 			byte[] command = { (byte) comm[0], (byte) comm[1], (byte) comm[2],
 					(byte) comm[3] };
 
 			out.write(command);
 			out.flush();
-			buffer +=1;
+			buffer += 1;
 		} else {
-			//The buffer is full we can't send a package;
+			// The buffer is full we can't send a package;
 			return -1;
 		}
-		
-		int [] confirmation;
-		try{
+
+		int[] confirmation;
+		try {
 			confirmation = receiveFromRobot();
-			if (confirmation[1] == comm[0]){
+			if (confirmation[1] == comm[0]) {
 				buffer -= 1;
 				return confirmation[1];
-			}	
-		}catch (IOException e1) {
-				System.out.println("Could not receive confirmation");
-				buffer -= 1;
-				return -2;
+			}
+		} catch (IOException e1) {
+			System.out.println("Could not receive confirmation");
+			buffer -= 1;
+			return -2;
 		}
 		System.out.println("Buffer is full, command not sent!");
 		return -2;
@@ -183,7 +187,7 @@ public class BluetoothCommunication {
 			connected = true;
 		} catch (NXTCommException e) {
 			throw new IOException("Failed to connect " + e.toString());
-		} catch (InterruptedException e) { 
+		} catch (InterruptedException e) {
 			throw new IOException("Failed to connect " + e.toString());
 		}
 	}

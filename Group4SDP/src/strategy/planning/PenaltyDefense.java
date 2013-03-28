@@ -14,8 +14,6 @@ public class PenaltyDefense extends StrategyInterface {
 		super(world, mover);
 		//Original position of the ball. Use this to determine
 		this.ball = world.ball;
-		this.originalx = ball.x;
-		this.originaly = ball.y;
 	}
 
 	@Override
@@ -23,9 +21,7 @@ public class PenaltyDefense extends StrategyInterface {
 		double theirOriginal = Math.toDegrees(world.theirRobot.bearing);
 
 		int counter = 0;
-		while ((!shouldidie && !Strategy.alldie) &&
-				(Math.abs(ball.x - originalx) < 10) && 
-				((Math.abs(ball.y - originaly)) < 10)){
+		while (!shouldidie && !Strategy.alldie){
 //			System.out.println(Math.toDegrees(world.theirRobot.bearing) + " "
 //					+ theirOriginal);
 
@@ -34,7 +30,7 @@ public class PenaltyDefense extends StrategyInterface {
 				System.out.println("go backwards");
 				mover.move(0, -100);
 				try {
-					SafeSleep.sleep(600);
+					SafeSleep.sleep(300);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -44,7 +40,7 @@ public class PenaltyDefense extends StrategyInterface {
 				theirOriginal = Math.toDegrees(world.theirRobot.bearing);
 				counter--;
 				try {
-					SafeSleep.sleep(600);
+					SafeSleep.sleep(300);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -55,7 +51,7 @@ public class PenaltyDefense extends StrategyInterface {
 
 				mover.move(0, 100);
 				try {
-					SafeSleep.sleep(600);;
+					SafeSleep.sleep(300);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -65,7 +61,7 @@ public class PenaltyDefense extends StrategyInterface {
 				theirOriginal = Math.toDegrees(world.theirRobot.bearing);
 				counter++;
 				try {
-					SafeSleep.sleep(600);
+					SafeSleep.sleep(300);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

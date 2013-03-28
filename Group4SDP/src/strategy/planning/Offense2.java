@@ -174,7 +174,7 @@ public class Offense2 extends StrategyInterface {
 					// After we start sidestepping them, sleep until
 					// we have nearly passed them or if we are too close to the
 					// wall.
-					while (Math.abs(us.x - them.x) < 30 || (us.y - world.goalInfo.pitchConst.getLeftBuffer() < 40) || (us.y - world.goalInfo.pitchConst.getRightBuffer() < 40)) {
+					while (Math.abs(us.y - them.y) < 30 || (us.y - world.goalInfo.pitchConst.getLeftBuffer() < 40) || (us.y - world.goalInfo.pitchConst.getRightBuffer() < 40)) {
 						try {
 							SafeSleep.sleep(50);
 							if (shouldidie || Strategy.alldie) {

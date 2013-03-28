@@ -33,7 +33,7 @@ public class BluetoothRobot extends Robot implements RobotController {
 	public boolean isConnected() {
 		return comms.isConnected();
 	}
-	
+
 	@Override
 	public boolean isReady() {
 		return comms.isRobotReady();
@@ -44,21 +44,31 @@ public class BluetoothRobot extends Robot implements RobotController {
 		int[] command = { Commands.QUIT, 0, 0, 0 };
 		try {
 			comms.sendToRobotSimple(command);
-		} catch (IOException e1) {
+			// Give the command time to send - prevents brick crash
+			Thread.sleep(100);
+		} catch (IOException e) {
 			System.out.println("Could not send command");
-			e1.printStackTrace();
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			System.out.println("Thread interrupted");
+			e.printStackTrace();
 		}
 		comms.closeBluetoothConnection();
 		System.out.println("Quit... Please reconnect.");
 	}
-	
+
 	public void forcequit() {
 		int[] command = { Commands.FORCEQUIT, 0, 0, 0 };
 		try {
 			comms.sendToRobotSimple(command);
+			// Give the command time to send - prevents brick crash
+			Thread.sleep(100);
 		} catch (IOException e1) {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			System.out.println("Thread interrupted");
+			e.printStackTrace();
 		}
 		comms.closeBluetoothConnection();
 		System.out.println("Force quit... Reset the brick.");
@@ -77,20 +87,20 @@ public class BluetoothRobot extends Robot implements RobotController {
 		System.out.println("Stop...");
 		return confirmation;
 	}
-	
-	@Override
-	public int beep() {
-		int[] command = { Commands.BEEP, 0, 0, 0 };
-		int confirmation = 0;
-		try {
-			confirmation = comms.sendToRobot(command);
-		} catch (IOException e1) {
-			System.out.println("Could not send command");
-			e1.printStackTrace();
-		}
-		System.out.println("Beep...");
-		return confirmation;
-	}
+
+	// @Override
+	// public int beep() {
+	// int[] command = { Commands.BEEP, 0, 0, 0 };
+	// int confirmation = 0;
+	// try {
+	// confirmation = comms.sendToRobot(command);
+	// } catch (IOException e1) {
+	// System.out.println("Could not send command");
+	// e1.printStackTrace();
+	// }
+	// System.out.println("Beep...");
+	// return confirmation;
+	// }
 
 	@Override
 	public int kick() {
@@ -113,8 +123,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 		if (input < 0 && input > -180) {
 			input = -input;
 			dir = 1;
-		} else if (input <-180 && input >-360){
-			input+=360;
+		} else if (input < -180 && input > -360) {
+			input += 360;
 		}
 
 		int op1 = input % 127;

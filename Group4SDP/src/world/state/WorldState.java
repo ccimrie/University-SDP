@@ -376,9 +376,9 @@ public class WorldState {
 
 	public Position getTheirGoal() {
 		if (weAreOnLeft) {
-			return goalInfo.getLeftGoalCenter();
-		} else {
 			return goalInfo.getRightGoalCenter();
+		} else {
+			return goalInfo.getLeftGoalCenter();
 		}
 	}
 

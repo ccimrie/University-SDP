@@ -19,9 +19,9 @@ import lejos.nxt.comm.NXTConnection;
  * 
  */
 public class Brick {
-	
+
 	private static boolean die = false;
-	
+
 	// IO control
 	private static InputStream is;
 	private static OutputStream os;
@@ -54,156 +54,174 @@ public class Brick {
 	private static NXTRegulatedMotor leftMotor = Motor.B;
 	private static NXTRegulatedMotor rightMotor = Motor.C;
 
-	public static void main(String[] args) throws Exception {
-		while (!die){
-			// Waiting for a connection and opening streams on success
-			LCD.clear();
-			LCD.drawString("Waiting for", 0, 2);
-			LCD.drawString("Bluetooth", 0, 3);
-			NXTConnection connection = Bluetooth.waitForConnection();
-			is = connection.openInputStream();
-			os = connection.openOutputStream();
-			LCD.clear();
-			LCD.drawString("Connected!", 0, 2);
-			byte[] robotready = { 0, 0, 0, 0 };
-			os.write(robotready);
-			os.flush();
+	public static void main(String[] args) {
+		while (!die) {
+			try {
+				// Waiting for a connection and opening streams on success
+				LCD.clear();
+				LCD.drawString("Waiting for", 0, 2);
+				LCD.drawString("Bluetooth", 0, 3);
+				NXTConnection connection = Bluetooth.waitForConnection();
+				is = connection.openInputStream();
+				os = connection.openOutputStream();
+				LCD.clear();
+				LCD.drawString("Connected!", 0, 2);
+				byte[] robotready = { 0, 0, 0, 0 };
+				if (os == null)
+					throw new Exception("Output stream is null!");
+				os.write(robotready);
+				os.flush();
+				Sound.playTone(1000, 200, 100);
+				// Begin reading commands
+				int opcode = DO_NOTHING;
+				int option1, option2, option3;
 
-			// Begin reading commands
-			int opcode = DO_NOTHING;
-			int option1, option2, option3;
+				while ((opcode != QUIT) && (opcode != FORCEQUIT)
+						&& !(Button.ESCAPE.isDown())) {
 
-			while ((opcode != QUIT) && (opcode != FORCEQUIT) && !(Button.ESCAPE.isDown())) {
+					// Get the next command from the inputstream
+					byte[] byteBuffer = new byte[4];
+					is.read(byteBuffer);
 
-				// Get the next command from the inputstream
-				byte[] byteBuffer = new byte[4];
-				is.read(byteBuffer);
+					// We send 4 different numbers, use as options
+					opcode = byteBuffer[0];
+					option1 = byteBuffer[1];
+					option2 = byteBuffer[2];
+					option3 = byteBuffer[3];
 
-				// We send 4 different numbers, use as options
-				opcode = byteBuffer[0];
-				option1 = byteBuffer[1];
-				option2 = byteBuffer[2];
-				option3 = byteBuffer[3];
+					if (opcode > 0)
+						LCD.drawString("opcode = " + opcode, 0, 2);
+					switch (opcode) {
 
-				if (opcode > 0)
-					LCD.drawString("opcode = " + opcode, 0, 2);
-				switch (opcode) {
+					case FORWARDS:
+						LCD.clear();
+						LCD.drawString("Forward!", 0, 2);
+						LCD.refresh();
+						move(0, option1);
+						replytopc(opcode, os);
+						break;
 
-				case FORWARDS:
-					LCD.clear();
-					LCD.drawString("Forward!", 0, 2);
-					LCD.refresh();
-					move(0, option1);
-					replytopc(opcode, os);
-					break;
+					case BACKWARDS:
+						LCD.clear();
+						LCD.drawString("Backward!", 0, 2);
+						LCD.refresh();
+						move(0, -option1);
+						replytopc(opcode, os);
+						break;
 
-				case BACKWARDS:
-					LCD.clear();
-					LCD.drawString("Backward!", 0, 2);
-					LCD.refresh();
-					move(0, -option1);
-					replytopc(opcode, os);
-					break;
+					case LEFT:
+						LCD.clear();
+						LCD.drawString("Left!", 0, 2);
+						LCD.refresh();
+						move(-option1, 0);
+						replytopc(opcode, os);
+						break;
 
-				case LEFT:
-					LCD.clear();
-					LCD.drawString("Left!", 0, 2);
-					LCD.refresh();
-					move(-option1, 0);
-					replytopc(opcode, os);
-					break;
+					case RIGHT:
+						LCD.clear();
+						LCD.drawString("Right!", 0, 2);
+						LCD.refresh();
+						move(option1, 0);
+						replytopc(opcode, os);
+						break;
 
-				case RIGHT:
-					LCD.clear();
-					LCD.drawString("Right!", 0, 2);
-					LCD.refresh();
-					move(option1, 0);
-					replytopc(opcode, os);
-					break;
+					case STOP:
+						LCD.clear();
+						LCD.drawString("Stopping!", 0, 2);
+						LCD.refresh();
+						stop();
+						replytopc(opcode, os);
+						break;
 
-				case STOP:
-					LCD.clear();
-					LCD.drawString("Stopping!", 0, 2);
-					LCD.refresh();
-					stop();
-					replytopc(opcode, os);
-					break;
+					case ROTATE:
+						LCD.clear();
+						LCD.drawString("Rotate!", 0, 2);
+						LCD.refresh();
+						// The angle is calculated by having option2*127 +
+						// option3
+						rotate(option1, option2 * 127 + option3);
+						replytopc(opcode, os);
+						break;
 
-				case ROTATE:
-					LCD.clear();
-					LCD.drawString("Rotate!", 0, 2);
-					LCD.refresh();
-					// The angle is calculated by having option2*127 + option3
-					rotate(option1, option2 * 127 + option3);
-					replytopc(opcode, os);
-					break;
+					case KICK:
+						LCD.clear();
+						LCD.drawString("Kicking!", 0, 2);
+						LCD.refresh();
+						kick();
+						replytopc(opcode, os);
+						break;
 
-				case KICK:
-					LCD.clear();
-					LCD.drawString("Kicking!", 0, 2);
-					LCD.refresh();
-					kick();
-					replytopc(opcode, os);
-					break;
+					case MOVE:
+						LCD.clear();
+						LCD.drawString("Moving at an angle!", 0, 2);
+						LCD.refresh();
+						move(option1, option2);
+						replytopc(opcode, os);
+						break;
 
-				case MOVE:
-					LCD.clear();
-					LCD.drawString("Moving at an angle!", 0, 2);
-					LCD.refresh();
-					move(option1, option2);
-					replytopc(opcode, os);
-					break;
+					case ROTATEMOVE:
+						LCD.clear();
+						LCD.drawString("Moving at an angle!", 0, 2);
+						LCD.refresh();
 
-				case ROTATEMOVE:
-					LCD.clear();
-					LCD.drawString("Moving at an angle!", 0, 2);
-					LCD.refresh();
+						moveAndRotate();
+						// rotateMove(option1, option2, option3);
+						replytopc(opcode, os);
+						break;
 
-					moveAndRotate();
-					//rotateMove(option1, option2, option3);
-					replytopc(opcode,os);
-					break;
-					
-				case BEEP: // Exit the loop, close connection
-					beep();
-					replytopc(opcode,os);
-					break;
+					case BEEP: // Exit the loop, close connection
+						beep();
+						replytopc(opcode, os);
+						break;
 
-				case TEST:
-					boolean receiveTrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
-					String tmp = "TEST! " + receiveTrue;
-					LCD.drawString(tmp, 0, 2);
-					byte[] testres = new byte[] { 66, 77, 88, 99 };
-					os.write(testres);
-					os.flush();
-					break;
-				case QUIT: // Exit the loop, close connection
-					// Sound.twoBeeps();
-					break;
-					
-				case FORCEQUIT:
-					//Quit the brick. otherwise it'd loop back to
-					//waiting for connection.
-					die = true;
-					break;
+					case TEST:
+						boolean receiveTrue = ((opcode == 66) && (option1 == 0)
+								&& (option2 == 0) && (option3 == 66));
+						String tmp = "TEST! " + receiveTrue;
+						LCD.drawString(tmp, 0, 2);
+						byte[] testres = new byte[] { 66, 77, 88, 99 };
+						os.write(testres);
+						os.flush();
+						break;
+					case QUIT: // Exit the loop, close connection
+						// Sound.twoBeeps();
+						break;
+
+					case FORCEQUIT:
+						// Quit the brick. otherwise it'd loop back to
+						// waiting for connection.
+						die = true;
+						break;
+					default:
+						// Ignore it
+					}
 				}
-			}
 
-			// Closing streams and connection
-			is.close();
-			os.close();
-			Thread.sleep(100); // Waiting for data to drain
-			LCD.clear();
-			LCD.drawString("Closing", 0, 2);
-			LCD.refresh();
-			connection.close();
-			LCD.clear();
-			Thread.sleep(200);
+				// Closing streams and connection
+				is.close();
+				os.close();
+				Thread.sleep(100); // Waiting for data to drain
+				LCD.clear();
+				LCD.drawString("Closing", 0, 2);
+				LCD.refresh();
+				connection.close();
+				Sound.playTone(1500, 400, 100);
+				LCD.clear();
+				Thread.sleep(200);
+				// QUICK FIX - TODO: FIX IT PROPERLY!
+			} catch (Exception e) {
+				LCD.drawString("Exception:", 0, 2);
+				String msg = e.getMessage();
+				if (msg != null)
+					LCD.drawString(msg, 2, 3);
+				else
+					LCD.drawString("Error message is null", 2, 3);
+			}
 		}
 	}
+
 	/**
-	 * Replies to pc that we have received a package and finished its
-	 * execution
+	 * Replies to pc that we have received a package and finished its execution
 	 * 
 	 * @param opcode
 	 *            the opcode we received.
@@ -211,7 +229,8 @@ public class Brick {
 	 *            - the Output stream for the brick.
 	 * @throws IOException
 	 */
-	public static void replytopc(int opcode, OutputStream os) throws IOException {
+	public static void replytopc(int opcode, OutputStream os)
+			throws IOException {
 		byte[] reply = { 111, (byte) opcode, 0, 0 };
 		os.write(reply);
 		os.flush();
@@ -304,7 +323,7 @@ public class Brick {
 			leftMotor.rotate(-angle, true);
 			rightMotor.rotate(-angle);
 			break;
-		case 2:			
+		case 2:
 			chip.move(1, BACKWARDS, 70);
 			chip.move(2, BACKWARDS, 70);
 			leftMotor.rotate(angle, true);
@@ -316,21 +335,19 @@ public class Brick {
 	}
 
 	/**
-	 * Rotates a certain angle while moving a certain distance.
-	 * Wheel diameter: 64mm, Radius: 32mm
-	 * Wheel distance from centre: 61mm
-	 * Motor speeds:
-	 * 2*pi*32=201.1~201mm;
-	 * 360/201~=1.79
-	 * setSpeed is in deg/s
-	 * w is clockwise
+	 * Rotates a certain angle while moving a certain distance. Wheel diameter:
+	 * 64mm, Radius: 32mm Wheel distance from centre: 61mm Motor speeds:
+	 * 2*pi*32=201.1~201mm; 360/201~=1.79 setSpeed is in deg/s w is clockwise
 	 * 
 	 * @param vtx
-	 *            speed in millimetres/second to the robots right (positive) or left (negative)
+	 *            speed in millimetres/second to the robots right (positive) or
+	 *            left (negative)
 	 * @param vty
-	 *            speed in millimetres/second forwards (positive) or backwards (negative)
+	 *            speed in millimetres/second forwards (positive) or backwards
+	 *            (negative)
 	 * @param w
-	 *            angular rotation speed (in degrees/second) clockwise (positive) or counterclockwise (negative)
+	 *            angular rotation speed (in degrees/second) clockwise
+	 *            (positive) or counterclockwise (negative)
 	 */
 	private static void rotateMove(int vtx, int vty, int w) {
 		byte r = 61;
@@ -368,7 +385,7 @@ public class Brick {
 
 	}
 
-	private static void moveAndRotate() throws InterruptedException{
+	private static void moveAndRotate() throws InterruptedException {
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
 		leftMotor.setSpeed(600);
@@ -403,12 +420,8 @@ public class Brick {
 		kicker.rotateTo(0);
 		kicker.flt();
 	}
-	
+
 	private static void beep() throws InterruptedException {
-		Sound.playTone(1000,150,100);
-		Thread.sleep(1000);
-		Sound.playTone(1000,150,100);
-		Thread.sleep(1000);
-		Sound.playTone(1500,500,100);
+		Sound.playTone(1000, 150, 100);
 	}
 }
