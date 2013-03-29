@@ -1,5 +1,6 @@
 package movement;
 
+import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
@@ -20,6 +21,7 @@ import communication.RobotController;
  * TODO: Add a queue to permit multiple threads waiting on the mover thread to
  * complete (will need to store the point in the movement queue it's waiting
  * on). <br/>
+ * TODO: Discuss implementing moveToAStar for moving points <br/>
  * A movement class, that provides calculations for different move commands for
  * the robot.
  * 
@@ -30,11 +32,11 @@ public class RobotMover extends Thread {
 	private WorldState worldState;
 	private RobotController robot;
 	private Robot us;
-	private double speedCoef=1.0;
-	
-	public void setSpeedCoef(double coef){
+	private double speedCoef = 1.0;
+
+	public void setSpeedCoef(double coef) {
 		coefLock.lock();
-		speedCoef=coef;
+		speedCoef = coef;
 		coefLock.unlock();
 	}
 
@@ -63,6 +65,7 @@ public class RobotMover extends Thread {
 		public boolean avoidEnemy = false;
 		public long milliseconds = 0;
 		private int dribblemode = 0;
+		private MovingPoint movPoint = null;
 
 		public Mode mode;
 	};
@@ -166,7 +169,13 @@ public class RobotMover extends Thread {
 			doMove(movement.angle);
 			break;
 		case MOVE_TO:
-			doMoveTo(movement.x, movement.y);
+			// Check if it's a static or moving point
+			if (movement.movPoint == null)
+				// Static
+				doMoveTo(movement.x, movement.y);
+			else
+				// Moving
+				doMoveTo(movement.movPoint);
 			break;
 		case MOVE_TOWARDS:
 			doMoveTowards(movement.x, movement.y);
@@ -364,7 +373,7 @@ public class RobotMover extends Thread {
 	 */
 	private void doMove(double speedX, double speedY) {
 		coefLock.lock();
-		robot.move((int) (speedCoef*speedX), (int) (speedCoef*speedY));
+		robot.move((int) (speedCoef * speedX), (int) (speedCoef * speedY));
 		coefLock.unlock();
 	}
 
@@ -444,6 +453,31 @@ public class RobotMover extends Thread {
 	}
 
 	/**
+	 * Queues a movement to a moving point on the camera feed's coordinate
+	 * system.<br/>
+	 * NOTE: The robot does not stop when it reaches the point.
+	 * 
+	 * @param p
+	 *            The moving point the robot should move to
+	 * @return true if the move was successfully queued, false otherwise
+	 * 
+	 * @see #moveToAndStop(MovingPoint)
+	 * @see #waitForCompletion()
+	 */
+	public synchronized boolean moveTo(MovingPoint p) {
+		MoverConfig movement = new MoverConfig();
+		movement.movPoint = p;
+		movement.mode = Mode.MOVE_TO;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a new job
+		jobSem.release();
+		return true;
+	}
+
+	/**
 	 * Internal method to execute a call to moveTo(x, y)
 	 * 
 	 * @param x
@@ -454,6 +488,7 @@ public class RobotMover extends Thread {
 		int i = 0;
 		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
 				&& i < 500 && !interruptMove) {
+			doMoveTowards(x, y);
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
 			// Universe, and Everything
@@ -463,10 +498,39 @@ public class RobotMover extends Thread {
 				System.out.println("Failed to sleep");
 				e.printStackTrace();
 			}
-			doMoveTowards(x, y);
 			// If we can't get to the point for some reason, it should cancel
 			// after some iterations
 			i++;
+		}
+	}
+
+	/**
+	 * Internal method to execute a call to moveTo(p)
+	 * 
+	 * @param p
+	 * @see #moveTo(MovingPoint)
+	 */
+	private void doMoveTo(MovingPoint p) {
+		int i = 0;
+		Point2D point = p.get();
+		assert point != null;
+		while (DistanceCalculator.Distance(us.x, us.y, point.getX(),
+				point.getY()) > distanceThreshold
+				&& i < 500 && !interruptMove) {
+
+			doMoveTowards(point.getX(), point.getY());
+			try {
+				SafeSleep.sleep(42);
+			} catch (InterruptedException e) {
+				System.out.println("Failed to sleep");
+				e.printStackTrace();
+			}
+
+			// Update the point
+			point = p.get();
+			// If we can't get to the point for some reason, it should cancel
+			// after some iterations
+			++i;
 		}
 	}
 
@@ -490,6 +554,41 @@ public class RobotMover extends Thread {
 		MoverConfig movement = new MoverConfig();
 		movement.x = x;
 		movement.y = y;
+		movement.mode = Mode.MOVE_TO;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a new job
+		jobSem.release();
+
+		// Queue the stop
+		movement = new MoverConfig();
+		movement.mode = Mode.STOP;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a second new job
+		jobSem.release();
+		return true;
+	}
+
+	/**
+	 * Queues a movement to a moving point on the camera feed's coordinate
+	 * system, and stops the robot when it gets there.
+	 * 
+	 * @param p
+	 *            The moving point the robot should move to
+	 * @return true if the move was successfully queued, false otherwise
+	 * 
+	 * @see #moveTo(MovingPoint)
+	 * @see #waitForCompletion()
+	 */
+	public synchronized boolean moveToAndStop(MovingPoint p) {
+		// Queue the movement
+		MoverConfig movement = new MoverConfig();
+		movement.movPoint = p;
 		movement.mode = Mode.MOVE_TO;
 
 		if (!pushMovement(movement))
@@ -773,12 +872,14 @@ public class RobotMover extends Thread {
 		jobSem.release();
 		return true;
 	}
-	
+
 	/**
 	 * Turns the dribbler on
 	 * 
-	 * @return true if the dribbler command was successfully queued, false otherwise
-	 * @param direction - 1 for forward, 2 for backwards
+	 * @return true if the dribbler command was successfully queued, false
+	 *         otherwise
+	 * @param direction
+	 *            - 1 for forward, 2 for backwards
 	 * @see #waitForCompletion()
 	 */
 	public synchronized boolean dribble(int direction) {
@@ -793,15 +894,18 @@ public class RobotMover extends Thread {
 		jobSem.release();
 		return true;
 	}
-	
+
 	/**
 	 * Turns the dribbler off.
-	 * @return true if the dribbler command was successfully queued, false otherwise
-	 * @param direction - 1 for forward, 2 for backwards
+	 * 
+	 * @return true if the dribbler command was successfully queued, false
+	 *         otherwise
+	 * @param direction
+	 *            - 1 for forward, 2 for backwards
 	 * @see #waitForCompletion()
 	 */
-	
-	public synchronized boolean stopdribble(){
+
+	public synchronized boolean stopdribble() {
 		MoverConfig movement = new MoverConfig();
 		movement.mode = Mode.DRIBBLEOFF;
 
