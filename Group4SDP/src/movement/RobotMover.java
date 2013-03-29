@@ -48,6 +48,7 @@ public class RobotMover extends Thread {
 	 * {@link RobotMover#doMove(double speedX, double speedY)}, <br/>
 	 * {@link RobotMover#doMove(double angle)} ,<br/>
 	 * {@link RobotMover#doMoveTo(double x, double y)} , <br/>
+	 * {@link RobotMover#doMoveTo(MovingPoint p)} , <br/>
 	 * {@link RobotMover#doMoveToAStar(double x, double y, boolean avoidBall)} ,<br/>
 	 * {@link RobotMover#doMoveTowards (double x, double y)} , <br/>
 	 * {@link RobotMover#doRotate (double angle)}
