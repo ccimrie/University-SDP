@@ -22,12 +22,15 @@ public class MovingPointTest extends StrategyInterface {
 
 		try {
 			mover.moveTo(p);
-			while (!shouldidie && !Strategy.alldie) {
+			SafeSleep.sleep(42);
+			while (!shouldidie && !Strategy.alldie && mover.isRunning()) {
 				p.set(radius * Math.cos(angle) + pitchCenter.getX(), radius
 						* Math.sin(angle) + pitchCenter.getY());
 				SafeSleep.sleep(42);
-				angle += Math.PI / 36.0;
+				angle += Math.PI / 144.0;
+				System.out.println("Angle: " + Math.toDegrees(angle));
 			}
+			mover.stopRobot();
 		} catch (InterruptedException ignore) {
 		}
 	}
