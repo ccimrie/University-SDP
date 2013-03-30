@@ -10,10 +10,9 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
-import org.jbox2d.dynamics.joints.PrismaticJoint;
-import org.jbox2d.dynamics.joints.PrismaticJointDef;
 
 import simulator.Simulator;
+import simulator.objects.kickers.SimpleKicker;
 
 /**
  * A class representing a robot in the simulator, which is also responsible for
@@ -25,7 +24,7 @@ public class Robot {
 	/** The robot's body in the simulator */
 	public Body body;
 	/** A controllable part representing the robot's kicker */
-	private PrismaticJoint kicker;
+	private SimpleKicker kicker;
 
 	/**
 	 * The robot's speed vector, where x is the forward/back speed, y is
@@ -41,19 +40,6 @@ public class Robot {
 	 * The threshold for rotating, within which the rotation should stop.
 	 */
 	private static final double rotateThreshold = Math.toRadians(2);
-
-	/** Flag to enable kicking */
-	private boolean kickActive = false;
-	/**
-	 * State variable for the kicker to spread out the kicker's motion over a
-	 * few steps
-	 */
-	private int kickStep = 0;
-	/**
-	 * Used to make the kick() caller wait until the kick finishes, micking the
-	 * real robot finishing the kick before returning confirmation
-	 */
-	private Semaphore kickSem = new Semaphore(0, true);
 
 	/** Flag to enable rotation */
 	private boolean rotateActive = false;
@@ -85,7 +71,6 @@ public class Robot {
 	 */
 	public void init(final World world, final Vec2 initialPos,
 			final float initialAngle) throws InterruptedException {
-		System.out.println("Initializing robot");
 		lock.lockInterruptibly();
 
 		// Create the robot with its properties
@@ -116,49 +101,12 @@ public class Robot {
 		PolygonShape kickerShape = new PolygonShape();
 		kickerShape.setAsBox(0.001f, 0.09f);
 
-		FixtureDef kickerFixDef = new FixtureDef();
-		kickerFixDef.shape = kickerShape;
-		kickerFixDef.density = 600.0f;
-		kickerFixDef.friction = 0.3f;
-
-		BodyDef kickerBodyDef = new BodyDef();
-		kickerBodyDef.type = BodyType.DYNAMIC;
-
-		kickerBodyDef.position.set((new Vec2(0.10f * (float) Math
+		Vec2 kickerPosition = (new Vec2(0.10f * (float) Math
 				.cos(initialAngle), 0.10f * (float) Math.sin(initialAngle)))
-				.add(body.getWorldCenter()));
-		System.out.println("Kicker position: "
-				+ kickerBodyDef.position.toString());
-		kickerBodyDef.angle = initialAngle;
-
-		kickerBodyDef.allowSleep = false;
-		Body kickerBody = world.createBody(kickerBodyDef);
-		kickerBody.createFixture(kickerFixDef);
-
-		// Create a mechanical joint between robot and kicker
-		PrismaticJointDef kickerJointDef = new PrismaticJointDef();
-		kickerJointDef.localAxis1.set((float) Math.cos(initialAngle),
-				(float) Math.sin(initialAngle));
-		kickerJointDef.localAxis1.normalize();
-		kickerJointDef.localAnchorA.set(body.getLocalCenter());
-		kickerJointDef.localAnchorB.set(0.0f, 0.09f);
-
-		kickerJointDef.initialize(body, kickerBody, body.getWorldCenter(),
-				kickerJointDef.localAxis1);
-
-		// TODO: calibrate
-		kickerJointDef.motorSpeed = 2.0f; // 2.0
-		kickerJointDef.maxMotorForce = 10.0f; // 4.0
-		kickerJointDef.enableMotor = true;
-		kickerJointDef.lowerTranslation = 0.0f;
-		kickerJointDef.upperTranslation = 0.1f;
-		kickerJointDef.enableLimit = true;
-
-		this.kicker = (PrismaticJoint) world.createJoint(kickerJointDef);
+				.add(body.getWorldCenter());
+		
+		kicker = SimpleKicker.createKicker(world, body, kickerPosition, initialAngle, kickerShape);
 		lock.unlock();
-		System.out.println("Initialization complete:");
-		System.out.println("body is null: " + (body == null));
-
 	}
 
 	/**
@@ -178,21 +126,8 @@ public class Robot {
 		// If we're doing a rotation, apply the angular motion
 		if (rotateActive)
 			body.applyAngularImpulse(rotSpeed / 30.0f);
-
-		if (kickActive) {
-			// TODO: calibrate
-			// Slows the kickers motion over 5 steps
-			if (kickStep < 5) {
-				kicker.setMotorSpeed(2.0f);
-				++kickStep;
-			} else {
-				kicker.setMotorSpeed(-2.0f);
-				kickStep = 0;
-			}
-		} else {
-			// If we're not kicking, make sure the kicker stays retracted
-			kicker.setMotorSpeed(-2.0f);
-		}
+		
+		kicker.beforeStep();
 		lock.unlock();
 	}
 
@@ -204,8 +139,8 @@ public class Robot {
 	 *             If the thread is interrupted
 	 */
 	public void afterStep() throws InterruptedException {
+		lock.lockInterruptibly();
 		if (rotateActive) {
-			lock.lockInterruptibly();
 			float angle = body.getAngle();
 			Vec2 orient = new Vec2((float) Math.cos(angle),
 					(float) Math.sin(angle));
@@ -213,14 +148,9 @@ public class Robot {
 				rotSem.release();
 				rotateActive = false;
 			}
-			lock.unlock();
 		}
-		if (kickActive && kickStep == 0) {
-			lock.lockInterruptibly();
-			kickActive = false;
-			kickSem.release();
-			lock.unlock();
-		}
+		kicker.afterStep();
+		lock.unlock();
 	}
 
 	/**
@@ -315,11 +245,9 @@ public class Robot {
 	 */
 	public void kick() throws InterruptedException {
 		lock.lockInterruptibly();
-		kickActive = true;
-		kickStep = 0;
+		kicker.setUpKick();
 		lock.unlock();
-
-		// Wait for the kick to complete
-		kickSem.acquire();
+		
+		kicker.waitForKickCompletion();
 	}
 }

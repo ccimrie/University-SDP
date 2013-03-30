@@ -9,7 +9,6 @@ import org.jbox2d.testbed.framework.TestbedTest;
 import simulator.objects.Ball;
 import simulator.objects.Pitch;
 import simulator.objects.Robot;
-import world.state.RobotType;
 import world.state.WorldState;
 
 /**

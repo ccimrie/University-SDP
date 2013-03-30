@@ -29,15 +29,10 @@ public class SimulatorRobot extends Robot implements RobotController {
 		this.simRobot = simRobot;
 	}
 
-	
-	public void setPower(float powerInput){
-		
+	public void setPower(float powerInput) {
 		simRobot.setPower(powerInput);
-		
-		
-
 	}
-	
+
 	/**
 	 * Simulates creating a connection to the robot
 	 * 
@@ -58,7 +53,7 @@ public class SimulatorRobot extends Robot implements RobotController {
 	public boolean isConnected() {
 		return connected;
 	}
-	
+
 	/**
 	 * Simulates whether the robot is ready to receive commands
 	 * 
@@ -154,5 +149,17 @@ public class SimulatorRobot extends Robot implements RobotController {
 	@Override
 	public void forcequit() {
 		connected = false;
+	}
+
+	@Override
+	public int dribble(int direction) {
+		// TODO Implement
+		return 0;
+	}
+
+	@Override
+	public int stopdribble() {
+		// TODO Implement
+		return 0;
 	}
 }
