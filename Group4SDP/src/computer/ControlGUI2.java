@@ -378,13 +378,13 @@ public class ControlGUI2 extends JFrame {
 				mover.dribble(op1);
 			}
 		});
-		
+
 		dribblerStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mover.stopdribble();
 			}
 		});
-		
+
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());
@@ -465,38 +465,38 @@ public class ControlGUI2 extends JFrame {
 
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				for (int i = 0; i < 3; ++i) {
-					System.out.println("Disconnecting...");
-					Strategy.alldie = true;
-					// Kill the mover and wait for it to stop completely
-					if (mover.isAlive()) {
-						try {
-							mover.kill();
-							mover.join(3000);
-							// If the mover still hasn't stopped within 3
-							// seconds,
-							// assume it's stuck and kill the program
-							if (mover.isAlive()) {
-								System.out
-										.println("Could not kill mover! Shutting down GUI...");
-								cleanQuit();
-							}
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
-						}
-					}
-					robot.disconnect();
-					System.out.println("Reconnecting...");
+				System.out.println("Disconnecting...");
+				Strategy.alldie = true;
+				// Kill the mover and wait for it to stop completely
+				if (mover.isAlive()) {
 					try {
-						Thread.sleep(400);
-						robot.connect();
-						mover = new RobotMover(worldState, robot);
-						mover.start();
-					} catch (Exception e1) {
-						System.out
-								.println("Failed to reconnect! Shutting down GUI...");
-						cleanQuit();
+						mover.kill();
+						mover.join(3000);
+						// If the mover still hasn't stopped within 3
+						// seconds,
+						// assume it's stuck and kill the program
+						if (mover.isAlive()) {
+							System.out
+									.println("Could not kill mover! Shutting down GUI...");
+							cleanQuit();
+						}
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
 					}
+				}
+				robot.disconnect();
+				System.out.println("Disconnected succesfully");
+				System.out.println("Reconnecting...");
+				try {
+					Thread.sleep(400);
+					robot.connect();
+					mover = new RobotMover(worldState, robot);
+					mover.start();
+					System.out.println("Reconnected successfully!");
+				} catch (Exception e1) {
+					System.out
+							.println("Failed to reconnect! Shutting down GUI...");
+					cleanQuit();
 				}
 			}
 		});
