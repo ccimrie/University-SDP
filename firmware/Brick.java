@@ -56,9 +56,10 @@ public class Brick {
 	private static NXTRegulatedMotor leftMotor = Motor.B;
 	private static NXTRegulatedMotor rightMotor = Motor.C;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		while (!die) {
 			try {
+				//prepareToKick();
 				// Waiting for a connection and opening streams on success
 				LCD.clear();
 				LCD.drawString("Waiting for", 0, 2);
@@ -150,6 +151,7 @@ public class Brick {
 						LCD.drawString("Kicking!", 0, 2);
 						LCD.refresh();
 						kick();
+						//prepareToKick();
 						replytopc(opcode, os);
 						break;
 
@@ -435,14 +437,21 @@ public class Brick {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private static void kick() throws InterruptedException {
+	private static void kick() throws InterruptedException {		
 		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();
-		kicker.rotateTo(80);
-		kicker.setSpeed(250);
+		kicker.rotateTo(-100);
 		kicker.rotateTo(0);
-		kicker.flt();
+		kicker.stop();
+	}
+	
+	private static void prepareToKick() throws InterruptedException{
+		Thread.sleep(50);
+		kicker.setAcceleration(6000);
+		kicker.setSpeed(900);
+		kicker.rotateTo(-80);
+		kicker.stop();
 	}
 
 	private static void beep() throws InterruptedException {
