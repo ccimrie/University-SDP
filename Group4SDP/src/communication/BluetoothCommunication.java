@@ -36,6 +36,15 @@ public class BluetoothCommunication {
 	public BluetoothCommunication(String deviceName, String deviceMACAddress) {
 		nxtInfo = new NXTInfo(NXTCommFactory.BLUETOOTH, deviceName,
 				deviceMACAddress);
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				if (connected) {
+					closeBluetoothConnection();
+				}
+			}
+		});
 	}
 
 	/**
