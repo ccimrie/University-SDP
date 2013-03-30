@@ -71,6 +71,8 @@ public class ControlGUI2 extends JFrame {
 	private final JButton rightButton = new JButton("Right");
 	// Kick
 	private final JButton kickButton = new JButton("Kick");
+	private final JButton dribblerStart = new JButton("DribblerStart");
+	private final JButton dribblerStop = new JButton("DribblerStop");
 	// Other movement
 	private final JButton rotateButton = new JButton("Rotate");
 	private final JButton moveButton = new JButton("Move");
@@ -244,6 +246,8 @@ public class ControlGUI2 extends JFrame {
 		simpleMovePanel.add(leftButton);
 		simpleMovePanel.add(rightButton);
 		simpleMovePanel.add(kickButton);
+		simpleMovePanel.add(dribblerStart);
+		simpleMovePanel.add(dribblerStop);
 
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
@@ -368,6 +372,19 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
+		dribblerStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int op1 = Integer.parseInt(op1field.getText());
+				mover.dribble(op1);
+			}
+		});
+		
+		dribblerStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mover.stopdribble();
+			}
+		});
+		
 		forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int op1 = Integer.parseInt(op1field.getText());

@@ -49,6 +49,21 @@ public interface RobotController {
 	 * @return A confirmation code for the command
 	 */
 	public int kick();
+	
+	/**
+	 * Tells the robot to activate it's dribbler
+	 * @param direction Tells which direction the dribbler should move.
+	 * 				Use 1 for forward (as in dribbling) and 2 for backward
+	 * 				(as in kicking).
+	 * @return A confirmation code for the command
+	 */
+	public int dribble(int direction);
+	
+	/**
+	 * Stops the dribbler so that we don't drain the battery.
+	 * @return A confirmation code for the command
+	 */
+	public int stopdribble();
 
 	/**
 	 * Tells the robot to move along a vector, relative to the robot
