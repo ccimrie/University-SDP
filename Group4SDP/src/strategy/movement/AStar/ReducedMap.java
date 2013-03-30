@@ -38,15 +38,15 @@ public class ReducedMap implements TileBasedMap {
 		synchronized (world) {
 			HEIGHT = reduceRound(480);
 			WIDTH = reduceRound(640);
-			terrain = new int[HEIGHT][WIDTH];
-			units = new int[HEIGHT][WIDTH];
-			visited = new boolean[HEIGHT][WIDTH];
+			terrain = new int[WIDTH][HEIGHT];
+			units = new int[WIDTH][HEIGHT];
+			visited = new boolean[WIDTH][HEIGHT];
 			this.avoidball = avoidball;
 			this.avoidenemy = avoidball;
 			// Enemy robot
 
-			int themx = reduceRound(world.theirRobot.y);
-			int themy = reduceRound(world.theirRobot.x);
+			int themx = reduceRound(world.theirRobot.x);
+			int themy = reduceRound(world.theirRobot.y);
 			System.out.println(world.theirRobot.x);
 			System.out.println(world.theirRobot.y);
 			System.out.println(themx);
@@ -55,9 +55,9 @@ public class ReducedMap implements TileBasedMap {
 				themx += 4;
 			if (themy <= 2)
 				themy += 4;
-			if (themx == WIDTH-1)
+			if (themx == WIDTH - 1)
 				themx -= 4;
-			if (themy == HEIGHT-1)
+			if (themy == HEIGHT - 1)
 				themy -= 4;
 			if (themx >= WIDTH)
 				themx -= 5;
@@ -65,10 +65,10 @@ public class ReducedMap implements TileBasedMap {
 				themy -= 5;
 			if (avoidenemy) {
 				fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
-			}						
+			}
 			// Fill ball just for display
-			int ballx = reduceRound(world.ball.y);
-			int bally = reduceRound(world.ball.x);
+			int ballx = reduceRound(world.ball.x);
+			int bally = reduceRound(world.ball.y);
 			if (ballx <= 1)
 				ballx += 3;
 			if (bally <= 1)
@@ -84,14 +84,14 @@ public class ReducedMap implements TileBasedMap {
 			}
 			// Walls
 			int temp = reduceRound(world.goalInfo.pitchConst.getLeftBuffer());
-			fillArea(0, 0, HEIGHT, temp, BLOCKED);
+			fillArea(0, 0, temp, HEIGHT, BLOCKED);
 			temp = reduceRound(world.goalInfo.pitchConst.getTopBuffer());
-			fillArea(0, 0, temp, WIDTH, BLOCKED);
+			fillArea(0, 0, WIDTH, temp, BLOCKED);
 			temp = reduceRound(world.goalInfo.pitchConst.getRightBuffer());
-			fillArea(0, WIDTH - temp, HEIGHT, temp, BLOCKED);
+			fillArea(WIDTH - temp, 0, temp, HEIGHT, BLOCKED);
 			temp = reduceRound(world.goalInfo.pitchConst.getBottomBuffer());
-			fillArea(HEIGHT - temp, 0, temp, WIDTH, BLOCKED);
-			units[reduceRound(world.ourRobot.y)][reduceRound(world.ourRobot.x)] = US;
+			fillArea(0, HEIGHT - temp, WIDTH, temp, BLOCKED);
+			units[reduceRound(world.ourRobot.x)][reduceRound(world.ourRobot.y)] = US;
 		}
 	}
 
@@ -118,20 +118,23 @@ public class ReducedMap implements TileBasedMap {
 	 *            The terrain type to fill with
 	 */
 	private void fillArea(int x, int y, int width, int height, int type) {
-		for (int xp = x; xp < x + width; xp++) {
-			for (int yp = y; yp < y + height; yp++) {
+		int xMin = Math.max(x, 0);
+		int yMin = Math.max(y, 0);
+		int xMax = Math.min(x + width, WIDTH);
+		int yMax = Math.min(y + height, HEIGHT);
+		for (int xp = xMin; xp < xMax; ++xp) {
+			for (int yp = yMin; yp < yMax; ++yp) {
 				terrain[xp][yp] = type;
 			}
 		}
 	}
 
 	/**
-	 * Clear the array marking which tiles have been visted by the path
-	 * finder.
+	 * Clear the array marking which tiles have been visted by the path finder.
 	 */
 	public void clearVisited() {
-		for (int x = 0; x < getHeightInTiles(); x++) {
-			for (int y = 0; y < getWidthInTiles(); y++) {
+		for (int x = 0; x < getWidthInTiles(); x++) {
+			for (int y = 0; y < getHeightInTiles(); y++) {
 				visited[x][y] = false;
 			}
 		}
@@ -178,8 +181,8 @@ public class ReducedMap implements TileBasedMap {
 	 * @param y
 	 *            The y coordinate of the location where the unit should be set
 	 * @param unit
-	 *            The ID of the unit to be placed on the map, or 0 to clear the unit at the
-	 *            given location
+	 *            The ID of the unit to be placed on the map, or 0 to clear the
+	 *            unit at the given location
 	 */
 	public void setUnit(int x, int y, int unit) {
 		units[x][y] = unit;
@@ -201,8 +204,10 @@ public class ReducedMap implements TileBasedMap {
 	 */
 	public float getCost(int sx, int sy, int tx, int ty) {
 		int coef;
-		if (blocked(sx - 1, sy) || blocked(sx - 1, sy - 1) || blocked(sx, sy - 1) || blocked(sx + 1, sy - 1) || blocked(sx + 1, sy) || blocked(sx + 1, sy + 1) || blocked(sx, sy + 1)
-				|| blocked(sx - 1, sy + 1)) {
+		if (blocked(sx - 1, sy) || blocked(sx - 1, sy - 1)
+				|| blocked(sx, sy - 1) || blocked(sx + 1, sy - 1)
+				|| blocked(sx + 1, sy) || blocked(sx + 1, sy + 1)
+				|| blocked(sx, sy + 1) || blocked(sx - 1, sy + 1)) {
 			coef = 3;
 		} else {
 			coef = 1;
