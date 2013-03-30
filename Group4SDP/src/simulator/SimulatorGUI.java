@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -59,7 +60,12 @@ public class SimulatorGUI extends JFrame {
 	private final JLabel robotSelector = new JLabel("Please select a colour: ");
 	private final JRadioButton radioButton1 = new JRadioButton("Blue");
 	private final JRadioButton radioButton2 = new JRadioButton("Yellow");
-
+//Select which side of the pitch you're on
+	
+	
+	private final JLabel sideSelector = new JLabel("Our goal is: ");
+	private final JRadioButton sideLeftButton = new JRadioButton("Left");
+	private final JRadioButton sideRightButton = new JRadioButton("Right");
 	// General control buttons
 	private final JButton startButton = new JButton("Start");
 	private final JButton quitButton = new JButton("Quit");
@@ -191,6 +197,12 @@ public class SimulatorGUI extends JFrame {
 		robotSelectionPanel.add(radioButton1);
 		robotSelectionPanel.add(radioButton2);
 
+		
+		robotSelectionPanel.add(sideSelector);
+		robotSelectionPanel.add(sideLeftButton);
+		robotSelectionPanel.add(sideRightButton);
+		
+		
 		GridBagConstraints gbc_startStopQuitPanel = new GridBagConstraints();
 		gbc_startStopQuitPanel.anchor = GridBagConstraints.NORTH;
 		gbc_startStopQuitPanel.fill = GridBagConstraints.HORIZONTAL;
@@ -271,7 +283,23 @@ public class SimulatorGUI extends JFrame {
 		complexMovePanel.add(dribbleButton);
 
 		this.addWindowListener(new ListenCloseWdw());
+		
+		final ActionListener sideListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Update the world state and pitch constants
+			
+				worldState.setWeAreOnLeft(sideLeftButton.isSelected());
 
+			}
+		};
+		ButtonGroup sideChoice = new ButtonGroup();
+		sideChoice.add(sideLeftButton);
+		sideChoice.add(sideRightButton);
+		sideLeftButton.addActionListener(sideListener);
+		sideRightButton.addActionListener(sideListener);
+
+		
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// mover.move(100, 100);

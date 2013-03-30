@@ -40,17 +40,29 @@ public class SimulatorTestbed extends TestbedTest {
 	@Override
 	public void initTest(boolean arg0) {
 		System.out.println("Initializing Simulator");
+		
+	
 		try {
 
 			World world = getWorld();
 			this.pitch = new Pitch(world);
 			this.simBall = new Ball(world, new Vec2(pitch.length / 2.0f,
 					pitch.width / 2.0f));
-
+			
+			if(worldState.areWeOnLeft()){
 			this.simOurRobot.init(world, new Vec2(pitch.length * 0.1f,
 					pitch.width / 2.0f), 0.0f);
 			this.simTheirRobot.init(world, new Vec2(pitch.length * 0.9f,
-					pitch.width / 2.0f), MathUtils.PI);
+					pitch.width / 2.0f), MathUtils.PI);}
+			
+			
+			else{
+
+				this.simTheirRobot.init(world, new Vec2(pitch.length * 0.1f,
+						pitch.width / 2.0f), 0.0f);
+				this.simOurRobot.init(world, new Vec2(pitch.length * 0.9f,
+						pitch.width / 2.0f), MathUtils.PI);				
+			}
 
 			getWorld().setGravity(new Vec2(0.0f, 0.0f));
 
