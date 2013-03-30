@@ -18,13 +18,18 @@ import movement.RobotMover;
 public class KeyControl implements KeyEventDispatcher {
 	private static final int KEY_W = 0;
 	private static final int KEY_S = 1;
+	private static final int KEY_A = 2;
+	private static final int KEY_D = 3;
 
 	private static final long KEY_REFRESH_INTERVAL = 50;
 	private static final long KEY_HELD_WAIT_PERIOD = 500;
 
 	private final Timer[] keyHeldTimer;
-	private long[] timerStart = { 0, 0 };
-	private boolean[] timerRunning = { false, false };
+	private long[] timerStart = { 0, 0, 0, 0 };
+	private boolean[] timerRunning = { false, false, false, false };
+
+	private double speedForward = 0.0;
+	private double speedRight = 0.0;
 
 	private final RobotMover mover;
 
@@ -45,14 +50,39 @@ public class KeyControl implements KeyEventDispatcher {
 				return;
 			}
 			timerRunning[keyIndex] = false;
-			mover.stopRobot();
+
+			switch (keyIndex) {
+			case KEY_W:
+				speedForward -= 100.0;
+				break;
+			case KEY_S:
+				speedForward += 100.0;
+				break;
+			case KEY_A:
+				speedRight += 100.0;
+				break;
+			case KEY_D:
+				speedRight -= 100.0;
+				break;
+			}
+
+			// Stop the robot and reset variables if the robot is configured to
+			// stop moving
+			if (Math.abs(speedForward) < 0.01 && Math.abs(speedRight) < 0.01) {
+				speedForward = 0.0;
+				speedRight = 0.0;
+				mover.stopRobot();
+			}
+			else {
+				mover.move(speedRight, speedForward);
+			}
 		}
 	}
 
 	public KeyControl(RobotMover mover) {
 		this.mover = mover;
-		keyHeldTimer = new Timer[5];
-		for (int i = 0; i < 5; ++i)
+		keyHeldTimer = new Timer[4];
+		for (int i = 0; i < 4; ++i)
 			keyHeldTimer[i] = new Timer();
 	}
 
@@ -62,6 +92,10 @@ public class KeyControl implements KeyEventDispatcher {
 			return KEY_W;
 		case 's':
 			return KEY_S;
+		case 'a':
+			return KEY_A;
+		case 'd':
+			return KEY_D;
 		default:
 			return -1;
 		}
@@ -69,7 +103,8 @@ public class KeyControl implements KeyEventDispatcher {
 
 	private void refreshTimer(int index) {
 		// Only use timers for forward and back controls
-		if (index == KEY_W || index == KEY_S) {
+		if (index == KEY_W || index == KEY_S || index == KEY_A
+				|| index == KEY_D) {
 			// Key held down
 			if (timerRunning[index]) {
 				keyHeldTimer[index].cancel();
@@ -86,20 +121,39 @@ public class KeyControl implements KeyEventDispatcher {
 	}
 
 	private boolean process(char key) {
+		boolean linearControl = false;
 		int index = getKeyIndex(key);
 		switch (key) {
 		case 'w':
 			// Only queue the movement on the first press
-			if (!timerRunning[index])
-				mover.move(0, 100);
+			if (!timerRunning[index]) {
+				linearControl = true;
+				speedForward += 100.0;
+			}
 			refreshTimer(index);
 			break;
 		case 's':
-			if (!timerRunning[index])
-				mover.move(0, -100);
+			if (!timerRunning[index]) {
+				linearControl = true;
+				speedForward -= 100.0;
+			}
 			refreshTimer(index);
 			break;
 		case 'a':
+			if (!timerRunning[index]) {
+				linearControl = true;
+				speedRight -= 100.0;
+			}
+			refreshTimer(index);
+			break;
+		case 'd':
+			if (!timerRunning[index]) {
+				linearControl = true;
+				speedRight += 100.0;
+			}
+			refreshTimer(index);
+			break;
+		case 'q':
 			mover.rotate(Math.toRadians(-4));
 			try {
 				mover.waitForCompletion();
@@ -107,7 +161,7 @@ public class KeyControl implements KeyEventDispatcher {
 				e.printStackTrace();
 			}
 			break;
-		case 'd':
+		case 'e':
 			mover.rotate(Math.toRadians(4));
 			try {
 				mover.waitForCompletion();
@@ -126,6 +180,11 @@ public class KeyControl implements KeyEventDispatcher {
 		default:
 			return false;
 		}
+
+		if (linearControl) {
+			mover.move(speedRight, speedForward);
+		}
+
 		return true;
 	}
 
