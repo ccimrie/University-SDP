@@ -41,12 +41,17 @@ public class HittingObstacle {
 	Vector southWestCorner =  new Vector(35, 392);
 	
 	
+	
+	
 	Vector northEastPole = new Vector( goalCord.getRightGoalTop().getX(),  goalCord.getRightGoalTop().getY() );
 	Vector southEastPole = new Vector (goalCord.getRightGoalBottom().getX(), goalCord.getRightGoalBottom().getY()) ;
 	
 	
 	Vector northEastCorner =  new Vector(598, 92);
 	Vector southEastCorner =  new Vector(608, 395);
+	
+	double pitchWidth = (northEastCorner.getX()- northWestCorner.getX());
+	double pitchHeight = (southEastCorner.getY()- northEastCorner.getY());
 	
 	
 public boolean nearSouth(WorldState world){

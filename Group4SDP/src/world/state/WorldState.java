@@ -121,6 +121,7 @@ public class WorldState {
 	}
 
 	public void setBlueOrientation(double blueOrientation) {
+		this.blueOrient = blueOrientation;
 		this.blueOrientBuf[currentFrame] = blueOrientation;
 	}
 
@@ -155,6 +156,7 @@ public class WorldState {
 	}
 
 	public void setYellowOrientation(double yellowOrientation) {
+		this.yellowOrient = yellowOrientation;
 		this.yellowOrientBuf[currentFrame] = yellowOrientation;
 	}
 

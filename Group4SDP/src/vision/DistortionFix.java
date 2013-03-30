@@ -15,8 +15,8 @@ import vision.interfaces.VideoReceiver;
 public class DistortionFix implements VideoReceiver {
 	private static int width = 640;
 	private static int height = 480;
-	public static double barrelCorrectionX = -0.01;
-	public static double barrelCorrectionY = -0.055;
+	public static double barrelCorrectionX = -0.03;
+	public static double barrelCorrectionY = -0.08;
 
 	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	private boolean active = true;
