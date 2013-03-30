@@ -153,13 +153,13 @@ public class SimulatorRobot extends Robot implements RobotController {
 
 	@Override
 	public int dribble(int direction) {
-		// TODO Implement
+		simRobot.activateDribbler();
 		return 0;
 	}
 
 	@Override
 	public int stopdribble() {
-		// TODO Implement
+		simRobot.deactivateDribbler();
 		return 0;
 	}
 }

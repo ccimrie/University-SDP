@@ -12,6 +12,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 import simulator.Simulator;
+import simulator.objects.kickers.SimpleDribbler;
 import simulator.objects.kickers.SimpleKicker;
 
 /**
@@ -25,6 +26,7 @@ public class Robot {
 	public Body body;
 	/** A controllable part representing the robot's kicker */
 	private SimpleKicker kicker;
+	private SimpleDribbler dribbler;
 
 	/**
 	 * The robot's speed vector, where x is the forward/back speed, y is
@@ -101,11 +103,12 @@ public class Robot {
 		PolygonShape kickerShape = new PolygonShape();
 		kickerShape.setAsBox(0.001f, 0.09f);
 
-		Vec2 kickerPosition = (new Vec2(0.10f * (float) Math
-				.cos(initialAngle), 0.10f * (float) Math.sin(initialAngle)))
+		Vec2 kickerPosition = (new Vec2(0.095f * (float) Math
+				.cos(initialAngle), 0.095f * (float) Math.sin(initialAngle)))
 				.add(body.getWorldCenter());
 		
 		kicker = SimpleKicker.createKicker(world, body, kickerPosition, initialAngle, kickerShape);
+//		dribbler = SimpleDribbler.createDribbler(world, body, kickerPosition, initialAngle);
 		lock.unlock();
 	}
 
@@ -128,6 +131,7 @@ public class Robot {
 			body.applyAngularImpulse(rotSpeed / 30.0f);
 		
 		kicker.beforeStep();
+//		dribbler.beforeStep();
 		lock.unlock();
 	}
 
@@ -150,6 +154,7 @@ public class Robot {
 			}
 		}
 		kicker.afterStep();
+//		dribbler.afterStep();
 		lock.unlock();
 	}
 
@@ -249,5 +254,13 @@ public class Robot {
 		lock.unlock();
 		
 		kicker.waitForKickCompletion();
+	}
+	
+	public void activateDribbler() {
+		dribbler.activate();
+	}
+	
+	public void deactivateDribbler() {
+		dribbler.deactivate();
 	}
 }

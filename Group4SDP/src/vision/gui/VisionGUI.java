@@ -49,7 +49,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	// Pitch dimension selector variables
 	private boolean selectionActive = false;
 	private Point anchor;
-	private Point mousePos;
 	private int a;
 	private int b;
 	private int c;
@@ -80,7 +79,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	BufferedImage yellowPlateSelectorImage = null;
 	BufferedImage bluePlateSelectorImage = null;
 	BufferedImage greyCircleSelectorImage = null;
-	ArrayList[] extractedColourSettings;
+	ArrayList<?>[] extractedColourSettings;
 	double imageCenterX;
 	double imageCenterY;
 	int rotation = 0;
@@ -620,7 +619,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		selectorImage = op.filter(selectorImage, null);
 	}
 
-	public ArrayList[] getColourRange(BufferedImage frame, int object) {
+	public ArrayList<?>[] getColourRange(BufferedImage frame, int object) {
 
 		ArrayList<Integer> redList = new ArrayList<Integer>();
 		ArrayList<Integer> greenList = new ArrayList<Integer>();
@@ -628,11 +627,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		ArrayList<Float> hueList = new ArrayList<Float>();
 		ArrayList<Float> satList = new ArrayList<Float>();
 		ArrayList<Float> valList = new ArrayList<Float>();
-		ArrayList[] colourSettings = { redList, greenList, blueList, hueList,
+		ArrayList<?>[] colourSettings = { redList, greenList, blueList, hueList,
 				satList, valList };
-		// TODO: change locationX, locationY to int by default - so no casting
-		int lx = (int) imageCenterX;
-		int ly = (int) imageCenterY;
 
 		if (object == PitchConstants.BLUE || object == PitchConstants.YELLOW) {
 			/** PROCESSING EITHER LETTER T */
@@ -663,7 +659,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		return colourSettings;
 	}
 
-	public ArrayList[] getColourValues(BufferedImage frame,
+	public ArrayList<?>[] getColourValues(BufferedImage frame,
 			ArrayList[] colourSettings, int fromX, int toX, int fromY, int toY) {
 		int lx = (int) imageCenterX;
 		int ly = (int) imageCenterY;
@@ -793,7 +789,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 	}
 
-	public void clearArrayOfLists(ArrayList[] arrays) {
+	public void clearArrayOfLists(ArrayList<?>[] arrays) {
 		for (int i = 0; i < arrays.length; i++)
 			arrays[i].clear();
 	}
