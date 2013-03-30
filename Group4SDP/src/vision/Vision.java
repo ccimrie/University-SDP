@@ -285,11 +285,19 @@ public class Vision implements VideoReceiver {
 				if (numBluePos > numYellowPos) {
 					blueAngle = angle;
 					bluePlateCentroid = green;
+					
+					// Set the other plate to some position off the pitch
+					yellowAngle = 0.0;
+					yellowPlateCentroid = new Position(0,0);
 				}
 				// Otherwise assign it to the yellow plate
 				else {
 					yellowAngle = angle;
 					yellowPlateCentroid = green;
+					
+					// Set the other plate to some position off the pitch
+					blueAngle = 0.0;
+					bluePlateCentroid = new Position(0,0);
 				}
 			}
 
