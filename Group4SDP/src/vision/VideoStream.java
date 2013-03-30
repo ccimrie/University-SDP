@@ -126,6 +126,13 @@ public class VideoStream {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				frameGrabber.stopCapture();
+			}
+		});
 	}
 
 	/**
