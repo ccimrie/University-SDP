@@ -107,8 +107,8 @@ public class Robot {
 				.cos(initialAngle), 0.095f * (float) Math.sin(initialAngle)))
 				.add(body.getWorldCenter());
 		
-//		kicker = SimpleKicker.createKicker(world, body, kickerPosition, initialAngle, kickerShape);
-		dribbler = SimpleDribbler.createDribbler(world, body, kickerPosition, initialAngle);
+		kicker = SimpleKicker.createKicker(world, body, kickerPosition, initialAngle, kickerShape);
+//		dribbler = SimpleDribbler.createDribbler(world, body, kickerPosition, initialAngle);
 		lock.unlock();
 	}
 
@@ -130,8 +130,8 @@ public class Robot {
 		if (rotateActive)
 			body.applyAngularImpulse(rotSpeed / 30.0f);
 		
-//		kicker.beforeStep();
-		dribbler.beforeStep();
+		kicker.beforeStep();
+//		dribbler.beforeStep();
 		lock.unlock();
 	}
 
@@ -153,8 +153,8 @@ public class Robot {
 				rotateActive = false;
 			}
 		}
-//		kicker.afterStep();
-		dribbler.afterStep();
+		kicker.afterStep();
+//		dribbler.afterStep();
 		lock.unlock();
 	}
 
@@ -249,11 +249,11 @@ public class Robot {
 	 *             If the thread is interrupted
 	 */
 	public void kick() throws InterruptedException {
-//		lock.lockInterruptibly();
-//		kicker.setUpKick();
-//		lock.unlock();
-//		
-//		kicker.waitForKickCompletion();
+		lock.lockInterruptibly();
+		kicker.setUpKick();
+		lock.unlock();
+		
+		kicker.waitForKickCompletion();
 	}
 	
 	public void activateDribbler() {
