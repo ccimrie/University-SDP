@@ -24,6 +24,7 @@ import strategy.calculations.GoalInfo;
 import strategy.planning.DribbleBall5;
 import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
+import strategy.planning.OffenseSimple;
 import strategy.planning.PenaltyManager;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
@@ -292,7 +293,7 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
-					strategy = new InterceptBall(worldState, mover);
+					strategy = new OffenseSimple(worldState, mover);
 					// strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
 					strategyThread.start();

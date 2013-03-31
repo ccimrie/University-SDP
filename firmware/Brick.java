@@ -441,7 +441,7 @@ public class Brick {
 		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();
-		kicker.rotateTo(-100);
+		kicker.rotateTo(60);
 		kicker.rotateTo(0);
 		kicker.stop();
 	}
