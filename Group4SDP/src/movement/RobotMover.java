@@ -744,8 +744,8 @@ public class RobotMover extends Thread {
 	private void doMoveToAStar(double x, double y, boolean avoidball,
 			boolean avoidenemy) {
 		ReducedMap map = new ReducedMap(worldState, avoidball, avoidenemy);
-		System.out.println("Height: " + map.getHeightInTiles());
-		System.out.println("Width: " + map.getWidthInTiles());
+		System.out.println("Map Height: " + map.getHeightInTiles());
+		System.out.println("Map Width: " + map.getWidthInTiles());
 
 		System.out.println("Height: "
 				+ worldState.goalInfo.pitchConst.getPitchHeight() + "px");
@@ -754,10 +754,10 @@ public class RobotMover extends Thread {
 				+ worldState.goalInfo.pitchConst.getPitchWidth() + "px");
 
 		PathFinder finder = new AStarPathFinder(map, 100, true);
-		int selectedx = map.reduceRound(us.y);
-		int selectedy = map.reduceRound(us.x);
-		int goToX = map.reduceRound(y);
-		int goToY = map.reduceRound(x);
+		int selectedx = map.reduceRound(us.x);
+		int selectedy = map.reduceRound(us.y);
+		int goToX = map.reduceRound(x);
+		int goToY = map.reduceRound(y);
 		System.out.println("(" + goToX + ", " + goToY + ")");
 		Path path = finder.findPath(
 				new UnitMover(map.getUnit(selectedx, selectedy)), selectedx,
@@ -773,7 +773,7 @@ public class RobotMover extends Thread {
 			for (int k = 0; k < map.getHeightInTiles(); k++) {
 				String brr = "";
 				for (int j = 0; j < map.getWidthInTiles(); j++) {
-					brr += " " + map.getTerrain(k, j);
+					brr += " " + map.getTerrain(j, k);
 				}
 				System.out.println(brr);
 			}
@@ -783,9 +783,9 @@ public class RobotMover extends Thread {
 			while (i < l && !interruptMove) {
 				// map.terrain[path.getX(i)][path.getY(i)] = 7;
 				System.out.println("AStar: Calling movement to ("
-						+ path.getY(i) * map.REDUCTION + ", " + path.getX(i)
+						+ path.getX(i) * map.REDUCTION + ", " + path.getY(i)
 						* map.REDUCTION + ")");
-				doMoveTo(path.getY(i) * map.REDUCTION, path.getX(i)
+				doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i)
 						* map.REDUCTION);
 				i++;
 				// robot.stop();
@@ -797,7 +797,7 @@ public class RobotMover extends Thread {
 		/*
 		 * for (int i = 0; i < map.getHeightInTiles(); i++) { String brr = "";
 		 * for (int j = 0; j < map.getWidthInTiles(); j++) { brr += " " +
-		 * map.getTerrain(i, j); } System.out.println(brr); }
+		 * map.getTerrain(j, i); } System.out.println(brr); }
 		 */
 
 	}

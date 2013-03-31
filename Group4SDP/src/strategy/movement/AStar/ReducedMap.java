@@ -170,7 +170,11 @@ public class ReducedMap implements TileBasedMap {
 	 * @return The ID of the unit at the given location or 0 if there is no unit
 	 */
 	public int getUnit(int x, int y) {
-		return units[x][y];
+		try {
+			return units[x][y];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -196,7 +200,11 @@ public class ReducedMap implements TileBasedMap {
 		if (getUnit(x, y) != 0) {
 			return true;
 		}
-		return terrain[x][y] == BLOCKED;
+		try {
+			return terrain[x][y] == BLOCKED;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return true;
+		}
 	}
 
 	/**
