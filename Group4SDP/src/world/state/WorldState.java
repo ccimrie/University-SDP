@@ -563,6 +563,11 @@ public class WorldState {
 		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
 		return angle;
 	}
+	public double angleToTheirGoalX() {
+		double pointBearing = a.findPointBearing(ourRobot, this.getTheirGoal().getX(), ourRobot.y);
+		double angle = a.turnAngle(ourRobot.bearing, pointBearing);
+		return angle;
+	}
 
 	public double angleToOurGoal() {
 		double pointBearing = a.findPointBearing(ourRobot, this.getOurGoal().getX(), this.getOurGoal().getY());

@@ -51,28 +51,32 @@ public class ReducedMap implements TileBasedMap {
 			System.out.println(world.theirRobot.y);
 			System.out.println(themx);
 			System.out.println(themy);
-			if (themx <= 2)
-				themx += 4;
-			if (themy <= 2)
-				themy += 4;
+			if (themx < 1)
+				themx += 2;
+			if (themx == 1)
+				themx += 1;
+			if (themy < 1)
+				themy += 2;
+			if (themy == 1)
+				themy += 1;
 			if (themx == WIDTH - 1)
-				themx -= 4;
+				themx -= 2;
 			if (themy == HEIGHT - 1)
-				themy -= 4;
+				themy -= 2;
 			if (themx >= WIDTH)
-				themx -= 5;
+				themx -= 3;
 			if (themy >= HEIGHT)
-				themy -= 5;
+				themy -= 3;
 			if (avoidenemy) {
-				fillArea(themx - 3, themy - 3, 7, 7, BLOCKED);
+				fillArea(themx - 2, themy - 2, 5, 5, BLOCKED);
 			}
 			// Fill ball just for display
 			int ballx = reduceRound(world.ball.x);
 			int bally = reduceRound(world.ball.y);
 			if (ballx <= 1)
-				ballx += 3;
+				ballx += 2;
 			if (bally <= 1)
-				bally += 3;
+				bally += 2;
 			if (ballx >= WIDTH - 1)
 				ballx -= 2;
 			if (bally >= HEIGHT - 1)

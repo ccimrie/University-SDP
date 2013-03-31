@@ -28,7 +28,7 @@ public class OffenseSimple extends StrategyInterface {
 					}
 					if ((shouldidie || Strategy.alldie))
 						break;
-					mover.moveTo(ball.x, ball.y);
+					mover.moveTo(ball.x, ball.y - 50);
 				} else {
 					mover.moveToAStar(ball.x, ball.y - 70, true, true);
 					try {
@@ -39,7 +39,8 @@ public class OffenseSimple extends StrategyInterface {
 					}
 					if ((shouldidie || Strategy.alldie))
 						break;
-					mover.moveTo(ball.x, ball.y);
+
+					mover.moveTo(ball.x, ball.y + 50);
 				}
 
 			} else {
@@ -49,26 +50,20 @@ public class OffenseSimple extends StrategyInterface {
 					if (ball.y > 240) {
 						slope = -slope;
 					}
-					mover.moveToAStar(ball.x - 40, ball.y + slope * 70, true, true);
-					mover.delay(50);
-					RobotMover.distanceThreshold = 10;
-					mover.moveToAndStop(ball.x - 40, ball.y + slope * 60);
-					try {
-						mover.waitForCompletion();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					mover.moveToAStar(ball.x - 70, ball.y /* + slope * 70 */, true, true);
+					// mover.delay(50);
+					// RobotMover.distanceThreshold = 10;
+					// mover.moveToAndStop(ball.x - 40, ball.y + slope * 60);
 
 				} else {
 					double slope = (244 - ball.y) / (28 - ball.x);
 					if (ball.y < 240) {
 						slope = -slope;
 					}
-					mover.moveToAStar(ball.x + 70, ball.y + 70 * slope, true, true);
-					mover.delay(50);
-					RobotMover.distanceThreshold = 10;
-					mover.moveToAndStop(ball.x + 60, ball.y + slope * 60);
+					mover.moveToAStar(ball.x + 70, ball.y/* + 70 * slope */, true, true);
+					// mover.delay(50);
+					// RobotMover.distanceThreshold = 10;
+					// mover.moveToAndStop(ball.x + 60, ball.y + slope * 60);
 					try {
 						mover.waitForCompletion();
 					} catch (InterruptedException e) {
@@ -78,6 +73,7 @@ public class OffenseSimple extends StrategyInterface {
 				}
 				if (!(shouldidie || Strategy.alldie)) {
 					double angle = Math.toRadians(world.angleToBall());
+					System.out.println("Angle to their goalX: " + angle);
 					mover.rotate(angle);
 					try {
 						mover.waitForCompletion();
@@ -87,13 +83,15 @@ public class OffenseSimple extends StrategyInterface {
 					}
 					mover.move(0, 100);
 					try {
-						SafeSleep.sleep(200);
+						SafeSleep.sleep(400);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					mover.kick();
+					mover.stopRobot();
 				}
+
 			}
 		}
 	}

@@ -441,17 +441,10 @@ public class Brick {
 		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();
-		kicker.rotateTo(60);
+		kicker.rotateTo(40);
 		kicker.rotateTo(0);
 		kicker.stop();
-	}
-	
-	private static void prepareToKick() throws InterruptedException{
-		Thread.sleep(50);
-		kicker.setAcceleration(6000);
-		kicker.setSpeed(900);
-		kicker.rotateTo(-80);
-		kicker.stop();
+		kicker.flt();
 	}
 
 	private static void beep() throws InterruptedException {

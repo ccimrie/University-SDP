@@ -182,8 +182,7 @@ public class RobotMover extends Thread {
 			doMoveTowards(movement.x, movement.y);
 			break;
 		case MOVE_TO_ASTAR:
-			doMoveToAStar(movement.x, movement.y, movement.avoidBall,
-					movement.avoidEnemy);
+			doMoveToAStar(movement.x, movement.y, movement.avoidBall, movement.avoidEnemy);
 			break;
 		case ROTATE:
 			doRotate(movement.angle);
@@ -487,8 +486,7 @@ public class RobotMover extends Thread {
 	 */
 	private void doMoveTo(double x, double y) {
 		int i = 0;
-		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold
-				&& i < 500 && !interruptMove) {
+		while (DistanceCalculator.Distance(us.x, us.y, x, y) > distanceThreshold && i < 500 && !interruptMove) {
 			doMoveTowards(x, y);
 			// Not to send unnecessary commands
 			// 42 because it's The Answer to the Ultimate Question of Life, the
@@ -515,9 +513,7 @@ public class RobotMover extends Thread {
 		int i = 0;
 		Point2D point = p.get();
 		assert point != null;
-		while (DistanceCalculator.Distance(us.x, us.y, point.getX(),
-				point.getY()) > distanceThreshold
-				&& i < 500 && !interruptMove) {
+		while (DistanceCalculator.Distance(us.x, us.y, point.getX(), point.getY()) > distanceThreshold && i < 500 && !interruptMove) {
 
 			doMoveTowards(point.getX(), point.getY());
 			try {
@@ -667,8 +663,7 @@ public class RobotMover extends Thread {
 	 *            camera feed
 	 * @return The turn angle (in radians)
 	 */
-	public double angleCalculator(double x1, double y1, double x2, double y2,
-			double bearing) {
+	public double angleCalculator(double x1, double y1, double x2, double y2, double bearing) {
 		double xt, yt, xtc, ytc;
 		// Vector from robot to point in the camera axis
 		xtc = x2 - x1;
@@ -689,8 +684,7 @@ public class RobotMover extends Thread {
 		double dotProductRight = xt * xtc + yt * ytc;
 
 		// Find the turn angle using the dot product
-		double angle = Math.acos(dotProductForward
-				/ (Math.sqrt((xtc * xtc + ytc * ytc) * (xt * xt + yt * yt))));
+		double angle = Math.acos(dotProductForward / (Math.sqrt((xtc * xtc + ytc * ytc) * (xt * xt + yt * yt))));
 
 		// Ensure the turn angle is in the correct direction
 		if (dotProductRight < 0)
@@ -714,8 +708,7 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see #waitForCompletion()
 	 */
-	public synchronized boolean moveToAStar(double x, double y,
-			boolean avoidBall, boolean avoidEnemy) {
+	public synchronized boolean moveToAStar(double x, double y, boolean avoidBall, boolean avoidEnemy) {
 		MoverConfig movement = new MoverConfig();
 		movement.x = x;
 		movement.y = y;
@@ -741,17 +734,14 @@ public class RobotMover extends Thread {
 	 * 
 	 * @see #moveToAStar(double x, double y)
 	 */
-	private void doMoveToAStar(double x, double y, boolean avoidball,
-			boolean avoidenemy) {
+	private void doMoveToAStar(double x, double y, boolean avoidball, boolean avoidenemy) {
 		ReducedMap map = new ReducedMap(worldState, avoidball, avoidenemy);
 		System.out.println("Map Height: " + map.getHeightInTiles());
 		System.out.println("Map Width: " + map.getWidthInTiles());
 
-		System.out.println("Height: "
-				+ worldState.goalInfo.pitchConst.getPitchHeight() + "px");
+		System.out.println("Height: " + worldState.goalInfo.pitchConst.getPitchHeight() + "px");
 
-		System.out.println("Width: "
-				+ worldState.goalInfo.pitchConst.getPitchWidth() + "px");
+		System.out.println("Width: " + worldState.goalInfo.pitchConst.getPitchWidth() + "px");
 
 		PathFinder finder = new AStarPathFinder(map, 100, true);
 		int selectedx = map.reduceRound(us.x);
@@ -759,9 +749,7 @@ public class RobotMover extends Thread {
 		int goToX = map.reduceRound(x);
 		int goToY = map.reduceRound(y);
 		System.out.println("(" + goToX + ", " + goToY + ")");
-		Path path = finder.findPath(
-				new UnitMover(map.getUnit(selectedx, selectedy)), selectedx,
-				selectedy, goToX, goToY);
+		Path path = finder.findPath(new UnitMover(map.getUnit(selectedx, selectedy)), selectedx, selectedy, goToX, goToY);
 		if (path != null) {
 			int l = path.getLength();
 
@@ -779,14 +767,18 @@ public class RobotMover extends Thread {
 			}
 
 			i = 0;
-			distanceThreshold = 24;
+			distanceThreshold = 25;
 			while (i < l && !interruptMove) {
 				// map.terrain[path.getX(i)][path.getY(i)] = 7;
-				System.out.println("AStar: Calling movement to ("
-						+ path.getX(i) * map.REDUCTION + ", " + path.getY(i)
-						* map.REDUCTION + ")");
-				doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i)
-						* map.REDUCTION);
+				System.out.println("AStar: Calling movement to (" + path.getX(i) * map.REDUCTION + ", " + path.getY(i) * map.REDUCTION + ")");
+				doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
+				//doMoveTowards(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
+				try {
+					SafeSleep.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
 				i++;
 				// robot.stop();
 			}
