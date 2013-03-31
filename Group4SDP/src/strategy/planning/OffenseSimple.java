@@ -7,7 +7,7 @@ import world.state.WorldState;
 
 public class OffenseSimple extends StrategyInterface {
 	private Ball ball;
-	
+
 	public OffenseSimple(WorldState world, RobotMover mover) {
 		super(world, mover);
 		ball = world.ball;
@@ -49,14 +49,16 @@ public class OffenseSimple extends StrategyInterface {
 					e.printStackTrace();
 				}
 			}
-			mover.move(0,100);
-			try {
-				SafeSleep.sleep(200);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (!(shouldidie || Strategy.alldie)){
+				mover.move(0,100);
+				try {
+					SafeSleep.sleep(200);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				mover.kick();
 			}
-			mover.kick();
 		}
 	}
 }
