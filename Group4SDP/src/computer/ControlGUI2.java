@@ -321,7 +321,11 @@ public class ControlGUI2 extends JFrame {
 					Strategy.stop();
 					strategy.kill();
 					try {
-						strategyThread.join();
+						strategyThread.join(3000);
+						if (strategyThread.isAlive()) {
+							System.out.println("Strategy failed to stop");
+							cleanQuit();
+						}
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
