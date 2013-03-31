@@ -63,9 +63,24 @@ public class PenaltyDefense extends StrategyInterface {
 				else if (angleToTop < 15) {
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
-						// wait
+						// catch the ball
 						
-						if (world.getOurRobot().y > 178) {
+						if (world.getOurRobot().y < 182 && world.getOurRobot().y > 178) {
+							if (world.getOurRobot().y > y) {
+								mover.stopRobot();
+
+							} else if (world.getOurRobot().y < y) {
+								mover.move(100, 0);
+
+							} else {
+								mover.stopRobot();
+							}	
+
+						}
+						// we defend right goal
+						// wait
+
+						else if (world.getOurRobot().y >= 182) {
 							if (world.getOurRobot().y > y) {
 								mover.move(-100, 0);
 
@@ -78,32 +93,11 @@ public class PenaltyDefense extends StrategyInterface {
 
 						}
 						// we defend right goal
-						// catch the ball
-
-						else if (world.getOurRobot().y > 182) {
-							if (world.getOurRobot().y > y) {
-								mover.stopRobot();
-
-							} else if (world.getOurRobot().y < y) {
-								mover.move(100, 0);
-
-							} else {
-								mover.stopRobot();
-							}
-
-						}
-						// we defend right goal
 						// move back slightly
 						else {
-							if (world.getOurRobot().y > y) {
+							
 								mover.move(100, 0);
 
-							} else if (world.getOurRobot().y < y) {
-								mover.move(100, 0);
-
-							} else {
-								mover.stopRobot();
-							}
 
 						}
 
@@ -113,7 +107,7 @@ public class PenaltyDefense extends StrategyInterface {
 					else {
 
 						// go to blocking position
-						if (world.getOurRobot().y > 205) {
+						if (world.getOurRobot().y < 210 && world.getOurRobot().y > 205 ) {
 							if (world.getOurRobot().y > yblock) {
 								mover.stopRobot();
 
@@ -126,7 +120,7 @@ public class PenaltyDefense extends StrategyInterface {
 						}
 						// we defend right goal
 						// wait
-						else if (world.getOurRobot().y > 210) {
+						else if (world.getOurRobot().y >= 210) {
 							if (world.getOurRobot().y > yblock) {
 								mover.move(-100, 0);
 
@@ -140,15 +134,10 @@ public class PenaltyDefense extends StrategyInterface {
 						// we defend right goal
 						// move back slightly
 						else {
-							if (world.getOurRobot().y > yblock) {
+							
 								mover.move(100, 0);
 
-							} else if (world.getOurRobot().y < yblock) {
-								mover.move(100, 0);
-
-							} else {
-								mover.move(100, 0);
-							}
+							
 						}
 
 					}
@@ -161,7 +150,7 @@ public class PenaltyDefense extends StrategyInterface {
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball
 
-						if (world.getOurRobot().y < 300) {
+						if (world.getOurRobot().y <= 300) {
 							if (world.getOurRobot().y < y) {
 								mover.move(100, 0);
 
@@ -175,7 +164,7 @@ public class PenaltyDefense extends StrategyInterface {
 						}
 						// we defend right goal
 						// wait
-						else if (world.getOurRobot().y < 305) {
+						else if (world.getOurRobot().y < 305 && world.getOurRobot().y >= 300) {
 							if (world.getOurRobot().y < y) {
 								mover.stopRobot();
 
@@ -201,7 +190,7 @@ public class PenaltyDefense extends StrategyInterface {
 					else {
 
 						// go to blocking position
-						if (world.getOurRobot().y < 280) {
+						if (world.getOurRobot().y <= 280) {
 							if (world.getOurRobot().y > yblock) {
 								mover.move(-100, 0);
 
@@ -214,7 +203,7 @@ public class PenaltyDefense extends StrategyInterface {
 						}
 						// we defend right goal
 						// wait
-						else if (world.getOurRobot().y < 285) {
+						else if (world.getOurRobot().y < 285 && world.getOurRobot().y > 280) {
 							if (world.getOurRobot().y < yblock) {
 								mover.stopRobot();
 
@@ -242,201 +231,166 @@ public class PenaltyDefense extends StrategyInterface {
 				if (angleToUs > -5 && angleToUs < 5) {
 
 				}
-
-				// we defend left goal
-
+				// we defend right goal
 				// enemy aims in top corner
-				else if (angleToTop > -15) {
+				else if (angleToTop > -15 && angleToTop < 0) {
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
-						// wait
-
-						if (world.getOurRobot().y > 178) {
+						// catch the ball
+						
+						if (world.getOurRobot().y < 182 && world.getOurRobot().y > 178) {
 							if (world.getOurRobot().y > y) {
 								mover.stopRobot();
 
 							} else if (world.getOurRobot().y < y) {
-								mover.move(100, 0);
-
-							} else {
-								mover.stopRobot();
-							}
-
-						}
-
-						// we defend left goal
-
-						// catch the ball
-
-						else if (world.getOurRobot().y > 182) {
-							if (world.getOurRobot().y > y) {
 								mover.move(-100, 0);
 
-							} else if (world.getOurRobot().y < y) {
+							} else {
+								mover.stopRobot();
+							}	
+
+						}
+						// we defend right goal
+						// wait
+
+						else if (world.getOurRobot().y >= 182) {
+							if (world.getOurRobot().y > y) {
 								mover.move(100, 0);
+
+							} else if (world.getOurRobot().y < y) {
+								mover.move(-100, 0);
 
 							} else {
 								mover.stopRobot();
 							}
 
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// move back slightly
 						else {
-							if (world.getOurRobot().y > y) {
-								mover.move(100, 0);
+							
+								mover.move(-100, 0);
 
-							} else if (world.getOurRobot().y < y) {
-								mover.move(100, 0);
-
-							} else {
-								mover.stopRobot();
-							}
 
 						}
 
 					}
-
-					// we defend left goal
-
+					// we defend right goal
 					// enemy still aiming
 					else {
 
 						// go to blocking position
-						if (world.getOurRobot().y > 205) {
+						if (world.getOurRobot().y < 210 && world.getOurRobot().y > 205 ) {
 							if (world.getOurRobot().y > yblock) {
 								mover.stopRobot();
 
 							} else if (world.getOurRobot().y < yblock) {
-								mover.move(100, 0);
-
-							} else {
-								mover.stopRobot();
-							}
-						}
-
-						// we defend left goal
-
-						// wait
-						else if (world.getOurRobot().y > 210) {
-							if (world.getOurRobot().y > yblock) {
 								mover.move(-100, 0);
 
-							} else if (world.getOurRobot().y < yblock) {
+							} else {
+								mover.stopRobot();
+							}
+						}
+						// we defend right goal
+						// wait
+						else if (world.getOurRobot().y >= 210) {
+							if (world.getOurRobot().y > yblock) {
 								mover.move(100, 0);
+
+							} else if (world.getOurRobot().y < yblock) {
+								mover.move(-100, 0);
 
 							} else {
 								mover.stopRobot();
 							}
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// move back slightly
 						else {
-							if (world.getOurRobot().y > yblock) {
-								mover.move(100, 0);
+							
+								mover.move(-100, 0);
 
-							} else if (world.getOurRobot().y < yblock) {
-								mover.move(100, 0);
-
-							} else {
-								mover.move(100, 0);
-							}
+							
 						}
 
 					}
 
 				}
-
-				// we defend left goal
-
+				// we defend right goal
 				// enemy aims in bot corner
 				else if (angleToBot < 15) {
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball
 
-						if (world.getOurRobot().y < 300) {
+						if (world.getOurRobot().y <= 300) {
 							if (world.getOurRobot().y < y) {
+								mover.move(-100, 0);
+
+							} else if (world.getOurRobot().y > y) {
 								mover.move(100, 0);
 
-							} else if (world.getOurRobot().y > y) {
-								mover.move(-100, 0);
-
 							} else {
 								mover.stopRobot();
 							}
 
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// wait
-						else if (world.getOurRobot().y < 305) {
+						else if (world.getOurRobot().y < 305 && world.getOurRobot().y >= 300) {
 							if (world.getOurRobot().y < y) {
 								mover.stopRobot();
 
 							} else if (world.getOurRobot().y > y) {
-								mover.move(-100, 0);
+								mover.move(100, 0);
 
 							} else {
 								mover.stopRobot();
 							}
 
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// move back slightly
 						else {
 
-							mover.move(-100, 0);
+							mover.move(100, 0);
 
 						}
 
 					}
-
-					// we defend left goal
-
+					// we defend right goal
 					// enemy still aiming
 					else {
 
 						// go to blocking position
-						if (world.getOurRobot().y < 280) {
+						if (world.getOurRobot().y <= 280) {
 							if (world.getOurRobot().y > yblock) {
-								mover.move(-100, 0);
+								mover.move(+100, 0);
 
 							} else if (world.getOurRobot().y < yblock) {
-								mover.move(100, 0);
+								mover.move(-100, 0);
 
 							} else {
 								mover.stopRobot();
 							}
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// wait
-						else if (world.getOurRobot().y < 285) {
+						else if (world.getOurRobot().y < 285 && world.getOurRobot().y > 280) {
 							if (world.getOurRobot().y < yblock) {
 								mover.stopRobot();
 
 							} else if (world.getOurRobot().y > yblock) {
-								mover.move(-100, 0);
+								mover.move(+100, 0);
 
 							} else {
 								mover.stopRobot();
 							}
 						}
-
-						// we defend left goal
-
+						// we defend right goal
 						// move back slightly
 						else {
-							mover.move(-100, 0);
+							mover.move(100, 0);
 						}
 
 					}
