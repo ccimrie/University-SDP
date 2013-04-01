@@ -767,18 +767,12 @@ public class RobotMover extends Thread {
 			}
 
 			i = 0;
-			distanceThreshold = 25;
+			distanceThreshold = 30;
 			while (i < l && !interruptMove) {
 				// map.terrain[path.getX(i)][path.getY(i)] = 7;
 				System.out.println("AStar: Calling movement to (" + path.getX(i) * map.REDUCTION + ", " + path.getY(i) * map.REDUCTION + ")");
 				doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
-				//doMoveTowards(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
-				try {
-					SafeSleep.sleep(50);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
+				//doMoveTowards(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);			
 				i++;
 				// robot.stop();
 			}

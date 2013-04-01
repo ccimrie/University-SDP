@@ -28,6 +28,7 @@ import strategy.planning.OffenseSimple;
 import strategy.planning.PenaltyManager;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
+import utility.SafeSleep;
 import vision.DistortionFix;
 import vision.PitchConstants;
 import vision.VideoStream;
@@ -294,9 +295,10 @@ public class ControlGUI2 extends JFrame {
 				if (strategyThread == null || !strategyThread.isAlive()) {
 					Strategy.reset();
 					strategy = new OffenseSimple(worldState, mover);
-					// strategy = new Offense42(worldState, mover);
 					strategyThread = new Thread(strategy);
 					strategyThread.start();
+										
+					
 				} else {
 					System.err.println("Strategy already active!");
 				}

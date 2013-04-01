@@ -61,6 +61,7 @@ public class PenaltyDefense extends StrategyInterface {
 				// we defend right goal
 				// enemy aims in top corner
 				else if (angleToTop < 15) {
+					System.out.println("[PenaltyDefence] Top Right corner");
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball
@@ -146,6 +147,7 @@ public class PenaltyDefense extends StrategyInterface {
 				// we defend right goal
 				// enemy aims in bot corner
 				else if (angleToBot > -15) {
+					System.out.println("[PenaltyDefence] Bot Right corner");
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball
@@ -234,6 +236,7 @@ public class PenaltyDefense extends StrategyInterface {
 				// we defend right goal
 				// enemy aims in top corner
 				else if (angleToTop > -15 && angleToTop < 0) {
+					System.out.println("[PenaltyDefence] Top LEft corner");
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball
@@ -319,6 +322,7 @@ public class PenaltyDefense extends StrategyInterface {
 				// we defend right goal
 				// enemy aims in bot corner
 				else if (angleToBot < 15) {
+					System.out.println("[PenaltyDefence] Bot LEft corner");
 					// enemy make a shoot
 					if (dToBall + 15 < dToPenalty) {
 						// catch the ball

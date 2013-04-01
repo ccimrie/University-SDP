@@ -23,14 +23,13 @@ public class AngleCalculator {
 		return findPointBearing(us, ball.x, ball.y);
 	}
 
-	/*
+	/**
 	 * turnAngle takes the ballBearing (the output from findBearing) and
 	 * botBearing (the angle the robot is facing from north, which will be
 	 * supplied from vision) and calculates the difference between these and
 	 * selects the smallest turn to take. Clockwise turns are a positive angle
 	 * and anti-clockwise are negative.
 	 */
-
 	public double turnAngle(double botBearing, double toBallBearing) {
 		botBearing = Math.toDegrees(botBearing);
 		double turnAngle = toBallBearing - botBearing;
