@@ -11,7 +11,6 @@ public class PenaltyDefense extends StrategyInterface {
 	Ball ball;
 	
 	private Thread strategyThread;
-	private StrategyInterface strategy;
 	
 	public PenaltyDefense(WorldState world, RobotMover mover) {
 		super(world, mover);
@@ -19,6 +18,15 @@ public class PenaltyDefense extends StrategyInterface {
 		this.ball = world.ball;
 		this.originalx = ball.x;
 		this.originaly = ball.y;
+	}
+	
+	/**
+	 * Sets up the desired strategy thread to be started after the ball is kicked.
+	 * @param strategy any sort of strategy thread.
+	 */
+	
+	public void setStrat(Thread strategy){
+		this.strategyThread = strategy;
 	}
 
 	@Override
@@ -78,8 +86,10 @@ public class PenaltyDefense extends StrategyInterface {
 			}
 			System.out.println(counter);
 		}
-		// strategy = new MainPlanner(world, mover);
-		// strategyThread = new Thread(strategy);
-		// strategyThread.start();
+		
+		//Start a strategy if you have one.
+		if (strategyThread != null){
+			strategyThread.start();
+		}
 	}
 }
