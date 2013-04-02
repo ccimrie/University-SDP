@@ -23,7 +23,6 @@ import movement.RobotMover;
 import strategy.calculations.GoalInfo;
 import strategy.planning.DribbleBall5;
 import strategy.planning.MainPlanner;
-import strategy.planning.OffenseSimple;
 import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
@@ -302,10 +301,19 @@ public class ControlGUI2 extends JFrame {
 
 		stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Halt and clear active movements
+				mover.interruptMove();
+				try {
+					mover.resetQueue();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				// Stop the dribble thread if it's running
 				if (dribbleThread != null && dribbleThread.isAlive()) {
 					System.out.println("Killing dribble thread");
 					DribbleBall5.die = true;
+					mover.interruptMove();
 					try {
 						dribbleThread.join();
 					} catch (InterruptedException e1) {
@@ -329,13 +337,6 @@ public class ControlGUI2 extends JFrame {
 					}
 				}
 				System.out.println("Stopping the robot");
-				mover.interruptMove();
-				try {
-					mover.resetQueue();
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
 				// Stop the robot.
 				mover.stopRobot();
 			}
