@@ -67,8 +67,6 @@ public class RobotMover extends Thread {
 		public long milliseconds = 0;
 		private int dribblemode = 0;
 		private MovingPoint movPoint = null;
-		public double l = 0;
-		public double r = 0;
 		public Mode mode;
 	};
 
@@ -189,7 +187,7 @@ public class RobotMover extends Thread {
 			doRotate(movement.angle);
 			break;
 		case ARC:
-			doArc(movement.l, movement.r);
+			doArc(movement.x, movement.y);
 			break;
 		default:
 			System.out.println("DERP! Unknown movement mode specified");
@@ -833,10 +831,10 @@ public class RobotMover extends Thread {
 		robot.rotate((int) Math.toDegrees(angleRad));
 	}
 	
-	public synchronized boolean arc(double l, double r) {
+	public synchronized boolean arc(double left, double right) {
 		MoverConfig movement = new MoverConfig();
-		movement.l = l;
-		movement.r = r;
+		movement.x = left;
+		movement.y = right;
 		movement.mode = Mode.ARC;
 
 		if (!pushMovement(movement))
@@ -847,8 +845,8 @@ public class RobotMover extends Thread {
 		return true;
 	}
 	
-	private void doArc(double l, double r){
-		robot.arc((int) l, (int) r);
+	private void doArc(double left, double right){
+		robot.arc((int) left, (int) right);
 	}
 
 	/**

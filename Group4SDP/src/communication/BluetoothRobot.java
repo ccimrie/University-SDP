@@ -116,8 +116,8 @@ public class BluetoothRobot extends Robot implements RobotController {
 	}
 
 	@Override
-	public int arc(int l, int r) {
-		int[] command = { Commands.ARC, l, r, 0 };
+	public int arc(int left, int right) {
+		int[] command = { Commands.ARC, left, right, 0 };
 		int confirmation = 0;
 		try {
 			confirmation = comms.sendToRobot(command);

@@ -321,34 +321,34 @@ public class Brick {
 	/**
 	 * Move forwards in an arc.
 	 * 
-	 * @param l
+	 * @param left
 	 *            left wheel speed -100 to 100
-	 * @param r
+	 * @param right
 	 *            right wheel speed -100 to 100
 	 * @throws InterruptedException
 	 *             When sleeping of a thread is interrupted
 	 */
-	private static void arc(int l, int r) throws InterruptedException {
+	private static void arc(int left, int right) throws InterruptedException {
 		leftMotor.setAcceleration(2500);
 		rightMotor.setAcceleration(2500);
-		l = l * 7;
-		r = r * 7;
-		if (l > 0) {
-			leftMotor.setSpeed(l);
+		left *= 7;
+		right *= 7;
+		if (left > 0) {
+			leftMotor.setSpeed(left);
 			leftMotor.forward();
-		} else if (l < 0) {
-			leftMotor.setSpeed(-l);
+		} else if (left < 0) {
+			leftMotor.setSpeed(-left);
 			leftMotor.backward();
 
 		} else {
 			leftMotor.flt();
 		}
 
-		if (r > 0) {
-			rightMotor.setSpeed(r);
+		if (right > 0) {
+			rightMotor.setSpeed(right);
 			rightMotor.backward();
-		} else if (r < 0) {
-			rightMotor.setSpeed(-r);
+		} else if (right < 0) {
+			rightMotor.setSpeed(-right);
 			rightMotor.forward();
 		} else {
 			rightMotor.flt();

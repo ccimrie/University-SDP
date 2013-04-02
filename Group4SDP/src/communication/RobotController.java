@@ -10,7 +10,8 @@ public interface RobotController {
 	/**
 	 * Attempts to connect to the robot
 	 * 
-	 * @throws Exception if connection failed
+	 * @throws Exception
+	 *             if connection failed
 	 */
 	public void connect() throws Exception;
 
@@ -18,12 +19,12 @@ public interface RobotController {
 	 * Tests if the robot is connected
 	 */
 	public boolean isConnected();
-	
+
 	/**
 	 * Tests if the robot is ready to receive commands
 	 */
 	public boolean isReady();
-	
+
 	/**
 	 * Disconnects from the robot
 	 */
@@ -35,13 +36,13 @@ public interface RobotController {
 	 * @return A confirmation code for the command
 	 */
 	public int stop();
-	
-//	/**
-//	 * Tells the robot to beep 3 times
-//	 * 
-//	 * @return A confirmation code for the command
-//	 */
-//	public int beep();
+
+	// /**
+	// * Tells the robot to beep 3 times
+	// *
+	// * @return A confirmation code for the command
+	// */
+	// public int beep();
 
 	/**
 	 * Tells the robot to kick
@@ -49,18 +50,20 @@ public interface RobotController {
 	 * @return A confirmation code for the command
 	 */
 	public int kick();
-	
+
 	/**
 	 * Tells the robot to activate it's dribbler
-	 * @param direction Tells which direction the dribbler should move.
-	 * 				Use 1 for forward (as in dribbling) and 2 for backward
-	 * 				(as in kicking).
+	 * 
+	 * @param direction
+	 *            Tells which direction the dribbler should move. Use 1 for
+	 *            forward (as in dribbling) and 2 for backward (as in kicking).
 	 * @return A confirmation code for the command
 	 */
 	public int dribble(int direction);
-	
+
 	/**
 	 * Stops the dribbler so that we don't drain the battery.
+	 * 
 	 * @return A confirmation code for the command
 	 */
 	public int stopdribble();
@@ -85,14 +88,16 @@ public interface RobotController {
 	 * @return A confirmation code for the command
 	 */
 	public int rotate(int angleDeg);
-	
+
 	/**
-	 * @param l left wheel speed out of 100
-	 * @param r right wheel speed of 100
+	 * @param left
+	 *            left wheel speed out of 100
+	 * @param right
+	 *            right wheel speed of 100
 	 * @return
 	 */
-	public int arc(int l, int r);
-	
+	public int arc(int left, int right);
+
 	/**
 	 * Tells the robot to rotate while moving along a vector, relative to the
 	 * robot<br/>
