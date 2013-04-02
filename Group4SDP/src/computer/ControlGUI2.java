@@ -359,9 +359,19 @@ public class ControlGUI2 extends JFrame {
 
 		penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				strategy = new PenaltyManager(worldState, mover, true);
-				strategyThread = new Thread(strategy);
-				strategyThread.start();
+				int angle = Integer.parseInt(op1field.getText());
+				if (angle != 0){
+					mover.rotate(Math.toRadians(angle));
+				}
+				mover.kick();
+				try {
+					SafeSleep.sleep(100);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				dribbleThread = new DribbleBallThread();
+				dribbleThread.start();
 			}
 		});
 

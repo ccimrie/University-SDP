@@ -751,8 +751,11 @@ public class RobotMover extends Thread {
 		System.out.println("(" + goToX + ", " + goToY + ")");
 		Path path = finder.findPath(new UnitMover(map.getUnit(selectedx, selectedy)), selectedx, selectedy, goToX, goToY);
 		if (path != null) {
+			distanceThreshold = 40;
 			int l = path.getLength();
-
+			if (l > 4) {
+				l = 4;
+			}
 			int i = 0;
 			while (i < l && !interruptMove) {
 				map.terrain[path.getX(i)][path.getY(i)] = 7;
@@ -766,15 +769,21 @@ public class RobotMover extends Thread {
 				System.out.println(brr);
 			}
 
-			i = 0;
-			distanceThreshold = 30;
-			while (i < l && !interruptMove) {
-				// map.terrain[path.getX(i)][path.getY(i)] = 7;
-				System.out.println("AStar: Calling movement to (" + path.getX(i) * map.REDUCTION + ", " + path.getY(i) * map.REDUCTION + ")");
-				doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
-				//doMoveTowards(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);			
-				i++;
-				// robot.stop();
+			
+			if (l > 3) {
+				i = 0;
+				while (i < l && !interruptMove) {
+					// map.terrain[path.getX(i)][path.getY(i)] = 7;
+					System.out.println("AStar: Calling movement to (" + path.getX(i) * map.REDUCTION + ", " + path.getY(i) * map.REDUCTION + ")");
+					doMoveTo(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
+					// doMoveTowards(path.getX(i) * map.REDUCTION, path.getY(i) * map.REDUCTION);
+					i++;
+					// robot.stop();
+				}
+			} else {
+				l--;
+				System.out.println("AStar: Short path, direct movement to (" + path.getX(l) * map.REDUCTION + ", " + path.getY(l) * map.REDUCTION + ")");
+				doMoveTo(path.getX(l) * map.REDUCTION, path.getY(l) * map.REDUCTION);
 			}
 			distanceThreshold = 20;
 		}
