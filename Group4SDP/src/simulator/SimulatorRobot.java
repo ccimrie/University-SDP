@@ -162,4 +162,10 @@ public class SimulatorRobot extends Robot implements RobotController {
 		simRobot.deactivateDribbler();
 		return 0;
 	}
+
+	@Override
+	public int arc(int l, int r) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

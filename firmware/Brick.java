@@ -43,6 +43,7 @@ public class Brick {
 	private final static int FORCEQUIT = 55;
 	private final static int TEST = 66;
 	private final static int BEEP = 42;
+	private final static int ARC = 37;
 
 	// I2C motor board
 	private static Mux chip = new Mux(SensorPort.S1);
@@ -56,10 +57,10 @@ public class Brick {
 	private static NXTRegulatedMotor leftMotor = Motor.B;
 	private static NXTRegulatedMotor rightMotor = Motor.C;
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		while (!die) {
 			try {
-				//prepareToKick();
+				// prepareToKick();
 				// Waiting for a connection and opening streams on success
 				LCD.clear();
 				LCD.drawString("Waiting for", 0, 2);
@@ -79,8 +80,7 @@ public class Brick {
 				int opcode = DO_NOTHING;
 				int option1, option2, option3;
 
-				while ((opcode != QUIT) && (opcode != FORCEQUIT)
-						&& !(Button.ESCAPE.isDown())) {
+				while ((opcode != QUIT) && (opcode != FORCEQUIT) && !(Button.ESCAPE.isDown())) {
 
 					// Get the next command from the inputstream
 					byte[] byteBuffer = new byte[4];
@@ -151,7 +151,7 @@ public class Brick {
 						LCD.drawString("Kicking!", 0, 2);
 						LCD.refresh();
 						kick();
-						//prepareToKick();
+						// prepareToKick();
 						replytopc(opcode, os);
 						break;
 
@@ -160,6 +160,14 @@ public class Brick {
 						LCD.drawString("Moving at an angle!", 0, 2);
 						LCD.refresh();
 						move(option1, option2);
+						replytopc(opcode, os);
+						break;
+
+					case ARC:
+						LCD.clear();
+						LCD.drawString("Arc!", 0, 2);
+						LCD.refresh();
+						arc(option1, option2);
 						replytopc(opcode, os);
 						break;
 
@@ -177,38 +185,37 @@ public class Brick {
 						beep();
 						replytopc(opcode, os);
 						break;
-						
+
 					case DRIBBLERON:
 						LCD.clear();
 						LCD.drawString("Dribbler!", 0, 2);
 						LCD.refresh();
 						kicker.setAcceleration(6000);
 						kicker.setSpeed(900);
-						//Use option1 to send parameter. 1 for dribble, 2 (or anything else
-						//for kicking
-						if (option1 == 1){
+						// Use option1 to send parameter. 1 for dribble, 2 (or anything else
+						// for kicking
+						if (option1 == 1) {
 							kicker.forward();
-						}else{
+						} else {
 							kicker.backward();
 						}
 						replytopc(opcode, os);
 						break;
-						
+
 					case DRIBBLEROFF:
 						kicker.flt();
 						replytopc(opcode, os);
 						break;
 
 					case TEST:
-						boolean receiveTrue = ((opcode == 66) && (option1 == 0)
-								&& (option2 == 0) && (option3 == 66));
+						boolean receiveTrue = ((opcode == 66) && (option1 == 0) && (option2 == 0) && (option3 == 66));
 						String tmp = "TEST! " + receiveTrue;
 						LCD.drawString(tmp, 0, 2);
 						byte[] testres = new byte[] { 66, 77, 88, 99 };
 						os.write(testres);
 						os.flush();
 						break;
-						
+
 					case QUIT: // Exit the loop, close connection
 						// Sound.twoBeeps();
 						break;
@@ -255,8 +262,7 @@ public class Brick {
 	 *            - the Output stream for the brick.
 	 * @throws IOException
 	 */
-	public static void replytopc(int opcode, OutputStream os)
-			throws IOException {
+	public static void replytopc(int opcode, OutputStream os) throws IOException {
 		byte[] reply = { 111, (byte) opcode, 0, 0 };
 		os.write(reply);
 		os.flush();
@@ -273,8 +279,8 @@ public class Brick {
 	 *             When sleeping of a thread is interrupted
 	 */
 	private static void move(int x, int y) throws InterruptedException {
-		leftMotor.setAcceleration(2000);
-		rightMotor.setAcceleration(2000);
+		leftMotor.setAcceleration(2500);
+		rightMotor.setAcceleration(2500);
 		// Correction for low speeds to combat friction
 		if (Math.abs(y) <= 5)
 			y = 0;
@@ -313,6 +319,43 @@ public class Brick {
 	}
 
 	/**
+	 * Move forwards in an arc.
+	 * 
+	 * @param l
+	 *            left wheel speed -100 to 100
+	 * @param r
+	 *            right wheel speed -100 to 100
+	 * @throws InterruptedException
+	 *             When sleeping of a thread is interrupted
+	 */
+	private static void arc(int l, int r) throws InterruptedException {
+		leftMotor.setAcceleration(2500);
+		rightMotor.setAcceleration(2500);
+		l = l * 7;
+		r = r * 7;
+		if (l > 0) {
+			leftMotor.setSpeed(l);
+			leftMotor.forward();
+		} else if (l < 0) {
+			leftMotor.setSpeed(-l);
+			leftMotor.backward();
+
+		} else {
+			leftMotor.flt();
+		}
+
+		if (r > 0) {
+			rightMotor.setSpeed(r);
+			rightMotor.backward();
+		} else if (r < 0) {
+			rightMotor.setSpeed(-r);
+			rightMotor.forward();
+		} else {
+			rightMotor.flt();
+		}
+	}
+
+	/**
 	 * Stops all motors, makes them float afterwards.
 	 * 
 	 * @throws InterruptedException
@@ -334,6 +377,8 @@ public class Brick {
 	 * 
 	 */
 	public static void rotate(int dir, int angle) throws InterruptedException {
+		leftMotor.resetTachoCount();
+		rightMotor.resetTachoCount();
 		leftMotor.setAcceleration(2000);
 		rightMotor.setAcceleration(2000);
 		leftMotor.setSpeed(400);
@@ -437,7 +482,7 @@ public class Brick {
 	 * 
 	 * @throws InterruptedException
 	 */
-	private static void kick() throws InterruptedException {		
+	private static void kick() throws InterruptedException {
 		kicker.setAcceleration(6000);
 		kicker.setSpeed(900);
 		kicker.resetTachoCount();

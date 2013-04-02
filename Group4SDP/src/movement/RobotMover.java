@@ -54,7 +54,7 @@ public class RobotMover extends Thread {
 	 * {@link RobotMover#doRotate (double angle)}
 	 */
 	private enum Mode {
-		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE, DRIBBLEON, DRIBBLEOFF
+		STOP, KICK, DELAY, MOVE_VECTOR, MOVE_ANGLE, MOVE_TO, MOVE_TO_ASTAR, MOVE_TOWARDS, ROTATE, DRIBBLEON, DRIBBLEOFF, ARC
 	};
 
 	/** Settings info class to permit queueing of movements */
@@ -67,7 +67,8 @@ public class RobotMover extends Thread {
 		public long milliseconds = 0;
 		private int dribblemode = 0;
 		private MovingPoint movPoint = null;
-
+		public double l = 0;
+		public double r = 0;
 		public Mode mode;
 	};
 
@@ -186,6 +187,9 @@ public class RobotMover extends Thread {
 			break;
 		case ROTATE:
 			doRotate(movement.angle);
+			break;
+		case ARC:
+			doArc(movement.l, movement.r);
 			break;
 		default:
 			System.out.println("DERP! Unknown movement mode specified");
@@ -827,6 +831,24 @@ public class RobotMover extends Thread {
 	 */
 	private void doRotate(double angleRad) {
 		robot.rotate((int) Math.toDegrees(angleRad));
+	}
+	
+	public synchronized boolean arc(double l, double r) {
+		MoverConfig movement = new MoverConfig();
+		movement.l = l;
+		movement.r = r;
+		movement.mode = Mode.ARC;
+
+		if (!pushMovement(movement))
+			return false;
+
+		// Let the mover know it has a new job
+		jobSem.release();
+		return true;
+	}
+	
+	private void doArc(double l, double r){
+		robot.arc((int) l, (int) r);
 	}
 
 	/**

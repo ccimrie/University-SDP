@@ -28,4 +28,5 @@ public class Commands {
 	public final static int TEST = 66;
 	public final static int FORCEQUIT = 55;
 	public final static int BEEP = 42;
+	public final static int ARC = 37;
 }

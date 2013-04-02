@@ -114,15 +114,29 @@ public class BluetoothRobot extends Robot implements RobotController {
 		System.out.println("Kick");
 		return confirmation;
 	}
-	
+
 	@Override
-	public int dribble(int direction){
-		int [] command = { Commands.DRIBBLERON, direction, 0, 0 };
+	public int arc(int l, int r) {
+		int[] command = { Commands.ARC, l, r, 0 };
+		int confirmation = 0;
+		try {
+			confirmation = comms.sendToRobot(command);
+		} catch (IOException e1) {
+			System.out.println("Could not send command");
+			e1.printStackTrace();
+		}
+		System.out.println("Arc");
+		return confirmation;
+	}
+
+	@Override
+	public int dribble(int direction) {
+		int[] command = { Commands.DRIBBLERON, direction, 0, 0 };
 		int confirmation = 0;
 		String direct;
-		if (direction == 1){
+		if (direction == 1) {
 			direct = "forwards";
-		}else{
+		} else {
 			direct = "backwards";
 		}
 		try {
@@ -134,9 +148,9 @@ public class BluetoothRobot extends Robot implements RobotController {
 		System.out.println("Dribbling in direction " + direct + "!");
 		return confirmation;
 	}
-	
+
 	@Override
-	public int stopdribble(){
+	public int stopdribble() {
 		int[] command = { Commands.DRIBBLEROFF, 0, 0, 0 };
 		int confirmation = 0;
 		try {
@@ -201,8 +215,7 @@ public class BluetoothRobot extends Robot implements RobotController {
 			System.out.println("Could not send command");
 			e1.printStackTrace();
 		}
-		System.out.println("Moving at speed (" + speedX + ", " + speedY
-				+ ") while rotating at an angle: " + rotSpeed);
+		System.out.println("Moving at speed (" + speedX + ", " + speedY + ") while rotating at an angle: " + rotSpeed);
 		return confirmation;
 	}
 

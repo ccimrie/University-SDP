@@ -85,7 +85,14 @@ public interface RobotController {
 	 * @return A confirmation code for the command
 	 */
 	public int rotate(int angleDeg);
-
+	
+	/**
+	 * @param l left wheel speed out of 100
+	 * @param r right wheel speed of 100
+	 * @return
+	 */
+	public int arc(int l, int r);
+	
 	/**
 	 * Tells the robot to rotate while moving along a vector, relative to the
 	 * robot<br/>
