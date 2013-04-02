@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import movement.RobotMover;
 import strategy.movement.TurnToBall;
+import utility.SafeSleep;
 import world.state.Ball;
 import world.state.PossessionType;
 import world.state.Robot;
@@ -50,21 +51,16 @@ public class DribbleBall5 {
 				if (ball.y > 240) {
 					slope = -slope;
 				}
-				if (((ball.y + slope*70) < 20) || ((ball.y + slope*70) > 370)){
+				if (((ball.y + slope*70) < 100) || ((ball.y + slope*70) > 370)){
 					slope = 0;
 				}
-				while (!die &&
+				while (worldState.distanceBetweenUsAndBall() > 90 && !die &&
 						!(worldState.getPosession() == PossessionType.Us && worldState.getPosession() == PossessionType.Them)){
-					long temptime = System.currentTimeMillis();
 					mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, true);
 					mover.waitForCompletion();
 					if (worldState.getPosession() == PossessionType.Us &&
 							worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
 						mover.kick();
-					}
-					//If the new iteration happened too fast, means A* finished, stop!
-					if (System.currentTimeMillis() - temptime < 100){
-						break;
 					}
 				}
 				//mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, true);
@@ -89,21 +85,16 @@ public class DribbleBall5 {
 				if (ball.y < 240) {
 					slope = -slope;
 				}
-				if (((ball.y + slope*70) < 20) || ((ball.y + slope*70) > 370)){
+				if (((ball.y + slope*70) < 100) || ((ball.y + slope*70) > 370)){
 					slope = 0;
 				}
-				while (!die &&
+				while (worldState.distanceBetweenUsAndBall() > 90 && !die &&
 						!(worldState.getPosession() == PossessionType.Us && worldState.getPosession() == PossessionType.Them) ){
-					long temptime = System.currentTimeMillis();
 					mover.moveToAStar(ball.x + 70, ball.y + slope * 70, true, true);
 					mover.waitForCompletion();
 					if (worldState.getPosession() == PossessionType.Us &&
 							worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
 						mover.kick();
-					}
-					//If the new iteration happened too fast, means A* finished, stop!
-					if (System.currentTimeMillis() - temptime < 100){
-						break;
 					}
 				}
 				//mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, true);
@@ -164,13 +155,24 @@ public class DribbleBall5 {
 					worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
 				mover.kick();
 			}
-			mover.move(0, 60);
+			mover.move(0, 80);
+			SafeSleep.sleep(500);
 			System.out.println("Moving towards the ball");
-			if (worldState.getPosession() == PossessionType.Us &&
-					worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
-				mover.kick();
+			while (worldState.getPosession() == PossessionType.Us && !die){
+				if (worldState.angleToTheirGoal() > 0){
+					mover.arc(100, 60);
+				}else{
+					mover.arc(60,100);
+				}
+				if (worldState.getPosession() == PossessionType.Us &&
+						worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
+					mover.kick();
+				}
+				if (worldState.angleToTheirGoal() > 180 || worldState.angleToTheirGoal() < -180) {
+					break;
+				}
+				safeSleep(50);
 			}
-			safeSleep(1000);
 			
 			if (worldState.getPosession() == PossessionType.Us &&
 					worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
@@ -184,6 +186,11 @@ public class DribbleBall5 {
 					worldState.angleToTheirGoal() <20 && worldState.angleToTheirGoal() > -20){
 				mover.kick();
 			}
+			if (worldState.areWeOnLeft()) {
+				angle = TurnToBall.AngleTurner(us, 610, 242);
+			} else {
+				angle = TurnToBall.AngleTurner(us, 28, 242);
+			}
 			mover.rotate(Math.toRadians(angle));
 			mover.waitForCompletion();
 			if (worldState.getPosession() == PossessionType.Us &&
@@ -196,7 +203,12 @@ public class DribbleBall5 {
 			// Now we move to the goal and then kick
 			//mover.move(0, 80);
 			if (worldState.distanceBetweenUsAndBall() > 150) continue;
-			mover.moveTowards(worldState.getTheirGoal().getX(), worldState.getTheirGoal().getY());
+			//mover.moveTowards(worldState.getTheirGoal().getX(), worldState.getTheirGoal().getY());
+			if (worldState.angleToTheirGoal() > 0){
+				mover.arc(100, 80);
+			}else{
+				mover.arc(80,100);
+			}
 			if (worldState.distanceBetweenUsAndBall() > 150) continue;
 			long starttime = System.currentTimeMillis();
 			long finishtime = 0;
