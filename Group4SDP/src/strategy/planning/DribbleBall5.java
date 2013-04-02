@@ -58,7 +58,7 @@ public class DribbleBall5 {
 					mover.moveToAStar(ball.x - 70, ball.y + slope * 70, true, true);
 					mover.waitForCompletion();
 					if (worldState.getPosession() == PossessionType.Us &&
-							Math.toDegrees(worldState.angleToTheirGoal()) <30){
+							worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 						mover.kick();
 					}
 				}
@@ -70,9 +70,9 @@ public class DribbleBall5 {
 				//mover.moveToAndStop(ball.x - 60, ball.y + slope * 60);
 				mover.moveTo(ball.x - 60, ball.y + slope * 60);
 				mover.waitForCompletion();
-				System.out.println("Angle to their goal " + Math.toDegrees(worldState.angleToTheirGoal()));
+				System.out.println("Angle to their goal " + worldState.angleToTheirGoal());
 				if (worldState.getPosession() == PossessionType.Us &&
-						Math.toDegrees(worldState.angleToTheirGoal()) <30){
+						worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 					mover.kick();
 					
 				}
@@ -92,7 +92,7 @@ public class DribbleBall5 {
 					mover.moveToAStar(ball.x + 70, ball.y + slope * 70, true, true);
 					mover.waitForCompletion();
 					if (worldState.getPosession() == PossessionType.Us &&
-							Math.toDegrees(worldState.angleToTheirGoal()) <30){
+							worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 						mover.kick();
 					}
 				}
@@ -104,9 +104,9 @@ public class DribbleBall5 {
 				//mover.moveToAndStop(ball.x + 60, ball.y + slope * 60);
 				mover.moveTo(ball.x + 60, ball.y + slope * 60);
 				mover.waitForCompletion();
-				System.out.println("Angle to their goal " + Math.toDegrees(worldState.angleToTheirGoal()));
+				System.out.println("Angle to their goal " + worldState.angleToTheirGoal());
 				if (worldState.getPosession() == PossessionType.Us &&
-						Math.toDegrees(worldState.angleToTheirGoal()) <30){
+						worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 					mover.kick();
 				}
 				mover.stopRobot();
@@ -128,7 +128,7 @@ public class DribbleBall5 {
 				}
 				++attempt;
 				if (worldState.getPosession() == PossessionType.Us &&
-						Math.toDegrees(worldState.angleToTheirGoal()) <30){
+						worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 					mover.kick();
 				}
 				angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
@@ -151,19 +151,19 @@ public class DribbleBall5 {
 			// if (angle > 10){
 			if (worldState.distanceBetweenUsAndBall() > 150) continue;
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			mover.move(0, 60);
 			System.out.println("Moving towards the ball");
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			safeSleep(600);
 			
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			System.out.println("Moving towards the ball finished");
@@ -171,13 +171,13 @@ public class DribbleBall5 {
 			mover.waitForCompletion();
 			if (worldState.distanceBetweenUsAndBall() > 150) continue;
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			mover.rotate(Math.toRadians(angle));
 			mover.waitForCompletion();
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			if (worldState.distanceBetweenUsAndBall() > 150) continue;
@@ -192,7 +192,7 @@ public class DribbleBall5 {
 			long finishtime = 0;
 			while (finishtime <1500){
 				if (worldState.getPosession() == PossessionType.Us &&
-						Math.toDegrees(worldState.angleToTheirGoal()) <30){
+						worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 					mover.kick();
 					break;
 				}
@@ -211,7 +211,7 @@ public class DribbleBall5 {
 			}*/
 
 			if (worldState.getPosession() == PossessionType.Us &&
-					Math.toDegrees(worldState.angleToTheirGoal()) <30){
+					worldState.angleToTheirGoal() <30 && worldState.angleToTheirGoal() > -30){
 				mover.kick();
 			}
 			mover.stopRobot();

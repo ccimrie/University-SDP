@@ -22,10 +22,9 @@ import javax.swing.UIManager;
 import movement.RobotMover;
 import strategy.calculations.GoalInfo;
 import strategy.planning.DribbleBall5;
-import strategy.planning.InterceptBall;
 import strategy.planning.MainPlanner;
 import strategy.planning.OffenseSimple;
-import strategy.planning.PenaltyManager;
+import strategy.planning.PenaltyDefense;
 import strategy.planning.Strategy;
 import strategy.planning.StrategyInterface;
 import utility.SafeSleep;
@@ -361,23 +360,29 @@ public class ControlGUI2 extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int angle = Integer.parseInt(op1field.getText());
 				if (angle != 0){
-					mover.rotate(Math.toRadians(angle));
+					int a = robot.rotate(angle);
 				}
-				mover.kick();
+				try {
+					SafeSleep.sleep(200);
+				} catch (InterruptedException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				int b = robot.kick();
 				try {
 					SafeSleep.sleep(100);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				dribbleThread = new DribbleBallThread();
-				dribbleThread.start();
+				//dribbleThread = new DribbleBallThread();
+				//dribbleThread.start();
 			}
 		});
 
 		penaltyDefButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				strategy = new PenaltyManager(worldState, mover, false);
+				strategy = new PenaltyDefense(worldState, mover);
 				strategyThread = new Thread(strategy);
 				strategyThread.start();
 			}
