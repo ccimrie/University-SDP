@@ -303,7 +303,8 @@ public class Vision implements VideoReceiver {
 
 			/** Ball */
 			// If we have only found a few 'Ball' pixels, chances are that the
-			// ball has not actually been detected.
+			// ball
+			// has not actually been detected.
 			if (numBallPos > 15) {
 				ballX /= numBallPos;
 				ballY /= numBallPos;
