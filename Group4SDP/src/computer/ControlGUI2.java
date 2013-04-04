@@ -295,7 +295,7 @@ public class ControlGUI2 extends JFrame {
 				// } else {
 				// System.err.println("Strategy already active!");
 				// }
-				mover.arc(Integer.parseInt(op1field.getText()), Integer.parseInt(op2field.getText()));
+				System.out.println("Distance to ball: " + worldState.distanceToBall());
 			}
 		});
 

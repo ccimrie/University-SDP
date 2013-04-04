@@ -135,7 +135,7 @@ public class DribbleBall5 {
 				}
 				angle = TurnToBall.AngleTurner(us, ball.x, ball.y);
 				System.out.println("Angle for rotation " + angle);
-				SafeSleep.sleep(10);
+				SafeSleep.sleep(50);
 				if (die)
 					return;
 			}
@@ -195,18 +195,21 @@ public class DribbleBall5 {
 			// }
 
 			// Now we move to the goal and then kick
-			// mover.move(0, 80);
-			if (worldState.distanceBetweenUsAndBall() > 150)
+			mover.move(0, 70);
+			/*if (worldState.distanceBetweenUsAndBall() > 150)
 				continue;
 			mover.moveTowards(worldState.getTheirGoal().getX(), worldState
-					.getTheirGoal().getY());
+					.getTheirGoal().getY()); */
 			long starttime = System.currentTimeMillis();
 			long finishtime = 0;
-			while (finishtime < 1500) {
+			while (finishtime < 1000) {
 				if (worldState.getPosession() == PossessionType.Us
 						&& Math.abs(worldState.angleToTheirGoal()) < 20) {
 					mover.kick();
 					SafeSleep.sleep(50);
+					break;
+				}
+				if (worldState.distanceToBall() < 55){
 					break;
 				}
 				SafeSleep.sleep(50);
